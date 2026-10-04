@@ -121,6 +121,17 @@ footer .made:hover{opacity:1}
 `;
   }
 
+  // Onizleme filigrani: ust serit + arka planda tekrar eden soluk yazi
+  function wmCss(text, ink) {
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='380' height='220'><text x='190' y='120' text-anchor='middle' transform='rotate(-24 190 110)' font-family='system-ui,sans-serif' font-size='21' font-weight='700' fill='${ink}'>${String(text).replace(/[<>&'"]/g, "")}</text></svg>`;
+    return `
+.ms-wm-bar{position:sticky;top:0;z-index:60;background:#111418;color:#fff;text-align:center;font:600 13px/1.3 system-ui,-apple-system,sans-serif;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.ms-wm{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.10;background-image:url("data:image/svg+xml,${encodeURIComponent(svg)}")}
+body.wm{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+`;
+  }
+
   function hoursTable(biz, L, lang) {
     const h = biz.hours || [];
     if (!h.length) return "";
@@ -205,8 +216,9 @@ footer .made:hover{opacity:1}
 ${desc ? `<meta name="description" content="${desc}">` : ""}
 ${logo ? `<link rel="icon" href="${esc(logo)}">` : ""}
 ${opts.noindex ? '<meta name="robots" content="noindex">' : ""}
-${fontLink(t.fonts)}<style>${css(t)}</style></head>
-<body class="${t.layout === "center" ? "center" : "left"}">
+${fontLink(t.fonts)}<style>${css(t)}${opts.watermark ? wmCss(opts.watermark, t.colors.ink) : ""}</style></head>
+<body class="${t.layout === "center" ? "center" : "left"}${opts.watermark ? " wm" : ""}"${opts.watermark ? ' oncontextmenu="return false"' : ""}>
+${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div class="ms-wm" aria-hidden="true"></div>` : ""}
 <header class="w top"><a class="brand" href="#">${logo ? `<img src="${esc(logo)}" alt="">` : ""}<span>${title}</span></a><nav>${nav}</nav></header>
 <main>${secs.map((s, i) => section(s, i, biz, L, lang)).join("")}</main>
 <footer><div class="w row"><span>© ${new Date().getFullYear()} ${title}</span><span class="soc">${soc}</span>
