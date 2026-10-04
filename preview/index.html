@@ -19,24 +19,32 @@ html,body{margin:0;height:100%;font:16px/1.5 system-ui,-apple-system,"Segoe UI",
 <script src="/assets/ms-render.js"></script>
 <script>
 (async () => {
-  const tr = (navigator.language || "").toLowerCase().startsWith("tr");
-  const t = (en, trk) => tr ? trk : en;
+  const LS = ["en", "tr", "es", "de", "fr"];
+  const lang = (() => {
+    try { const v = localStorage.getItem("ms_lang"); if (LS.includes(v)) return v; } catch (e) {}
+    for (const l of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"])) {
+      const c = String(l).slice(0, 2).toLowerCase(); if (LS.includes(c)) return c;
+    } return "en";
+  })();
+  const t = (...v) => v[LS.indexOf(lang)] ?? v[0];
+  const tr = lang === "tr";
+  document.documentElement.lang = lang;
   const C = window.MS_CONFIG;
   const sb = supabase.createClient(C.url, C.anon, { auth: { persistSession: false, autoRefreshToken: false } });
   const key = new URLSearchParams(location.search).get("p") || "";
   const msg = document.getElementById("msg");
-  if (!/^[0-9a-f-]{36}$/i.test(key)) { msg.innerHTML = `<p>${t("This preview link is not valid.", "Bu önizleme linki geçersiz.")}</p>`; return; }
+  if (!/^[0-9a-f-]{36}$/i.test(key)) { msg.innerHTML = `<p>${t("This preview link is not valid.", "Bu önizleme linki geçersiz.", "Este enlace de vista previa no es válido.", "Dieser Vorschau-Link ist ungültig.", "Ce lien d'aperçu n'est pas valide.")}</p>`; return; }
   const { data } = await sb.rpc("ms_trial_preview", { p_key: key });
   if (!data) {
-    msg.innerHTML = `<p>${t("This preview has expired. Write to us and we will send a new one.", "Bu önizlemenin süresi doldu. Bize yazın, yenisini gönderelim.")}<br><br><a href="mailto:hello@mrspace.online">hello@mrspace.online</a></p>`;
+    msg.innerHTML = `<p>${t("This preview has expired. Write to us and we will send a new one.", "Bu önizlemenin süresi doldu. Bize yazın, yenisini gönderelim.", "Esta vista previa ha caducado. Escríbenos y te enviamos otra.", "Diese Vorschau ist abgelaufen. Schreib uns, wir schicken dir eine neue.", "Cet aperçu a expiré. Écrivez-nous et nous vous en enverrons un nouveau.")}<br><br><a href="mailto:hello@mrspace.online">hello@mrspace.online</a></p>`;
     return;
   }
-  const until = data.until ? new Date(data.until).toLocaleDateString(tr ? "tr-TR" : "en-US") : "";
-  const wm = t("Preview · mrspace.online", "Önizleme · mrspace.online") + (until ? " · " + t("until ", "son gün ") + until : "");
-  const subject = encodeURIComponent(t("I want this site: ", "Bu siteyi istiyorum: ") + (data.business || ""));
+  const until = data.until ? new Date(data.until).toLocaleDateString(lang) : "";
+  const wm = t("Preview · mrspace.online", "Önizleme · mrspace.online", "Vista previa · mrspace.online", "Vorschau · mrspace.online", "Aperçu · mrspace.online") + (until ? " · " + t("until ", "son gün ", "hasta el ", "bis ", "jusqu'au ") + until : "");
+  const subject = encodeURIComponent(t("I want this site: ", "Bu siteyi istiyorum: ", "Quiero este sitio: ", "Ich möchte diese Website: ", "Je veux ce site : ") + (data.business || ""));
   const cta = `<div style="position:fixed;left:0;right:0;bottom:0;z-index:70;background:#111418;color:#fff;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));font:15px/1.3 system-ui,-apple-system,sans-serif">
-    <span>${t("Like it? We can put it live for you.", "Beğendiniz mi? Sizin için yayına alalım.")}</span>
-    <a href="mailto:hello@mrspace.online?subject=${subject}" style="background:#fff;color:#111418;text-decoration:none;padding:9px 16px;border-radius:8px;font-weight:600">${t("I want this site", "Bu siteyi istiyorum")}</a></div><div style="height:72px"></div>`;
+    <span>${t("Like it? We can put it live for you.", "Beğendiniz mi? Sizin için yayına alalım.", "¿Te gusta? Lo publicamos por ti.", "Gefällt es dir? Wir stellen es für dich online.", "Ça vous plaît ? Nous le mettons en ligne pour vous.")}</span>
+    <a href="mailto:hello@mrspace.online?subject=${subject}" style="background:#fff;color:#111418;text-decoration:none;padding:9px 16px;border-radius:8px;font-weight:600">${t("I want this site", "Bu siteyi istiyorum", "Quiero este sitio", "Ich möchte diese Website", "Je veux ce site")}</a></div><div style="height:72px"></div>`;
   const html = window.MsRender.render(data.content, data.theme, { noindex: true, watermark: wm }).replace("</body>", cta + "</body>");
   document.open(); document.write(html); document.close();
 })();
