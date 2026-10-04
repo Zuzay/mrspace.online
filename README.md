@@ -3,7 +3,7 @@
 Mr. Space web stüdyosu sitesi. Ekim 2026 planına göre yeniden yazıldı.
 
 ## Sayfalar
-- `index.html` : Ana sayfa. Giriş + kontrol paneli, ne yapıyoruz (site / sistem / bakım), "Made to measure" (her şey sana özel yazılır), işler (3 kodlanmış demo), süreç, paketler özeti, iletişim.
+- `index.html` : Ana sayfa. Giriş + kontrol paneli, ne yapıyoruz (site / sistem / bakım), "Made to measure" (her şey sana özel yazılır), işler (canlı site iframe + "Your Brand" admin paneli + "Watch the tour" butonuyla açılan animasyon), süreç, paketler özeti, iletişim.
 - `packages/` : Paket 1-2-3, ilk müşteri indirimi, karşılaştırma tablosu, ekler, saatlik ücret, Custom çıkış bedeli, değişiklik kotası, kurallar, SSS.
 - `first-clients/` : İlk müşteri (launch offer) sayfası. Normal fiyatların üstü çizili, $300 kurulum, $50/ay, eklentiler dahil, değişiklik kotası iki katı. Ana sayfa ve paketler sayfasındaki siyah şerit buraya gider.
 - `start/` : Dallanan başvuru formu (8 adım). POS, scanner, printer, etiket, mevcut site, sosyal medya, örnek siteler. Sunucu yok: "Send by email" mail uygulamasını hazır metinle açar, "Copy answers" panoya kopyalar. Taslak sadece ziyaretçinin cihazında saklanır.
@@ -22,3 +22,9 @@ Mr. Space web stüdyosu sitesi. Ekim 2026 planına göre yeniden yazıldı.
 - hello@mrspace.online çalışıyor mu kontrol et.
 - Form için ileride: Supabase'e kayıt + otomatik mail (şu an mail uygulaması üzerinden).
 - Rufcut kabul ederse etiketi "Client" olarak kalır; etmezse `index.html` içinde "Concept" yap.
+
+## Tıklama sayacı
+GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" kodlu hesap açılınca sayılar mrspace.goatcounter.com'da görünür:
+- `tour/heron`, `tour/laloo`, `tour/rufcut` : "Watch the tour" tıklamaları
+- `explore/...` : canlı sitede "Tap to explore"
+- `open/...` : "Open site" linkleri
