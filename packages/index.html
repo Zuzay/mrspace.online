@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Packages · Mr. Space</title>
+<meta name="description" content="Rent a site, get a custom one we look after, or take the whole system home. Prices, rules and what is included.">
+<meta property="og:title" content="Mr. Space packages">
+<meta property="og:description" content="Rent from $200 + $25/month. Custom from $2,500 + $80/month. Full handover from $8,000.">
+<meta property="og:image" content="https://mrspace.online/og.png">
+<link rel="canonical" href="https://mrspace.online/packages/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.intro{padding-block:clamp(40px,6vw,80px) clamp(36px,5vw,56px);border-bottom:1px solid var(--ink)}
+.intro h1{font-size:clamp(52px,9vw,120px);line-height:.88;margin-top:16px}
+.intro p{font-size:clamp(17px,1.5vw,20px);max-width:60ch;margin-top:22px}
+
+.pk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pk .tag{display:grid;gap:10px;align-content:start}
+.pk .no{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;opacity:.75}
+.pk h2{text-align:center;font-size:clamp(32px,3.4vw,44px)}
+.pk .price{text-align:center;font-family:var(--display);font-size:clamp(38px,4vw,54px);line-height:1}
+.pk .per{text-align:center;font-family:var(--mono);font-size:12px;opacity:.75;letter-spacing:.04em}
+.pk .for{text-align:center;font-size:15px}
+.pk ul{list-style:none;display:grid;margin-top:8px}
+.pk li{font-size:14.5px;padding:8px 0;border-top:1px dashed color-mix(in srgb,currentColor 30%,transparent)}
+.pk .btn{justify-content:center;margin-top:10px}
+.pk .tag.inv .btn{border-color:var(--inv-fg);background:var(--inv-fg);color:var(--inv-bg)}
+@media (max-width:900px){.pk{grid-template-columns:1fr}}
+
+
+.tw{overflow-x:auto;border-top:1.5px solid var(--ink)}
+.cmp{width:100%;min-width:720px;border-collapse:collapse;font-size:15px}
+.cmp th,.cmp td{text-align:left;padding:12px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.cmp thead th{font-family:var(--display);font-weight:400;font-size:24px;text-transform:uppercase;letter-spacing:.01em;padding-top:16px}
+.cmp tbody th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:400;width:20%;padding-top:15px}
+.cmp td{width:26.6%}
+.cmp .no{color:var(--mute)}
+
+.blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.block{border:1.5px solid var(--ink);background:var(--panel);padding:22px;display:grid;gap:12px;align-content:start}
+.block h3{font-size:clamp(24px,2.4vw,30px)}
+.block p{color:var(--mute);font-size:15px}
+.block table{width:100%;border-collapse:collapse;font-size:15px}
+.block td{padding:9px 0;border-top:1px solid var(--rule);vertical-align:top}
+.block td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:12px}
+.block td:first-child{width:auto}
+@media (max-width:820px){.blocks{grid-template-columns:1fr}}
+
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px;border-top:1.5px solid var(--ink)}
+.rules div{padding:18px 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px}
+.rules dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+.rules dd{font-size:15.5px}
+@media (max-width:820px){.rules{grid-template-columns:1fr}.rules div{grid-template-columns:1fr;gap:4px}}
+
+.faq{border-top:1.5px solid var(--ink)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;padding:18px 0;display:flex;justify-content:space-between;gap:20px;font-weight:600;font-size:17px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);font-weight:400;font-size:20px;line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq details p{padding:0 0 18px;max-width:70ch;color:var(--mute)}
+
+.cta{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+.cta h2{font-size:clamp(44px,7vw,96px)}
+</style>
+</head>
+<body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
+
+<header class="top">
+ <div class="wrap">
+  <a class="mark" href="../" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main">
+   <a class="hide-sm" href="../#work">Work</a>
+   <a class="hide-sm" href="../#system">System</a>
+   <a class="hide-sm" href="./" aria-current="page">Packages</a>
+   <a class="hide-sm" href="../first-clients/">Launch offer</a>
+   <a class="btn sm solid" href="../start/">Start a project</a>
+  </nav>
+ </div>
+</header>
+
+<main>
+ <section class="intro">
+  <div class="wrap">
+   <div class="label">Packages · prices in USD, plus tax</div>
+   <h1>Pick how much<br>you want to own.</h1>
+   <p>All three come with a working site and someone behind it. They differ in how custom it is, who changes what, and who keeps the system in the end. We build it for you in every case. You never have to set anything up yourself.</p>
+  </div>
+ </section>
+
+ <section class="sec" style="border-bottom:0;padding-bottom:clamp(40px,5vw,64px)">
+  <div class="wrap">
+   <div class="pk">
+    <div class="tag">
+     <div class="no">Package 01</div><h2>Rent</h2>
+     <div class="price num">$200</div><div class="per">setup · then $25 / month + tax</div>
+     <p class="for">For a shop that needs a simple, professional site now.</p>
+     <ul>
+      <li>A clean site from our templates, set up with your content</li>
+      <li>You change logo, text, photos and hours yourself</li>
+      <li>Hosting, backups and care included</li>
+      <li>AI and custom tools as paid extras</li>
+      <li>When you leave, the site goes with the plan</li>
+     </ul>
+     <a class="btn" href="../start/?p=rent">Start with Rent</a>
+    </div>
+    <div class="tag">
+     <div class="no">Package 02</div><h2>Custom</h2>
+     <div class="price num">$2,500 – 8,000</div><div class="per">design · then $80 / month + tax</div>
+     <p class="for">For a business that wants its own look and its own panel, looked after by us.</p>
+     <ul>
+      <li>Custom design, at least two rounds of revisions</li>
+      <li>Logo and business email setup included</li>
+      <li>Admin panel for your products, orders and labels</li>
+      <li>AI and custom tools available</li>
+      <li>Big changes are done by us, so the system stays safe</li>
+     </ul>
+     <a class="btn" href="../start/?p=custom">Start with Custom</a>
+    </div>
+    <div class="tag inv">
+     <div class="no">Package 03</div><h2>Handover</h2>
+     <div class="price num">From $8,000</div><div class="per">one time · then service by the hour</div>
+     <p class="for">For a business that wants to own the whole system.</p>
+     <ul>
+      <li>Your own admin panel and system, built and handed over</li>
+      <li>Set up on your accounts from day one</li>
+      <li>Service when you need it: $120 / hour, less as hours add up</li>
+      <li>Yearly service plan available</li>
+      <li>No monthly fee</li>
+     </ul>
+     <a class="btn" href="../start/?p=handover">Start with Handover</a>
+    </div>
+   </div>
+
+   <a class="promo" href="../first-clients/">
+    <span class="promo-k"><i></i>Launch offer</span>
+    <span class="promo-t">First clients get <b>setup for $300</b> and <b>$50 / month</b>, add-ons included.</span>
+    <span class="promo-a">See the offer →</span>
+   </a>
+  </div>
+ </section>
+
+ <section class="sec" style="padding-top:0">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>Side by side</span><span>Scroll the table on a phone</span></div>
+    <h2>What changes between them.</h2>
+   </div>
+   <div class="tw">
+    <table class="cmp">
+     <thead><tr><th></th><th>Rent</th><th>Custom</th><th>Handover</th></tr></thead>
+     <tbody>
+      <tr><th>Start</th><td>$200 setup</td><td>$2,500 – 8,000 design</td><td>From $8,000</td></tr>
+      <tr><th>Monthly</th><td>$25 + tax</td><td>$80 + tax</td><td class="no">None</td></tr>
+      <tr><th>Design</th><td>Our template, your content</td><td>Made for you, 2+ revisions</td><td>Made for you, 2+ revisions</td></tr>
+      <tr><th>Admin panel</th><td>Basic: logo, text, photos</td><td>Built for your business</td><td>Built for your business, yours to keep</td></tr>
+      <tr><th>Who changes what</th><td>You do small edits; we do the rest</td><td>You request, we prepare, you approve</td><td>You, or us by the hour</td></tr>
+      <tr><th>Changes included</th><td>4 small / month, 2 big / year</td><td>4 small / month, 2 big / year</td><td class="no">By the hour</td></tr>
+      <tr><th>AI and custom tools</th><td>Paid extra</td><td>Available</td><td>Available</td></tr>
+      <tr><th>Logo and email</th><td>Paid extra</td><td>Included</td><td>Included</td></tr>
+      <tr><th>Backups</th><td>Encrypted, every night</td><td>Encrypted, every night</td><td>Set up for you; ours if on a service plan</td></tr>
+      <tr><th>If you leave</th><td>The site ends with the plan</td><td>Exit fee that drops each year; design files are yours</td><td>Nothing to leave; it is yours</td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>The numbers</span><span>USD</span></div>
+    <h2>Extras, hours and leaving.</h2>
+    <p>No surprises. If something costs money, it says so before you press the button.</p>
+   </div>
+   <div class="blocks">
+    <div class="block">
+     <h3>Add-ons</h3>
+     <p>One-time jobs added to any package.</p>
+     <table>
+      <tr><td>Extra tasks (setup, import, a new page)</td><td>$25 – 125</td></tr>
+      <tr><td>Google image search for products</td><td>from $120</td></tr>
+      <tr><td>Modules, priced by how many options (e.g. jeans builder)</td><td>$70 – 200</td></tr>
+      <tr><td>Rewriting or editing your old content, 2–3 revisions</td><td>separate quote</td></tr>
+      <tr><td>Extra small changes after your monthly quota</td><td>$5 – 10 packs</td></tr>
+     </table>
+    </div>
+    <div class="block">
+     <h3>Service hours</h3>
+     <p>For Handover clients, or work outside a plan.</p>
+     <table>
+      <tr><td>First 5 hours</td><td>$120 / hour</td></tr>
+      <tr><td>After 5 hours</td><td>$100 / hour</td></tr>
+      <tr><td>After 10 hours</td><td>$80 / hour</td></tr>
+      <tr><td>Yearly service plan</td><td>ask us</td></tr>
+     </table>
+    </div>
+    <div class="block">
+     <h3>Leaving Custom</h3>
+     <p>The exit fee covers the design work spread over your plan. It goes down every year, then disappears.</p>
+     <table>
+      <tr><td>During year 1</td><td>about the design fee</td></tr>
+      <tr><td>By the end of year 2</td><td>about $2,000</td></tr>
+      <tr><td>Years 3 and 4</td><td>keeps dropping</td></tr>
+      <tr><td>After year 4</td><td>$0</td></tr>
+     </table>
+     <p>When you leave, you get the design files. Moving the site somewhere else is a separate service.</p>
+    </div>
+    <div class="block">
+     <h3>Changes</h3>
+     <p>How we count them, so you always know where you stand.</p>
+     <table>
+      <tr><td>Small: a logo, a text, a photo, a price</td><td>4 / month</td></tr>
+      <tr><td>Big: a design change, a name change, removing a feature</td><td>2 / year</td></tr>
+      <tr><td>Same thing changed again within 12 hours</td><td>counts once</td></tr>
+      <tr><td>Changed again the next day</td><td>counts again</td></tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>House rules</span><span>Same for everyone</span></div>
+    <h2>How we work together.</h2>
+   </div>
+   <dl class="rules">
+    <div><dt>Your accounts</dt><dd>AI, Google, database, domain: everything paid runs on your own account and key. Your panel shows the limits, lets you switch each one on or off, and tells you "this is paid from your account" before any paid action. We email you when you get close to a limit.</dd></div>
+    <div><dt>Your data</dt><dd>Your data is yours. We only store it, and only use it to run your site while you are with us.</dd></div>
+    <div><dt>Order of things</dt><dd>Agreement, signed contract, payment, then work starts. Responsibility is limited fairly on both sides and written in the contract.</dd></div>
+    <div><dt>Delivery</dt><dd>15 days is standard. Faster or slower if your project needs it.</dd></div>
+    <div><dt>Content</dt><dd>We enter your content for you. Content from an old site is moved as it is, without rewriting. Rewriting is a separate job.</dd></div>
+    <div><dt>Support</dt><dd>From your panel or by email. We reply within 12 hours and aim to solve problems within 24 hours, then give you a real timeline if it takes longer.</dd></div>
+    <div><dt>Log</dt><dd>Every change, automatic or by hand, is logged in your panel with the time it took.</dd></div>
+    <div><dt>Backups</dt><dd>Every site is backed up every night, encrypted, and kept in two separate places. If something breaks, we restore the last backup and replay the logged changes.</dd></div>
+    <div><dt>Late payment</dt><dd>If a payment is late, the site pauses on its own and shows a polite message until it is settled. Nothing is deleted.</dd></div>
+    <div><dt>Signature</dt><dd>Every site carries a small "Made by Mr. Space" mark at the bottom.</dd></div>
+   </dl>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>Questions</span><span></span></div>
+    <h2>Before you ask.</h2>
+   </div>
+   <div class="faq">
+    <details><summary>Can I build it myself with your tools?</summary><p>No. We are not a site builder. We build it for you and keep it running. In Rent you can change your own logo, text and photos, and in every package you can request changes from your panel.</p></details>
+    <details><summary>Which package should I pick?</summary><p>If you need something good quickly and on a small budget, Rent. If you sell products or take orders and want your own panel, Custom. If you want to own the whole system and maybe have your own developer later, Handover. The start form helps us suggest one.</p></details>
+    <details><summary>I already have a website. Do I lose it?</summary><p>No. We move your content as it is, then organize it. If you want it rewritten, that is a separate job with two to three rounds of revisions.</p></details>
+    <details><summary>What does AI cost me?</summary><p>It runs on your own AI account, so you pay the provider directly, usually a few cents per product. Your panel shows the usage, a limit you set, and warns you before you reach it.</p></details>
+    <details><summary>Does it work with my POS, scanner or label printer?</summary><p>We work with Square today, and with common barcode scanners and label printers. Tell us what you use in the start form and we will check before we agree on anything.</p></details>
+    <details><summary>Can you also make cards, tags or NFC products?</summary><p>Yes. Business cards, NFC tap cards and similar printed items can be ordered from the system, either as a design you buy or as finished products.</p></details>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap cta">
+   <h2>Ready when you are.</h2>
+   <a class="btn solid" href="../start/">Start a project <span class="arr">→</span></a>
+  </div>
+ </section>
+</main>
+
+<footer class="foot">
+ <div class="wrap">
+  <div style="display:grid;gap:12px">
+   <span class="sig"><i></i>Made by Mr. Space</span>
+   <p>Mr. Space is a web studio of Heron CA LLC, Venice Beach, California. Prices can change; the price in your signed agreement is the one that counts.</p>
+  </div>
+  <nav aria-label="Footer"><a href="../">Home</a><a href="../#work">Work</a><a href="../start/">Start a project</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+ </div>
+</footer>
+</div>
+</body>
+</html>
