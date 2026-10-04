@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Mr. Space · Kontrol</title>
+<script src="../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -167,6 +168,7 @@ dialog{border:0;border-radius:16px;padding:0;background:var(--card);color:var(--
 dialog::backdrop{background:#0E1014b3}
 dialog .panel-h{border-bottom:1px solid var(--line)}
 [hidden]{display:none!important}
+body.viewer [data-act],body.viewer .adm-only{display:none!important}
 </style>
 </head>
 <body>
@@ -175,8 +177,8 @@ dialog .panel-h{border-bottom:1px solid var(--line)}
  <form id="loginForm" novalidate>
   <div class="mark"><i></i>Mr. Space</div>
   <h1>Kontrol paneli</h1>
-  <p>Tüm siteler, talepler, kayıtlar ve ödemeler tek yerde. laloo admin hesabınla giriş yap.</p>
-  <input id="em" type="email" placeholder="E-posta" autocomplete="username" required>
+  <p>Tüm siteler, talepler, kayıtlar ve ödemeler tek yerde.</p>
+  <input id="em" type="text" placeholder="Kullanıcı adı" autocomplete="username" autocapitalize="none" spellcheck="false" required>
   <input id="pw" type="password" placeholder="Şifre" autocomplete="current-password" required>
   <p class="err" id="loginErr" aria-live="polite"></p>
   <button class="btn sun" type="submit">Giriş yap</button>
@@ -191,11 +193,12 @@ dialog .panel-h{border-bottom:1px solid var(--line)}
    <button data-v="overview" class="on">Genel bakış</button>
    <button data-v="changes">Talepler <b id="badge" hidden>0</b></button>
    <button data-v="log">Kayıt</button>
-   <button data-v="billing">Ödemeler</button>
+   <button data-v="billing" class="adm-only">Ödemeler</button>
    <button data-v="usage">Kullanım</button>
-   <button data-v="sites">Siteler</button>
+   <button data-v="sites" class="adm-only">Siteler</button>
+   <button data-v="access" class="adm-only">Erişim</button>
   </nav>
-  <div class="me"><span id="who"></span><span class="demo-tag" id="demoTag" hidden>DEMO</span><button class="btn sm" id="out" type="button">Çıkış</button></div>
+  <div class="me"><span id="who"></span><span class="demo-tag" id="demoTag" hidden>DEMO</span><span class="demo-tag" id="viewTag" hidden>SADECE İZLEME</span><button class="btn sm" id="out" type="button">Çıkış</button></div>
  </aside>
  <main id="main"></main>
 </div>
@@ -211,18 +214,20 @@ const SITE = "https://mrspace.online";
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const money = c => "$" + (Number(c || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-const dt = d => d ? new Date(d).toLocaleString("tr-TR", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
-const day = d => d ? new Date(d + (String(d).length === 10 ? "T12:00:00" : "")).toLocaleDateString("tr-TR", { day:"2-digit", month:"short", year:"numeric" }) : "yok";
-const ago = d => { if (!d) return "hiç"; const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 1 ? "şimdi" : m < 60 ? m + " dk önce" : m < 1440 ? Math.round(m / 60) + " sa önce" : Math.round(m / 1440) + " gün önce"; };
+const T = x => window.MSI18N ? MSI18N.t(x) : x;
+const LOC = ({ en:"en-US", es:"es-ES", de:"de-DE", fr:"fr-FR", tr:"tr-TR" })[(window.MSI18N && MSI18N.lang) || "tr"] || "tr-TR";
+const dt = d => d ? new Date(d).toLocaleString(LOC, { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
+const day = d => d ? new Date(d + (String(d).length === 10 ? "T12:00:00" : "")).toLocaleDateString(LOC, { day:"2-digit", month:"short", year:"numeric" }) : T("yok");
+const ago = d => { if (!d) return T("hiç"); const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 1 ? T("şimdi") : m < 60 ? m + " " + T("dk önce") : m < 1440 ? Math.round(m / 60) + " " + T("sa önce") : Math.round(m / 1440) + " " + T("gün önce"); };
 const today = () => new Date().toISOString().slice(0, 10);
 const addDays = (d, n) => { const x = new Date((d || today()) + "T12:00:00"); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
-function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2800); }
+function toast(t){ const el = $("#toast"); el.textContent = window.MSI18N ? MSI18N.t(t) : t; el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2800); }
 const PLAN = { own:"Kendi işimiz", rent:"Rent", custom:"Custom", handover:"Handover", first:"İlk müşteri" };
 const STATUS = { live:"Yayında", building:"Yapılıyor", paused:"Durduruldu", suspended:"Askıda" };
 const WHO = { auto:"Otomatik", uzay:"Uzay", client:"Müşteri", claude:"Claude" };
 
 /* ---------------- session ---------------- */
-let S = null, DEMO = false;
+let S = null, DEMO = false, VIEWER = false;
 try { S = JSON.parse(localStorage.getItem("ms_admin") || "null"); } catch (e) {}
 function saveSession(d){ S = { access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at || Math.floor(Date.now()/1000) + (d.expires_in || 3600), email:d.user ? d.user.email : (S && S.email) }; try { localStorage.setItem("ms_admin", JSON.stringify(S)); } catch (e) {} }
 async function auth(grant, body){
@@ -238,7 +243,7 @@ async function fresh(){
     try { await refreshing; } catch (e) { logout(); throw new Error("Oturum bitti, tekrar giriş yap"); }
   }
 }
-function logout(){ S = null; DEMO = false; try { localStorage.removeItem("ms_admin"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+function logout(){ S = null; DEMO = false; VIEWER = false; document.body.classList.remove("viewer"); try { localStorage.removeItem("ms_admin"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
 async function api(path, opt = {}){
   await fresh();
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, { method:opt.method || "GET",
@@ -253,18 +258,20 @@ const rpc = (fn, body) => api("rpc/" + fn, { method:"POST", body });
 let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{} };
 async function load(){
   if (DEMO) return;
+  if (VIEWER) { const v = await rpc("ms_viewer_snapshot", {}); D = { ...v, payments:[], viewers:[] }; return; }
   const since = new Date(Date.now() - 24 * 3600e3).toISOString();
-  const [sites, checks, changes, activity, usage, payments] = await Promise.all([
+  const [sites, checks, changes, activity, usage, payments, viewers] = await Promise.all([
     api("ms_sites?select=*&order=created_at"),
     api(`ms_checks?select=site,at,ok,ms,status&at=gte.${since}&order=at.asc&limit=3000`),
     api("ms_changes?select=*&order=created_at.desc&limit=300"),
     api("ms_activity?select=*&order=at.desc&limit=300"),
     api("ms_usage?select=*&order=site"),
-    api("ms_payments?select=*&order=paid_at.desc&limit=200")
+    api("ms_payments?select=*&order=paid_at.desc&limit=200"),
+    api("ms_viewers?select=*&order=created_at")
   ]);
   const quota = {};
   await Promise.all(sites.map(async s => { const q = await rpc("ms_quota", { p_site:s.slug }); quota[s.slug] = q[0] || {}; }));
-  D = { sites, checks, changes, activity, usage, payments, quota };
+  D = { sites, checks, changes, activity, usage, payments, viewers, quota };
 }
 function demoData(){
   const now = Date.now(), iso = m => new Date(now - m * 60000).toISOString();
@@ -311,7 +318,7 @@ function uptime(slug){
 }
 function overdue(s){ return s.kind === "client" && s.plan !== "handover" && s.paid_until && addDays(s.paid_until, s.grace_days || 7) < today(); }
 const META = { uptime_24h:"uptime %", reviews:"yorum", members:"üye", stories:"hikaye", flags:"şikayet" };
-function metaTxt(m){ if (!m) return ""; return Object.keys(m).filter(k => m[k] != null).map(k => k === "uptime_24h" ? ` · uptime ${m[k]}%` : ` · ${m[k]} ${META[k] || k}`).join(""); }
+function metaTxt(m){ if (!m) return ""; return Object.keys(m).filter(k => m[k] != null).map(k => k === "uptime_24h" ? ` · uptime ${m[k]}%` : ` · ${m[k]} ${T(META[k] || k)}`).join(""); }
 function siteName(slug){ const s = D.sites.find(x => x.slug === slug); return s ? s.name : (slug || "Genel"); }
 function qbar(label, used, quota){
   if (quota == null) return "";
@@ -323,8 +330,10 @@ function render(){
   const open = D.changes.filter(c => c.status === "new").length;
   $("#badge").hidden = !open; $("#badge").textContent = open;
   const m = $("#main");
-  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings })[VIEW]();
+  if (VIEWER && ["billing","sites","access"].includes(VIEW)) VIEW = "overview";
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, access })[VIEW]();
   bind();
+  if (window.MSI18N) MSI18N.apply(document.body);
 }
 function overview(){
   const open = D.changes.filter(c => c.status === "new");
@@ -332,13 +341,13 @@ function overview(){
   const late = D.sites.filter(overdue);
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
   const mins = D.activity.filter(a => new Date(a.at) >= monthStart).reduce((t, a) => t + (a.minutes || 0), 0);
-  return `<div class="head"><div><h1>Genel bakış</h1><p>${D.sites.length} site · son kontrol ${ago(D.checks.length ? D.checks[D.checks.length - 1].at : null)} · izleme 15 dakikada bir</p></div>
+  return `<div class="head"><div><h1>Genel bakış</h1><p>${D.sites.length} ${T("site")} · ${T("son kontrol")} ${ago(D.checks.length ? D.checks[D.checks.length - 1].at : null)} · ${T("izleme 15 dakikada bir")}</p></div>
    <button class="btn sun" data-act="newlog">+ İş kaydet</button></div>
   <div class="kpis">
-   <div class="kpi ${down.length ? "attn" : ""}"><small>Ayakta</small><b class="num">${D.sites.length - down.length} / ${D.sites.length}</b><span>${down.length ? esc(down.map(s => s.name).join(", ")) + " cevap vermiyor" : "Hepsi cevap veriyor"}</span></div>
+   <div class="kpi ${down.length ? "attn" : ""}"><small>Ayakta</small><b class="num">${D.sites.length - down.length} / ${D.sites.length}</b><span>${down.length ? esc(down.map(s => s.name).join(", ")) + " " + T("cevap vermiyor") : "Hepsi cevap veriyor"}</span></div>
    <div class="kpi ${open.length ? "attn" : ""}"><small>Bekleyen talep</small><b class="num">${open.length}</b><span>${open.length ? "Onayını bekliyor" : "Hepsi tamam"}</span></div>
    <div class="kpi ${late.length ? "attn" : ""}"><small>Geciken ödeme</small><b class="num">${late.length}</b><span>${late.length ? esc(late.map(s => s.name).join(", ")) : "Gecikme yok"}</span></div>
-   <div class="kpi"><small>Bu ay harcanan süre</small><b class="num">${Math.floor(mins / 60)} sa ${mins % 60} dk</b><span>Kayıttaki işlerden</span></div>
+   <div class="kpi"><small>Bu ay harcanan süre</small><b class="num">${Math.floor(mins / 60)} ${T("sa")} ${mins % 60} ${T("dk")}</b><span>Kayıttaki işlerden</span></div>
   </div>
   <div class="sites">${D.sites.map(siteCard).join("")}</div>`;
 }
@@ -349,12 +358,12 @@ function siteCard(s){
   const bars = u.bars.length ? u.bars.map(c => `<i class="${c.ok ? "" : "no"}" style="height:${c.ok ? Math.max(25, Math.min(100, 100 - (c.ms || 0) / 12)) : 100}%" title="${esc(dt(c.at))}${c.ms ? " · " + c.ms + " ms" : ""}"></i>`).join("") : '<i class="gap" style="height:100%"></i>';
   const late = overdue(s);
   return `<article class="site">
-   <div class="site-h"><div><h3>${esc(s.name)}</h3><small>${esc((s.url || "").replace(/^https?:\/\//, ""))} · ${esc(PLAN[s.plan] || s.plan)}</small></div><span class="st ${st}">${esc(stl)}</span></div>
+   <div class="site-h"><div><h3>${esc(s.name)}</h3><small>${esc((s.url || "").replace(/^https?:\/\//, ""))} · ${esc(T(PLAN[s.plan] || s.plan))}</small></div><span class="st ${st}">${esc(stl)}</span></div>
    <div class="spark" aria-label="Son 12 saatlik kontroller">${bars}</div>
    <div class="facts">
-    <div><small>Uptime 24 s</small><b class="num">${u.pct == null ? "bekliyor" : u.pct + "%"}</b></div>
-    <div><small>Ortalama</small><b class="num">${u.avg == null ? "bekliyor" : u.avg + " ms"}</b></div>
-    <div><small>${s.kind === "client" ? "Ödendi" : "Son kontrol"}</small><b class="num ${late ? "bad" : ""}">${s.kind === "client" ? day(s.paid_until) : ago(u.last && u.last.at)}</b></div>
+    <div><small>Uptime 24 s</small><b class="num">${u.pct == null ? T("bekliyor") : u.pct + "%"}</b></div>
+    <div><small>Ortalama</small><b class="num">${u.avg == null ? T("bekliyor") : u.avg + " ms"}</b></div>
+    <div><small>${s.kind === "client" && !VIEWER ? "Ödendi" : "Son kontrol"}</small><b class="num ${late ? "bad" : ""}">${s.kind === "client" && !VIEWER ? day(s.paid_until) : ago(u.last && u.last.at)}</b></div>
    </div>
    ${q.small_quota != null || q.big_quota != null ? `<div class="q">${qbar("Küçük · ay", q.small_used, q.small_quota)}${qbar("Büyük · yıl", q.big_used, q.big_quota)}</div>` : ""}
    <div class="acts">
@@ -369,11 +378,11 @@ function changes(){
   const list = D.changes.filter(c => FILTER === "all" ? true : FILTER === "open" ? c.status === "new" || c.status === "approved" : c.status === FILTER);
   return `<div class="head"><div><h1>Talepler</h1><p>Müşteri talebi buraya düşer. Sen onaylarsın, iş bitince "Bitti" dersin. Aynı şey 12 saat içinde tekrar değişirse kotadan düşmez.</p></div>
    <button class="btn sun" data-act="newchange">+ Talep ekle</button></div>
-  <div class="panel"><div class="panel-h"><h2>${list.length} talep</h2>
+  <div class="panel"><div class="panel-h"><h2>${list.length} ${T("talep")}</h2>
    <div class="filters">${[["open","Açık"],["new","Yeni"],["done","Biten"],["rejected","Reddedilen"],["all","Hepsi"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
    ${list.length ? list.map(c => `<div class="row"><div>
       <div class="t">${esc(c.request)}</div>
-      <div class="m"><b>${esc(siteName(c.site))}</b><span>${c.kind === "big" ? "Büyük" : "Küçük"}${c.target ? " · " + esc(c.target) : ""}</span><span>${esc(c.requested_by || "")}</span><span>${dt(c.created_at)}</span>${c.counts === false && c.status !== "rejected" ? "<span>kotadan düşmedi</span>" : ""}${c.minutes ? `<span>${c.minutes} dk</span>` : ""}</div></div>
+      <div class="m"><b>${esc(siteName(c.site))}</b><span>${c.kind === "big" ? T("Büyük") : T("Küçük")}${c.target ? " · " + esc(c.target) : ""}</span><span>${esc(c.requested_by || "")}</span><span>${dt(c.created_at)}</span>${c.counts === false && c.status !== "rejected" ? "<span>" + T("kotadan düşmedi") + "</span>" : ""}${c.minutes ? `<span>${c.minutes} ${T("dk")}</span>` : ""}</div></div>
      <div class="r"><span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret" })[c.status]}</span>
       ${c.status === "new" ? `<button class="btn sm ok" data-act="decide" data-id="${c.id}" data-s="approved">Onayla</button><button class="btn sm bad" data-act="decide" data-id="${c.id}" data-s="rejected">Reddet</button>` : ""}
       ${c.status === "new" || c.status === "approved" ? `<button class="btn sm" data-act="done" data-id="${c.id}">Bitti</button>` : ""}
@@ -383,7 +392,7 @@ function changes(){
 function log(){
   return `<div class="head"><div><h1>Kayıt</h1><p>Elle ve otomatik yapılan her iş, harcanan süreyle. Bir şey bozulursa son yedek + bu kayıt ile geri dönülür.</p></div>
    <button class="btn sun" data-act="newlog">+ İş kaydet</button></div>
-  <div class="panel"><div class="log">${D.activity.length ? D.activity.map(a => `<div class="e"><time>${dt(a.at)}</time><span class="w ${esc(a.who)}">${esc(WHO[a.who] || a.who)}</span><span><span class="s">${esc(siteName(a.site))}</span>${esc(a.action)}${metaTxt(a.meta)}</span><span class="min">${a.minutes ? a.minutes + " dk" : ""}</span></div>`).join("") : '<div class="empty">Henüz kayıt yok.</div>'}</div></div>`;
+  <div class="panel"><div class="log">${D.activity.length ? D.activity.map(a => `<div class="e"><time>${dt(a.at)}</time><span class="w ${esc(a.who)}">${esc(WHO[a.who] || a.who)}</span><span><span class="s">${esc(siteName(a.site))}</span>${esc(a.action)}${metaTxt(a.meta)}</span><span class="min">${a.minutes ? a.minutes + " " + T("dk") : ""}</span></div>`).join("") : '<div class="empty">Henüz kayıt yok.</div>'}</div></div>`;
 }
 function billing(){
   const clients = D.sites.filter(s => s.kind === "client");
@@ -414,11 +423,22 @@ function siteSettings(){
   </div></div>`;
 }
 
+function access(){
+  const v = D.viewers || [];
+  return `<div class="head"><div><h1>Erişim</h1><p>Sistemi göstermek istediğin kişiler buraya. Her şeyi görürler ama hiçbir şeyi değiştiremezler. Ödemeler, müşteri iletişimi ve gizli anahtarlar onlara gösterilmez.</p></div><button class="btn sun" data-act="newviewer">+ İzleyici ekle</button></div>
+  <div class="panel">${v.length ? v.map(x => `<div class="row"><div><div class="t">${esc(x.name || x.email)}</div><div class="m"><span>${T("Kullanıcı adı")}: <b>${esc(x.email.replace("@mrspace.online", ""))}</b></span><span>${x.until ? T("Şu tarihe kadar") + ": " + day(x.until) : T("Süresiz")}</span></div></div><div class="r"><button class="btn sm bad" data-act="delviewer" data-email="${esc(x.email)}">Kaldır</button></div></div>`).join("") : '<div class="empty">Henüz izleyici yok.</div>'}</div>
+  <div class="panel"><div class="panel-h"><h2>Nasıl eklenir</h2></div><div style="padding:14px 16px;display:grid;gap:8px;font-size:14px">
+   <p>1. Burada "İzleyici ekle" de, kullanıcı adını yaz (ör. <b>edwin</b>).</p>
+   <p>2. Supabase'de laloo projesi > Authentication > Users > Add user: e-posta <b>edwin@mrspace.online</b>, bir şifre belirle, "Auto confirm" işaretli olsun.</p>
+   <p>3. Kişiye mrspace.online/admin adresini, kullanıcı adını ve şifreyi ver. Süre koyarsan o tarihten sonra giremez.</p>
+  </div></div>`;
+}
+
 /* ---------------- dialogs ---------------- */
 function openDlg(title, fields, onSave, saveLabel = "Kaydet"){
   $("#dlgBody").innerHTML = `<div class="panel-h"><h2>${esc(title)}</h2><button class="btn sm ghost" type="button" data-close>Kapat</button></div>
    <form class="form" id="dlgForm">${fields}<div class="wide" style="display:flex;justify-content:flex-end"><button class="btn sun" type="submit">${esc(saveLabel)}</button></div></form>`;
-  const d = $("#dlg"); d.showModal();
+  const d = $("#dlg"); if (window.MSI18N) MSI18N.apply(d); d.showModal();
   d.querySelector("[data-close]").onclick = () => d.close();
   $("#dlgForm").onsubmit = async e => {
     e.preventDefault();
@@ -455,6 +475,14 @@ async function act(kind, el){
     toast(STATUS[to]); return refresh(); }
   if (kind === "link") { const s = D.sites.find(x => x.slug === slug); const url = `${SITE}/request/?k=${s.site_key}`;
     try { await navigator.clipboard.writeText(url); toast("Talep linki kopyalandı"); } catch (e) { prompt("Talep linki", url); } return; }
+  if (kind === "newviewer") return openDlg("İzleyici ekle", f("Kullanıcı adı", "user") + f("Ad", "name") + f("Şu tarihe kadar (boş = süresiz)", "until", "", "date"),
+    async v => { let e = (v.user || "").trim().toLowerCase(); if (!e) throw new Error("Kullanıcı adı yaz"); if (e.indexOf("@") < 0) e += "@mrspace.online";
+      if (DEMO) { (D.viewers = D.viewers || []).push({ email:e, name:v.name, until:v.until || null }); return toast("Demo: eklendi"); }
+      await api("ms_viewers", { method:"POST", body:{ email:e, name:v.name || null, until:v.until || null } });
+      await api("ms_activity", { method:"POST", body:{ site:null, who:"uzay", action:"Viewer access added: " + (v.name || e) } }); toast("Eklendi. Supabase'de hesabını açmayı unutma."); });
+  if (kind === "delviewer") { const e = el.dataset.email;
+    if (DEMO) { D.viewers = (D.viewers || []).filter(x => x.email !== e); return render(); }
+    await api(`ms_viewers?email=eq.${encodeURIComponent(e)}`, { method:"DELETE", prefer:"return=minimal" }); toast("Kaldırıldı"); return refresh(); }
   if (kind === "key") { const s = D.sites.find(x => x.slug === slug);
     const code = `<script src="https://mrspace.online/ms/guard.js" data-site="${s.slug}" data-key="${s.log_key}" defer></` + `script>`;
     try { await navigator.clipboard.writeText(code); toast("Bağlantı kodu kopyalandı. Sitenin admin sayfasına yapıştır."); } catch (e) { prompt("Bağlantı kodu", code); } return; }
@@ -503,13 +531,16 @@ $("#out").onclick = logout;
 $("#demoBtn").onclick = () => { DEMO = true; demoData(); enter("Demo"); };
 $("#loginForm").onsubmit = async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
-  try { await auth("password", { email:$("#em").value.trim(), password:$("#pw").value }); await start(); }
-  catch (err) { $("#loginErr").textContent = err.message; }
+  try { let u = $("#em").value.trim().toLowerCase(); if (u && u.indexOf("@") < 0) u += "@mrspace.online";
+    await auth("password", { email:u, password:$("#pw").value }); await start(); }
+  catch (err) { $("#loginErr").textContent = T(err.message); }
 };
 function enter(who){ $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = who; $("#demoTag").hidden = !DEMO; render(); }
 async function start(){
-  try { const ok = await rpc("ms_is_admin", {}); if (!ok) throw new Error("Bu hesap Mr. Space yöneticisi değil"); await load(); enter(S.email || ""); }
-  catch (e) { logout(); $("#loginErr").textContent = e.message; }
+  try { const role = await rpc("ms_role", {}); if (!role) throw new Error("Bu hesabın panele erişimi yok");
+    VIEWER = role === "viewer"; document.body.classList.toggle("viewer", VIEWER); $("#viewTag").hidden = !VIEWER;
+    await load(); enter(S.email || ""); }
+  catch (e) { logout(); $("#loginErr").textContent = T(e.message); }
 }
 if (S) start();
 setInterval(() => { if (!DEMO && S && !document.hidden) refresh(); }, 120000);
