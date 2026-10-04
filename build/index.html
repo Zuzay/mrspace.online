@@ -114,6 +114,19 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
   <div class="dlg-act"><button class="btn" id="sendCancel" data-t="cancel"></button><button class="btn main" id="sendGo" data-t="confirm_send"></button></div>
 </dialog>
 
+<dialog id="trialDlg">
+  <h2 style="margin:0 0 10px;font-size:1.15rem" data-t="t_dlg_title"></h2>
+  <label style="display:flex;gap:8px;margin:6px 0"><input type="radio" name="tPath" value="self" checked><span data-t="t_self"></span></label>
+  <label style="display:flex;gap:8px;margin:6px 0 12px"><input type="radio" name="tPath" value="leave"><span data-t="t_leave"></span></label>
+  <input id="tN" data-ph="t_name" maxlength="120" autocomplete="name" style="width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;background:var(--bg);margin-bottom:8px">
+  <input id="tE" type="email" data-ph="t_email" maxlength="200" autocomplete="email" style="width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;background:var(--bg);margin-bottom:8px">
+  <input id="tP" type="tel" data-ph="t_phone" maxlength="40" autocomplete="tel" style="width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;background:var(--bg)">
+  <textarea id="tNote" data-ph="note_ph" maxlength="2000"></textarea>
+  <label style="display:flex;gap:8px;font-size:.9rem;margin-bottom:12px"><input type="checkbox" id="tC"><span data-t="t_consent"></span></label>
+  <p class="saved err" id="tDErr"></p>
+  <div class="dlg-act"><button class="btn" id="tCancel" data-t="cancel"></button><button class="btn main" id="tGo2" data-t="t_send"></button></div>
+</dialog>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../assets/ms-config.js"></script>
 <script src="../assets/ms-auth.js"></script>
@@ -153,8 +166,27 @@ const DICT = {
   fill_intro:["Fill in the fields below. We will place everything into your design and finish it.","Aşağıdaki alanları doldurun. Hepsini tasarımınıza biz yerleştirip son halini vereceğiz."],
   list_hint:["One per line","Her satıra bir tane"], required:["Required","Zorunlu"], other:["Other","Diğer"],
 };
+Object.assign(DICT, {
+  wm:["Preview · mrspace.online","Önizleme · mrspace.online"],
+  try_title:["Build your website free","Sitenizi ücretsiz kurun"],
+  try_text:["Pick your business type, fill in as much as you like and see it live. When you are ready, our team finishes it for you.","İşletme türünüzü seçin, istediğiniz kadarını doldurun ve canlı görün. Hazır olduğunuzda ekibimiz son halini versin."],
+  try_name:["Business name","İşletme adı"], try_start:["Start","Başla"],
+  try_keep:["Keep this page's link to continue later.","Kaldığınız yerden devam etmek için bu sayfanın linkini saklayın."],
+  copy_link:["Copy link","Linki kopyala"], copied:["Copied","Kopyalandı"], finish:["Get the finished version","Bitmiş halini iste"],
+  t_dlg_title:["How should we continue?","Nasıl devam edelim?"],
+  t_self:["I filled it in. Polish and finish it for me (free preview).","Ben doldurdum. Siz elden geçirip bitirin (ücretsiz önizleme)."],
+  t_leave:["Leave it to you. You prepare the texts and content (paid).","Size bırakıyorum. Metinleri ve içeriği siz hazırlayın (ücretli)."],
+  t_name:["Your name","Adınız"], t_email:["Email","E-posta"], t_phone:["Phone (optional)","Telefon (isteğe bağlı)"],
+  t_consent:["You may show the design as an example of your work.","Tasarımı çalışma örneği olarak gösterebilirsiniz."],
+  t_send:["Send","Gönder"], t_bad:["Please enter your name and a valid email.","Adınızı ve geçerli bir e-posta girin."],
+  t_busy:["Too many new sites right now. Please try again later.","Şu an çok fazla yeni site açıldı. Biraz sonra tekrar deneyin."],
+  t_done_title:["Thank you","Teşekkürler"],
+  t_done_text:["We will send a preview of the finished site to your email within 24 to 48 hours.","Bitmiş sitenin önizlemesini 24-48 saat içinde e-postanıza göndereceğiz."],
+  t_ready:["Your preview is ready","Önizlemeniz hazır"], t_open:["Open preview","Önizlemeyi aç"],
+});
 const T = (k) => (DICT[k] || [k, k])[LANG === "tr" ? 1 : 0];
 document.querySelectorAll("[data-t]").forEach((el) => el.textContent = T(el.dataset.t));
+document.querySelectorAll("[data-ph]").forEach((el) => el.placeholder = T(el.dataset.ph));
 document.getElementById("sendNote").placeholder = T("note_ph");
 
 const C = window.MS_CONFIG;
@@ -178,6 +210,7 @@ function setP(path, val) {
 // ---------- yukleme ----------
 async function load() {
   try {
+    if (P.get("t") || P.get("ta") || P.has("try")) return await loadTrial();
     if (P.get("b")) {
       if (!(await window.msAdminGate(sb, { panel: "../admin/" }))) return;
       S.admin = true;
@@ -203,7 +236,7 @@ async function load() {
   }
 }
 
-const editable = () => S.build.status === "published" || S.build.status === "archived" ? false
+const editable = () => S.trial ? (S.admin ? !["won", "closed"].includes(S.build.status) : S.build.status === "draft") : S.build.status === "published" || S.build.status === "archived" ? false
   : S.admin ? true : ["draft", "returned"].includes(S.build.status);
 
 function draw() {
@@ -214,6 +247,7 @@ function draw() {
 
 // ---------- kilitli ekran ----------
 function drawLocked() {
+  if (S.trial) return drawTrialDone();
   const st = S.build.status;
   if (st === "published" || st === "archived") {
     const url = S.site.host ? `https://${S.site.host}/` : `../site/?s=${encodeURIComponent(S.site.slug)}`;
@@ -233,7 +267,7 @@ function drawLocked() {
 // ---------- ust bar ----------
 function barHTML() {
   return `<div class="bar"><h1>${esc(S.site.name)}</h1><span class="saved" id="saved">${T("saved")}</span>
-    ${S.admin ? `<a class="btn" href="../admin/review/?b=${S.build.id}">${T("admin_back")}</a>` : `<button class="btn main" id="sendBtn">${T("send")}</button>`}</div>`;
+    ${S.trial && S.admin ? `<a class="btn" href="../admin/review/?trial=${S.trialId}">${T("admin_back")}</a>` : S.trial ? `<button class="btn" id="copyLink">${T("copy_link")}</button><button class="btn main" id="sendBtn">${T("finish")}</button>` : S.admin ? `<a class="btn" href="../admin/review/?b=${S.build.id}">${T("admin_back")}</a>` : `<button class="btn main" id="sendBtn">${T("send")}</button>`}</div>`;
 }
 function returnedHTML() {
   return S.build.status === "returned" && S.build.return_note
@@ -265,7 +299,7 @@ function drawBuilder() {
   root.innerHTML = barHTML() + `
   <div class="switch"><button class="btn small" data-act="view" data-v="edit" aria-pressed="${S.view === "edit"}">${T("edit")}</button><button class="btn small" data-act="view" data-v="preview" aria-pressed="${S.view === "preview"}">${T("preview")}</button></div>
   <div class="layout" data-view="${S.view}">
-    <div class="editor">${returnedHTML()}
+    <div class="editor">${S.trial && !S.admin ? `<div class="note">${T("try_keep")}</div>` : ""}${returnedHTML()}
       <details class="panel" open><summary>${T("look")}</summary><div class="pbody">
         <div class="presets">${presets}</div>
         <div class="colors">${["bg", "ink", "accent", "soft"].map((x) => `<label>${T(x)}<input type="color" data-p="theme.colors.${x}" value="${esc(eff.colors[x])}"></label>`).join("")}</div>
@@ -376,7 +410,7 @@ function preview(now) {
     const f = document.getElementById("pv"); if (!f) return;
     let y = 0; try { y = f.contentWindow.scrollY; } catch {}
     f.onload = () => { try { f.contentWindow.scrollTo(0, y); } catch {} };
-    f.srcdoc = R.render(S.data.content, S.data.theme, { noindex: true });
+    f.srcdoc = R.render(S.data.content, S.data.theme, { noindex: true, watermark: S.trial ? T("wm") : "" });
   }, now ? 0 : 300);
 }
 
@@ -391,7 +425,9 @@ function save() {
   clearTimeout(svT);
   saving = saving.then(async () => {
     let error;
-    if (S.admin) ({ error } = await sb.from("ms_builds").update({ content: S.data.content, theme: S.data.theme, updated_at: new Date().toISOString() }).eq("id", S.build.id));
+    if (S.trial && S.admin) ({ error } = await sb.from("ms_trials").update({ content: S.data.content, theme: S.data.theme, updated_at: new Date().toISOString() }).eq("id", S.trialId));
+    else if (S.trial) ({ error } = await sb.rpc("ms_trial_save", { p_token: S.token, p_content: S.data.content, p_theme: S.data.theme }));
+    else if (S.admin) ({ error } = await sb.from("ms_builds").update({ content: S.data.content, theme: S.data.theme, updated_at: new Date().toISOString() }).eq("id", S.build.id));
     else ({ error } = await sb.rpc("ms_builder_save", { p_key: S.key, p_build: S.build.id, p_content: S.data.content, p_theme: S.data.theme }));
     if (error && /locked/.test(error.message)) { location.reload(); return; }
     markSaved(error ? "save_err" : "saved");
@@ -420,7 +456,7 @@ root.addEventListener("change", async (e) => {
     holder.firstChild.textContent = T("uploading") + "…";
     try {
       for (const file of files) {
-        const fd = new FormData(); fd.append("key", S.key); fd.append("file", file);
+        const fd = new FormData(); if (S.trial) fd.append("trial", S.token); else fd.append("key", S.key); fd.append("file", file);
         const r = await fetch(C.fn, { method: "POST", body: fd, headers: { apikey: C.anon } });
         const j = await r.json();
         if (!r.ok || !j.url) throw new Error(j.error || "upload");
@@ -462,8 +498,10 @@ root.addEventListener("click", (e) => {
 // ---------- gonderme ----------
 function bindSend() {
   const btn = document.getElementById("sendBtn"); if (!btn) return;
-  const dlg = document.getElementById("sendDlg");
+  const dlg = document.getElementById(S.trial ? "trialDlg" : "sendDlg");
   btn.onclick = () => dlg.showModal();
+  const cl = document.getElementById("copyLink");
+  if (cl) cl.onclick = async () => { try { await navigator.clipboard.writeText(location.href); cl.textContent = T("copied"); } catch (e) {} };
 }
 document.getElementById("sendCancel").onclick = () => document.getElementById("sendDlg").close();
 document.getElementById("sendGo").onclick = async (e) => {
@@ -478,6 +516,99 @@ document.getElementById("sendGo").onclick = async (e) => {
 const _draw = draw;
 draw = function () { _draw(); bindSend(); };
 window.addEventListener("beforeunload", (e) => { if (document.getElementById("saved")?.textContent === T("saving")) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---------- ucretsiz deneme (misafir) ----------
+const SECTORS = { cafe: ["Café", "Kafe"], bakery: ["Bakery", "Pastane"], bar: ["Bar / restaurant", "Bar / restoran"], tailor: ["Tailor", "Terzi"], florist: ["Florist", "Çiçekçi"], boutique: ["Boutique / vintage", "Butik / vintage"], other: ["Other", "Diğer"] };
+function trialStarter(sector, name, lang) {
+  const L = (en, tr) => lang === "tr" ? tr : en;
+  const item = (n) => ({ name: L(`[Item ${n}]`, `[Ürün ${n}]`), price: L("[$]", "[₺]"), desc: L("[Short description]", "[Kısa açıklama]") });
+  const menu = (title, group) => ({ type: "menu", title, groups: [{ name: group, items: [item(1), item(2), item(3)] }] });
+  const preset = { cafe: "kiyi", bakery: "firin", bar: "gece", tailor: "atolye", florist: "kiyi", boutique: "liman" }[sector] || "liman";
+  const sections = [
+    { type: "hero", title: name || L("[Your business name]", "[İşletmenizin adı]"), text: L("[A short welcome. What makes you special?]", "[Kısa bir karşılama. Sizi özel yapan ne?]"), image: "", button: { label: L("Find us", "Bize ulaşın"), url: "" } },
+    { type: "about", title: L("About us", "Hakkımızda"), text: L("[Your story in a few sentences.]", "[Hikayeniz birkaç cümleyle.]"), image: "" },
+  ];
+  if (["cafe", "bakery", "bar"].includes(sector)) sections.push(menu(L("Menu", "Menü"), L("[Group, e.g. Coffee]", "[Grup, ör. Kahveler]")));
+  if (sector === "tailor") sections.push(menu(L("Services & prices", "Hizmetler ve fiyatlar"), L("[Alterations]", "[Tadilat]")));
+  if (sector === "florist") sections.push(menu(L("Bouquets", "Buketler"), L("[Seasonal]", "[Mevsimlik]")));
+  if (["bakery", "florist", "boutique", "bar", "other"].includes(sector)) sections.push({ type: "gallery", title: L("Gallery", "Galeri"), images: [] });
+  sections.push({ type: "hours", title: "" }, { type: "contact", title: "" });
+  const content = R.starter(name, lang);
+  content.business.tagline = L("[One line about you]", "[Sizi anlatan tek cümle]");
+  content.sections = sections;
+  return { content, theme: { preset } };
+}
+
+async function loadTrial() {
+  S.trial = true;
+  if (P.get("ta")) {
+    if (!(await window.msAdminGate(sb, { panel: "../admin/" }))) return;
+    S.admin = true;
+    const { data: t, error } = await sb.from("ms_trials").select("*").eq("id", P.get("ta")).single();
+    if (error) throw error;
+    S.trialId = t.id; S.token = t.token;
+    S.site = { name: t.business || t.content?.business?.name || "Deneme", mode: "builder" };
+    S.build = { id: t.id, status: t.status };
+    S.data.content = t.content; S.data.theme = t.theme;
+    return draw();
+  }
+  if (P.get("t")) {
+    S.token = P.get("t");
+    const { data, error } = await sb.rpc("ms_trial_get", { p_token: S.token });
+    if (error || !data) throw error || new Error("bad");
+    S.site = { name: data.content?.business?.name || "Mr. Space", mode: "builder" };
+    S.build = { id: 0, status: data.status, preview_key: data.preview_key };
+    S.data.content = data.content; S.data.theme = data.theme;
+    return draw();
+  }
+  drawStart();
+}
+
+function drawStart() {
+  document.title = T("try_title") + " · Mr. Space";
+  root.innerHTML = `<div class="center"><h2>${T("try_title")}</h2><p>${T("try_text")}</p>
+    <label class="f">${T("try_name")}<input id="tName" maxlength="80" autocomplete="organization"></label>
+    <div class="presets" id="tSec" style="margin:14px 0">${Object.entries(SECTORS).map(([k, v], i) =>
+      `<button class="preset" data-sec="${k}" aria-pressed="${i === 0}" style="min-width:auto;padding:8px 12px">${esc(v[LANG === "tr" ? 1 : 0])}</button>`).join("")}</div>
+    <button class="btn main" id="tGo">${T("try_start")}</button><p class="saved err" id="tErr"></p></div>`;
+  let sec = "cafe";
+  document.getElementById("tSec").onclick = (e) => {
+    const b = e.target.closest("[data-sec]"); if (!b) return;
+    sec = b.dataset.sec;
+    document.querySelectorAll("#tSec [data-sec]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  };
+  document.getElementById("tGo").onclick = async (e) => {
+    e.target.disabled = true;
+    const st = trialStarter(sec, document.getElementById("tName").value.trim(), LANG);
+    const { data, error } = await sb.rpc("ms_trial_start", { p_sector: sec, p_lang: LANG, p_content: st.content, p_theme: st.theme });
+    if (error || !data?.token) { e.target.disabled = false; document.getElementById("tErr").textContent = /busy|too_many/.test(error?.message || "") ? T("t_busy") : T("save_err"); return; }
+    location.search = "?t=" + data.token;
+  };
+}
+
+function drawTrialDone() {
+  const pk = S.build.preview_key;
+  root.innerHTML = `<div class="center"><h2>${pk ? T("t_ready") : T("t_done_title")}</h2>
+    ${pk ? `<p><a class="btn main" href="../preview/?p=${esc(pk)}">${T("t_open")}</a></p>` : `<p>${T("t_done_text")}</p>`}</div>`;
+}
+
+document.getElementById("tCancel").onclick = () => document.getElementById("trialDlg").close();
+document.getElementById("tGo2").onclick = async (e) => {
+  const v = (id) => document.getElementById(id).value.trim();
+  if (v("tN").length < 2 || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v("tE"))) { document.getElementById("tDErr").textContent = T("t_bad"); return; }
+  e.target.disabled = true;
+  await save();
+  const { error } = await sb.rpc("ms_trial_submit", {
+    p_token: S.token, p_path: document.querySelector('input[name="tPath"]:checked').value,
+    p_name: v("tN"), p_email: v("tE"), p_phone: v("tP") || null,
+    p_business: S.data.content?.business?.name || null, p_note: v("tNote") || null,
+    p_consent: document.getElementById("tC").checked,
+  });
+  e.target.disabled = false;
+  if (error) { document.getElementById("tDErr").textContent = /bad_/.test(error.message) ? T("t_bad") : T("save_err"); return; }
+  document.getElementById("trialDlg").close();
+  S.build.status = "submitted"; draw();
+};
 
 load();
 </script>
