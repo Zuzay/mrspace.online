@@ -132,7 +132,14 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 <script src="../assets/ms-auth.js"></script>
 <script src="../assets/ms-render.js"></script>
 <script>
-const LANG = (navigator.language || "en").toLowerCase().startsWith("tr") ? "tr" : "en";
+const LANGS = ["en", "tr", "es", "de", "fr"];
+const LANG = (() => {
+  try { const v = localStorage.getItem("ms_lang"); if (LANGS.includes(v)) return v; } catch (e) {}
+  for (const l of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"])) {
+    const c = String(l).slice(0, 2).toLowerCase(); if (LANGS.includes(c)) return c;
+  } return "en";
+})();
+const LI = { en: 0, tr: 1, es: 2, de: 3, fr: 4 }[LANG];
 document.documentElement.lang = LANG;
 const DICT = {
   saved:["Saved","Kaydedildi"], saving:["Saving","Kaydediliyor"], save_err:["Not saved. Check your connection.","Kaydedilemedi. Bağlantıyı kontrol edin."],
@@ -184,7 +191,57 @@ Object.assign(DICT, {
   t_done_text:["We will send a preview of the finished site to your email within 24 to 48 hours.","Bitmiş sitenin önizlemesini 24-48 saat içinde e-postanıza göndereceğiz."],
   t_ready:["Your preview is ready","Önizlemeniz hazır"], t_open:["Open preview","Önizlemeyi aç"],
 });
-const T = (k) => (DICT[k] || [k, k])[LANG === "tr" ? 1 : 0];
+// es, de, fr (en ve tr yukarida)
+const DICT3 = {
+  saved:["Guardado","Gespeichert","Enregistré"], saving:["Guardando","Wird gespeichert","Enregistrement"], save_err:["No se guardó. Revisa tu conexión.","Nicht gespeichert. Prüfe deine Verbindung.","Non enregistré. Vérifiez votre connexion."],
+  send:["Enviar a revisión","Zur Prüfung senden","Envoyer pour relecture"], edit:["Editar","Bearbeiten","Modifier"], preview:["Vista previa","Vorschau","Aperçu"],
+  look:["Aspecto","Aussehen","Apparence"], business:["Negocio","Unternehmen","Entreprise"], sections:["Secciones","Abschnitte","Sections"],
+  style:["Estilo","Stil","Style"], bg:["Fondo","Hintergrund","Fond"], ink:["Texto","Text","Texte"], accent:["Acento","Akzent","Accent"], soft:["Banda","Band","Bande"],
+  head_font:["Fuente de títulos","Schrift für Titel","Police des titres"], body_font:["Fuente de texto","Schrift für Text","Police du texte"], layout:["Diseño","Layout","Mise en page"],
+  left:["Alineado a la izquierda","Linksbündig","Aligné à gauche"], center:["Centrado","Zentriert","Centré"], corners:["Redondeo de esquinas","Eckenrundung","Arrondi des coins"], site_lang:["Idioma del sitio","Sprache der Website","Langue du site"],
+  name:["Nombre del negocio","Name des Unternehmens","Nom de l'entreprise"], tagline:["Descripción corta","Kurzbeschreibung","Description courte"], logo:["Logo","Logo","Logo"], phone:["Teléfono","Telefon","Téléphone"],
+  email:["Correo","E-Mail","E-mail"], address:["Dirección","Adresse","Adresse"], hours:["Horario","Öffnungszeiten","Horaires"], closed:["Cerrado","Geschlossen","Fermé"],
+  socials:["Enlaces","Links","Liens"], website:["Otro sitio web","Andere Website","Autre site"],
+  s_title:["Título","Titel","Titre"], s_text:["Texto","Text","Texte"], image:["Imagen","Bild","Image"], image_alt:["Descripción de la imagen","Bildbeschreibung","Description de l'image"],
+  btn_label:["Texto del botón","Button-Text","Texte du bouton"], btn_url:["Enlace del botón","Button-Link","Lien du bouton"],
+  group:["Nombre del grupo","Gruppenname","Nom du groupe"], item:["Producto","Artikel","Article"], price:["Precio","Preis","Prix"], desc:["Descripción","Beschreibung","Description"],
+  add_item:["Añadir producto","Artikel hinzufügen","Ajouter un article"], add_group:["Añadir grupo","Gruppe hinzufügen","Ajouter un groupe"], del:["Quitar","Entfernen","Retirer"], up:["Arriba","Hoch","Monter"], down:["Abajo","Runter","Descendre"],
+  add_section:["Añadir sección","Abschnitt hinzufügen","Ajouter une section"], add_images:["Añadir fotos","Fotos hinzufügen","Ajouter des photos"], caption:["Pie de foto","Bildunterschrift","Légende"],
+  upload:["Subir","Hochladen","Importer"], uploading:["Subiendo","Wird hochgeladen","Import en cours"], upload_err:["No se pudo subir. JPG, PNG o WebP hasta 5 MB.","Hochladen fehlgeschlagen. JPG, PNG oder WebP bis 5 MB.","Échec de l'import. JPG, PNG ou WebP jusqu'à 5 Mo."],
+  send_title:["Envía tu sitio a revisión","Sende deine Website zur Prüfung","Envoyez votre site pour relecture"],
+  send_text:["Nuestro equipo revisará y terminará tu sitio. Mientras trabajamos, la edición queda cerrada.","Unser Team prüft und vollendet deine Website. Während wir daran arbeiten, ist die Bearbeitung gesperrt.","Notre équipe va vérifier et finaliser votre site. Pendant ce temps, la modification est fermée."],
+  note_ph:["¿Algo que debamos saber? (opcional)","Sollen wir etwas wissen? (optional)","Quelque chose à nous dire ? (facultatif)"],
+  cancel:["Cancelar","Abbrechen","Annuler"], confirm_send:["Enviar","Senden","Envoyer"],
+  returned:["Te devolvimos el sitio con una nota:","Wir haben dir die Website mit einer Notiz zurückgeschickt:","Nous vous avons renvoyé le site avec une note :"],
+  wait_title:["Estamos preparando tu sitio","Deine Website wird vorbereitet","Votre site est en préparation"],
+  wait_text:["Nuestro equipo está revisando y terminando tu sitio. Suele tardar entre 24 y 48 horas. Puedes seguirlo en esta página.","Unser Team prüft und vollendet deine Website. Das dauert meist 24 bis 48 Stunden. Du kannst es auf dieser Seite verfolgen.","Notre équipe vérifie et finalise votre site. Cela prend en général 24 à 48 heures. Vous pouvez suivre l'avancement sur cette page."],
+  st_sent:["Enviado","Gesendet","Envoyé"], st_check:["Revisiones","Prüfungen","Vérifications"], st_finish:["Últimos detalles","Letzter Schliff","Finitions"], st_live:["Publicado","Online","En ligne"],
+  live_title:["Tu sitio está publicado","Deine Website ist online","Votre site est en ligne"], open_site:["Abrir sitio","Website öffnen","Ouvrir le site"],
+  changes:["¿Necesitas un cambio? Envíalo desde tu página de solicitudes.","Brauchst du eine Änderung? Sende sie über deine Anfrageseite.","Besoin d'une modification ? Envoyez-la depuis votre page de demandes."], request_page:["Página de solicitudes","Anfrageseite","Page de demandes"],
+  no_fields:["Estamos preparando tus campos. Vuelve pronto.","Deine Felder werden vorbereitet. Schau bald wieder vorbei.","Vos champs sont en préparation. Revenez bientôt."],
+  bad_link:["Este enlace no es válido. Pídenos uno nuevo.","Dieser Link ist ungültig. Frag uns nach einem neuen.","Ce lien n'est pas valide. Demandez-nous-en un nouveau."],
+  admin_back:["Volver a revisión","Zurück zur Prüfung","Retour à la relecture"],
+  fill_intro:["Completa los campos. Nosotros lo colocamos todo en tu diseño y lo terminamos.","Fülle die Felder aus. Wir setzen alles in dein Design ein und stellen es fertig.","Remplissez les champs. Nous intégrons tout dans votre design et le finalisons."],
+  list_hint:["Uno por línea","Einer pro Zeile","Un par ligne"], required:["Obligatorio","Pflichtfeld","Obligatoire"], other:["Otro","Andere","Autre"],
+  wm:["Vista previa · mrspace.online","Vorschau · mrspace.online","Aperçu · mrspace.online"],
+  try_title:["Crea tu sitio web gratis","Erstelle deine Website kostenlos","Créez votre site gratuitement"],
+  try_text:["Elige el tipo de negocio, completa lo que quieras y míralo en vivo. Cuando estés listo, nuestro equipo lo termina por ti.","Wähle deine Branche, fülle so viel aus, wie du möchtest, und sieh es live. Wenn du bereit bist, stellt unser Team es für dich fertig.","Choisissez votre type d'activité, remplissez ce que vous voulez et voyez le résultat en direct. Quand vous êtes prêt, notre équipe le termine pour vous."],
+  try_name:["Nombre del negocio","Name des Unternehmens","Nom de l'entreprise"], try_start:["Empezar","Los geht's","Commencer"],
+  try_keep:["Guarda el enlace de esta página para continuar más tarde.","Speichere den Link dieser Seite, um später weiterzumachen.","Gardez le lien de cette page pour continuer plus tard."],
+  copy_link:["Copiar enlace","Link kopieren","Copier le lien"], copied:["Copiado","Kopiert","Copié"], finish:["Pedir la versión final","Fertige Version anfordern","Demander la version finale"],
+  t_dlg_title:["¿Cómo seguimos?","Wie machen wir weiter?","Comment continuer ?"],
+  t_self:["Yo lo completé. Púlanlo y termínenlo (vista previa gratis).","Ich habe es ausgefüllt. Bitte überarbeiten und fertigstellen (kostenlose Vorschau).","Je l'ai rempli. Peaufinez-le et terminez-le (aperçu gratuit)."],
+  t_leave:["Se lo dejo a ustedes. Preparen los textos y el contenido (de pago).","Ich überlasse es euch. Ihr erstellt Texte und Inhalte (kostenpflichtig).","Je vous laisse faire. Vous préparez les textes et le contenu (payant)."],
+  t_name:["Tu nombre","Dein Name","Votre nom"], t_email:["Correo","E-Mail","E-mail"], t_phone:["Teléfono (opcional)","Telefon (optional)","Téléphone (facultatif)"],
+  t_consent:["Pueden mostrar el diseño como ejemplo de su trabajo.","Ihr dürft das Design als Arbeitsbeispiel zeigen.","Vous pouvez montrer le design comme exemple de votre travail."],
+  t_send:["Enviar","Senden","Envoyer"], t_bad:["Escribe tu nombre y un correo válido.","Bitte gib deinen Namen und eine gültige E-Mail ein.","Indiquez votre nom et un e-mail valide."],
+  t_busy:["Hay demasiados sitios nuevos ahora. Inténtalo más tarde.","Gerade werden zu viele neue Websites erstellt. Versuch es später noch einmal.","Trop de nouveaux sites en ce moment. Réessayez plus tard."],
+  t_done_title:["Gracias","Danke","Merci"],
+  t_done_text:["Te enviaremos una vista previa del sitio terminado a tu correo en 24 a 48 horas.","Wir schicken dir innerhalb von 24 bis 48 Stunden eine Vorschau der fertigen Website per E-Mail.","Nous vous enverrons un aperçu du site terminé par e-mail sous 24 à 48 heures."],
+  t_ready:["Tu vista previa está lista","Deine Vorschau ist fertig","Votre aperçu est prêt"], t_open:["Abrir vista previa","Vorschau öffnen","Ouvrir l'aperçu"],
+};
+for (const [k, v] of Object.entries(DICT3)) if (DICT[k]) DICT[k].push(...v);
+const T = (k) => { const a = DICT[k]; return a ? (a[LI] ?? a[0]) : k; };
 document.querySelectorAll("[data-t]").forEach((el) => el.textContent = T(el.dataset.t));
 document.querySelectorAll("[data-ph]").forEach((el) => el.placeholder = T(el.dataset.ph));
 document.getElementById("sendNote").placeholder = T("note_ph");
@@ -291,8 +348,8 @@ function imgField(label, path) {
 function drawBuilder() {
   const th = S.data.theme, eff = R.themeOf(th), c = S.data.content;
   const presets = Object.entries(R.PRESETS).map(([k, p]) => `<button class="preset" data-act="preset" data-k="${k}" aria-pressed="${th.preset === k}">
-    <span class="sw">${["bg", "ink", "accent", "soft"].map((x) => `<i style="background:${p.colors[x]}"></i>`).join("")}</span>${esc(p.label)}</button>`).join("");
-  const days = LANG === "tr" ? ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    <span class="sw">${["bg", "ink", "accent", "soft"].map((x) => `<i style="background:${p.colors[x]}"></i>`).join("")}</span>${esc(R.presetName(k, LANG))}</button>`).join("");
+  const days = R.dayShort(LANG);
   if (!Array.isArray(c.business.hours)) c.business.hours = [];
   for (let i = 0; i < 7; i++) c.business.hours[i] = c.business.hours[i] || { open: "", close: "", closed: false };
 
@@ -310,7 +367,7 @@ function drawBuilder() {
         <datalist id="fonts">${FONT_SUGGEST.map((f) => `<option value="${esc(f)}">`).join("")}</datalist>
         <div class="row2">
           <label class="f">${T("layout")}<select data-p="theme.layout"><option value="left" ${eff.layout === "left" ? "selected" : ""}>${T("left")}</option><option value="center" ${eff.layout === "center" ? "selected" : ""}>${T("center")}</option></select></label>
-          <label class="f">${T("site_lang")}<select data-p="content.lang"><option value="en" ${c.lang !== "tr" ? "selected" : ""}>English</option><option value="tr" ${c.lang === "tr" ? "selected" : ""}>Türkçe</option></select></label>
+          <label class="f">${T("site_lang")}<select data-p="content.lang">${R.LANGS.map(([k, n]) => `<option value="${k}" ${(c.lang || "en") === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         </div>
         <label class="f">${T("corners")}<input type="range" min="0" max="30" data-p="theme.radius" data-num="1" value="${Math.min(30, Number(eff.radius) || 0)}"></label>
       </div></details>
@@ -333,7 +390,7 @@ function drawBuilder() {
 
       <details class="panel" open><summary>${T("sections")}</summary><div class="pbody">
         ${(c.sections || []).map(secHTML).join("")}
-        <div class="addsec"><select id="newSec">${Object.entries(R.SECTION_TYPES).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select>
+        <div class="addsec"><select id="newSec">${Object.keys(R.SECTION_TYPES).map((k) => `<option value="${k}">${esc(R.sectionName(k, LANG))}</option>`).join("")}</select>
         <button class="btn" data-act="addsec">${T("add_section")}</button></div>
       </div></details>
     </div>
@@ -368,7 +425,7 @@ function secHTML(s, i) {
       <span class="btn small filebtn">${T("add_images")}<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" data-upgal="${p}.images"></span>`;
   }
   const n = S.data.content.sections.length;
-  return `<div class="sec"><div class="sh"><b>${esc(R.SECTION_TYPES[s.type] || s.type)}</b>
+  return `<div class="sec"><div class="sh"><b>${esc(R.sectionName(s.type, LANG))}</b>
     <button class="btn small" data-act="move" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""} aria-label="${T("up")}">↑</button>
     <button class="btn small" data-act="move" data-i="${i}" data-d="1" ${i === n - 1 ? "disabled" : ""} aria-label="${T("down")}">↓</button>
     <button class="btn small danger" data-act="delsec" data-i="${i}">${T("del")}</button></div>${f}</div>`;
@@ -518,23 +575,33 @@ draw = function () { _draw(); bindSend(); };
 window.addEventListener("beforeunload", (e) => { if (document.getElementById("saved")?.textContent === T("saving")) { e.preventDefault(); e.returnValue = ""; } });
 
 // ---------- ucretsiz deneme (misafir) ----------
-const SECTORS = { cafe: ["Café", "Kafe"], bakery: ["Bakery", "Pastane"], bar: ["Bar / restaurant", "Bar / restoran"], tailor: ["Tailor", "Terzi"], florist: ["Florist", "Çiçekçi"], boutique: ["Boutique / vintage", "Butik / vintage"], other: ["Other", "Diğer"] };
+const SECTORS = {
+  cafe: ["Café", "Kafe", "Cafetería", "Café", "Café"], bakery: ["Bakery", "Pastane", "Pastelería", "Bäckerei", "Pâtisserie"],
+  bar: ["Bar / restaurant", "Bar / restoran", "Bar / restaurante", "Bar / Restaurant", "Bar / restaurant"],
+  tailor: ["Tailor", "Terzi", "Sastrería", "Schneiderei", "Retouches / tailleur"], florist: ["Florist", "Çiçekçi", "Floristería", "Blumenladen", "Fleuriste"],
+  boutique: ["Boutique / vintage", "Butik / vintage", "Boutique / vintage", "Boutique / Vintage", "Boutique / vintage"], other: ["Other", "Diğer", "Otro", "Andere", "Autre"],
+};
 function trialStarter(sector, name, lang) {
-  const L = (en, tr) => lang === "tr" ? tr : en;
-  const item = (n) => ({ name: L(`[Item ${n}]`, `[Ürün ${n}]`), price: L("[$]", "[₺]"), desc: L("[Short description]", "[Kısa açıklama]") });
+  const i = { en: 0, tr: 1, es: 2, de: 3, fr: 4 }[lang] ?? 0;
+  const L = (...v) => v[i] ?? v[0];
+  const item = (n) => ({ name: `[${L("Item", "Ürün", "Producto", "Artikel", "Article")} ${n}]`, price: L("[$]", "[₺]", "[€]", "[€]", "[€]"),
+    desc: L("[Short description]", "[Kısa açıklama]", "[Descripción corta]", "[Kurze Beschreibung]", "[Courte description]") });
   const menu = (title, group) => ({ type: "menu", title, groups: [{ name: group, items: [item(1), item(2), item(3)] }] });
   const preset = { cafe: "kiyi", bakery: "firin", bar: "gece", tailor: "atolye", florist: "kiyi", boutique: "liman" }[sector] || "liman";
   const sections = [
-    { type: "hero", title: name || L("[Your business name]", "[İşletmenizin adı]"), text: L("[A short welcome. What makes you special?]", "[Kısa bir karşılama. Sizi özel yapan ne?]"), image: "", button: { label: L("Find us", "Bize ulaşın"), url: "" } },
-    { type: "about", title: L("About us", "Hakkımızda"), text: L("[Your story in a few sentences.]", "[Hikayeniz birkaç cümleyle.]"), image: "" },
+    { type: "hero", title: name || L("[Your business name]", "[İşletmenizin adı]", "[Nombre de tu negocio]", "[Name deines Unternehmens]", "[Nom de votre entreprise]"),
+      text: L("[A short welcome. What makes you special?]", "[Kısa bir karşılama. Sizi özel yapan ne?]", "[Una bienvenida corta. ¿Qué te hace especial?]", "[Eine kurze Begrüßung. Was macht dich besonders?]", "[Un court mot d'accueil. Qu'est-ce qui vous rend unique ?]"),
+      image: "", button: { label: L("Find us", "Bize ulaşın", "Encuéntranos", "So findest du uns", "Nous trouver"), url: "" } },
+    { type: "about", title: L("About us", "Hakkımızda", "Sobre nosotros", "Über uns", "À propos"),
+      text: L("[Your story in a few sentences.]", "[Hikayeniz birkaç cümleyle.]", "[Tu historia en pocas frases.]", "[Deine Geschichte in ein paar Sätzen.]", "[Votre histoire en quelques phrases.]"), image: "" },
   ];
-  if (["cafe", "bakery", "bar"].includes(sector)) sections.push(menu(L("Menu", "Menü"), L("[Group, e.g. Coffee]", "[Grup, ör. Kahveler]")));
-  if (sector === "tailor") sections.push(menu(L("Services & prices", "Hizmetler ve fiyatlar"), L("[Alterations]", "[Tadilat]")));
-  if (sector === "florist") sections.push(menu(L("Bouquets", "Buketler"), L("[Seasonal]", "[Mevsimlik]")));
-  if (["bakery", "florist", "boutique", "bar", "other"].includes(sector)) sections.push({ type: "gallery", title: L("Gallery", "Galeri"), images: [] });
+  if (["cafe", "bakery", "bar"].includes(sector)) sections.push(menu(L("Menu", "Menü", "Menú", "Speisekarte", "Carte"), L("[Group, e.g. Coffee]", "[Grup, ör. Kahveler]", "[Grupo, p. ej. Cafés]", "[Gruppe, z. B. Kaffee]", "[Groupe, ex. Cafés]")));
+  if (sector === "tailor") sections.push(menu(L("Services & prices", "Hizmetler ve fiyatlar", "Servicios y precios", "Leistungen & Preise", "Services et tarifs"), L("[Alterations]", "[Tadilat]", "[Arreglos]", "[Änderungen]", "[Retouches]")));
+  if (sector === "florist") sections.push(menu(L("Bouquets", "Buketler", "Ramos", "Sträuße", "Bouquets"), L("[Seasonal]", "[Mevsimlik]", "[De temporada]", "[Saisonal]", "[De saison]")));
+  if (["bakery", "florist", "boutique", "bar", "other"].includes(sector)) sections.push({ type: "gallery", title: L("Gallery", "Galeri", "Galería", "Galerie", "Galerie"), images: [] });
   sections.push({ type: "hours", title: "" }, { type: "contact", title: "" });
   const content = R.starter(name, lang);
-  content.business.tagline = L("[One line about you]", "[Sizi anlatan tek cümle]");
+  content.business.tagline = L("[One line about you]", "[Sizi anlatan tek cümle]", "[Una frase sobre ti]", "[Ein Satz über dich]", "[Une phrase sur vous]");
   content.sections = sections;
   return { content, theme: { preset } };
 }
@@ -569,7 +636,7 @@ function drawStart() {
   root.innerHTML = `<div class="center"><h2>${T("try_title")}</h2><p>${T("try_text")}</p>
     <label class="f">${T("try_name")}<input id="tName" maxlength="80" autocomplete="organization"></label>
     <div class="presets" id="tSec" style="margin:14px 0">${Object.entries(SECTORS).map(([k, v], i) =>
-      `<button class="preset" data-sec="${k}" aria-pressed="${i === 0}" style="min-width:auto;padding:8px 12px">${esc(v[LANG === "tr" ? 1 : 0])}</button>`).join("")}</div>
+      `<button class="preset" data-sec="${k}" aria-pressed="${i === 0}" style="min-width:auto;padding:8px 12px">${esc(v[LI] ?? v[0])}</button>`).join("")}</div>
     <button class="btn main" id="tGo">${T("try_start")}</button><p class="saved err" id="tErr"></p></div>`;
   let sec = "cafe";
   document.getElementById("tSec").onclick = (e) => {
