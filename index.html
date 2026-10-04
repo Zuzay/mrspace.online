@@ -3,344 +3,384 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mr. Space · Websites, film and care for independent shops</title>
-<meta name="description" content="A small studio on the Venice boardwalk. We build the website, shoot the shop and keep it running.">
-<meta property="og:title" content="Mr. Space">
-<meta property="og:description" content="Websites, film and care for independent shops. Venice Beach, CA.">
-<meta property="og:image" content="https://mrspace.online/mrspace/og.png">
+<title>Mr. Space · Websites and the systems behind them</title>
+<meta name="description" content="Mr. Space is a small web studio based in Venice Beach. We build simple, professional websites for small businesses, plus the admin panel and care behind them.">
+<meta property="og:title" content="Mr. Space · Websites and the systems behind them">
+<meta property="og:description" content="Simple, professional websites for small businesses. We build it, we run it, we stay. Venice Beach, CA.">
+<meta property="og:image" content="https://mrspace.online/og.png">
 <meta property="og:url" content="https://mrspace.online/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://mrspace.online/">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='72' font-family='Impact,sans-serif' font-size='64' fill='white' text-anchor='middle'>MS</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/demos.css">
 <style>
-:root{
-  --k:#000; --w:#fff; --g:#6d6d6d; --line:#000;
-  --d:"Anton",Impact,"Arial Narrow",sans-serif;
-  --m:"Space Mono",ui-monospace,Menlo,monospace;
-  --f:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
-*,*:before,*:after{box-sizing:inherit;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);background:var(--w)}
-body{background:var(--w);color:var(--k);font-family:var(--f);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
-a{color:inherit}
-:focus-visible{outline:3px solid #000;outline-offset:3px}
-.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
-.mono{font-family:var(--m);font-weight:700;font-size:12px;letter-spacing:.18em}
-.stitch{border-top:2px dashed var(--k)}
-.tape{height:26px;border-top:2px solid currentColor;
-  background:
-   repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 60px) 0 0/100% 18px no-repeat,
-   repeating-linear-gradient(90deg,currentColor 0 1.5px,transparent 1.5px 30px) 0 0/100% 11px no-repeat,
-   repeating-linear-gradient(90deg,currentColor 0 1px,transparent 1px 6px) 0 0/100% 6px no-repeat}
-
-/* header */
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--w);border-bottom:2px solid var(--k)}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
-.logo{font:30px/1 var(--d);letter-spacing:.02em;text-decoration:none}
-nav{display:flex;align-items:center;gap:26px}
-nav a{text-decoration:none;font-family:var(--m);font-weight:700;font-size:12px;letter-spacing:.16em}
-nav a:hover{text-decoration:underline;text-underline-offset:5px}
-nav .cta{background:var(--k);color:var(--w);padding:10px 16px}
-nav .cta:hover{text-decoration:none;background:#222}
-
 /* hero */
-.hero{background:var(--k);color:var(--w);position:relative;overflow:hidden}
-.hero .wrap{padding-top:64px;padding-bottom:40px}
-.hero .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.hero h1{font:clamp(64px,13.2vw,196px)/.84 var(--d);text-transform:uppercase;margin:34px 0 0;letter-spacing:-.005em}
-.hero .row{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end;margin-top:34px}
-.hero p{font-size:clamp(18px,1.8vw,22px);max-width:38ch;color:#d8d8d8}
-.btns{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-block;text-decoration:none;font-family:var(--m);font-weight:700;font-size:13px;letter-spacing:.14em;padding:15px 20px;border:2px solid currentColor}
-.btn.solid{background:var(--w);color:var(--k);border-color:var(--w)}
-.btn.solid:hover{background:#e9e9e9}
-.hero .btn:not(.solid):hover{background:var(--w);color:var(--k)}
-.hero .tape{color:var(--w);margin-top:52px}
-.hero .ticks{display:flex;justify-content:space-between;font-family:var(--m);font-size:10px;color:#9a9a9a;margin-top:2px}
+.hero{padding-block:clamp(40px,7vw,88px) clamp(48px,7vw,96px);border-bottom:1px solid var(--ink)}
+.hero .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(32px,5vw,64px);align-items:center}
+.hero h1{font-size:clamp(48px,7.2vw,100px);line-height:.9;margin-top:18px}
+.hero h1 .o{color:var(--mute)}
+.hero .lede{font-size:clamp(18px,1.6vw,21px);max-width:44ch;margin-top:26px}
+.hero .lede b{font-weight:600}
+.hero .row{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+@media (max-width:900px){.hero .grid{grid-template-columns:1fr}}
 
-/* section heads, like the proposal */
-.sec{display:flex;align-items:flex-end;gap:18px;margin-bottom:12px}
-.sec .n{font:clamp(70px,9vw,120px)/.8 var(--d);color:var(--w);-webkit-text-stroke:2px var(--k)}
-.sec h2{font:clamp(52px,7.5vw,104px)/.85 var(--d);text-transform:uppercase}
-.lede{max-width:56ch;color:var(--g);margin:18px 0 0}
-section{padding:110px 0}
+/* control room: the central super admin, shown as a working panel */
+.cr{border:1.5px solid var(--ink);background:var(--panel);font-family:var(--mono);font-size:12px;min-width:0}
+.cr-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:var(--ink);color:var(--paper);letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.cr-h .live{display:flex;align-items:center;gap:6px}
+.cr-h .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.cr table{width:100%;border-collapse:collapse}
+.cr th,.cr td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule);font-weight:400;white-space:nowrap}
+.cr th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.cr td:first-child{font-family:var(--body);font-weight:600;font-size:14px}
+.cr .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--ok)}
+.cr .dot.b{background:var(--sun)}
+.cr .tw{overflow-x:auto}
+.cr-log{padding:10px 14px 4px;display:grid;gap:0;height:150px;overflow:hidden;position:relative}
+.cr-log::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(transparent,var(--panel))}
+.cr-log div{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;padding:6px 0;border-bottom:1px dashed var(--rule);animation:in .5s both}
+.cr-log div span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr-log .t{color:var(--mute)}
+.cr-log .k{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.cr-log .k.auto{color:var(--ok)}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}}
+.cr-f{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;padding:10px 14px;border-top:1px solid var(--ink);font-size:11px;color:var(--mute)}
+.cr-note{font-family:var(--mono);font-size:11px;color:var(--mute);margin-top:10px;letter-spacing:.02em}
+
+/* what we do */
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1.5px solid var(--ink)}
+.three>div{padding:28px 28px 8px 0;display:grid;gap:12px;align-content:start}
+.three>div+div{padding-left:28px;border-left:1px solid var(--rule)}
+.three h3{display:flex;align-items:baseline;gap:12px}
+.three h3 small{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.06em}
+.three ul{list-style:none;display:grid}
+.three li{padding:9px 0;border-top:1px solid var(--rule);font-size:15.5px}
+@media (max-width:860px){.three{grid-template-columns:1fr}.three>div,.three>div+div{padding:24px 0;border-left:0;border-bottom:1px solid var(--rule)}}
+.mtm{margin-top:clamp(48px,7vw,80px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px 64px;align-items:start;border-top:1.5px solid var(--ink);padding-top:clamp(28px,4vw,40px)}
+.mtm h3{font-size:clamp(28px,3.2vw,42px);margin-top:12px}
+.mtm p{color:var(--mute);margin-top:16px;max-width:48ch}
+.fitting{list-style:none;counter-reset:f;display:grid}
+.fitting li{counter-increment:f;display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:16px;padding:16px 0;border-bottom:1px dashed var(--rule)}
+.fitting li:first-child{padding-top:0}
+.fitting li::before{content:counter(f,decimal-leading-zero);grid-row:1/3;font-family:var(--mono);font-size:12px;letter-spacing:.08em;border:1px solid var(--ink);height:28px;display:grid;place-items:center}
+.fitting b{font-weight:600;font-size:17px}
+.fitting span{color:var(--mute);font-size:15px;margin-top:2px}
+@media (max-width:860px){.mtm{grid-template-columns:1fr}}
 
 /* work */
-.case{padding:72px 0 0}
-.case + .case{margin-top:40px;border-top:2px dashed var(--k)}
-.chead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:26px}
-.chead h3{font:clamp(48px,6.6vw,92px)/.86 var(--d);text-transform:uppercase}
-.chead .meta{margin-top:12px}
-.badge{display:inline-block;border:2px solid var(--k);padding:4px 10px;margin-left:10px;vertical-align:middle;font-family:var(--m);font-size:11px;font-weight:700;letter-spacing:.16em}
-.stage{display:grid;grid-template-columns:1fr 250px;gap:28px;align-items:end}
-.browser{border:2px solid var(--k);background:var(--w)}
-.bar{height:34px;border-bottom:2px solid var(--k);display:flex;align-items:center;gap:7px;padding:0 12px}
-.bar i{width:10px;height:10px;border:2px solid var(--k);border-radius:50%}
-.bar span{margin-left:10px;flex:1;border:2px solid var(--k);height:20px;border-radius:10px;font:700 11px/16px var(--m);padding-left:10px;overflow:hidden;white-space:nowrap}
-.view{position:relative;overflow:hidden;background:#f2f2f2}
-.view.desk{aspect-ratio:16/10}
-.view iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
-.view.desk iframe{width:1440px;height:900px}
-.phone{border:2px solid var(--k);border-radius:34px;padding:12px;background:var(--w)}
-.phone .view{aspect-ratio:390/780;border-radius:22px;border:2px solid var(--k)}
-.phone .view iframe{width:390px;height:780px}
-.view .live{position:absolute;right:10px;bottom:10px;background:var(--k);color:var(--w);font:700 10px var(--m);letter-spacing:.16em;padding:5px 8px;z-index:2;display:flex;gap:6px;align-items:center}
-.view .live:before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.6s infinite}
-@keyframes blink{50%{opacity:.25}}
-@media (prefers-reduced-motion:reduce){.view .live:before{animation:none}}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:30px}
-.facts div{border-top:4px solid var(--k);padding-top:12px}
-.facts b{display:block;font:30px/1 var(--d);text-transform:uppercase;margin-bottom:6px}
-.facts p{font-size:15px;color:var(--g);line-height:1.45}
-.visit{display:inline-block;margin-top:26px}
+.case{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);padding-block:clamp(40px,5vw,64px);border-top:1.5px solid var(--ink);align-items:start}
+.case.ph{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.case .who{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.case .who span{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);padding:4px 8px}
+.case .who span.k{background:var(--ink);color:var(--paper)}
+.case h3{font-size:clamp(40px,5vw,64px)}
+.case .sub{color:var(--mute);margin:8px 0 18px}
+.case p{max-width:46ch}
+.spec{margin:22px 0 26px;display:grid;border-top:1px solid var(--ink)}
+.spec div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.spec dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-top:3px}
+.case .links{display:flex;flex-wrap:wrap;gap:10px}
+@media (max-width:900px){.case,.case.ph{grid-template-columns:1fr}.case.ph .player{order:-1}}
+.demo-note{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.03em}
 
-/* services as hang tags */
-.tags{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px}
-.htag{border:3px solid var(--k);border-radius:14px;position:relative;padding:58px 26px 26px;clip-path:polygon(17% 0,83% 0,100% 7%,100% 100%,0 100%,0 7%)}
-.htag:before{content:"";position:absolute;top:18px;left:50%;width:22px;height:22px;margin-left:-11px;border:3px solid var(--k);border-radius:50%}
-.htag .mono{text-align:center;display:block}
-.htag h3{font:58px/.9 var(--d);text-align:center;margin:6px 0 4px;text-transform:uppercase}
-.htag .sub{text-align:center;padding-bottom:16px;border-bottom:2px dashed var(--k);margin-bottom:12px}
-.htag ul{list-style:none}
-.htag li{padding:8px 0 8px 18px;position:relative;font-size:16px}
-.htag li:before{content:"+";position:absolute;left:0;font-weight:800}
-.htag.blk{background:var(--k);color:var(--w)}
-.htag.blk:before{border-color:var(--w);background:var(--w)}
-.htag.blk .sub{border-color:var(--w)}
-.also{margin-top:34px;font-size:16px;color:var(--g);max-width:80ch}
-.also b{color:var(--k)}
+/* process: a real sequence */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));counter-reset:s;border-top:1.5px solid var(--ink)}
+.steps li{counter-increment:s;padding:20px 18px 0 0;display:grid;gap:8px;align-content:start;position:relative}
+.steps li+li{padding-left:18px;border-left:1px dashed var(--rule)}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--display);font-size:44px;line-height:1;-webkit-text-stroke:1.5px var(--ink);color:transparent}
+.steps li:last-child::before{color:var(--sun);-webkit-text-stroke-color:var(--sun)}
+.steps h4{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.steps p{font-size:14.5px;color:var(--mute);line-height:1.45}
+@media (max-width:980px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px}.steps li:nth-child(4){border-left:0;padding-left:0}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}.steps li,.steps li+li{padding:18px 0 0;border-left:0;border-top:1px dashed var(--rule)}}
 
-/* process: pattern pieces */
-.cut{display:flex;align-items:center;gap:12px;margin:40px 0 12px}
-.cut em{flex:1;border-top:2px dashed var(--k)}
-.steps{list-style:none;display:grid;grid-template-columns:repeat(7,1fr);border:3px solid var(--k)}
-.steps li{padding:18px 14px 22px;border-right:2px dashed var(--k);min-height:220px}
-.steps li:last-child{border-right:0;background:var(--k);color:var(--w)}
-.steps b{font:56px/1 var(--d);display:block}
-.steps h4{font:22px/1.05 var(--d);text-transform:uppercase;margin:10px 0 8px}
-.steps p{font-size:14px;line-height:1.4}
-
-/* care label */
-.label{border:3px solid var(--k);display:grid;grid-template-columns:1fr 1fr;margin-top:46px}
-.label .head{grid-column:1/3;background:var(--k);color:var(--w);display:flex;justify-content:space-between;align-items:center;padding:18px 24px;flex-wrap:wrap;gap:14px}
-.label .head b{font:40px/1 var(--d)}
-.icons{display:flex;gap:14px}
-.icons svg{width:40px;height:40px}
-.ci{padding:20px 24px;border-top:2px solid var(--k);display:flex;gap:16px}
-.ci:nth-child(odd){border-left:2px solid var(--k)}
-.ci svg{flex:none;width:38px;height:38px}
-.ci h4{font:22px/1 var(--d);text-transform:uppercase;margin-bottom:5px}
-.ci p{font-size:15px;color:#333;line-height:1.45}
-.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
-.lv{border:3px solid var(--k);padding:22px}
-.lv h4{font:36px/1 var(--d)}
-.lv .bars{display:flex;gap:5px;margin:10px 0 12px}
-.lv .bars i{flex:1;height:12px;border:2px solid currentColor}
-.lv .bars i.on{background:currentColor}
-.lv p{font-size:15px}
-.lv.blk{background:var(--k);color:var(--w)}
-.req{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
-.req div{border-top:4px solid var(--k);padding-top:10px}
-.req p{font-size:15px;color:var(--g);margin-top:6px}
+/* packages teaser */
+.pk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pk .tag{display:grid;gap:10px;align-content:start}
+.pk .no{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;opacity:.75}
+.pk h3{text-align:center;font-size:clamp(28px,3vw,38px)}
+.pk .price{text-align:center;font-family:var(--display);font-size:clamp(34px,3.6vw,46px);line-height:1}
+.pk .per{text-align:center;font-family:var(--mono);font-size:12px;opacity:.75;letter-spacing:.04em}
+.pk p{font-size:15px;text-align:center}
+.pk ul{list-style:none;display:grid;margin-top:6px}
+.pk li{font-size:14.5px;padding:8px 0;border-top:1px dashed currentColor;border-top-color:color-mix(in srgb,currentColor 30%,transparent)}
+@media (max-width:900px){.pk{grid-template-columns:1fr}}
 
 /* contact */
-.contact{background:var(--k);color:var(--w);padding:110px 0 70px}
-.contact h2{font:clamp(64px,12vw,176px)/.84 var(--d);text-transform:uppercase}
-.contact .btns{margin-top:40px}
-.contact .tape{color:var(--w);margin-top:70px}
-.contact .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:22px;color:#9a9a9a}
-
-@media (max-width:960px){
-  nav a:not(.cta){display:none}
-  .hero .row{grid-template-columns:1fr}
-  .stage{grid-template-columns:1fr;justify-items:center}
-  .stage .browser{display:none}
-  .phone{width:min(300px,80vw)}
-  .facts,.req{grid-template-columns:1fr 1fr}
-  .tags,.levels{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr}
-  .steps li{border-right:0;border-bottom:2px dashed var(--k);min-height:0;display:grid;grid-template-columns:64px 1fr;column-gap:14px}
-  .steps li b{grid-row:1/3}
-  .steps h4{margin-top:4px}
-  .label{grid-template-columns:1fr}
-  .label .head{grid-column:1}
-  .ci:nth-child(odd){border-left:0}
-  section{padding:80px 0}
-}
-@media (max-width:520px){.wrap{padding:0 20px}.facts,.req{grid-template-columns:1fr}}
+.contact h2{font-size:clamp(44px,6.4vw,88px);line-height:.9}
+.contact .row{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;align-items:center}
+.contact .mail{font-family:var(--mono);font-size:15px;user-select:all}
+.contact .grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px;align-items:end}
+.contact dl{display:grid;border-top:1px solid var(--ink)}
+.contact dl div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.contact dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-top:3px}
+@media (max-width:860px){.contact .grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
 
-<header>
+<header class="top">
  <div class="wrap">
-  <a class="logo" href="#top">MR. SPACE</a>
-  <nav aria-label="Main"><a href="#work">WORK</a><a href="#services">SERVICES</a><a href="#care">CARE</a><a class="cta" href="#contact">SAY HELLO</a></nav>
+  <a class="mark" href="./" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main">
+   <a class="hide-sm" href="#work">Work</a>
+   <a class="hide-sm" href="#system">System</a>
+   <a class="hide-sm" href="packages/">Packages</a>
+   <a class="hide-sm" href="first-clients/">Launch offer</a>
+   <a class="btn sm solid" href="start/">Start a project</a>
+  </nav>
  </div>
 </header>
 
 <main id="top">
- <div class="hero">
-  <div class="wrap">
-   <div class="top"><span class="mono">VENICE BEACH STUDIO</span><span class="mono">WEBSITES / FILM / CARE</span></div>
-   <h1>Independent shops, built online.</h1>
-   <div class="row">
-    <p>A small studio on the Venice boardwalk. We build the site, shoot the shop, and keep it running after launch.</p>
-    <div class="btns"><a class="btn solid" href="#work">SEE THE WORK</a><a class="btn" href="#contact">BOOK A COFFEE</a></div>
+ <section class="hero">
+  <div class="wrap grid">
+   <div>
+    <div class="label">Web studio · Venice Beach, California</div>
+    <h1>Simple sites.<br><span class="o">Serious systems.</span></h1>
+    <p class="lede">We build simple, professional websites for small businesses, and the system behind them: the admin panel, the labels, the payments, the backups. <b>You don't set it up yourself. We set it up for you, and we stay.</b></p>
+    <div class="row">
+     <a class="btn solid" href="start/">Start a project <span class="arr">→</span></a>
+     <a class="btn" href="#work">See it working</a>
+    </div>
    </div>
-   <div class="tape" aria-hidden="true"></div>
-   <div class="ticks" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div>
-  </div>
- </div>
-
- <section id="work">
-  <div class="wrap">
-   <div class="sec"><span class="n">01</span><h2>Work</h2></div>
-   <p class="lede">Every frame below is the real site, live. Each shop got its own look, built from what it sells and how its customers shop.</p>
-
-   <article class="case">
-    <div class="chead">
-     <div><h3>Heron CA</h3><div class="meta mono">VINTAGE, NEW WITH TAGS AND OWN LABEL / VENICE BEACH</div></div>
-     <a class="btn" href="https://heronca.com" target="_blank" rel="noopener">VISIT HERONCA.COM</a>
+   <div>
+    <div class="cr" id="cr" aria-label="Example of the Mr. Space control panel">
+     <div class="cr-h"><span>Mr. Space · control panel</span><span class="live">Live</span></div>
+     <div class="tw"><table>
+      <thead><tr><th>Site</th><th>Status</th><th>Backup</th><th>Changes</th></tr></thead>
+      <tbody>
+       <tr><td>Heron CA</td><td><span class="dot"></span>Live</td><td class="num">02:00</td><td class="num">3 / 4</td></tr>
+       <tr><td>laloo</td><td><span class="dot"></span>Live</td><td class="num">02:05</td><td class="num">1 / 4</td></tr>
+       <tr><td>Rufcut</td><td><span class="dot b"></span>Building</td><td class="num">02:10</td><td class="num">Day 9 / 15</td></tr>
+      </tbody>
+     </table></div>
+     <div class="cr-log" id="crlog" aria-live="off"></div>
+     <div class="cr-f"><span>Reply time · under 12 h</span><span>Backups · encrypted, every night</span></div>
     </div>
-    <div class="stage">
-     <div class="browser"><div class="bar"><i></i><i></i><i></i><span>heronca.com</span></div>
-      <div class="view desk"><iframe data-src="https://heronca.com" title="heronca.com, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-     <div class="phone"><div class="view"><iframe data-src="https://heronca.com" title="heronca.com on a phone, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-    </div>
-    <div class="facts">
-     <div><b>Brand</b><p>Name lockup, colors, type and a full signage system for the boardwalk store.</p></div>
-     <div><b>Shop</b><p>A one-of-a-kind catalog, filters by price, and multi-buy deals.</p></div>
-     <div><b>Print</b><p>Hangtags, leather patches, price and shoe labels.</p></div>
-     <div><b>In store</b><p>Tap cards that tell each product's story.</p></div>
-    </div>
-   </article>
-
-   <article class="case">
-    <div class="chead">
-     <div><h3>Laloo</h3><div class="meta mono">A BATHROOM MAP FOR TRAVELERS / WORLDWIDE</div></div>
-     <a class="btn" href="https://laloo.org" target="_blank" rel="noopener">VISIT LALOO.ORG</a>
-    </div>
-    <div class="stage">
-     <div class="browser"><div class="bar"><i></i><i></i><i></i><span>laloo.org</span></div>
-      <div class="view desk"><iframe data-src="https://www.laloo.org" title="laloo.org, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-     <div class="phone"><div class="view"><iframe data-src="https://www.laloo.org" title="laloo.org on a phone, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-    </div>
-    <div class="facts">
-     <div><b>186 cities</b><p>From Venice Beach to the most visited cities in the world.</p></div>
-     <div><b>12 languages</b><p>Opens in the language of the traveler's phone.</p></div>
-     <div><b>No download</b><p>Works like an app straight from the browser.</p></div>
-     <div><b>Local shops</b><p>Businesses on the way show up on the map.</p></div>
-    </div>
-   </article>
-
-   <article class="case">
-    <div class="chead">
-     <div><h3>Rufcut <span class="badge">CONCEPT</span></h3><div class="meta mono">CUSTOM JEANS AND VINTAGE LEVI'S / VENICE BEACH</div></div>
-     <a class="btn" href="rufcut/">OPEN THE CONCEPT</a>
-    </div>
-    <div class="stage">
-     <div class="browser"><div class="bar"><i></i><i></i><i></i><span>mrspace.online/rufcut</span></div>
-      <div class="view desk"><iframe data-src="rufcut/" title="Rufcut concept, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-     <div class="phone"><div class="view"><iframe data-src="rufcut/" title="Rufcut concept on a phone, live" loading="lazy" tabindex="-1"></iframe><span class="live">LIVE</span></div></div>
-    </div>
-    <div class="facts">
-     <div><b>Builder</b><p>Design your pair, see it drawn, get the ready date.</p></div>
-     <div><b>Vintage</b><p>Levi's filtered by waist and length.</p></div>
-     <div><b>Tracking</b><p>Follow the pair from cutting to pickup.</p></div>
-     <div><b>Repairs</b><p>Services and before and after, at a glance.</p></div>
-    </div>
-   </article>
+    <p class="cr-note">Every client site, one panel. Every change logged with who did it and how long it took.</p>
+   </div>
   </div>
  </section>
 
- <section id="services" style="padding-top:40px">
+ <section class="sec" id="system">
   <div class="wrap">
-   <div class="sec"><span class="n">02</span><h2>What we do</h2></div>
-   <p class="lede">Most small shops get their site, their photos and their upkeep from three different people. Here it is one studio, a few doors down.</p>
-   <div class="tags">
-    <div class="htag"><span class="mono">NO. 01</span><h3>Build</h3><div class="sub mono">THE SHOP, ONLINE</div>
-     <ul><li>A design made for your shop</li><li>Phone and desktop</li><li>Online shop and bookings</li><li>Google Maps and local search</li></ul></div>
-    <div class="htag"><span class="mono">NO. 02</span><h3>Shoot</h3><div class="sub mono">BY A FILM DIRECTOR</div>
-     <ul><li>Shoot day at your shop</li><li>Product photos</li><li>Clips for Instagram and TikTok</li><li>Short films for your brand</li></ul></div>
-    <div class="htag blk"><span class="mono">NO. 03</span><h3>Care</h3><div class="sub mono">AFTER LAUNCH</div>
-     <ul><li>Updates when you send them</li><li>Security and backups</li><li>A monthly report</li><li>Fixes the same day</li></ul></div>
+   <div class="sec-head">
+    <div class="label"><span>What we do</span><span>Site · System · Care</span></div>
+    <h2>The site is the part you see.</h2>
+    <p>Most small businesses don't need a fancy website. They need one that works every day, and someone who keeps it working. The real value is the system behind the page and the care after launch.</p>
    </div>
-   <p class="also">Also from Mr. Space: <b>tap cards and wristbands</b> that send customers to your reviews and socials, <b>commercials</b> for local brands, and <b>a space for artists</b> to show their work.</p>
+   <div class="three">
+    <div>
+     <h3>The site <small>what customers see</small></h3>
+     <p>Clean, fast, made for phones first. Your products, your hours, your story, in your own look. No theme with your logo pasted on.</p>
+     <ul><li>Design for phone and desktop</li><li>Online shop, bookings or both</li><li>Google listing and local search</li><li>Logo and business email setup</li></ul>
+    </div>
+    <div>
+     <h3>The system <small>what you use</small></h3>
+     <p>Your own admin panel. Add a product, change a price, print a label, see an order, without calling anyone.</p>
+     <ul><li>Admin panel made for your shop</li><li>POS sync (Square and others)</li><li>Price labels, shipping labels, receipts</li><li>AI writing and image search, on your own accounts</li></ul>
+    </div>
+    <div>
+     <h3>The care <small>what we do after</small></h3>
+     <p>Backups, fixes, small changes and a log of everything we touched. Ask for a change from your panel; it is ready for approval, not stuck in an inbox.</p>
+     <ul><li>Encrypted backups every night</li><li>Activity log with time spent</li><li>Reply within 12 hours</li><li>Usage limits and warnings for paid services</li></ul>
+    </div>
+   </div>
 
-   <div class="cut"><svg width="22" height="16" viewBox="0 0 100 80" aria-hidden="true"><circle cx="18" cy="20" r="13" fill="none" stroke="#000" stroke-width="8"/><circle cx="18" cy="60" r="13" fill="none" stroke="#000" stroke-width="8"/><path d="M28 28 L95 62 M28 52 L95 18" stroke="#000" stroke-width="8"/></svg><em></em><span class="mono">FROM FIRST COFFEE TO LAUNCH DAY</span></div>
+   <div class="mtm">
+    <div>
+     <div class="label">Made to measure</div>
+     <h3>Written for your business. Not adapted from someone else's.</h3>
+     <p>Every panel, form and tool is written from scratch around the way you sell, price, label and ship. No theme with your logo on it, no features you will never use getting in the way. The code is new for each client, and it fits like it was cut for you, because it was.</p>
+    </div>
+    <ol class="fitting">
+     <li><b>We learn your day</b><span>A visit or a call. How a new item comes in, how it gets a price, how it leaves the door.</span></li>
+     <li><b>We draw your flow</b><span>One page that shows every step, from first click to paid order. You check it before we write a line.</span></li>
+     <li><b>We write it for you</b><span>The site and the panel are built on that flow. Your words, your fields, your buttons.</span></li>
+     <li><b>It stays yours</b><span>Your data, your accounts, your keys. We keep it running; you keep the business.</span></li>
+    </ol>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec" id="work">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>Work</span><span>Heron CA LLC · Mr. Space</span></div>
+    <h2>Three projects. All running.</h2>
+    <p>Each demo below is drawn in code and plays in under a minute: first the page customers see, then the system behind it. Tap a step to jump to it. The real sites are one click away.</p>
+   </div>
+
+   <article class="case">
+    <div class="player" data-demo="heron"></div>
+    <div>
+     <div class="who"><span class="k">Our own brand</span><span>Retail · vintage + apparel</span></div>
+     <h3>Heron CA</h3>
+     <p class="sub">Coastal apparel and curated vintage, Venice Beach</p>
+     <p>One person adds a product in under two minutes: photos, AI description, a product shot from Google, synced to Square, price label printed, live on the site.</p>
+     <dl class="spec">
+      <div><dt>Site</dt><dd>Shop with filters by category and price</dd></div>
+      <div><dt>System</dt><dd>Admin panel, eBay import, Square sync, label printer</dd></div>
+      <div><dt>Paid tools</dt><dd>AI and Google on the owner's own accounts, with limits and warnings</dd></div>
+     </dl>
+     <div class="links"><a class="btn solid" href="https://heronca.com" target="_blank" rel="noopener">Open heronca.com <span class="arr">↗</span></a></div>
+    </div>
+   </article>
+
+   <article class="case ph">
+    <div>
+     <div class="who"><span class="k">Our own product</span><span>Travel · maps</span></div>
+     <h3>laloo</h3>
+     <p class="sub">A bathroom map for travelers</p>
+     <p>It started with tourists asking our shop where the bathroom is. Now it is a map for cities around the world that also shows local shops along the way, and the business pays for that spot.</p>
+     <dl class="spec">
+      <div><dt>Site</dt><dd>Works like an app, no download, 12 languages</dd></div>
+      <div><dt>System</dt><dd>Admin app for places, reviews, QR stickers and business requests</dd></div>
+      <div><dt>Model</dt><dd>Local businesses on the route pay to be seen</dd></div>
+     </dl>
+     <div class="links"><a class="btn solid" href="https://laloo.org" target="_blank" rel="noopener">Open laloo.org <span class="arr">↗</span></a></div>
+    </div>
+    <div class="player" data-demo="laloo"></div>
+   </article>
+
+   <article class="case">
+    <div class="player" data-demo="rufcut"></div>
+    <div>
+     <div class="who"><span class="k">Client</span><span>Workshop · custom denim</span></div>
+     <h3>Rufcut</h3>
+     <p class="sub">Custom jeans and vintage Levi's, Venice Beach</p>
+     <p>A busy old site, put in order without losing a word. Then a jeans builder that shows the ready date before you pay, and an order board for the workshop that texts the customer when the pair is done.</p>
+     <dl class="spec">
+      <div><dt>Site</dt><dd>Same content, organized; builder for jeans and jackets</dd></div>
+      <div><dt>System</dt><dd>Order board: cut, sew, finish, ready</dd></div>
+      <div><dt>Customer</dt><dd>Deposit online, text message when ready</dd></div>
+     </dl>
+     <div class="links"><a class="btn solid" href="rufcut/">Open the Rufcut demo <span class="arr">→</span></a></div>
+    </div>
+   </article>
+   <p class="demo-note">Demo data: names, prices and numbers inside the animations are examples.</p>
+  </div>
+ </section>
+
+ <section class="sec" id="process">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>How it goes</span><span>Standard delivery · 15 days</span></div>
+    <h2>From first talk to launch.</h2>
+    <p>Nothing starts before it is written down and signed. Fifteen days is our standard; it can be shorter or longer depending on what you need.</p>
+   </div>
    <ol class="steps">
-    <li><b>1</b><h4>Meet at the shop</h4><p>We talk about your customers and pick what you need.</p></li>
-    <li><b>2</b><h4>Shoot day</h4><p>Photos and video of the shop and the work.</p></li>
-    <li><b>3</b><h4>Design</h4><p>You see the full site. Two rounds of changes.</p></li>
-    <li><b>4</b><h4>Build</h4><p>Pages, products, texts and bookings.</p></li>
-    <li><b>5</b><h4>Test</h4><p>You try everything before anyone else does.</p></li>
-    <li><b>6</b><h4>Training</h4><p>A short session on everyday updates.</p></li>
-    <li><b>7</b><h4>Launch</h4><p>Live, and announced together.</p></li>
+    <li><h4>Talk</h4><p>Fill in the short form. We talk about what you sell and how you work.</p></li>
+    <li><h4>Agreement</h4><p>Package, price, timeline and who owns what. In plain words.</p></li>
+    <li><h4>Contract</h4><p>Signed by both sides before any work.</p></li>
+    <li><h4>Payment</h4><p>Setup fee first. Then we start the clock.</p></li>
+    <li><h4>Build</h4><p>We enter your content and set up the system. You review and ask for changes.</p></li>
+    <li><h4>Launch + care</h4><p>Live. Backups, fixes and changes from your panel.</p></li>
    </ol>
   </div>
  </section>
 
- <section id="care" style="padding-top:40px">
+ <section class="sec" id="packages">
   <div class="wrap">
-   <div class="sec"><span class="n">03</span><h2>After launch</h2></div>
-   <p class="lede">A website is like a good pair of jeans. It lasts if someone looks after it.</p>
-   <div class="label">
-    <div class="head"><b>CARE INSTRUCTIONS</b>
-     <div class="icons" aria-hidden="true">
-      <svg viewBox="0 0 40 40"><path d="M4 12 H36 L32 34 H8 Z" fill="none" stroke="#fff" stroke-width="3"/><path d="M4 12 Q12 6 20 12 Q28 6 36 12" fill="none" stroke="#fff" stroke-width="3"/></svg>
-      <svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" fill="none" stroke="#fff" stroke-width="3"/><circle cx="20" cy="20" r="10" fill="none" stroke="#fff" stroke-width="3"/></svg>
-      <svg viewBox="0 0 40 40"><path d="M20 5 L36 34 H4 Z" fill="none" stroke="#fff" stroke-width="3"/></svg>
-      <svg viewBox="0 0 40 40"><path d="M6 30 H34 L30 16 H14 Q8 16 6 30 Z" fill="none" stroke="#fff" stroke-width="3"/><circle cx="20" cy="24" r="2" fill="#fff"/></svg>
-     </div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#000" stroke-width="3"/><path d="M20 10 V20 L27 25" stroke="#000" stroke-width="3" fill="none"/></svg><div><h4>Kept running</h4><p>Checked every day. If something stops working, it gets fixed.</p></div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><path d="M20 4 L34 10 V20 Q34 32 20 37 Q6 32 6 20 V10 Z" fill="none" stroke="#000" stroke-width="3"/></svg><div><h4>Safe and backed up</h4><p>Security updates and regular backups. Nothing gets lost.</p></div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" fill="none" stroke="#000" stroke-width="3"/><path d="M5 28 L15 18 L23 26 L28 21 L35 28" stroke="#000" stroke-width="3" fill="none"/></svg><div><h4>Content updates</h4><p>New products, photos, prices, holiday hours. Send it, it goes up.</p></div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><path d="M6 34 L28 12 L34 18 L12 40" stroke="#000" stroke-width="3" fill="none"/><path d="M28 4 V10 M34 6 L30 10 M36 12 H30" stroke="#000" stroke-width="3"/></svg><div><h4>Small improvements</h4><p>A set amount of design and page changes every month.</p></div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><rect x="6" y="22" width="6" height="12"/><rect x="17" y="14" width="6" height="20"/><rect x="28" y="6" width="6" height="28"/></svg><div><h4>Monthly report</h4><p>One page: visitors, bookings, orders, what people searched for.</p></div></div>
-    <div class="ci"><svg viewBox="0 0 40 40"><path d="M20 37 Q6 22 6 15 A14 14 0 0 1 34 15 Q34 22 20 37 Z" fill="none" stroke="#000" stroke-width="3"/><circle cx="20" cy="15" r="5"/></svg><div><h4>Found nearby</h4><p>Your Google listing kept fresh with photos and posts.</p></div></div>
+   <div class="sec-head">
+    <div class="label"><span>Packages</span><span>Prices in USD, plus tax</span></div>
+    <h2>Three ways to start.</h2>
+    <p>Rent a site, get a custom one we look after, or take the whole system home. Your data and your accounts stay yours in every package.</p>
    </div>
-   <div class="levels">
-    <div class="lv"><h4>BASIC</h4><div class="bars"><i class="on"></i><i></i><i></i></div><p>Running, safety, backups, monthly report.</p></div>
-    <div class="lv"><h4>STANDARD</h4><div class="bars"><i class="on"></i><i class="on"></i><i></i></div><p>Basic plus content updates, improvements and Google listing care.</p></div>
-    <div class="lv blk"><h4>GROWTH</h4><div class="bars"><i class="on"></i><i class="on"></i><i class="on"></i></div><p>Standard plus a monthly shoot at your shop and clips for social media.</p></div>
+   <div class="pk">
+    <div class="tag">
+     <div class="no">Package 01</div><h3>Rent</h3>
+     <div class="price num">$200</div><div class="per">setup · then $25 / month</div>
+     <p>A simple, professional site, fast.</p>
+     <ul><li>Change your logo, text and photos yourself</li><li>Hosting, backups and care included</li><li>Leave anytime; the site goes with the plan</li></ul>
+    </div>
+    <div class="tag">
+     <div class="no">Package 02</div><h3>Custom</h3>
+     <div class="price num">$2,500+</div><div class="per">design · then $80 / month</div>
+     <p>Your own design and admin panel, looked after by us.</p>
+     <ul><li>At least two rounds of revisions</li><li>Logo and business email setup</li><li>AI and custom tools available</li></ul>
+    </div>
+    <div class="tag inv">
+     <div class="no">Package 03</div><h3>Handover</h3>
+     <div class="price num">$8,000+</div><div class="per">one time · service by the hour</div>
+     <p>We build the whole system and hand it over to you.</p>
+     <ul><li>Your own admin panel and setup</li><li>Service from $120 / hour, cheaper as hours add up</li><li>Yearly service plan available</li></ul>
+    </div>
    </div>
-   <div class="req">
-    <div><span class="mono">ANY WAY</span><p>A text, a photo or a voice note. No forms.</p></div>
-    <div><span class="mono">1-2 DAYS</span><p>Small changes go live fast.</p></div>
-    <div><span class="mono">SAME DAY</span><p>If the site is down, it gets fixed today.</p></div>
-    <div><span class="mono">NEXT DOOR</span><p>We are on the boardwalk. Just walk over.</p></div>
-   </div>
+   <a class="promo" href="first-clients/">
+    <span class="promo-k"><i></i>Launch offer</span>
+    <span class="promo-t">First clients get <b>setup for $300</b> and <b>$50 / month</b>, add-ons included.</span>
+    <span class="promo-a">See the offer →</span>
+   </a>
+   <p style="margin-top:16px"><a class="btn" href="packages/">Compare packages <span class="arr">→</span></a></p>
   </div>
  </section>
 
- <section id="contact" class="contact">
-  <div class="wrap">
-   <span class="mono">517 OCEAN FRONT WALK / VENICE BEACH</span>
-   <h2 style="margin-top:24px">Got a shop?<br>Come by.</h2>
-   <div class="btns"><a class="btn solid" href="mailto:hello@mrspace.online">HELLO@MRSPACE.ONLINE</a><a class="btn" href="https://heronca.com" target="_blank" rel="noopener">FIND US AT HERON CA</a></div>
-   <div class="tape" aria-hidden="true"></div>
-   <div class="foot mono"><span>MR. SPACE</span><span>MRSPACE.ONLINE</span></div>
+ <section class="sec contact" id="contact">
+  <div class="wrap grid">
+   <div>
+    <div class="label">Contact</div>
+    <h2 style="margin-top:14px">Let's talk about your project.</h2>
+    <div class="row">
+     <a class="btn solid" href="start/">Start a project <span class="arr">→</span></a>
+     <span class="mail">hello@mrspace.online</span>
+    </div>
+   </div>
+   <dl>
+    <div><dt>Reply</dt><dd>Within 12 hours</dd></div>
+    <div><dt>Fixes</dt><dd>We aim to solve problems within 24 hours, then give you a real timeline</dd></div>
+    <div><dt>Based in</dt><dd>Venice Beach, California</dd></div>
+   </dl>
   </div>
  </section>
 </main>
 
+<footer class="foot">
+ <div class="wrap">
+  <div style="display:grid;gap:12px">
+   <span class="sig"><i></i>Made by Mr. Space</span>
+   <p>Every site we build carries this small mark at the bottom. Mr. Space is a web studio of Heron CA LLC, Venice Beach, California.</p>
+  </div>
+  <nav aria-label="Footer"><a href="#work">Work</a><a href="packages/">Packages</a><a href="first-clients/">Launch offer</a><a href="start/">Start a project</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+ </div>
+</footer>
+</div>
+
+<script src="assets/demos.js"></script>
 <script>
+/* control panel log: a rolling list of the kind of work the panel records */
 (function(){
-  // load live previews when near the screen, scale them to fit their frame
-  var views=[].slice.call(document.querySelectorAll('.view'));
-  function fit(v){var f=v.querySelector('iframe');if(!f)return;f.style.transform='scale('+(v.clientWidth/f.offsetWidth)+')'}
-  views.forEach(fit);
-  window.addEventListener('resize',function(){views.forEach(fit)});
-  var io='IntersectionObserver' in window?new IntersectionObserver(function(es){es.forEach(function(e){
-    if(e.isIntersecting){var f=e.target.querySelector('iframe');if(f&&!f.src){f.src=f.dataset.src}io.unobserve(e.target)}})},{rootMargin:'600px'}):null;
-  views.forEach(function(v){if(io)io.observe(v);else{var f=v.querySelector('iframe');f.src=f.dataset.src}});
+ var log = document.getElementById("crlog"); if (!log) return;
+ var items = [
+  ["auto","Backup done · Heron CA · encrypted"],
+  ["auto","Uptime check · 3 sites OK"],
+  ["Uzay","Approved logo change · Rufcut · 4 min"],
+  ["auto","Square sync · 2 new items · Heron CA"],
+  ["auto","Google images at 84% · warning emailed"],
+  ["Uzay","New city added · laloo · 18 min"],
+  ["auto","SSL renewed · laloo.org"],
+  ["client","Change request · new hours · ready to approve"],
+  ["Uzay","Price labels template · Heron CA · 12 min"],
+  ["auto","Backup done · Rufcut · encrypted"]
+ ];
+ var i = 0, h = 9, m = 41;
+ function add(){
+  var it = items[i++ % items.length]; m += 3 + (i % 5); if (m >= 60) { m -= 60; h = h % 12 + 1; }
+  var d = document.createElement("div");
+  d.innerHTML = '<span class="t num">' + h + ':' + (m < 10 ? '0' : '') + m + '</span><span>' + it[1] + '</span><span class="k' + (it[0] === "auto" ? ' auto' : '') + '">' + it[0] + '</span>';
+  log.insertBefore(d, log.firstChild);
+  while (log.children.length > 6) log.removeChild(log.lastChild);
+ }
+ for (var k = 0; k < 5; k++) add();
+ if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) setInterval(function(){ if (!document.hidden) add(); }, 3200);
 })();
 </script>
 </body>
