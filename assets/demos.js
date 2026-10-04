@@ -168,12 +168,12 @@ function heronCard(c, isNew){
     '<p>'+c[0]+'</p><p>'+(c[1]?c[1]+' · ':'')+'<b>'+c[2]+'</b> <s>'+c[3]+'</s></p></div>';
 }
 var HERON = {
-  label: "Demo: adding a product to Heron CA, from the admin panel to a printed price label and the live shop",
+  label: "Demo: adding a product in a shop admin panel, from the admin panel to a printed price label and the live shop",
   chapters: ["The shop","Add an item","AI writes it","Photo from Google","Synced to Square","Label printed","Live on the site"],
   html:
    '<div class="scene hr on" data-s="shop">' +
-     '<div class="hr-top"><span class="hr-logo">HERON <span style="font-size:12px;letter-spacing:0;border:1px solid;border-radius:50%;padding:0 4px">ca</span></span><span class="hr-bag">BAG 0</span></div>' +
-     '<div class="hr-hero"><small>Venice Beach, California</small><div class="serif">Vintage. New. Ours.</div></div>' +
+     '<div class="hr-top"><span class="yb"><i></i>YOUR BRAND</span><span class="hr-bag">BAG 0</span></div>' +
+     '<div class="hr-hero"><small>New this week</small><div class="serif">Your shop, online.</div></div>' +
      '<div class="hr-grid" id="hgrid">' + heronCards.slice(0,4).map(function(c){ return heronCard(c); }).join("") + '</div>' +
    '</div>' +
    '<div class="scene hr" data-s="admin">' +
@@ -198,12 +198,12 @@ var HERON = {
      '<div class="gpick" id="gk"><div class="q">&#128269; vince silk slip dress black</div><div class="g">' +
         '<div style="background:#EFEDE9">'+garment("#222")+'</div><div style="background:#E8E4DC" id="gsel">'+garment("#141414")+'</div><div style="background:#F2F0EC">'+garment("#2A2A2A","blouse")+'</div><div style="background:#ECE9E3">'+garment("#333")+'</div>' +
         '</div><small>Image search runs on your Google account. You set the monthly limit, we warn you before you reach it.</small></div>' +
-     '<div class="printer" id="pn"><div class="lbl"><div class="t">Vince Silk Slip Dress, Black</div><div class="r"><span class="p">$128</span><span class="s">SIZE M</span></div>'+barcode(42)+'<div class="sku"><span>HC-V-DR-0042</span><span>ALL SALES FINAL</span></div></div><div class="body"></div></div>' +
+     '<div class="printer" id="pn"><div class="lbl"><div class="t">Vince Silk Slip Dress, Black</div><div class="r"><span class="p">$128</span><span class="s">SIZE M</span></div>'+barcode(42)+'<div class="sku"><span>YB-DR-0042</span><span>ALL SALES FINAL</span></div></div><div class="body"></div></div>' +
    '</div>',
   run: async function(a){
-    a.chapter(0); a.scene("shop"); a.url("heronca.com");
+    a.chapter(0); a.scene("shop"); a.url("yourbrand.com");
     await a.wait(1400); await a.go(".hr-card:nth-child(2)"); await a.wait(1100); await a.go(".hr-card:nth-child(4)"); await a.wait(900);
-    a.chapter(1); a.url("heronca.com/admin"); a.scene("admin"); await a.wait(900);
+    a.chapter(1); a.url("yourbrand.com/admin"); a.scene("admin"); await a.wait(900);
     await a.tap("#s1"); a.$("#s1").classList.add("filled"); a.$("#s1").innerHTML = garment("#141414"); a.$("#pvph").innerHTML = garment("#141414"); await a.wait(400);
     await a.go("#ti"); await a.type("#ti", "Vince Silk Slip Dress, Black", 38); a.$("#pvt").textContent = "Vince Silk Slip Dress, Black";
     await a.go("#sz"); await a.type("#sz", "M", 80);
@@ -218,10 +218,10 @@ var HERON = {
     a.$("#m2v").textContent = "84"; a.$("#m2 .bar i").style.width = "84%";
     await a.toast("Google images at 84% of your limit. Email sent to you.", 2400);
     a.chapter(4); await a.tap("#sv"); a.$("#sv").textContent = "Saving..."; await a.wait(800); a.$("#sv").textContent = "Saved";
-    await a.toast("Synced to Square and heronca.com · SKU HC-V-DR-0042", 2300);
+    await a.toast("Synced to Square and your site · SKU YB-DR-0042", 2300);
     a.chapter(5); await a.tap("#pl"); a.$("#pn").classList.add("on"); await a.wait(500); a.$("#pn").classList.add("out"); await a.wait(3000);
     a.$("#pn").classList.remove("on"); await a.wait(400);
-    a.chapter(6); a.url("heronca.com"); a.scene("shop");
+    a.chapter(6); a.url("yourbrand.com"); a.scene("shop");
     var g = a.$("#hgrid"); g.insertAdjacentHTML("afterbegin", heronCard(["Vince Silk Slip Dress","M","$128","$140","#141414","dress"], true)); g.lastElementChild.remove();
     await a.go(g.firstElementChild); await a.wait(3600);
   }
@@ -244,7 +244,7 @@ var RUFCUT = {
   html:
    '<div class="scene rc-old on" data-s="old" id="old"><span class="rc-before" id="bf">BEFORE</span>' +
      bit("rc-nav","<span>HOME</span>|<span>Jeans</span>|<span>ABOUT US</span>|<span>press</span>|<span>Contact!!</span>|<span>Reviews</span>",[300,14,330,0,2],[30,22,520,0,0]) +
-     bit("rc-banner","WELCOME 2 RUFCUT JEANS!!! CUSTOM DENIM!!!",[24,48,400,0,-3],[30,70,350,0,0]) +
+     bit("rc-banner","WELCOME 2 YOUR SHOP!!! CUSTOM DENIM!!!",[24,48,400,0,-3],[30,70,350,0,0]) +
      bit("rc-pic","",[520,70,170,120,6],[420,60,300,300,0]) +
      bit("rc-txt","We make custom jeans in Venice!! Call us or come by the shop. We also have vintage levis and do repairs. Click here for more info about our workshop and press!!!",[190,150,230,0,2],[30,200,330,0,0]) +
      bit("rc-pic","",[50,250,120,90,-7],[30,330,105,90,0]) +
@@ -277,7 +277,7 @@ var RUFCUT = {
      '</div>' +
    '</div></div>',
   run: async function(a){
-    a.chapter(0); a.scene("old"); a.url("rufcut.com");
+    a.chapter(0); a.scene("old"); a.url("yourbrand.com");
     await a.wait(900); await a.go(".rc-btn"); await a.wait(700); await a.go(".rc-nav"); await a.wait(800); await a.go(".rc-stamp"); await a.wait(900);
     a.chapter(1);
     var old = a.$("#old"); old.classList.add("tidy"); a.$("#bf").textContent = "AFTER · SAME CONTENT, ORGANIZED";
@@ -289,7 +289,7 @@ var RUFCUT = {
     a.$$(".rc-txt")[1].textContent = "Open daily. Hours update from the panel.";
     a.$(".rc-btn").textContent = "Build your pair";
     await a.wait(2400); await a.tap(".rc-btn");
-    a.chapter(2); a.url("rufcut.com/build"); a.scene("build"); await a.wait(700);
+    a.chapter(2); a.url("yourbrand.com/build"); a.scene("build"); await a.wait(700);
     function pick(group, name){ var bs = a.$$('[data-g="'+group+'"] b'); var el; bs.forEach(function(b){ var on = b.textContent === name; b.classList.toggle("on", on); if (on) el = b; }); return el; }
     function chip(group, name){ var bs = a.$$('[data-g="'+group+'"] b'); for (var i = 0; i < bs.length; i++) if (bs[i].textContent === name) return bs[i]; }
     await a.tap(chip("fit","Straight")); pick("fit","Straight"); a.$("#leg").setAttribute("d", FITS.Straight); await a.wait(500);
@@ -297,7 +297,7 @@ var RUFCUT = {
     await a.tap(chip("thread","Copper")); pick("thread","Copper"); a.$("#st").style.stroke = THREAD.Copper; await a.wait(500);
     await a.tap(chip("hem","Chain stitch")); pick("hem","Chain stitch"); a.$("#rd").textContent = "FRIDAY, OCT 9"; await a.wait(900);
     await a.tap("#ord"); await a.toast("Deposit paid · order #1042 · ready Friday", 2000);
-    a.chapter(3); a.url("rufcut.com/admin/orders"); a.scene("board"); await a.wait(600);
+    a.chapter(3); a.url("yourbrand.com/admin/orders"); a.scene("board"); await a.wait(600);
     var cols = a.$$("#cols .col"), mv = a.$("#mv");
     function place(i){ var cs = cols[i].querySelectorAll(".card"), last = cs[cs.length-1]; mv.style.left = (cols[i].offsetLeft + 8) + "px"; mv.style.width = (cols[i].offsetWidth - 16) + "px"; mv.style.top = (last.offsetTop + last.offsetHeight + 6) + "px"; }
     mv.style.transition = "none"; place(0); void mv.offsetWidth; mv.style.transition = ""; mv.style.opacity = 1;
@@ -328,12 +328,12 @@ var LALOO = {
      '<i class="pin shop" id="shop" style="left:150px;top:340px"></i>' +
      '<span class="me" style="left:176px;top:430px"></span>' +
      '<div class="sheet" id="sh1"><h4 id="t1"></h4><div class="row" id="r1"></div><div class="go" id="go"></div></div>' +
-     '<div class="sheet" id="sh2"><span class="tagline" id="sp"></span><div class="ad"><span class="lg">H</span><div><h4>Heron CA</h4><div class="row" id="ad"></div></div></div><div class="row" id="ad2"></div></div>' +
+     '<div class="sheet" id="sh2"><span class="tagline" id="sp"></span><div class="ad"><span class="lg">Y</span><div><h4>Your Shop</h4><div class="row" id="ad"></div></div></div><div class="row" id="ad2"></div></div>' +
    '</div>' +
    '<div class="scene" data-s="admin"><div class="ll-admin">' +
      '<div class="h"><span class="yb"><i></i>YOUR BRAND</span><span>ADMIN</span></div>' +
      '<div class="ll-stats"><div><small>Places listed</small><b id="pl">1,284</b></div><div><small>QR scans today</small><b id="sc">312</b></div></div>' +
-     '<div class="ll-req hl" id="rq"><div class="top2"><span class="lg">H</span><div><b style="font-size:13px">Heron CA wants to join</b><p>Shop · Venice Beach · on 3 walking routes · Sponsored plan</p></div></div>' +
+     '<div class="ll-req hl" id="rq"><div class="top2"><span class="lg">Y</span><div><b style="font-size:13px">Your Shop wants to join</b><p>Shop · Venice Beach · on 3 walking routes · Sponsored plan</p></div></div>' +
        '<div class="btns"><span>Reject</span><span class="ok" id="ap">Approve</span></div><div class="st">Approved · now on the map in 12 languages</div></div>' +
      '<div class="ll-feed" id="fd"><div><span><b>New review</b> ★5 · Rose Ave</span><span>2m</span></div><div><span><b>QR scan</b> · Windward Plaza</span><span>4m</span></div></div>' +
    '</div></div>',
@@ -353,7 +353,7 @@ var LALOO = {
     for (var j = 0; j < ks.length; j++) { var b; a.$$("#lg b").forEach(function(x){ if (x.textContent === ks[j]) b = x; }); await a.tap(b); lang(ks[j], true); await a.wait(1100); }
     a.chapter(4); a.scene("admin"); await a.wait(1000);
     await a.tap("#ap"); a.$("#rq").classList.add("done"); a.$("#rq").classList.remove("hl"); a.$("#pl").textContent = "1,285";
-    a.$("#fd").insertAdjacentHTML("afterbegin", '<div><span><b>Heron CA</b> is live on the map</span><span>now</span></div>');
+    a.$("#fd").insertAdjacentHTML("afterbegin", '<div><span><b>Your Shop</b> is live on the map</span><span>now</span></div>');
     await a.wait(1200); a.$("#sc").textContent = "313"; await a.wait(2600);
   }
 };
