@@ -87,7 +87,7 @@ form.add input[name=ref]{flex:1; min-width:200px}
       <h1>Fikirler</h1>
       <div class="status" id="last">Son tarama yükleniyor</div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center" data-lang-host>
       <a href="../">Panele dön</a>
       <button class="btn main" id="run">Şimdi tara</button>
     </div>
@@ -119,7 +119,15 @@ form.add input[name=ref]{flex:1; min-width:200px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
 <script src="../../assets/ms-auth.js"></script>
+<script src="../../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
 <script>
+const C0 = 0;
+// Dil: ana panelle ayni secim (telefon dili ya da secilen dil). Ekrandaki metinler her degisimde cevrilir.
+const tt = (m) => (window.MSI18N && typeof m === "string" ? MSI18N.t(m) : m);
+{ const _a = window.alert, _c = window.confirm, _p = window.prompt;
+  window.alert = (m) => _a(tt(m)); window.confirm = (m) => _c(tt(m)); window.prompt = (m, d) => _p(tt(m), d); }
+{ let tmr; new MutationObserver(() => { clearTimeout(tmr); tmr = setTimeout(() => window.MSI18N && MSI18N.ready && MSI18N.ready.then(() => MSI18N.apply(document.body)), 30); })
+  .observe(document.body, { childList: true, subtree: true, characterData: true }); }
 const sb = supabase.createClient(window.MS_CONFIG.url, window.MS_CONFIG.anon, { auth: { autoRefreshToken: false, persistSession: false } });
 const SECTORS = {genel:"Genel", terzi:"Terzi", pastane:"Pastane", cicekci:"Çiçekçi", kafe:"Kafe", vintage:"Vintage", mobilya:"Mobilya"};
 const KINDS = {tool:"Araç", phrase:"Söz", theme:"Tema", post:"Gönderi"};
@@ -152,8 +160,9 @@ async function loadLast() {
     .like("action", "Scout%").order("at", { ascending: false }).limit(1);
   const r = data?.[0];
   if (!r) { $("#last").textContent = "Henüz tarama yapılmadı."; return; }
-  const errs = r.meta?.errors?.length ? `, ${r.meta.errors.length} kaynak açılmadı` : "";
-  $("#last").textContent = `${new Date(r.at).toLocaleString("tr-TR")}: ${r.action.replace("Scout: ", "").replace("new ideas", "yeni fikir")}${errs}`;
+  const n = (r.action.match(/\d+/) || ["0"])[0];
+  const errs = r.meta?.errors?.length ? `, ${r.meta.errors.length} <span>kaynak açılmadı</span>` : "";
+  $("#last").innerHTML = `${esc(new Date(r.at).toLocaleString(document.documentElement.lang || "tr"))}: ${esc(n)} <span>yeni fikir</span>${errs}`;
 }
 $("#run").onclick = async () => {
   const b = $("#run"); b.disabled = true; b.textContent = "Taranıyor";
@@ -205,15 +214,15 @@ function card(i) {
   }
   if (i.kind === "theme") {
     body += `<div class="swatches">${(s.colors || []).map((c) => `<span style="background:${esc(c)}" data-c="${esc(c)}"></span>`).join("")}</div>`;
-    if (s.fonts?.length) body += `<div class="fonts">Yazı: ${s.fonts.map(esc).join(", ")}</div>`;
+    if (s.fonts?.length) body += `<div class="fonts"><span>Yazı:</span> ${s.fonts.map(esc).join(", ")}</div>`;
   }
   const chips = [...(s.libs || []), ...(s.phrases || []), ...(s.words || [])];
   if (chips.length) body += `<div class="chips">${[...new Set(chips)].slice(0, 8).map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>`;
   if (s.out) body += `<div class="meta"><a href="${esc(safeUrl(s.out))}" target="_blank" rel="noopener">Bağlantıdaki site</a></div>`;
 
-  const extra = [s.ups ? `${s.ups} oy` : "", s.points ? `${s.points} puan` : ""].filter(Boolean).join(", ");
+  const extra = [s.ups ? `${s.ups} <span>oy</span>` : "", s.points ? `${s.points} <span>puan</span>` : ""].filter(Boolean).join(", ");
   return `<article class="card ${esc(i.status)}" data-id="${i.id}">
-    <div class="meta"><b>${KINDS[i.kind] || i.kind}</b><span>${SECTORS[i.sector] || esc(i.sector)}</span><span>${esc(i.source || "")}</span>${extra ? `<span>${esc(extra)}</span>` : ""}<span class="score">${Math.round(i.score)}</span></div>
+    <div class="meta"><b>${KINDS[i.kind] || i.kind}</b><span>${SECTORS[i.sector] || esc(i.sector)}</span><span>${esc(i.source || "")}</span>${extra ? `<span>${extra}</span>` : ""}<span class="score">${Math.round(i.score)}</span></div>
     ${body}
     <div class="actions">
       <button class="btn small" data-set="keep">Sakla</button>
