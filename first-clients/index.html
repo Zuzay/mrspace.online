@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Launch offer · Mr. Space</title>
+<meta name="description" content="Launch pricing for our first clients: setup $300 instead of $600 to $1,200, $50 a month instead of $80 to $90, add-ons included.">
+<meta property="og:title" content="Mr. Space launch offer for first clients">
+<meta property="og:description" content="Setup $300 instead of $600 to $1,200. $50 a month instead of $80 to $90. Add-ons included.">
+<meta property="og:image" content="https://mrspace.online/og.png">
+<link rel="canonical" href="https://mrspace.online/first-clients/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.intro{padding-block:clamp(40px,6vw,80px) clamp(40px,6vw,72px);border-bottom:1px solid var(--ink)}
+.intro .grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:end}
+.intro h1{font-size:clamp(48px,7.2vw,100px);line-height:.9;margin-top:16px}
+.intro h1 span{color:var(--mute)}
+.intro p{font-size:clamp(17px,1.5vw,20px);max-width:52ch;margin-top:22px}
+.intro .row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+@media (max-width:900px){.intro .grid{grid-template-columns:1fr}}
+
+/* the big price ticket */
+.ticket{position:relative;background:var(--inv-bg);color:var(--inv-fg);padding:28px 26px 24px;display:grid;gap:18px}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:var(--paper)}
+.ticket::before{left:-11px}.ticket::after{right:-11px}
+.ticket .k{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.ticket .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px dashed var(--inv-rule);padding-top:18px}
+.ticket .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.ticket .was{font-family:var(--display);font-size:clamp(22px,2.4vw,28px);line-height:1;opacity:.55;text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--sun);margin-top:8px}
+.ticket .now{font-family:var(--display);font-size:clamp(52px,6vw,80px);line-height:.95}
+.ticket .now small{font-size:.38em;letter-spacing:.02em}
+.ticket .foot2{font-size:14px;opacity:.8;border-top:1px dashed var(--inv-rule);padding-top:14px}
+
+/* comparison rows */
+.rows{border-top:1.5px solid var(--ink)}
+.r{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:baseline;padding:22px 0;border-bottom:1px solid var(--rule)}
+.r.h{padding:12px 0}
+.r.h span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.r b{font-weight:600;font-size:18px}
+.r small{display:block;color:var(--mute);font-size:14px;margin-top:4px;font-weight:400}
+.r s{font-family:var(--display);font-size:clamp(22px,2.6vw,32px);color:var(--mute);text-decoration-thickness:3px;text-decoration-color:var(--sun)}
+.r .n{font-family:var(--display);font-size:clamp(30px,3.6vw,46px);line-height:1}
+.r .n.t{font-size:clamp(22px,2.4vw,30px)}
+@media (max-width:640px){.r{grid-template-columns:1fr 1fr}.r>div:first-child{grid-column:1/-1}.r.h span:first-child{display:none}}
+
+.incl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1.5px solid var(--ink)}
+.incl div{padding:22px 24px 22px 0;display:grid;gap:8px;align-content:start}
+.incl div+div{padding-left:24px;border-left:1px solid var(--rule)}
+.incl h3{font-size:clamp(22px,2.2vw,28px)}
+.incl p{color:var(--mute);font-size:15px}
+@media (max-width:860px){.incl{grid-template-columns:1fr}.incl div,.incl div+div{padding:20px 0;border-left:0;border-bottom:1px solid var(--rule)}}
+
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px;border-top:1.5px solid var(--ink)}
+.terms div{padding:16px 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:140px minmax(0,1fr);gap:16px}
+.terms dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+.terms dd{font-size:15.5px}
+@media (max-width:820px){.terms{grid-template-columns:1fr}.terms div{grid-template-columns:1fr;gap:4px}}
+
+.cta{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+.cta h2{font-size:clamp(40px,6vw,84px)}
+</style>
+</head>
+<body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
+
+<header class="top">
+ <div class="wrap">
+  <a class="mark" href="../" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main">
+   <a class="hide-sm" href="../#work">Work</a>
+   <a class="hide-sm" href="../packages/">Packages</a>
+   <a class="hide-sm" href="./" aria-current="page">Launch offer</a>
+   <a class="btn sm solid" href="../start/?p=first">Start a project</a>
+  </nav>
+ </div>
+</header>
+
+<main>
+ <section class="intro">
+  <div class="wrap grid">
+   <div>
+    <div class="label">Launch offer · first clients only</div>
+    <h1>Be one of our<br><span>first clients.</span></h1>
+    <p>We are opening the studio with a small number of businesses we can work closely with. You get a site and panel written for you, our full attention and launch pricing.</p>
+    <div class="row">
+     <a class="btn solid" href="../start/?p=first">Claim a spot <span class="arr">→</span></a>
+     <a class="btn" href="../#work">See our work</a>
+    </div>
+   </div>
+   <div class="ticket" aria-label="Launch price">
+    <div class="k"><span>Mr. Space · launch price</span><span>Limited spots</span></div>
+    <div class="row2">
+     <div><div class="lbl">Setup</div><div class="was num">$600 – 1,200</div><div class="now num">$300</div></div>
+     <div><div class="lbl">Monthly</div><div class="was num">$80 – 90</div><div class="now num">$50<small> / mo</small></div></div>
+    </div>
+    <div class="foot2">Add-ons included. Double the monthly changes. Plus tax.</div>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>Usual price vs. launch price</span><span>USD</span></div>
+    <h2>What you save.</h2>
+    <p>The usual prices are what the same work costs with add-ons once the launch spots are gone.</p>
+   </div>
+   <div class="rows">
+    <div class="r h"><span></span><span>Usual</span><span>First clients</span></div>
+    <div class="r"><div><b>Setup</b><small>Design, build, content entry, launch</small></div><s class="num">$600 – 1,200</s><span class="n num">$300</span></div>
+    <div class="r"><div><b>Monthly</b><small>Hosting, backups, care, your panel</small></div><s class="num">$80 – 90</s><span class="n num">$50</span></div>
+    <div class="r"><div><b>Add-ons</b><small>Extra tasks like product imports, Google image search, a new page</small></div><s class="num">$25 – 125 each</s><span class="n t">Included</span></div>
+    <div class="r"><div><b>Small changes</b><small>A logo, a text, a photo, a price</small></div><s class="num">4 / month</s><span class="n num">8 / month</span></div>
+    <div class="r"><div><b>Big changes</b><small>A design change, a name change, removing a feature</small></div><s class="num">2 / year</s><span class="n num">4 / year</span></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>What you get</span><span>Same work, launch price</span></div>
+    <h2>Nothing is held back.</h2>
+    <p>Launch pricing changes the price, not the work. Every first client gets what every client gets.</p>
+   </div>
+   <div class="incl">
+    <div><h3>Written for you</h3><p>A site and admin panel built around how your business works. Not a theme with your logo on it.</p></div>
+    <div><h3>Set up by us</h3><p>We enter your content, connect your tools and launch it. You do not have to set anything up yourself.</p></div>
+    <div><h3>Looked after</h3><p>Nightly encrypted backups, a log of every change and a reply within 12 hours.</p></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap">
+   <div class="sec-head">
+    <div class="label"><span>The fine print</span><span>In plain words</span></div>
+    <h2>How it works.</h2>
+   </div>
+   <dl class="terms">
+    <div><dt>Spots</dt><dd>A limited number of businesses. When they are taken, the offer ends.</dd></div>
+    <div><dt>Order</dt><dd>Agreement, signed contract, payment, then work starts. Standard delivery is 15 days.</dd></div>
+    <div><dt>Your accounts</dt><dd>Paid services like AI and Google run on your own accounts, with limits and warnings in your panel.</dd></div>
+    <div><dt>Your data</dt><dd>Your data is yours. We only store it and use it to run your site.</dd></div>
+    <div><dt>Changes</dt><dd>Request them from your panel. The same thing changed again within 12 hours counts once.</dd></div>
+    <div><dt>Price</dt><dd>The price in your signed agreement is the one that counts. Plus tax.</dd></div>
+   </dl>
+  </div>
+ </section>
+
+ <section class="sec">
+  <div class="wrap cta">
+   <h2>Claim a launch spot.</h2>
+   <a class="btn solid" href="../start/?p=first">Start a project <span class="arr">→</span></a>
+  </div>
+ </section>
+</main>
+
+<footer class="foot">
+ <div class="wrap">
+  <div style="display:grid;gap:12px">
+   <span class="sig"><i></i>Made by Mr. Space</span>
+   <p>Mr. Space is a web studio of Heron CA LLC, Venice Beach, California.</p>
+  </div>
+  <nav aria-label="Footer"><a href="../">Home</a><a href="../packages/">Packages</a><a href="../start/?p=first">Start a project</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+ </div>
+</footer>
+</div>
+</body>
+</html>
