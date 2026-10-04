@@ -19,12 +19,39 @@
     text:    "Serbest metin",
   };
 
-  const DAYS = { en: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                 tr: ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"] };
+  const LANGS = [["en", "English"], ["es", "Español"], ["de", "Deutsch"], ["fr", "Français"], ["tr", "Türkçe"]];
+  const LCODES = LANGS.map((l) => l[0]);
+  const DAYS = {
+    en: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    tr: ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"],
+    es: ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"],
+    de: ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],
+    fr: ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
+  };
   const WORDS = {
     en: { closed: "Closed", call: "Call", email: "Email", directions: "Directions", hours: "Hours", contact: "Contact", made: "Made by Mr. Space" },
     tr: { closed: "Kapalı", call: "Ara", email: "E-posta", directions: "Yol tarifi", hours: "Çalışma saatleri", contact: "İletişim", made: "Mr. Space yaptı" },
+    es: { closed: "Cerrado", call: "Llamar", email: "Correo", directions: "Cómo llegar", hours: "Horario", contact: "Contacto", made: "Hecho por Mr. Space" },
+    de: { closed: "Geschlossen", call: "Anrufen", email: "E-Mail", directions: "Route", hours: "Öffnungszeiten", contact: "Kontakt", made: "Gemacht von Mr. Space" },
+    fr: { closed: "Fermé", call: "Appeler", email: "E-mail", directions: "Itinéraire", hours: "Horaires", contact: "Contact", made: "Réalisé par Mr. Space" },
   };
+  const SECTION_NAMES = {
+    hero: ["Intro", "Giriş", "Inicio", "Einstieg", "Accueil"], about: ["About", "Hakkımızda", "Sobre nosotros", "Über uns", "À propos"],
+    menu: ["Menu / prices", "Menü / Fiyatlar", "Menú / precios", "Angebot / Preise", "Carte / tarifs"], gallery: ["Gallery", "Galeri", "Galería", "Galerie", "Galerie"],
+    hours: ["Hours", "Çalışma saatleri", "Horario", "Öffnungszeiten", "Horaires"], contact: ["Contact", "İletişim", "Contacto", "Kontakt", "Contact"],
+    text: ["Free text", "Serbest metin", "Texto libre", "Freier Text", "Texte libre"],
+  };
+  const PRESET_NAMES = {
+    liman: ["Harbor", "Liman", "Puerto", "Hafen", "Port"], firin: ["Bakehouse", "Fırın", "Horno", "Backstube", "Fournil"],
+    gece: ["Night", "Gece", "Noche", "Nacht", "Nuit"], atolye: ["Workshop", "Atölye", "Taller", "Werkstatt", "Atelier"],
+    kiyi: ["Shore", "Kıyı", "Costa", "Küste", "Rivage"],
+  };
+  const LIDX = { en: 0, tr: 1, es: 2, de: 3, fr: 4 };
+  const pickL = (arr, lang) => (arr && (arr[LIDX[lang]] ?? arr[0])) || "";
+  const sectionName = (type, lang) => pickL(SECTION_NAMES[type], lang) || type;
+  const presetName = (k, lang) => pickL(PRESET_NAMES[k], lang) || k;
+  const dayShort = (lang) => (DAYS[lang] || DAYS.en).map((d) => d.slice(0, 3));
+  const langOf = (c) => LCODES.includes(c?.lang) ? c.lang : "en";
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const safeUrl = (u) => /^(https?:|mailto:|tel:)/i.test(String(u || "").trim()) ? String(u).trim() : "";
@@ -199,12 +226,12 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
   function render(content, themeIn, opts = {}) {
     const c = content || {};
     const biz = c.business || {};
-    const lang = c.lang === "tr" ? "tr" : "en";
+    const lang = langOf(c);
     const L = WORDS[lang];
     const t = themeOf(themeIn);
     const secs = (c.sections || []).filter((s) => SECTION_TYPES[s.type]);
-    const nav = secs.map((s, i) => s.type !== "hero" && s.nav !== false && (s.title || SECTION_TYPES[s.type])
-      ? `<a href="#s${i}">${esc(s.nav_label || s.title || (s.type === "hours" ? L.hours : s.type === "contact" ? L.contact : SECTION_TYPES[s.type]))}</a>` : "").join("");
+    const nav = secs.map((s, i) => s.type !== "hero" && s.nav !== false
+      ? `<a href="#s${i}">${esc(s.nav_label || s.title || (s.type === "hours" ? L.hours : s.type === "contact" ? L.contact : sectionName(s.type, lang)))}</a>` : "").join("");
     const logo = safeUrl(biz.logo);
     const soc = Object.entries(biz.socials || {}).filter(([, u]) => safeUrl(u))
       .map(([k, u]) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${esc(k.charAt(0).toUpperCase() + k.slice(1))}</a>`).join("");
@@ -229,7 +256,7 @@ ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div clas
 
   function starter(name, lang) {
     return {
-      lang: lang || "en",
+      lang: LCODES.includes(lang) ? lang : "en",
       business: { name: name || "", tagline: "", phone: "", email: "", address: "", logo: "", hours: Array.from({ length: 7 }, () => ({ open: "", close: "", closed: false })), socials: {} },
       sections: [
         { type: "hero", title: name || "", text: "", image: "", button: { label: "", url: "" } },
@@ -240,5 +267,5 @@ ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div clas
     };
   }
 
-  window.MsRender = { PRESETS, SECTION_TYPES, render, starter, themeOf };
+  window.MsRender = { PRESETS, SECTION_TYPES, LANGS, render, starter, themeOf, sectionName, presetName, dayShort };
 })();
