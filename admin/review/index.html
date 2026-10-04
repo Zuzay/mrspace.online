@@ -86,7 +86,7 @@ th{color:var(--mute);font-weight:500}
 </div>
 
 <div id="app" class="wrap" hidden>
-  <header class="top"><h1>Onay</h1><a href="../">Panele dön</a></header>
+  <header class="top"><h1>Onay</h1><div data-lang-host style="display:flex;gap:10px;align-items:center"><a href="../">Panele dön</a></div></header>
   <nav class="tabs" id="tabs">
     <button data-tab="queue" aria-selected="true">Bekleyenler</button>
     <button data-tab="trials">Denemeler</button>
@@ -98,9 +98,17 @@ th{color:var(--mute);font-weight:500}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
 <script src="../../assets/ms-auth.js"></script>
+<script src="../../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
 <script src="../../assets/ms-render.js"></script>
 <script>
 const C = window.MS_CONFIG;
+// Dil: ana panelle ayni secim (telefon dili ya da secilen dil). Ekrandaki metinler her degisimde cevrilir.
+const tt = (m) => (window.MSI18N && typeof m === "string" ? MSI18N.t(m) : m);
+{ const _a = window.alert, _c = window.confirm, _p = window.prompt;
+  window.alert = (m) => _a(tt(m)); window.confirm = (m) => _c(tt(m)); window.prompt = (m, d) => _p(tt(m), d); }
+{ let tmr; new MutationObserver(() => { clearTimeout(tmr); tmr = setTimeout(() => window.MSI18N && MSI18N.ready && MSI18N.ready.then(() => MSI18N.apply(document.body)), 30); })
+  .observe(document.body, { childList: true, subtree: true, characterData: true }); }
+
 const sb = supabase.createClient(C.url, C.anon, { auth: { autoRefreshToken: false, persistSession: false } });
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -147,11 +155,11 @@ function ageHTML(at) {
   if (!at) return "";
   const h = (Date.now() - new Date(at)) / 3600e3;
   const cls = h > 48 ? "over" : h > 24 ? "late" : "";
-  return `<span class="age ${cls}">${h < 1 ? "az önce" : Math.floor(h) + " saat"}</span>`;
+  return `<span class="age ${cls}">${h < 1 ? "<span>az önce</span>" : Math.floor(h) + "<span> saat</span>"}</span>`;
 }
 function sumHTML(s) {
   if (!s) return "";
-  return `${s.fail ? `<span class="pill fail">${s.fail} kırmızı</span>` : ""}${s.warn ? `<span class="pill warn">${s.warn} sarı</span>` : ""}${!s.fail && !s.warn ? `<span class="pill pass">temiz</span>` : ""}`;
+  return `${s.fail ? `<span class="pill fail">${s.fail} <span>kırmızı</span></span>` : ""}${s.warn ? `<span class="pill warn">${s.warn} <span>sarı</span></span>` : ""}${!s.fail && !s.warn ? `<span class="pill pass">temiz</span>` : ""}`;
 }
 async function renderQueue() {
   const { data, error } = await sb.from("ms_builds").select("id, site, version, status, submitted_at, updated_at, checks_summary, ms_sites(name, mode)")
@@ -163,9 +171,9 @@ async function renderQueue() {
     <span class="pill">${STATUS[b.status]}</span><span class="pill">${b.ms_sites?.mode === "fill" ? "Doldurma" : "Kurucu"}</span>
     ${sumHTML(b.checks_summary)}${["checking", "review"].includes(b.status) ? ageHTML(b.submitted_at) : `<span class="age">${new Date(b.updated_at).toLocaleDateString("tr-TR")}</span>`}</button>`;
   $("#view").innerHTML = `
-    <h2 style="font-size:1rem;margin:0 0 8px">Onay bekleyen (${waiting.length})</h2>
+    <h2 style="font-size:1rem;margin:0 0 8px"><span>Onay bekleyen</span> (${waiting.length})</h2>
     ${waiting.length ? `<div class="queue">${waiting.map(row).join("")}</div>` : `<div class="empty">Bekleyen site yok.</div>`}
-    ${other.length ? `<h2 style="font-size:1rem;margin:22px 0 8px">Müşteride ya da taslakta (${other.length})</h2><div class="queue">${other.map(row).join("")}</div>` : ""}`;
+    ${other.length ? `<h2 style="font-size:1rem;margin:22px 0 8px"><span>Müşteride ya da taslakta</span> (${other.length})</h2><div class="queue">${other.map(row).join("")}</div>` : ""}`;
 }
 $("#view").addEventListener("click", (e) => {
   const q = e.target.closest("[data-open]"); if (q) openBuild(q.dataset.open);
@@ -248,7 +256,7 @@ async function openBuild(id) {
   $("#publish").onclick = async () => {
     const reason = $("#override")?.value || null;
     if (fails && (!reason || reason.trim().length < 5)) return alert("Kırmızı kontrolü geçmek için gerekçe yaz.");
-    if (!confirm(`${s.name} yayına alınsın mı?`)) return;
+    if (!confirm(tt("Yayına alınsın mı?") + " " + s.name)) return;
     const { error } = await sb.rpc("ms_build_publish", { p_build: Number(id), p_override_reason: reason, p_minutes: Number($("#mins").value) || 0 });
     if (error) return alert(error.message === "has_fail" ? "Kırmızı kontrol var, gerekçe gerekli." : error.message);
     localStorage.removeItem("ms_manual_" + id);
@@ -269,7 +277,7 @@ function detailHTML(d) {
   for (const [k, v] of Object.entries(d)) {
     if (v == null || (Array.isArray(v) && !v.length)) continue;
     const list = Array.isArray(v) ? v : [v];
-    parts.push(list.slice(0, 8).map((x) => /^https?:\/\//.test(String(x)) ? `<a href="${esc(safeUrl(String(x).split(" ")[0]))}" target="_blank" rel="noopener">${esc(x)}</a>` : esc(typeof x === "object" ? JSON.stringify(x) : x)).join(", ") + (list.length > 8 ? ` ve ${list.length - 8} tane daha` : ""));
+    parts.push(list.slice(0, 8).map((x) => /^https?:\/\//.test(String(x)) ? `<a href="${esc(safeUrl(String(x).split(" ")[0]))}" target="_blank" rel="noopener">${esc(x)}</a>` : esc(typeof x === "object" ? JSON.stringify(x) : x)).join(", ") + (list.length > 8 ? ` +${list.length - 8}` : ""));
   }
   return parts.length ? `<span class="dt">${parts.join("<br>")}</span>` : "";
 }
@@ -283,7 +291,7 @@ async function renderSites() {
   <div class="table-wrap"><table><thead><tr><th>Site</th><th>Mod</th><th>Ülke</th><th>Alan adı</th><th></th></tr></thead><tbody>
   ${sites.map((s) => `<tr data-slug="${esc(s.slug)}">
     <td><b>${esc(s.name)}</b><br><small style="color:var(--mute)">${esc(s.plan)}, ${esc(s.status)}</small></td>
-    <td>${s.mode === "fill" ? "Doldurma" : "Kurucu"}</td><td>${esc(s.country || "")}</td><td>${esc(s.host || "")}</td>
+    <td>${s.mode === "fill" ? "Doldurma (Paket 2-3)" : "Kurucu (Paket 1)"}</td><td>${esc(s.country || "")}</td><td>${esc(s.host || "")}</td>
     <td class="acts"><button class="btn small" data-copy="${esc(base)}/build/?k=${esc(s.site_key)}">Kurucu linkini kopyala</button>
       ${s.published_build ? `<a class="btn small" href="${esc(s.host ? "https://" + s.host + "/" : base + "/site/?s=" + encodeURIComponent(s.slug))}" target="_blank" rel="noopener">Yayındaki site</a>` : ""}
       <button class="btn small" data-edit="${esc(s.slug)}">Ayarlar</button></td></tr>
@@ -333,10 +341,10 @@ async function renderTrials() {
     <span class="pill">${TSTATUS[t.status] || t.status}</span>
     <span class="pill ${t.path === "leave" ? "warn" : ""}">${t.path === "leave" ? "Bize bıraktı (ücretli)" : "Kendisi doldurdu"}</span>
     <span style="color:var(--mute)">${esc(t.email || "")}</span>${t.status === "submitted" ? ageHTML(t.submitted_at) : ""}</button>`;
-  $("#view").innerHTML = `<p style="color:var(--mute);margin:0 0 12px">Herkese açık deneme linki: <b>mrspace.online/try</b>. Başlayıp henüz göndermeyen: <b>${drafts || 0}</b>.</p>
-    <h2 style="font-size:1rem;margin:0 0 8px">Teklif bekleyen (${wait.length})</h2>
+  $("#view").innerHTML = `<p style="color:var(--mute);margin:0 0 12px"><span>Herkese açık deneme linki:</span> <b>mrspace.online/try</b><br><span>Başlayıp henüz göndermeyen:</span> <b>${drafts || 0}</b></p>
+    <h2 style="font-size:1rem;margin:0 0 8px"><span>Teklif bekleyen</span> (${wait.length})</h2>
     ${wait.length ? `<div class="queue">${wait.map(row).join("")}</div>` : `<div class="empty">Bekleyen deneme yok.</div>`}
-    ${rest.length ? `<h2 style="font-size:1rem;margin:22px 0 8px">Diğerleri (${rest.length})</h2><div class="queue">${rest.map(row).join("")}</div>` : ""}`;
+    ${rest.length ? `<h2 style="font-size:1rem;margin:22px 0 8px"><span>Diğerleri</span> (${rest.length})</h2><div class="queue">${rest.map(row).join("")}</div>` : ""}`;
 }
 $("#view").addEventListener("click", (e) => { const q = e.target.closest("[data-trial]"); if (q) openTrial(q.dataset.trial); });
 
@@ -355,8 +363,8 @@ async function openTrial(id) {
     <div class="detail"><div class="pv"><iframe id="pv" title="Önizleme"></iframe></div><div class="side">
       <div class="box"><h2>Kişi</h2><div>${esc(t.name || "")}</div>
         ${t.email ? `<div><a href="mailto:${esc(t.email)}">${esc(t.email)}</a></div>` : ""}${t.phone ? `<div>${esc(t.phone)}</div>` : ""}
-        <p style="margin:8px 0 0">${t.path === "leave" ? "<b>Bize bıraktı.</b> İçerik ödemeden sonra hazırlanır. Şimdilik sadece tasarımı ve yer tutucuları göster." : "<b>Kendisi doldurdu.</b> Son halini sen ver."}</p>
-        <p style="margin:6px 0 0;color:var(--mute)">Örnek olarak gösterme izni: ${t.consent ? "var" : "yok"}</p>
+        <p style="margin:8px 0 0">${t.path === "leave" ? "<b>Bize bıraktı.</b> <span>İçerik ödemeden sonra hazırlanır. Şimdilik sadece tasarımı ve yer tutucuları göster.</span>" : "<b>Kendisi doldurdu.</b> <span>Son halini sen ver.</span>"}</p>
+        <p style="margin:6px 0 0;color:var(--mute)"><span>Örnek olarak gösterme izni:</span> <span>${t.consent ? "var" : "yok"}</span></p>
         ${t.note ? `<div class="cnote" style="margin-top:8px">${esc(t.note)}</div>` : ""}
       </div>
       <div class="box acts">
@@ -366,7 +374,7 @@ async function openTrial(id) {
         ${!["won", "closed"].includes(t.status) ? `<button class="btn" id="close">Kapat</button>` : ""}
       </div>
       ${offered ? `<div class="box"><h2>Teklif linki</h2><p style="overflow-wrap:anywhere;margin:0 0 6px">${esc(link)}</p>
-        <p style="margin:0 0 10px;color:var(--mute)">Son gün: ${esc(until)}</p>
+        <p style="margin:0 0 10px;color:var(--mute)"><span>Son gün:</span> ${esc(until)}</p>
         <div class="acts"><button class="btn small" id="copyOffer">Linki kopyala</button><a class="btn small" id="mailOffer" href="#">Mail taslağını aç</a></div></div>` : ""}
     </div></div>`;
   $("#pv").srcdoc = window.MsRender.render(t.content, t.theme, { noindex: true, watermark: "Önizleme · mrspace.online" });
@@ -386,7 +394,7 @@ async function openTrial(id) {
     const slug = prompt("Sitenin kısa adı (küçük harf ve tire):", guess); if (!slug) return;
     const { data, error } = await sb.rpc("ms_trial_convert", { p_id: t.id, p_slug: slug, p_name: t.business });
     if (error) return alert(/duplicate/.test(error.message) ? "Bu kısa ad kullanılıyor." : error.message);
-    alert(`Müşteri oluşturuldu: ${data}. Siteler sekmesinden ayarlarını yapabilirsin.`); openTrial(id);
+    alert(tt("Müşteri oluşturuldu. Siteler sekmesinden ayarlarını yapabilirsin.") + " (" + data + ")"); openTrial(id);
   };
   if ($("#close")) $("#close").onclick = async () => { if (!confirm("Bu deneme kapatılsın mı?")) return; await sb.from("ms_trials").update({ status: "closed" }).eq("id", t.id); openTrial(id); };
 }
