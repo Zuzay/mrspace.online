@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mr. Space · Websites and the systems behind them</title>
+<script src="assets/i18n.js"></script>
 <meta name="description" content="Mr. Space is a web studio in Venice Beach. We build simple, professional websites for small businesses, plus the admin panel and care behind them.">
 <meta property="og:title" content="Mr. Space · Websites and the systems behind them">
 <meta property="og:description" content="Simple, professional websites for small businesses. We build it, we run it, we stay. Venice Beach, CA.">
@@ -607,7 +608,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
   b.addEventListener("click", function(){
    var k = b.getAttribute("data-tour");
    count("tour/" + k, "Watched tour");
-   title.textContent = names[k];
+   title.textContent = window.MSI18N ? MSI18N.t(names[k]) : names[k];
    Object.keys(players).forEach(function(n){ players[n].hidden = n !== k; });
    if (!players[k]) { var el = document.createElement("div"); el.className = "player"; el.setAttribute("data-demo", k); el.setAttribute("data-lazy", ""); body.appendChild(el); players[k] = el; }
    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
@@ -626,7 +627,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
  var logs = [["Backup done · Heron CA · encrypted","AUTO"],["Logo change approved · Rufcut · 4 min","UZAY"],["Uptime check · 3 sites OK","AUTO"],["New city added · laloo · 18 min","UZAY"],["Google images at 84% · warning emailed","AUTO"],["Change request · new hours · ready to approve","CLIENT"]];
  var c1 = ["2 items synced","Stock updated","1 item sold"], c2 = ["#1042 · ready Fri","#1043 · deposit paid","Booking · Sat 11:00"], c3 = ["Price label printed","Shipping label printed","Receipt printed"];
  var li = 0, ci = 0, chg = 7;
- function swap(id, txt){ var el = document.getElementById(id); el.style.opacity = 0; setTimeout(function(){ el.textContent = txt; el.style.opacity = 1; }, 400); }
+ function swap(id, txt){ var el = document.getElementById(id); el.style.opacity = 0; setTimeout(function(){ el.textContent = window.MSI18N ? MSI18N.t(txt) : txt; el.style.opacity = 1; }, 400); }
  setInterval(function(){
   if (document.hidden) return;
   li = (li + 1) % logs.length; ci++;
