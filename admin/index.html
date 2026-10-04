@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Mr. Space · Kontrol</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Control room: dark rail on the left, light working surface, sun dot for anything that needs Uzay. */
+:root{
+  --bg:#F2F3F1; --card:#FFFFFF; --ink:#121418; --mute:#5B606B; --line:#12141820;
+  --night:#0E1014; --night-2:#1A1D24; --night-mute:#9AA0AA;
+  --sun:#F6B93B; --ok:#1F8A4C; --bad:#C2412D; --warn:#B7791F;
+  --display:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --body:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B0D10;--card:#15181D;--ink:#ECEDEA;--mute:#9AA0AA;--line:#ECEDEA1f;--ok:#4CC27F;--bad:#E8664F;--warn:#E3A846;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B0D10;--card:#15181D;--ink:#ECEDEA;--mute:#9AA0AA;--line:#ECEDEA1f;--ok:#4CC27F;--bad:#E8664F;--warn:#E3A846;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+
+/* login */
+.login{min-height:100%;display:grid;place-items:center;background:var(--night);color:#F4F5F3;padding:24px}
+.login form{width:min(380px,100%);display:grid;gap:14px}
+.login h1{font-size:44px}
+.login p{color:var(--night-mute);font-size:14px}
+.login input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #FFFFFF2a;background:#FFFFFF0d;color:#F4F5F3}
+.login .err{color:#F28B7A;font-size:14px;min-height:1.2em}
+.mark{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:22px;text-transform:uppercase}
+.mark i{width:22px;height:22px;border-radius:50%;background:#F4F5F3;display:grid;place-items:center}
+.mark i::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:#121418}
+.btn.sun:hover{filter:brightness(1.05)}
+.btn.sm{padding:6px 10px;font-size:11px;border-radius:8px}
+.btn.ghost{border-color:var(--line)}
+.btn.ok{border-color:var(--ok);color:var(--ok)}.btn.ok:hover{background:var(--ok);color:#fff}
+.btn.bad{border-color:var(--bad);color:var(--bad)}.btn.bad:hover{background:var(--bad);color:#fff}
+.login .btn{border-color:#F4F5F3;color:#F4F5F3}
+.login .btn.sun{color:#121418;border-color:var(--sun)}
+
+/* shell */
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100%}
+.rail{background:var(--night);color:#F4F5F3;padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.rail nav{display:grid;gap:4px}
+.rail nav button{display:flex;justify-content:space-between;align-items:center;text-align:left;padding:10px 12px;border-radius:10px;color:#C9CED8;font-size:14px}
+.rail nav button:hover{background:#FFFFFF0d;color:#fff}
+.rail nav button.on{background:#FFFFFF14;color:#fff}
+.rail nav button b{font:500 11px var(--mono);background:var(--sun);color:#121418;border-radius:99px;padding:2px 7px}
+.rail .me{margin-top:auto;font-size:12px;color:var(--night-mute);display:grid;gap:8px}
+.rail .me .btn{border-color:#FFFFFF33;color:#C9CED8}
+.demo-tag{font:500 10px var(--mono);letter-spacing:.1em;background:var(--sun);color:#121418;padding:3px 8px;border-radius:99px;width:max-content}
+main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:14px;margin-bottom:22px}
+.head h1{font-size:clamp(34px,4vw,48px)}
+.head p{color:var(--mute);font-size:14px}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .rail{position:sticky;top:0;height:auto;z-index:5;flex-direction:row;align-items:center;gap:12px;padding:10px 12px;overflow-x:auto}
+  .rail nav{display:flex;gap:4px}
+  .rail nav button{white-space:nowrap;padding:8px 10px}
+  .rail .me{margin:0 0 0 auto;display:flex;align-items:center}
+  .rail .me span{display:none}
+  .rail .mark span{display:none}
+}
+
+/* overview */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:4px}
+.kpi small{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.kpi b{font:400 34px var(--display);line-height:1}
+.kpi span{font-size:12.5px;color:var(--mute)}
+.kpi.attn{border-color:var(--sun);box-shadow:inset 4px 0 0 var(--sun)}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sites{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.site{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:grid}
+.site-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.site-h h3{font-size:26px}
+.site-h small{display:block;font:11px var(--mono);color:var(--mute);letter-spacing:.04em;text-transform:none;margin-top:4px;word-break:break-all}
+.st{display:inline-flex;align-items:center;gap:6px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:99px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);white-space:nowrap}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.building{background:color-mix(in srgb,var(--sun) 25%,transparent);color:var(--warn)}
+.st.suspended,.st.down{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.st.paused{background:var(--line);color:var(--mute)}
+.spark{display:flex;gap:2px;align-items:flex-end;height:30px;padding:10px 16px 0}
+.spark i{flex:1;border-radius:2px;background:var(--ok);opacity:.75;min-width:2px}
+.spark i.no{background:var(--bad);opacity:1}
+.spark i.gap{background:var(--line)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);margin-top:10px}
+.facts div{background:var(--card);padding:10px 16px;display:grid;gap:2px}
+.facts small{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.facts b{font-weight:600;font-size:14px}
+.facts b.bad{color:var(--bad)}
+.q{padding:12px 16px;display:grid;gap:8px;border-top:1px solid var(--line)}
+.q div{display:grid;grid-template-columns:110px minmax(0,1fr) 56px;gap:10px;align-items:center;font-size:12.5px}
+.q .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}
+.q .bar i{display:block;height:100%;background:var(--ink);border-radius:4px}
+.q .bar i.full{background:var(--bad)}
+.q span:last-child{text-align:right;font-family:var(--mono);font-size:11.5px}
+.acts{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-top:1px solid var(--line)}
+
+/* lists */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.panel+.panel{margin-top:16px}
+.panel-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.panel-h h2{font-size:22px}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:99px;border:1px solid var(--line)}
+.filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .t{font-weight:600}
+.row .m{font-size:12.5px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:3px}
+.row .m b{font-weight:500;color:var(--ink)}
+.row .r{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+.pill{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--line)}
+.pill.new{background:var(--sun);color:#121418}
+.pill.approved{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.pill.done{background:var(--ink);color:var(--bg)}
+.pill.rejected{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.pill.big{border:1px solid var(--ink);background:transparent}
+.empty{padding:28px 16px;color:var(--mute);text-align:center}
+.log{display:grid}
+.log .e{display:grid;grid-template-columns:120px 90px minmax(0,1fr) 60px;gap:12px;align-items:baseline;padding:9px 16px;border-top:1px solid var(--line);font-size:13.5px}
+.log .e:first-child{border-top:0}
+.log .e .w{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.log .e .w.auto{color:var(--ok)}
+.log .e .w.client{color:var(--warn)}
+.log .e time,.log .e .min{font:11.5px var(--mono);color:var(--mute)}
+.log .e .min{text-align:right}
+.log .e .s{font:11px var(--mono);color:var(--mute);margin-right:6px}
+@media (max-width:700px){.log .e{grid-template-columns:80px minmax(0,1fr)}.log .e .w,.log .e .min{display:none}}
+
+/* forms */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:14px 16px;border-top:1px solid var(--line);align-items:end}
+.form label{display:grid;gap:4px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.form input,.form select,.form textarea{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-family:var(--body);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.form .wide{grid-column:1/-1}
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+table.t th,table.t td{text-align:left;padding:10px 16px;border-top:1px solid var(--line);white-space:nowrap}
+table.t th{font:10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);border-top:0}
+.meter{display:grid;gap:6px;padding:12px 16px;border-top:1px solid var(--line)}
+.meter .top{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.meter .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--ink)}
+.meter .bar i.w{background:var(--warn)}.meter .bar i.x{background:var(--bad)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,30px);opacity:0;background:var(--night);color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;transition:.3s;z-index:50;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+dialog{border:0;border-radius:16px;padding:0;background:var(--card);color:var(--ink);width:min(560px,94vw);margin:auto}
+dialog::backdrop{background:#0E1014b3}
+dialog .panel-h{border-bottom:1px solid var(--line)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<section class="login" id="login">
+ <form id="loginForm" novalidate>
+  <div class="mark"><i></i>Mr. Space</div>
+  <h1>Kontrol paneli</h1>
+  <p>Tüm siteler, talepler, kayıtlar ve ödemeler tek yerde. laloo admin hesabınla giriş yap.</p>
+  <input id="em" type="email" placeholder="E-posta" autocomplete="username" required>
+  <input id="pw" type="password" placeholder="Şifre" autocomplete="current-password" required>
+  <p class="err" id="loginErr" aria-live="polite"></p>
+  <button class="btn sun" type="submit">Giriş yap</button>
+  <button class="btn" type="button" id="demoBtn">Örnek verilerle bak</button>
+ </form>
+</section>
+
+<div class="app" id="app" hidden>
+ <aside class="rail">
+  <div class="mark"><i></i><span>Mr. Space</span></div>
+  <nav id="nav">
+   <button data-v="overview" class="on">Genel bakış</button>
+   <button data-v="changes">Talepler <b id="badge" hidden>0</b></button>
+   <button data-v="log">Kayıt</button>
+   <button data-v="billing">Ödemeler</button>
+   <button data-v="usage">Kullanım</button>
+   <button data-v="sites">Siteler</button>
+  </nav>
+  <div class="me"><span id="who"></span><span class="demo-tag" id="demoTag" hidden>DEMO</span><button class="btn sm" id="out" type="button">Çıkış</button></div>
+ </aside>
+ <main id="main"></main>
+</div>
+
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
+const SB_KEY = "sb_publishable_DcfxBTRo0n2m1go5_yYjkw_qNzD6ie6";
+const SITE = "https://mrspace.online";
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const money = c => "$" + (Number(c || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const dt = d => d ? new Date(d).toLocaleString("tr-TR", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
+const day = d => d ? new Date(d + (String(d).length === 10 ? "T12:00:00" : "")).toLocaleDateString("tr-TR", { day:"2-digit", month:"short", year:"numeric" }) : "yok";
+const ago = d => { if (!d) return "hiç"; const m = Math.round((Date.now() - new Date(d)) / 60000); return m < 1 ? "şimdi" : m < 60 ? m + " dk önce" : m < 1440 ? Math.round(m / 60) + " sa önce" : Math.round(m / 1440) + " gün önce"; };
+const today = () => new Date().toISOString().slice(0, 10);
+const addDays = (d, n) => { const x = new Date((d || today()) + "T12:00:00"); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2800); }
+const PLAN = { own:"Kendi işimiz", rent:"Rent", custom:"Custom", handover:"Handover", first:"İlk müşteri" };
+const STATUS = { live:"Yayında", building:"Yapılıyor", paused:"Durduruldu", suspended:"Askıda" };
+const WHO = { auto:"Otomatik", uzay:"Uzay", client:"Müşteri", claude:"Claude" };
+
+/* ---------------- session ---------------- */
+let S = null, DEMO = false;
+try { S = JSON.parse(localStorage.getItem("ms_admin") || "null"); } catch (e) {}
+function saveSession(d){ S = { access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at || Math.floor(Date.now()/1000) + (d.expires_in || 3600), email:d.user ? d.user.email : (S && S.email) }; try { localStorage.setItem("ms_admin", JSON.stringify(S)); } catch (e) {} }
+async function auth(grant, body){
+  const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=${grant}`, { method:"POST", headers:{ apikey:SB_KEY, "Content-Type":"application/json" }, body:JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error_description || d.msg || "Giriş başarısız");
+  saveSession(d);
+}
+let refreshing = null;
+async function fresh(){
+  if (S && Date.now()/1000 > S.expires_at - 60) {
+    refreshing = refreshing || auth("refresh_token", { refresh_token:S.refresh_token }).finally(() => refreshing = null);
+    try { await refreshing; } catch (e) { logout(); throw new Error("Oturum bitti, tekrar giriş yap"); }
+  }
+}
+function logout(){ S = null; DEMO = false; try { localStorage.removeItem("ms_admin"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+async function api(path, opt = {}){
+  await fresh();
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, { method:opt.method || "GET",
+    headers:{ apikey:SB_KEY, Authorization:"Bearer " + S.access_token, "Content-Type":"application/json", Prefer:opt.prefer || "return=representation" },
+    body:opt.body ? JSON.stringify(opt.body) : undefined });
+  if (!r.ok) { const t = await r.text(); throw new Error(t.includes("not_admin") ? "Bu hesap Mr. Space yöneticisi değil" : t.slice(0, 200)); }
+  return r.status === 204 ? null : r.json();
+}
+const rpc = (fn, body) => api("rpc/" + fn, { method:"POST", body });
+
+/* ---------------- data ---------------- */
+let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{} };
+async function load(){
+  if (DEMO) return;
+  const since = new Date(Date.now() - 24 * 3600e3).toISOString();
+  const [sites, checks, changes, activity, usage, payments] = await Promise.all([
+    api("ms_sites?select=*&order=created_at"),
+    api(`ms_checks?select=site,at,ok,ms,status&at=gte.${since}&order=at.asc&limit=3000`),
+    api("ms_changes?select=*&order=created_at.desc&limit=300"),
+    api("ms_activity?select=*&order=at.desc&limit=300"),
+    api("ms_usage?select=*&order=site"),
+    api("ms_payments?select=*&order=paid_at.desc&limit=200")
+  ]);
+  const quota = {};
+  await Promise.all(sites.map(async s => { const q = await rpc("ms_quota", { p_site:s.slug }); quota[s.slug] = q[0] || {}; }));
+  D = { sites, checks, changes, activity, usage, payments, quota };
+}
+function demoData(){
+  const now = Date.now(), iso = m => new Date(now - m * 60000).toISOString();
+  const sites = [
+    { slug:"mrspace", name:"Mr. Space", url:"https://mrspace.online/", admin_url:"https://mrspace.online/admin/", kind:"own", plan:"own", status:"live", monthly_cents:0 },
+    { slug:"heron", name:"Heron CA", url:"https://heronca.com/", admin_url:"https://heronca.com/admin.html", kind:"own", plan:"own", status:"live", monthly_cents:0 },
+    { slug:"laloo", name:"laloo", url:"https://www.laloo.org/", admin_url:"https://www.laloo.org/admin.html", kind:"own", plan:"own", status:"live", monthly_cents:0 },
+    { slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", admin_url:null, kind:"client", plan:"first", status:"building", small_quota:8, big_quota:4, monthly_cents:5000, paid_until:addDays(today(), 21), grace_days:7, contact:"hello@rufcut.com", site_key:"00000000-0000-0000-0000-000000000000" }
+  ];
+  const checks = [];
+  sites.forEach(s => { for (let i = 95; i >= 0; i--) checks.push({ site:s.slug, at:iso(i * 15), ok:!(s.slug === "laloo" && (i === 40 || i === 41)), ms:180 + Math.round(Math.random() * 220) }); });
+  const changes = [
+    { id:3, site:"rufcut", kind:"small", target:"hours", request:"Saturday hours 10:00 to 7:00", requested_by:"Rufcut", status:"new", created_at:iso(35) },
+    { id:2, site:"rufcut", kind:"big", target:"homepage", request:"Bigger photo of the workbench on the homepage", requested_by:"Rufcut", status:"new", created_at:iso(220) },
+    { id:1, site:"heron", kind:"small", target:"banner", request:"Free shipping banner: change $80 to $75", requested_by:"Uzay", status:"done", counts:true, minutes:6, created_at:iso(2000), decided_at:iso(1990), done_at:iso(1980) }
+  ];
+  const activity = [
+    { site:"rufcut", who:"client", action:"New change request: Saturday hours 10:00 to 7:00", minutes:0, at:iso(35) },
+    { site:"laloo", who:"auto", action:"Site is back up", minutes:0, at:iso(590) },
+    { site:"laloo", who:"auto", action:"Site did not answer", minutes:0, at:iso(615) },
+    { site:"heron", who:"uzay", action:"Price labels template", minutes:12, at:iso(800) },
+    { site:"heron", who:"auto", action:"Nightly check", minutes:0, at:iso(900) },
+    { site:"laloo", who:"uzay", action:"New city added: Lisbon", minutes:18, at:iso(1500) },
+    { site:"heron", who:"uzay", action:"Done: Free shipping banner", minutes:6, at:iso(1980) }
+  ];
+  const usage = [
+    { site:"heron", service:"Google aerial video", used:4120, lim:4900, unit:"calls / month", enabled:true },
+    { site:"heron", service:"AI writing", used:3.4, lim:10, unit:"USD / month", enabled:true },
+    { site:"laloo", service:"Map tiles", used:21000, lim:50000, unit:"loads / month", enabled:true }
+  ];
+  const payments = [{ site:"rufcut", amount_cents:30000, paid_at:addDays(today(), -9), period_to:addDays(today(), 21), note:"Setup (first client)" }];
+  const quota = { rufcut:{ small_used:3, small_quota:8, big_used:1, big_quota:4 } };
+  D = { sites, checks, changes, activity, usage, payments, quota };
+}
+
+/* ---------------- views ---------------- */
+let VIEW = "overview", FILTER = "open";
+function uptime(slug){
+  const c = D.checks.filter(x => x.site === slug);
+  if (!c.length) return { pct:null, last:null, avg:null, bars:[] };
+  const ok = c.filter(x => x.ok).length, last = c[c.length - 1];
+  const ms = c.filter(x => x.ok && x.ms != null).map(x => x.ms);
+  return { pct:Math.round(1000 * ok / c.length) / 10, last, avg:ms.length ? Math.round(ms.reduce((a, b) => a + b, 0) / ms.length) : null, bars:c.slice(-48) };
+}
+function overdue(s){ return s.kind === "client" && s.plan !== "handover" && s.paid_until && addDays(s.paid_until, s.grace_days || 7) < today(); }
+const META = { uptime_24h:"uptime %", reviews:"yorum", members:"üye", stories:"hikaye", flags:"şikayet" };
+function metaTxt(m){ if (!m) return ""; return Object.keys(m).filter(k => m[k] != null).map(k => k === "uptime_24h" ? ` · uptime ${m[k]}%` : ` · ${m[k]} ${META[k] || k}`).join(""); }
+function siteName(slug){ const s = D.sites.find(x => x.slug === slug); return s ? s.name : (slug || "Genel"); }
+function qbar(label, used, quota){
+  if (quota == null) return "";
+  const p = Math.min(100, Math.round(100 * (used || 0) / Math.max(1, quota)));
+  return `<div><span>${label}</span><span class="bar"><i class="${(used || 0) >= quota ? "full" : ""}" style="width:${p}%"></i></span><span>${used || 0} / ${quota}</span></div>`;
+}
+function render(){
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
+  const open = D.changes.filter(c => c.status === "new").length;
+  $("#badge").hidden = !open; $("#badge").textContent = open;
+  const m = $("#main");
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings })[VIEW]();
+  bind();
+}
+function overview(){
+  const open = D.changes.filter(c => c.status === "new");
+  const down = D.sites.filter(s => { const u = uptime(s.slug); return u.last && !u.last.ok; });
+  const late = D.sites.filter(overdue);
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const mins = D.activity.filter(a => new Date(a.at) >= monthStart).reduce((t, a) => t + (a.minutes || 0), 0);
+  return `<div class="head"><div><h1>Genel bakış</h1><p>${D.sites.length} site · son kontrol ${ago(D.checks.length ? D.checks[D.checks.length - 1].at : null)} · izleme 15 dakikada bir</p></div>
+   <button class="btn sun" data-act="newlog">+ İş kaydet</button></div>
+  <div class="kpis">
+   <div class="kpi ${down.length ? "attn" : ""}"><small>Ayakta</small><b class="num">${D.sites.length - down.length} / ${D.sites.length}</b><span>${down.length ? esc(down.map(s => s.name).join(", ")) + " cevap vermiyor" : "Hepsi cevap veriyor"}</span></div>
+   <div class="kpi ${open.length ? "attn" : ""}"><small>Bekleyen talep</small><b class="num">${open.length}</b><span>${open.length ? "Onayını bekliyor" : "Hepsi tamam"}</span></div>
+   <div class="kpi ${late.length ? "attn" : ""}"><small>Geciken ödeme</small><b class="num">${late.length}</b><span>${late.length ? esc(late.map(s => s.name).join(", ")) : "Gecikme yok"}</span></div>
+   <div class="kpi"><small>Bu ay harcanan süre</small><b class="num">${Math.floor(mins / 60)} sa ${mins % 60} dk</b><span>Kayıttaki işlerden</span></div>
+  </div>
+  <div class="sites">${D.sites.map(siteCard).join("")}</div>`;
+}
+function siteCard(s){
+  const u = uptime(s.slug), q = D.quota[s.slug] || {};
+  const st = s.status === "live" && u.last && !u.last.ok ? "down" : s.status;
+  const stl = st === "down" ? "Cevap yok" : STATUS[s.status] || s.status;
+  const bars = u.bars.length ? u.bars.map(c => `<i class="${c.ok ? "" : "no"}" style="height:${c.ok ? Math.max(25, Math.min(100, 100 - (c.ms || 0) / 12)) : 100}%" title="${esc(dt(c.at))}${c.ms ? " · " + c.ms + " ms" : ""}"></i>`).join("") : '<i class="gap" style="height:100%"></i>';
+  const late = overdue(s);
+  return `<article class="site">
+   <div class="site-h"><div><h3>${esc(s.name)}</h3><small>${esc((s.url || "").replace(/^https?:\/\//, ""))} · ${esc(PLAN[s.plan] || s.plan)}</small></div><span class="st ${st}">${esc(stl)}</span></div>
+   <div class="spark" aria-label="Son 12 saatlik kontroller">${bars}</div>
+   <div class="facts">
+    <div><small>Uptime 24 s</small><b class="num">${u.pct == null ? "bekliyor" : u.pct + "%"}</b></div>
+    <div><small>Ortalama</small><b class="num">${u.avg == null ? "bekliyor" : u.avg + " ms"}</b></div>
+    <div><small>${s.kind === "client" ? "Ödendi" : "Son kontrol"}</small><b class="num ${late ? "bad" : ""}">${s.kind === "client" ? day(s.paid_until) : ago(u.last && u.last.at)}</b></div>
+   </div>
+   ${q.small_quota != null || q.big_quota != null ? `<div class="q">${qbar("Küçük · ay", q.small_used, q.small_quota)}${qbar("Büyük · yıl", q.big_used, q.big_quota)}</div>` : ""}
+   <div class="acts">
+    ${s.url ? `<a class="btn sm" href="${esc(s.url)}" target="_blank" rel="noopener">Siteyi aç ↗</a>` : ""}
+    ${s.admin_url ? `<a class="btn sm" href="${esc(s.admin_url)}" target="_blank" rel="noopener">Kendi paneli ↗</a>` : ""}
+    <button class="btn sm ghost" data-act="newlog" data-site="${esc(s.slug)}">İş kaydet</button>
+    ${s.kind === "client" ? `<button class="btn sm ghost" data-act="link" data-site="${esc(s.slug)}">Talep linki</button>` : ""}
+   </div>
+  </article>`;
+}
+function changes(){
+  const list = D.changes.filter(c => FILTER === "all" ? true : FILTER === "open" ? c.status === "new" || c.status === "approved" : c.status === FILTER);
+  return `<div class="head"><div><h1>Talepler</h1><p>Müşteri talebi buraya düşer. Sen onaylarsın, iş bitince "Bitti" dersin. Aynı şey 12 saat içinde tekrar değişirse kotadan düşmez.</p></div>
+   <button class="btn sun" data-act="newchange">+ Talep ekle</button></div>
+  <div class="panel"><div class="panel-h"><h2>${list.length} talep</h2>
+   <div class="filters">${[["open","Açık"],["new","Yeni"],["done","Biten"],["rejected","Reddedilen"],["all","Hepsi"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
+   ${list.length ? list.map(c => `<div class="row"><div>
+      <div class="t">${esc(c.request)}</div>
+      <div class="m"><b>${esc(siteName(c.site))}</b><span>${c.kind === "big" ? "Büyük" : "Küçük"}${c.target ? " · " + esc(c.target) : ""}</span><span>${esc(c.requested_by || "")}</span><span>${dt(c.created_at)}</span>${c.counts === false && c.status !== "rejected" ? "<span>kotadan düşmedi</span>" : ""}${c.minutes ? `<span>${c.minutes} dk</span>` : ""}</div></div>
+     <div class="r"><span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret" })[c.status]}</span>
+      ${c.status === "new" ? `<button class="btn sm ok" data-act="decide" data-id="${c.id}" data-s="approved">Onayla</button><button class="btn sm bad" data-act="decide" data-id="${c.id}" data-s="rejected">Reddet</button>` : ""}
+      ${c.status === "new" || c.status === "approved" ? `<button class="btn sm" data-act="done" data-id="${c.id}">Bitti</button>` : ""}
+     </div></div>`).join("") : '<div class="empty">Bu filtrede talep yok.</div>'}
+  </div>`;
+}
+function log(){
+  return `<div class="head"><div><h1>Kayıt</h1><p>Elle ve otomatik yapılan her iş, harcanan süreyle. Bir şey bozulursa son yedek + bu kayıt ile geri dönülür.</p></div>
+   <button class="btn sun" data-act="newlog">+ İş kaydet</button></div>
+  <div class="panel"><div class="log">${D.activity.length ? D.activity.map(a => `<div class="e"><time>${dt(a.at)}</time><span class="w ${esc(a.who)}">${esc(WHO[a.who] || a.who)}</span><span><span class="s">${esc(siteName(a.site))}</span>${esc(a.action)}${metaTxt(a.meta)}</span><span class="min">${a.minutes ? a.minutes + " dk" : ""}</span></div>`).join("") : '<div class="empty">Henüz kayıt yok.</div>'}</div></div>`;
+}
+function billing(){
+  const clients = D.sites.filter(s => s.kind === "client");
+  return `<div class="head"><div><h1>Ödemeler</h1><p>Ödeme gecikince ${clients.length ? "site " + (clients[0].grace_days || 7) + " gün sonra" : "site bekleme süresinden sonra"} kendiliğinden askıya alınır ve nazik bir mesaj gösterir. Ödeme kaydedilince geri açılır.</p></div></div>
+  <div class="panel"><div class="tw"><table class="t"><thead><tr><th>Müşteri</th><th>Paket</th><th>Aylık</th><th>Ödendi</th><th>Durum</th><th></th></tr></thead><tbody>
+   ${clients.length ? clients.map(s => `<tr><td><b>${esc(s.name)}</b></td><td>${esc(PLAN[s.plan] || s.plan)}</td><td class="num">${money(s.monthly_cents)}</td><td class="num" style="color:${overdue(s) ? "var(--bad)" : "inherit"}">${day(s.paid_until)}</td><td><span class="st ${overdue(s) ? "suspended" : s.status}">${overdue(s) ? "Gecikti" : esc(STATUS[s.status] || s.status)}</span></td>
+     <td style="text-align:right"><button class="btn sm" data-act="pay" data-site="${esc(s.slug)}">Ödeme kaydet</button> <button class="btn sm ${s.status === "suspended" ? "ok" : "bad"}" data-act="suspend" data-site="${esc(s.slug)}">${s.status === "suspended" ? "Aç" : "Askıya al"}</button></td></tr>`).join("") : '<tr><td colspan="6" class="empty">Henüz müşteri yok.</td></tr>'}
+  </tbody></table></div></div>
+  <div class="panel"><div class="panel-h"><h2>Son ödemeler</h2></div><div class="tw"><table class="t"><thead><tr><th>Tarih</th><th>Müşteri</th><th>Tutar</th><th>Şu tarihe kadar</th><th>Not</th></tr></thead><tbody>
+   ${D.payments.length ? D.payments.map(p => `<tr><td>${day(p.paid_at)}</td><td>${esc(siteName(p.site))}</td><td class="num">${money(p.amount_cents)}</td><td>${day(p.period_to)}</td><td>${esc(p.note || "")}</td></tr>`).join("") : '<tr><td colspan="5" class="empty">Kayıt yok.</td></tr>'}
+  </tbody></table></div></div>`;
+}
+function usage(){
+  return `<div class="head"><div><h1>Kullanım</h1><p>Ücretli servisler her zaman müşterinin kendi hesabından çalışır. Limite yaklaşınca uyar, istersen kapat.</p></div><button class="btn sun" data-act="newusage">+ Servis ekle</button></div>
+  <div class="panel">${D.usage.length ? D.usage.map((u, i) => { const p = u.lim ? Math.round(100 * u.used / u.lim) : null;
+    return `<div class="meter"><div class="top"><span><b>${esc(siteName(u.site))}</b> · ${esc(u.service)} ${u.enabled ? "" : '<span class="pill">kapalı</span>'}</span><span class="mono num">${Number(u.used).toLocaleString("en-US")}${u.lim ? " / " + Number(u.lim).toLocaleString("en-US") : ""} ${esc(u.unit || "")}${p != null ? " · " + p + "%" : ""}</span></div>
+     ${p != null ? `<div class="bar"><i class="${p >= 95 ? "x" : p >= 80 ? "w" : ""}" style="width:${Math.min(100, p)}%"></i></div>` : ""}
+     <div><button class="btn sm ghost" data-act="editusage" data-i="${i}">Güncelle</button> <button class="btn sm ghost" data-act="toggleusage" data-i="${i}">${u.enabled ? "Kapat" : "Aç"}</button></div></div>`; }).join("") : '<div class="empty">Takip edilen servis yok.</div>'}</div>`;
+}
+function siteSettings(){
+  return `<div class="head"><div><h1>Siteler</h1><p>Paket, kota, aylık ücret ve adresler. Yeni müşteri buradan eklenir.</p></div><button class="btn sun" data-act="newsite">+ Site ekle</button></div>
+  <div class="panel"><div class="tw"><table class="t"><thead><tr><th>Site</th><th>Tür</th><th>Paket</th><th>Durum</th><th>Kota (küçük/büyük)</th><th>Aylık</th><th></th></tr></thead><tbody>
+  ${D.sites.map(s => `<tr><td><b>${esc(s.name)}</b><br><span class="mono" style="font-size:11px;color:var(--mute)">${esc(s.slug)}</span></td><td>${s.kind === "own" ? "Kendi" : "Müşteri"}</td><td>${esc(PLAN[s.plan] || s.plan)}</td><td>${esc(STATUS[s.status] || s.status)}</td><td class="num">${s.small_quota ?? "∞"} / ${s.big_quota ?? "∞"}</td><td class="num">${money(s.monthly_cents)}</td><td style="text-align:right"><button class="btn sm ghost" data-act="key" data-site="${esc(s.slug)}">Bağlantı kodu</button> <button class="btn sm" data-act="editsite" data-site="${esc(s.slug)}">Düzenle</button></td></tr>`).join("")}
+  </tbody></table></div></div>
+  <div class="panel"><div class="panel-h"><h2>Sitelere eklenecek parça</h2></div><div style="padding:14px 16px;display:grid;gap:10px;font-size:14px">
+   <p>Müşteri sitesinin en altına bu satır eklenir. Ödeme gecikirse site kendiliğinden nazik bir mola mesajı gösterir ve altta "Made by Mr. Space" imzası çıkar.</p>
+   <code class="mono" style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;overflow-x:auto;white-space:nowrap;user-select:all">&lt;script src="https://mrspace.online/ms/guard.js" data-site="SLUG" defer&gt;&lt;/script&gt;</code>
+  </div></div>`;
+}
+
+/* ---------------- dialogs ---------------- */
+function openDlg(title, fields, onSave, saveLabel = "Kaydet"){
+  $("#dlgBody").innerHTML = `<div class="panel-h"><h2>${esc(title)}</h2><button class="btn sm ghost" type="button" data-close>Kapat</button></div>
+   <form class="form" id="dlgForm">${fields}<div class="wide" style="display:flex;justify-content:flex-end"><button class="btn sun" type="submit">${esc(saveLabel)}</button></div></form>`;
+  const d = $("#dlg"); d.showModal();
+  d.querySelector("[data-close]").onclick = () => d.close();
+  $("#dlgForm").onsubmit = async e => {
+    e.preventDefault();
+    const v = Object.fromEntries(new FormData(e.target).entries());
+    try { await onSave(v); d.close(); await refresh(); } catch (err) { toast(err.message); }
+  };
+}
+const siteOpts = (sel, withNone) => (withNone ? '<option value="">Genel</option>' : "") + D.sites.map(s => `<option value="${esc(s.slug)}" ${s.slug === sel ? "selected" : ""}>${esc(s.name)}</option>`).join("");
+const f = (label, name, val = "", type = "text", extra = "") => `<label${extra}>${label}<input name="${name}" type="${type}" value="${esc(val)}"></label>`;
+
+async function act(kind, el){
+  const slug = el.dataset.site, id = Number(el.dataset.id);
+  if (kind === "newlog") return openDlg("İş kaydet", `<label>Site<select name="site">${siteOpts(slug, true)}</select></label>${f("Süre (dk)", "minutes", "", "number")}<label class="wide">Ne yapıldı<textarea name="action" rows="2" required></textarea></label>`,
+    async v => { if (DEMO) { D.activity.unshift({ site:v.site || null, who:"uzay", action:v.action, minutes:Number(v.minutes || 0), at:new Date().toISOString() }); return toast("Demo: kaydedildi"); }
+      await api("ms_activity", { method:"POST", body:{ site:v.site || null, who:"uzay", action:v.action, minutes:Number(v.minutes || 0) } }); toast("Kaydedildi"); });
+  if (kind === "newchange") return openDlg("Talep ekle", `<label>Site<select name="site">${siteOpts()}</select></label><label>Tür<select name="kind"><option value="small">Küçük</option><option value="big">Büyük</option></select></label>${f("Ne (logo, saatler...)", "target")}<label class="wide">Talep<textarea name="request" rows="3" required></textarea></label>`,
+    async v => { if (DEMO) { D.changes.unshift({ id:Date.now(), ...v, status:"new", requested_by:"Uzay", created_at:new Date().toISOString() }); return toast("Demo: eklendi"); }
+      await api("ms_changes", { method:"POST", body:{ site:v.site, kind:v.kind, target:v.target || "", request:v.request, requested_by:"Uzay" } }); toast("Talep eklendi"); });
+  if (kind === "decide") {
+    if (DEMO) { const c = D.changes.find(x => x.id === id); c.status = el.dataset.s; c.counts = el.dataset.s === "approved"; c.decided_at = new Date().toISOString(); toast("Demo: güncellendi"); return render(); }
+    await rpc("ms_decide_change", { p_id:id, p_status:el.dataset.s }); toast(el.dataset.s === "approved" ? "Onaylandı" : "Reddedildi"); return refresh();
+  }
+  if (kind === "done") return openDlg("İş bitti", f("Harcanan süre (dk)", "minutes", "", "number"), async v => {
+    if (DEMO) { const c = D.changes.find(x => x.id === id); c.status = "done"; c.minutes = Number(v.minutes || 0); return toast("Demo: bitti"); }
+    await rpc("ms_decide_change", { p_id:id, p_status:"done", p_minutes:Number(v.minutes || 0) }); toast("Bitti olarak kaydedildi"); }, "Bitti");
+  if (kind === "pay") { const s = D.sites.find(x => x.slug === slug); return openDlg("Ödeme kaydet · " + s.name, f("Tutar ($)", "amount", (s.monthly_cents || 0) / 100, "number", "") + f("Şu tarihe kadar", "to", addDays(s.paid_until && s.paid_until > today() ? s.paid_until : today(), 30), "date") + f("Not", "note", "", "text", ' class="wide"'),
+    async v => { const cents = Math.round(Number(v.amount || 0) * 100);
+      if (DEMO) { s.paid_until = v.to; if (s.status === "suspended") s.status = "live"; D.payments.unshift({ site:slug, amount_cents:cents, paid_at:today(), period_to:v.to, note:v.note }); return toast("Demo: ödeme kaydedildi"); }
+      await rpc("ms_record_payment", { p_site:slug, p_cents:cents, p_period_to:v.to, p_note:v.note || null }); toast("Ödeme kaydedildi"); }); }
+  if (kind === "suspend") { const s = D.sites.find(x => x.slug === slug); const to = s.status === "suspended" ? "live" : "suspended";
+    if (DEMO) { s.status = to; toast("Demo: " + STATUS[to]); return render(); }
+    await api(`ms_sites?slug=eq.${encodeURIComponent(slug)}`, { method:"PATCH", body:{ status:to } });
+    await api("ms_activity", { method:"POST", body:{ site:slug, who:"uzay", action:to === "suspended" ? "Site suspended" : "Site reopened" } });
+    toast(STATUS[to]); return refresh(); }
+  if (kind === "link") { const s = D.sites.find(x => x.slug === slug); const url = `${SITE}/request/?k=${s.site_key}`;
+    try { await navigator.clipboard.writeText(url); toast("Talep linki kopyalandı"); } catch (e) { prompt("Talep linki", url); } return; }
+  if (kind === "key") { const s = D.sites.find(x => x.slug === slug);
+    const code = `<script src="https://mrspace.online/ms/guard.js" data-site="${s.slug}" data-key="${s.log_key}" defer></` + `script>`;
+    try { await navigator.clipboard.writeText(code); toast("Bağlantı kodu kopyalandı. Sitenin admin sayfasına yapıştır."); } catch (e) { prompt("Bağlantı kodu", code); } return; }
+  if (kind === "editsite" || kind === "newsite") {
+    const s = kind === "editsite" ? D.sites.find(x => x.slug === slug) : { kind:"client", plan:"rent", status:"building", small_quota:2, big_quota:2, monthly_cents:3000, grace_days:7 };
+    const sel = (name, map, val) => `<label>${name === "plan" ? "Paket" : name === "status" ? "Durum" : "Tür"}<select name="${name}">${Object.entries(map).map(([k, l]) => `<option value="${k}" ${k === val ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+    return openDlg(kind === "editsite" ? "Düzenle · " + s.name : "Yeni site",
+      (kind === "newsite" ? f("Kısa ad (slug)", "slug", "", "text") : "") + f("Ad", "name", s.name || "") + f("Adres", "url", s.url || "", "url") + f("Kendi paneli", "admin_url", s.admin_url || "", "url") +
+      sel("kind", { own:"Kendi", client:"Müşteri" }, s.kind) + sel("plan", PLAN, s.plan) + sel("status", STATUS, s.status) +
+      f("Küçük kota / ay", "small_quota", s.small_quota ?? "", "number") + f("Büyük kota / yıl", "big_quota", s.big_quota ?? "", "number") + f("Aylık ($)", "monthly", (s.monthly_cents || 0) / 100, "number") +
+      f("Ödendi (tarih)", "paid_until", s.paid_until || "", "date") + f("Bekleme (gün)", "grace_days", s.grace_days ?? 7, "number") + f("Müşteri e-posta", "contact", s.contact || "", "email") +
+      `<label class="wide">Askı mesajı<input name="suspend_message" value="${esc(s.suspend_message || "")}" placeholder="This site is taking a short break. It will be back soon."></label>`,
+      async v => {
+        const body = { name:v.name, url:v.url || null, admin_url:v.admin_url || null, kind:v.kind, plan:v.plan, status:v.status,
+          small_quota:v.small_quota === "" ? null : Number(v.small_quota), big_quota:v.big_quota === "" ? null : Number(v.big_quota),
+          monthly_cents:Math.round(Number(v.monthly || 0) * 100), paid_until:v.paid_until || null, grace_days:Number(v.grace_days || 7), contact:v.contact || null, suspend_message:v.suspend_message || null };
+        if (DEMO) { if (kind === "newsite") D.sites.push({ slug:v.slug, ...body }); else Object.assign(s, body); return toast("Demo: kaydedildi"); }
+        if (kind === "newsite") { if (!/^[a-z0-9-]{2,30}$/.test(v.slug || "")) throw new Error("Kısa ad sadece küçük harf, rakam ve - olabilir"); await api("ms_sites", { method:"POST", body:{ slug:v.slug, ...body } }); }
+        else await api(`ms_sites?slug=eq.${encodeURIComponent(slug)}`, { method:"PATCH", body });
+        toast("Kaydedildi");
+      });
+  }
+  if (kind === "newusage" || kind === "editusage") {
+    const u = kind === "editusage" ? D.usage[Number(el.dataset.i)] : { site:D.sites[0] && D.sites[0].slug, service:"", used:0, lim:"", unit:"" };
+    return openDlg(kind === "editusage" ? "Kullanım · " + u.service : "Servis ekle",
+      `<label>Site<select name="site" ${kind === "editusage" ? "disabled" : ""}>${siteOpts(u.site)}</select></label>` + f("Servis", "service", u.service, "text", kind === "editusage" ? ' style="opacity:.6"' : "") + f("Kullanılan", "used", u.used, "number") + f("Limit", "lim", u.lim ?? "", "number") + f("Birim", "unit", u.unit || ""),
+      async v => { const body = { site:kind === "editusage" ? u.site : v.site, service:kind === "editusage" ? u.service : v.service, used:Number(v.used || 0), lim:v.lim === "" ? null : Number(v.lim), unit:v.unit || null, updated_at:new Date().toISOString() };
+        if (DEMO) { if (kind === "editusage") Object.assign(u, body); else D.usage.push({ ...body, enabled:true }); return toast("Demo: kaydedildi"); }
+        await api("ms_usage?on_conflict=site,service", { method:"POST", prefer:"resolution=merge-duplicates,return=representation", body }); toast("Kaydedildi"); });
+  }
+  if (kind === "toggleusage") { const u = D.usage[Number(el.dataset.i)];
+    if (DEMO) { u.enabled = !u.enabled; return render(); }
+    await api(`ms_usage?site=eq.${encodeURIComponent(u.site)}&service=eq.${encodeURIComponent(u.service)}`, { method:"PATCH", body:{ enabled:!u.enabled } });
+    await api("ms_activity", { method:"POST", body:{ site:u.site, who:"uzay", action:(u.enabled ? "Turned off: " : "Turned on: ") + u.service } });
+    return refresh(); }
+}
+function bind(){
+  document.querySelectorAll("[data-act]").forEach(el => el.onclick = () => act(el.dataset.act, el).catch(e => toast(e.message)));
+  document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
+}
+async function refresh(){ try { await load(); } catch (e) { toast(e.message); } render(); }
+
+/* ---------------- start ---------------- */
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { VIEW = b.dataset.v; render(); });
+$("#out").onclick = logout;
+$("#demoBtn").onclick = () => { DEMO = true; demoData(); enter("Demo"); };
+$("#loginForm").onsubmit = async e => {
+  e.preventDefault(); $("#loginErr").textContent = "";
+  try { await auth("password", { email:$("#em").value.trim(), password:$("#pw").value }); await start(); }
+  catch (err) { $("#loginErr").textContent = err.message; }
+};
+function enter(who){ $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = who; $("#demoTag").hidden = !DEMO; render(); }
+async function start(){
+  try { const ok = await rpc("ms_is_admin", {}); if (!ok) throw new Error("Bu hesap Mr. Space yöneticisi değil"); await load(); enter(S.email || ""); }
+  catch (e) { logout(); $("#loginErr").textContent = e.message; }
+}
+if (S) start();
+setInterval(() => { if (!DEMO && S && !document.hidden) refresh(); }, 120000);
+</script>
+</body>
+</html>
