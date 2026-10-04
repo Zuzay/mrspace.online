@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Start a project · Mr. Space</title>
+<script src="../assets/i18n.js"></script>
 <meta name="description" content="Tell us about your business in a few minutes. The questions change with your answers.">
 <meta property="og:title" content="Start a project with Mr. Space">
 <meta property="og:description" content="A short form about your business, your shop setup and what you need online.">
@@ -274,7 +275,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
  function go(i){
   if (i === sets.length - 1) {
    var e = (document.getElementById("em").value || "").trim(), p = (document.getElementById("ph").value || "").trim();
-   if (!e && !p) { err.textContent = "Add an email or a phone number so we can reply."; cur = sets.length - 2; render(); return; }
+   if (!e && !p) { err.textContent = window.MSI18N ? MSI18N.t("Add an email or a phone number so we can reply.") : "Add an email or a phone number so we can reply."; cur = sets.length - 2; render(); return; }
   }
   err.textContent = "";
   cur = Math.max(0, Math.min(sets.length - 1, i)); render();
@@ -286,7 +287,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
   Array.prototype.forEach.call(nav.children, function(li, i){ li.className = i === cur ? "on" : (i < cur ? "done" : ""); });
   back.style.visibility = cur === 0 ? "hidden" : "visible";
   next.style.display = cur === sets.length - 1 ? "none" : "";
-  next.innerHTML = cur === sets.length - 2 ? "Review →" : "Next →";
+  next.innerHTML = window.MSI18N ? MSI18N.t(cur === sets.length - 2 ? "Review →" : "Next →") : (cur === sets.length - 2 ? "Review →" : "Next →");
   if (cur === sets.length - 1) {
    var s = summary(), biz = values()["Business name"] || "my business";
    document.getElementById("sum").textContent = s;
