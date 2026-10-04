@@ -89,6 +89,7 @@ th{color:var(--mute);font-weight:500}
   <header class="top"><h1>Onay</h1><a href="../">Panele dön</a></header>
   <nav class="tabs" id="tabs">
     <button data-tab="queue" aria-selected="true">Bekleyenler</button>
+    <button data-tab="trials">Denemeler</button>
     <button data-tab="sites">Siteler</button>
   </nav>
   <main id="view"></main>
@@ -120,7 +121,9 @@ let tab = "queue";
 async function boot() {
   if (!(await window.msAdminGate(sb))) return;
   $("#login").hidden = true; $("#app").hidden = false;
-  if (P.get("b")) openBuild(P.get("b")); else render();
+  if (P.get("b")) openBuild(P.get("b"));
+  else if (P.get("trial")) { tab = "trials"; document.querySelectorAll("#tabs button").forEach((x) => x.setAttribute("aria-selected", x.dataset.tab === "trials")); openTrial(P.get("trial")); }
+  else render();
 }
 $("#go").onclick = async () => {
   let u = $("#u").value.trim(); if (!u.includes("@")) u += "@mrspace.online";
@@ -137,7 +140,7 @@ $("#tabs").onclick = (e) => {
   history.replaceState(null, "", location.pathname);
   render();
 };
-function render() { tab === "sites" ? renderSites() : renderQueue(); }
+function render() { tab === "sites" ? renderSites() : tab === "trials" ? renderTrials() : renderQueue(); }
 
 // ---------- kuyruk ----------
 function ageHTML(at) {
@@ -316,6 +319,77 @@ $("#view").addEventListener("click", async (e) => {
     if (!error) setTimeout(renderSites, 800);
   }
 });
+
+// ---------- ucretsiz denemeler ----------
+const TSTATUS = { draft: "Taslak", submitted: "Teklif bekliyor", offered: "Teklif gitti", won: "Müşteri oldu", closed: "Kapandı" };
+async function renderTrials() {
+  const [{ data, error }, { count: drafts }] = await Promise.all([
+    sb.from("ms_trials").select("id, business, name, email, path, status, consent, submitted_at, offer_until").neq("status", "draft").order("submitted_at", { ascending: false }).limit(100),
+    sb.from("ms_trials").select("id", { count: "exact", head: true }).eq("status", "draft"),
+  ]);
+  if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
+  const wait = data.filter((t) => t.status === "submitted"), rest = data.filter((t) => t.status !== "submitted");
+  const row = (t) => `<button class="q" data-trial="${t.id}"><b>${esc(t.business || t.name || t.email)}</b>
+    <span class="pill">${TSTATUS[t.status] || t.status}</span>
+    <span class="pill ${t.path === "leave" ? "warn" : ""}">${t.path === "leave" ? "Bize bıraktı (ücretli)" : "Kendisi doldurdu"}</span>
+    <span style="color:var(--mute)">${esc(t.email || "")}</span>${t.status === "submitted" ? ageHTML(t.submitted_at) : ""}</button>`;
+  $("#view").innerHTML = `<p style="color:var(--mute);margin:0 0 12px">Herkese açık deneme linki: <b>mrspace.online/try</b>. Başlayıp henüz göndermeyen: <b>${drafts || 0}</b>.</p>
+    <h2 style="font-size:1rem;margin:0 0 8px">Teklif bekleyen (${wait.length})</h2>
+    ${wait.length ? `<div class="queue">${wait.map(row).join("")}</div>` : `<div class="empty">Bekleyen deneme yok.</div>`}
+    ${rest.length ? `<h2 style="font-size:1rem;margin:22px 0 8px">Diğerleri (${rest.length})</h2><div class="queue">${rest.map(row).join("")}</div>` : ""}`;
+}
+$("#view").addEventListener("click", (e) => { const q = e.target.closest("[data-trial]"); if (q) openTrial(q.dataset.trial); });
+
+async function openTrial(id) {
+  history.replaceState(null, "", `?trial=${id}`);
+  const { data: t, error } = await sb.from("ms_trials").select("*").eq("id", id).single();
+  if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
+  const link = `${location.origin}/preview/?p=${t.preview_key}`;
+  const offered = ["offered", "won"].includes(t.status);
+  const until = t.offer_until ? new Date(t.offer_until).toLocaleDateString(t.lang === "tr" ? "tr-TR" : "en-US") : "";
+  $("#view").innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px">
+      <button class="btn small" id="back">Listeye dön</button><b style="font-size:1.15rem">${esc(t.business || t.email || "Deneme")}</b>
+      <span class="pill">${TSTATUS[t.status] || t.status}</span>${t.status === "submitted" ? ageHTML(t.submitted_at) : ""}
+    </div>
+    <div class="detail"><div class="pv"><iframe id="pv" title="Önizleme"></iframe></div><div class="side">
+      <div class="box"><h2>Kişi</h2><div>${esc(t.name || "")}</div>
+        ${t.email ? `<div><a href="mailto:${esc(t.email)}">${esc(t.email)}</a></div>` : ""}${t.phone ? `<div>${esc(t.phone)}</div>` : ""}
+        <p style="margin:8px 0 0">${t.path === "leave" ? "<b>Bize bıraktı.</b> İçerik ödemeden sonra hazırlanır. Şimdilik sadece tasarımı ve yer tutucuları göster." : "<b>Kendisi doldurdu.</b> Son halini sen ver."}</p>
+        <p style="margin:6px 0 0;color:var(--mute)">Örnek olarak gösterme izni: ${t.consent ? "var" : "yok"}</p>
+        ${t.note ? `<div class="cnote" style="margin-top:8px">${esc(t.note)}</div>` : ""}
+      </div>
+      <div class="box acts">
+        ${!["won", "closed"].includes(t.status) ? `<a class="btn main" href="../../build/?ta=${t.id}">Düzenle</a>` : ""}
+        ${["submitted", "offered"].includes(t.status) ? `<button class="btn" id="offer">${offered ? "Süreyi 14 gün uzat" : "Teklif linki oluştur"}</button>` : ""}
+        ${t.status !== "won" ? `<button class="btn" id="convert">Müşteriye dönüştür</button>` : `<span>Site: <b>${esc(t.site || "")}</b></span>`}
+        ${!["won", "closed"].includes(t.status) ? `<button class="btn" id="close">Kapat</button>` : ""}
+      </div>
+      ${offered ? `<div class="box"><h2>Teklif linki</h2><p style="overflow-wrap:anywhere;margin:0 0 6px">${esc(link)}</p>
+        <p style="margin:0 0 10px;color:var(--mute)">Son gün: ${esc(until)}</p>
+        <div class="acts"><button class="btn small" id="copyOffer">Linki kopyala</button><a class="btn small" id="mailOffer" href="#">Mail taslağını aç</a></div></div>` : ""}
+    </div></div>`;
+  $("#pv").srcdoc = window.MsRender.render(t.content, t.theme, { noindex: true, watermark: "Önizleme · mrspace.online" });
+  $("#back").onclick = () => { history.replaceState(null, "", location.pathname); renderTrials(); };
+  if ($("#mailOffer")) {
+    const en = t.lang !== "tr";
+    const sub = en ? "Your website preview is ready" : "Site önizlemeniz hazır";
+    const body = en
+      ? `Hi ${t.name || ""},\n\nWe finished your website. You can see it here:\n${link}\n\nThe link is open until ${until}. If you like it, reply to this email and we will put it live for you.\n\nMr. Space`
+      : `Merhaba ${t.name || ""},\n\nSitenizin son halini hazırladık. Buradan görebilirsiniz:\n${link}\n\nLink ${until} tarihine kadar açık. Beğenirseniz bu maile cevap verin, sizin için yayına alalım.\n\nMr. Space`;
+    $("#mailOffer").href = `mailto:${t.email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+  }
+  if ($("#copyOffer")) $("#copyOffer").onclick = async () => { await navigator.clipboard.writeText(link); $("#copyOffer").textContent = "Kopyalandı"; };
+  if ($("#offer")) $("#offer").onclick = async () => { const { error } = await sb.rpc("ms_trial_offer", { p_id: t.id, p_days: 14 }); if (error) return alert(error.message); openTrial(id); };
+  if ($("#convert")) $("#convert").onclick = async () => {
+    const guess = (t.business || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ı/g, "i").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const slug = prompt("Sitenin kısa adı (küçük harf ve tire):", guess); if (!slug) return;
+    const { data, error } = await sb.rpc("ms_trial_convert", { p_id: t.id, p_slug: slug, p_name: t.business });
+    if (error) return alert(/duplicate/.test(error.message) ? "Bu kısa ad kullanılıyor." : error.message);
+    alert(`Müşteri oluşturuldu: ${data}. Siteler sekmesinden ayarlarını yapabilirsin.`); openTrial(id);
+  };
+  if ($("#close")) $("#close").onclick = async () => { if (!confirm("Bu deneme kapatılsın mı?")) return; await sb.from("ms_trials").update({ status: "closed" }).eq("id", t.id); openTrial(id); };
+}
 
 boot();
 </script>
