@@ -118,8 +118,9 @@ form.add input[name=ref]{flex:1; min-width:200px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
+<script src="../../assets/ms-auth.js"></script>
 <script>
-const sb = supabase.createClient(window.MS_CONFIG.url, window.MS_CONFIG.anon);
+const sb = supabase.createClient(window.MS_CONFIG.url, window.MS_CONFIG.anon, { auth: { autoRefreshToken: false, persistSession: false } });
 const SECTORS = {genel:"Genel", terzi:"Terzi", pastane:"Pastane", cicekci:"Çiçekçi", kafe:"Kafe", vintage:"Vintage", mobilya:"Mobilya"};
 const KINDS = {tool:"Araç", phrase:"Söz", theme:"Tema", post:"Gönderi"};
 const $ = (s) => document.querySelector(s);
@@ -132,8 +133,7 @@ $("#fSector").innerHTML = `<option value="all">Tüm sektörler</option>` +
 
 // ---------- giriş ----------
 async function boot() {
-  const { data } = await sb.auth.getSession();
-  if (!data.session) { $("#login").hidden = false; $("#app").hidden = true; return; }
+  if (!(await window.msAdminGate(sb))) return;
   $("#login").hidden = true; $("#app").hidden = false;
   loadLast(); render();
 }
