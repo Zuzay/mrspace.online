@@ -12,7 +12,7 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
 const UA = "Mozilla/5.0 (compatible; mrspace-scout/1.0; +https://mrspace.online)";
 const BUDGET_MS = 120_000;   // ucretsiz planin suresine sigsin diye
 const MAX_SITES = 10;        // gece basina taranan site
-const MAX_REDDIT = 12;       // gece basina okunan subreddit (en eski okunanlardan)
+const MAX_REDDIT = 5;        // gece basina okunan subreddit (en eski okunanlardan); Reddit 429 verdigi icin az ve yavas
 
 // Musteri sitesinde etkilesimli arac oldugunu gosteren ifadeler
 const TOOL_PHRASES = [
@@ -266,8 +266,11 @@ async function run() {
         if (p.out && okSite(p.out)) queue.set(p.out, s.sector);
       }
       touched.push(s.id);
-    } catch (e) { errors.push(`r/${s.ref}: ${(e as Error).message}`); }
-    await new Promise((r) => setTimeout(r, 1200));
+    } catch (e) {
+      errors.push(`r/${s.ref}: ${(e as Error).message}`);
+      if ((e as Error).message === "429") touched.push(s.id); // siraya geri koyma, ertesi gece digerlerine gec
+    }
+    await new Promise((r) => setTimeout(r, 5000 + Math.random() * 3000));
   }
 
   // Hacker News
