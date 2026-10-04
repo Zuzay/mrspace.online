@@ -35,7 +35,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:
    repeating-linear-gradient(to bottom,var(--ink) 0 1px,transparent 1px 96px) 0 0/22px 100% no-repeat,
    repeating-linear-gradient(to bottom,var(--ink) 0 1px,transparent 1px 48px) 0 0/14px 100% no-repeat,
-   repeating-linear-gradient(to bottom,var(--ink) 0 1px,transparent 1px 12px) 0 0/7px 100% no-repeat;opacity:.55}
+   repeating-linear-gradient(to bottom,var(--ink) 0 1px,transparent 1px 12px) 0 0/7px 100% no-repeat;opacity:.28}
 .page{padding-left:22px}
 @media (max-width:640px){.ruler{display:none}.page{padding-left:0}}
 
@@ -43,7 +43,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .mono,.label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .label{color:var(--mute)}
 h1,h2,h3,.display{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.005em;line-height:.95;text-wrap:balance}
-h2{font-size:clamp(40px,6vw,76px)}
+h2{font-size:clamp(36px,5vw,64px)}
 h3{font-size:clamp(26px,3vw,36px)}
 p{text-wrap:pretty}
 
@@ -93,3 +93,13 @@ p{text-wrap:pretty}
 .stitch{border:0;border-top:2px dashed var(--ink);opacity:.5;margin-block:8px}
 .num{font-variant-numeric:tabular-nums}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* launch offer strip */
+.promo{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px 24px;margin-top:22px;padding:16px 20px;background:var(--inv-bg);color:var(--inv-fg);text-decoration:none;border:1.5px solid var(--inv-bg)}
+.promo:hover .promo-a{text-decoration:underline;text-underline-offset:5px}
+.promo-k{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--inv-rule);padding:5px 9px;white-space:nowrap}
+.promo-k i{width:8px;height:8px;border-radius:50%;background:var(--sun)}
+.promo-t{font-size:16px}
+.promo-t b{font-weight:700;text-decoration:underline;text-decoration-color:var(--sun);text-decoration-thickness:3px;text-underline-offset:4px}
+.promo-a{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+@media (max-width:700px){.promo{grid-template-columns:1fr}.promo-k{justify-self:start}}
