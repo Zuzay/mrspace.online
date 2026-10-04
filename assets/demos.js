@@ -177,7 +177,7 @@ var HERON = {
      '<div class="hr-grid" id="hgrid">' + heronCards.slice(0,4).map(function(c){ return heronCard(c); }).join("") + '</div>' +
    '</div>' +
    '<div class="scene hr" data-s="admin">' +
-     '<div class="hr-top"><span class="hr-logo">HERON</span><span style="font-size:10px;letter-spacing:.16em">ADMIN</span></div>' +
+     '<div class="hr-top"><span class="yb"><i></i>YOUR BRAND</span><span style="font-size:10px;letter-spacing:.16em">ADMIN</span></div>' +
      '<div class="hr-admin" style="height:calc(100% - 46px)">' +
        '<div class="col">' +
          '<div class="hr-tabs"><span class="on">Add item</span><span>Inventory</span><span>Import eBay</span><span>Labels</span></div>' +
@@ -267,7 +267,7 @@ var RUFCUT = {
        '<div class="ready"><span>READY</span><strong id="rd">THURSDAY, OCT 8</strong></div></div>' +
    '</div></div>' +
    '<div class="scene" data-s="board"><div class="rc-k">' +
-     '<div class="h"><b>WORKSHOP · ORDERS</b><span>Today · 6 open</span></div>' +
+     '<div class="h"><span class="yb"><i></i>YOUR BRAND</span><b>WORKSHOP · ORDERS</b><span>Today · 6 open</span></div>' +
      '<div class="cols" id="cols">' +
        '<div class="col"><span>Cut <em>2</em></span><div class="card old">#1039 · Slim · Rinse</div></div>' +
        '<div class="col"><span>Sew <em>2</em></span><div class="card old">#1036 · Jacket · Raw</div><div class="card old">#1037 · Straight · Stone</div></div>' +
@@ -331,7 +331,7 @@ var LALOO = {
      '<div class="sheet" id="sh2"><span class="tagline" id="sp"></span><div class="ad"><span class="lg">H</span><div><h4>Heron CA</h4><div class="row" id="ad"></div></div></div><div class="row" id="ad2"></div></div>' +
    '</div>' +
    '<div class="scene" data-s="admin"><div class="ll-admin">' +
-     '<div class="h"><img src="assets/laloo-logo.png" alt=""><span>ADMIN</span></div>' +
+     '<div class="h"><span class="yb"><i></i>YOUR BRAND</span><span>ADMIN</span></div>' +
      '<div class="ll-stats"><div><small>Places listed</small><b id="pl">1,284</b></div><div><small>QR scans today</small><b id="sc">312</b></div></div>' +
      '<div class="ll-req hl" id="rq"><div class="top2"><span class="lg">H</span><div><b style="font-size:13px">Heron CA wants to join</b><p>Shop · Venice Beach · on 3 walking routes · Sponsored plan</p></div></div>' +
        '<div class="btns"><span>Reject</span><span class="ok" id="ap">Approve</span></div><div class="st">Approved · now on the map in 12 languages</div></div>' +
@@ -359,7 +359,7 @@ var LALOO = {
 };
 
 var DEFS = { heron: HERON, rufcut: RUFCUT, laloo: LALOO };
-document.querySelectorAll("[data-demo]").forEach(function(el){
-  var d = DEFS[el.getAttribute("data-demo")]; if (d) new Player(el, d);
-});
+function mount(el){ if (el.__player) return el.__player; var d = DEFS[el.getAttribute("data-demo")]; if (d) el.__player = new Player(el, d); return el.__player; }
+window.MrDemos = { mount: mount };
+document.querySelectorAll("[data-demo]:not([data-lazy])").forEach(mount);
 })();

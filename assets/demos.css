@@ -204,3 +204,9 @@
 .ll-feed div b{font-weight:600;color:#1a1d24}
 
 @media (max-width:560px){.chapters li{font-size:10.5px;padding:6px 7px 8px}}
+
+/* generic client mark inside demo admin panels */
+.yb{display:inline-flex;align-items:center;gap:7px;font:600 11px/1 var(--mono);letter-spacing:.14em;color:#1D1A16}
+.yb i{width:16px;height:16px;border-radius:4px;background:repeating-linear-gradient(45deg,#1D1A16 0 3px,transparent 3px 6px);border:1.5px solid #1D1A16}
+.rc-k .h .yb{margin-right:auto;color:#16223F}
+.rc-k .h b{margin-right:auto}
