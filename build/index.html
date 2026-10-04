@@ -116,6 +116,7 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../assets/ms-config.js"></script>
+<script src="../assets/ms-auth.js"></script>
 <script src="../assets/ms-render.js"></script>
 <script>
 const LANG = (navigator.language || "en").toLowerCase().startsWith("tr") ? "tr" : "en";
@@ -157,7 +158,7 @@ document.querySelectorAll("[data-t]").forEach((el) => el.textContent = T(el.data
 document.getElementById("sendNote").placeholder = T("note_ph");
 
 const C = window.MS_CONFIG;
-const sb = supabase.createClient(C.url, C.anon);
+const sb = supabase.createClient(C.url, C.anon, { auth: { autoRefreshToken: false, persistSession: false } });
 const R = window.MsRender;
 const P = new URLSearchParams(location.search);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -178,8 +179,7 @@ function setP(path, val) {
 async function load() {
   try {
     if (P.get("b")) {
-      const { data: sess } = await sb.auth.getSession();
-      if (!sess.session) { location.href = "../admin/review/?next=" + encodeURIComponent(location.href); return; }
+      if (!(await window.msAdminGate(sb, { panel: "../admin/" }))) return;
       S.admin = true;
       const { data: b, error } = await sb.from("ms_builds").select("*").eq("id", P.get("b")).single();
       if (error) throw error;
