@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Start a project · Mr. Space</title>
+<meta name="description" content="Tell us about your business in a few minutes. The questions change with your answers.">
+<meta property="og:title" content="Start a project with Mr. Space">
+<meta property="og:description" content="A short form about your business, your shop setup and what you need online.">
+<meta property="og:image" content="https://mrspace.online/og.png">
+<link rel="canonical" href="https://mrspace.online/start/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.shell{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:clamp(28px,5vw,72px);padding-block:clamp(36px,5vw,64px) 80px;align-items:start}
+@media (max-width:860px){.shell{grid-template-columns:1fr}}
+.side{position:sticky;top:90px;display:grid;gap:18px}
+@media (max-width:860px){.side{position:static}}
+.side h1{font-size:clamp(44px,4.4vw,64px);line-height:.9}
+.side p{color:var(--mute);font-size:15px}
+.stepnav{list-style:none;display:grid;border-top:1px solid var(--ink);counter-reset:n}
+.stepnav li{counter-increment:n;display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);cursor:pointer}
+.stepnav li::before{content:counter(n,decimal-leading-zero);width:24px}
+.stepnav li.on{color:var(--ink)}
+.stepnav li.on::after{content:"";margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--sun)}
+.stepnav li.done{color:var(--ink)}
+@media (max-width:860px){.stepnav{display:flex;overflow-x:auto;border:0;gap:6px}.stepnav li{border:1px solid var(--rule);padding:6px 10px;white-space:nowrap;flex:none}.stepnav li.on::after{display:none}.stepnav li.on{border-color:var(--ink)}}
+
+form{min-width:0}
+fieldset{border:0;display:none;gap:26px;min-width:0}
+fieldset.on{display:grid}
+legend{float:left;width:100%;font-family:var(--display);font-size:clamp(36px,4.6vw,58px);text-transform:uppercase;line-height:.95;padding:0}
+.hint{color:var(--mute);margin-top:-14px;max-width:60ch;clear:both}
+.q{display:grid;gap:10px;min-width:0}
+.q>label,.q>.ql{font-weight:600;font-size:16px}
+.q small{color:var(--mute);font-weight:400;font-size:14px}
+input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1.5px solid var(--ink);border-radius:0;padding:11px 12px}
+textarea{min-height:96px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-offset:0}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{position:relative;cursor:pointer}
+.opts input{position:absolute;opacity:0;width:1px;height:1px}
+.opts span{display:inline-block;border:1.5px solid var(--ink);padding:9px 13px;font-size:15px;background:var(--panel);user-select:none}
+.opts input:checked+span{background:var(--ink);color:var(--paper)}
+.opts input:focus-visible+span{outline:3px solid var(--sun);outline-offset:2px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+[data-if]{display:none}
+[data-if].show{display:grid}
+.sub{border-left:2px dashed var(--ink);padding-left:16px}
+.navrow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--ink);padding-top:20px;margin-top:8px}
+.err{color:#B3261E;font-size:14px;min-height:1.2em}
+.sum{background:var(--panel);border:1.5px solid var(--ink);padding:18px;font-family:var(--mono);font-size:13px;line-height:1.6;white-space:pre-wrap;max-height:420px;overflow:auto;user-select:all}
+.done-box{border:1.5px dashed var(--ink);padding:18px;display:grid;gap:10px}
+.done-box b{font-weight:600}
+.mailaddr{font-family:var(--mono);user-select:all}
+</style>
+</head>
+<body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
+
+<header class="top">
+ <div class="wrap">
+  <a class="mark" href="../" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main">
+   <a class="hide-sm" href="../#work">Work</a>
+   <a class="hide-sm" href="../packages/">Packages</a>
+   <a class="hide-sm" href="../first-clients/">Launch offer</a>
+   <a class="btn sm solid" href="./" aria-current="page">Start a project</a>
+  </nav>
+ </div>
+</header>
+
+<main class="wrap shell">
+ <aside class="side">
+  <div class="label">Start a project · about 4 minutes</div>
+  <h1>Tell us how your business works.</h1>
+  <p>The questions change with your answers. Skip anything you don't know yet. Your answers stay on this device until you send them.</p>
+  <ol class="stepnav" id="stepnav"></ol>
+ </aside>
+
+ <form id="f" novalidate>
+  <fieldset data-title="Business" class="on">
+   <legend>Your business</legend>
+   <p class="hint">Who you are and what kind of place you run.</p>
+   <div class="two">
+    <div class="q"><label for="biz">Business name</label><input type="text" id="biz" name="Business name" autocomplete="organization"></div>
+    <div class="q"><label for="city">City</label><input type="text" id="city" name="City" autocomplete="address-level2"></div>
+   </div>
+   <div class="q"><span class="ql">What kind of business?</span>
+    <div class="opts" role="radiogroup">
+     <label><input type="radio" name="Business type" value="Shop" id="bt1"><span>Shop / retail</span></label>
+     <label><input type="radio" name="Business type" value="Workshop or service" id="bt2"><span>Workshop / service</span></label>
+     <label><input type="radio" name="Business type" value="Food and drink" id="bt3"><span>Food and drink</span></label>
+     <label><input type="radio" name="Business type" value="Online only" id="bt4"><span>Online only</span></label>
+     <label><input type="radio" name="Business type" value="Other" id="bt5"><span>Other</span></label>
+    </div>
+   </div>
+   <div class="q" data-if="Business type=Workshop or service"><label for="trade">What do you do? <small>Tailor, framer, repair, salon...</small></label><input type="text" id="trade" name="Trade"></div>
+   <div class="q"><label for="about">In one or two sentences, what makes you different?</label><textarea id="about" name="About"></textarea></div>
+  </fieldset>
+
+  <fieldset data-title="What you sell">
+   <legend>What you sell</legend>
+   <p class="hint">This decides which tools your panel needs.</p>
+   <div class="q"><span class="ql">Do you sell products?</span>
+    <div class="opts"><label><input type="radio" name="Sells products" value="Yes" id="sp1"><span>Yes</span></label><label><input type="radio" name="Sells products" value="No" id="sp2"><span>No</span></label></div>
+   </div>
+   <div class="sub" data-if="Sells products=Yes" style="gap:22px">
+    <div class="q"><span class="ql">How many products, roughly?</span>
+     <div class="opts"><label><input type="radio" name="Product count" value="Under 50" id="pc1"><span>Under 50</span></label><label><input type="radio" name="Product count" value="50 to 500" id="pc2"><span>50 – 500</span></label><label><input type="radio" name="Product count" value="Over 500" id="pc3"><span>Over 500</span></label></div>
+    </div>
+    <div class="q"><span class="ql">Are most items one of a kind?</span>
+     <div class="opts"><label><input type="radio" name="Stock type" value="One of a kind (vintage, handmade)" id="st1"><span>One of a kind</span></label><label><input type="radio" name="Stock type" value="Repeating stock with sizes" id="st2"><span>Repeating stock</span></label><label><input type="radio" name="Stock type" value="Both" id="st3"><span>Both</span></label></div>
+    </div>
+    <div class="q"><span class="ql">Do you also sell on other sites?</span>
+     <div class="opts"><label><input type="checkbox" name="Other marketplaces" value="eBay" id="mk1"><span>eBay</span></label><label><input type="checkbox" name="Other marketplaces" value="Etsy" id="mk2"><span>Etsy</span></label><label><input type="checkbox" name="Other marketplaces" value="Poshmark" id="mk3"><span>Poshmark</span></label><label><input type="checkbox" name="Other marketplaces" value="Depop" id="mk4"><span>Depop</span></label><label><input type="checkbox" name="Other marketplaces" value="Shopify" id="mk5"><span>Shopify</span></label><label><input type="checkbox" name="Other marketplaces" value="Amazon" id="mk6"><span>Amazon</span></label></div>
+    </div>
+    <div class="q"><span class="ql">Do you ship orders?</span>
+     <div class="opts"><label><input type="radio" name="Ships orders" value="Yes" id="sh1"><span>Yes</span></label><label><input type="radio" name="Ships orders" value="Pickup only" id="sh2"><span>Pickup only</span></label><label><input type="radio" name="Ships orders" value="Not yet" id="sh3"><span>Not yet</span></label></div>
+    </div>
+   </div>
+   <div class="q"><span class="ql">Do customers book time with you?</span>
+    <div class="opts"><label><input type="radio" name="Appointments" value="Yes" id="ap1"><span>Yes, appointments</span></label><label><input type="radio" name="Appointments" value="No" id="ap2"><span>No</span></label></div>
+   </div>
+   <div class="q"><span class="ql">Do you make things to order?</span>
+    <div class="opts"><label><input type="radio" name="Custom orders" value="Yes" id="co1"><span>Yes</span></label><label><input type="radio" name="Custom orders" value="No" id="co2"><span>No</span></label></div>
+   </div>
+   <div class="q sub" data-if="Custom orders=Yes"><label for="coc">What does the customer choose? <small>Size, fabric, color, flavor, frame...</small></label><textarea id="coc" name="Custom order choices"></textarea></div>
+  </fieldset>
+
+  <fieldset data-title="In the shop">
+   <legend>In the shop</legend>
+   <p class="hint">The hardware and tools you already use. We connect to them instead of replacing them.</p>
+   <div class="q"><span class="ql">Point of sale (POS)</span>
+    <div class="opts"><label><input type="radio" name="POS" value="Square" id="pos1"><span>Square</span></label><label><input type="radio" name="POS" value="Clover" id="pos2"><span>Clover</span></label><label><input type="radio" name="POS" value="Shopify POS" id="pos3"><span>Shopify POS</span></label><label><input type="radio" name="POS" value="Toast" id="pos4"><span>Toast</span></label><label><input type="radio" name="POS" value="Other" id="pos5"><span>Other</span></label><label><input type="radio" name="POS" value="None" id="pos6"><span>None</span></label></div>
+   </div>
+   <div class="q sub" data-if="POS=Other"><label for="poso">Which one?</label><input type="text" id="poso" name="POS other"></div>
+   <div class="q"><span class="ql">Barcode scanner</span>
+    <div class="opts"><label><input type="radio" name="Scanner" value="Have one" id="sc1"><span>Have one</span></label><label><input type="radio" name="Scanner" value="Want one" id="sc2"><span>Want one</span></label><label><input type="radio" name="Scanner" value="No need" id="sc3"><span>No need</span></label></div>
+   </div>
+   <div class="q"><span class="ql">What do you print?</span>
+    <div class="opts"><label><input type="checkbox" name="Printing" value="Price tags / labels" id="pr1"><span>Price tags / labels</span></label><label><input type="checkbox" name="Printing" value="Shipping labels" id="pr2"><span>Shipping labels</span></label><label><input type="checkbox" name="Printing" value="Receipts" id="pr3"><span>Receipts</span></label><label><input type="checkbox" name="Printing" value="Nothing yet" id="pr4"><span>Nothing yet</span></label></div>
+   </div>
+   <div class="q sub" data-if="Printing~labels"><label for="prm">Printer model, if you know it <small>e.g. Zebra, Rollo, Brother, DYMO</small></label><input type="text" id="prm" name="Printer model"></div>
+  </fieldset>
+
+  <fieldset data-title="Online now">
+   <legend>Online now</legend>
+   <p class="hint">Where people find you today.</p>
+   <div class="q"><span class="ql">Do you have a website?</span>
+    <div class="opts"><label><input type="radio" name="Has website" value="Yes" id="hw1"><span>Yes</span></label><label><input type="radio" name="Has website" value="No" id="hw2"><span>No</span></label></div>
+   </div>
+   <div class="sub" data-if="Has website=Yes" style="gap:22px">
+    <div class="q"><label for="url">Website address</label><input type="url" id="url" name="Current website" placeholder="https://"></div>
+    <div class="q"><label for="wrong">What bothers you about it?</label><textarea id="wrong" name="Current site problems"></textarea></div>
+   </div>
+   <div class="q"><label for="social">Social media <small>Instagram, TikTok, Facebook, one per line</small></label><textarea id="social" name="Social media"></textarea></div>
+   <div class="q"><span class="ql">Google Business profile (the Maps listing)</span>
+    <div class="opts"><label><input type="radio" name="Google profile" value="Yes" id="gp1"><span>Yes</span></label><label><input type="radio" name="Google profile" value="No" id="gp2"><span>No</span></label><label><input type="radio" name="Google profile" value="Not sure" id="gp3"><span>Not sure</span></label></div>
+   </div>
+  </fieldset>
+
+  <fieldset data-title="Look and feel">
+   <legend>Look and feel</legend>
+   <p class="hint">Show us what you like. It does not have to be in your industry.</p>
+   <div class="q"><label for="ex">Sites you like <small>one per line, and a word on why</small></label><textarea id="ex" name="Example sites"></textarea></div>
+   <div class="q"><span class="ql">Do you have a logo?</span>
+    <div class="opts"><label><input type="radio" name="Logo" value="Yes" id="lg1"><span>Yes</span></label><label><input type="radio" name="Logo" value="Need one" id="lg2"><span>Need one</span></label><label><input type="radio" name="Logo" value="Want a refresh" id="lg3"><span>Want a refresh</span></label></div>
+   </div>
+   <div class="q"><label for="col">Colors or words that feel like you</label><input type="text" id="col" name="Colors and mood"></div>
+  </fieldset>
+
+  <fieldset data-title="Package">
+   <legend>Package and timing</legend>
+   <p class="hint">A rough idea is enough. We will suggest the right fit.</p>
+   <div class="q"><span class="ql">Which package interests you?</span>
+    <div class="opts"><label><input type="radio" name="Package" value="First client offer" id="pk0"><span>First client offer · $300 + $50/mo</span></label><label><input type="radio" name="Package" value="Rent" id="pk1"><span>Rent · $200 + $25/mo</span></label><label><input type="radio" name="Package" value="Custom" id="pk2"><span>Custom · $2,500+ + $80/mo</span></label><label><input type="radio" name="Package" value="Handover" id="pk3"><span>Handover · $8,000+</span></label><label><input type="radio" name="Package" value="Not sure" id="pk4"><span>Not sure</span></label></div>
+   </div>
+   <div class="q"><span class="ql">Extras you might want</span>
+    <div class="opts"><label><input type="checkbox" name="Extras" value="AI product descriptions" id="ex1"><span>AI descriptions</span></label><label><input type="checkbox" name="Extras" value="Google image search" id="ex2"><span>Google image search</span></label><label><input type="checkbox" name="Extras" value="Business email" id="ex3"><span>Business email</span></label><label><input type="checkbox" name="Extras" value="NFC tap cards" id="ex4"><span>NFC tap cards</span></label><label><input type="checkbox" name="Extras" value="Business cards" id="ex5"><span>Business cards</span></label></div>
+   </div>
+   <div class="q"><span class="ql">When do you want it live?</span>
+    <div class="opts"><label><input type="radio" name="Timing" value="As soon as possible" id="tm1"><span>As soon as possible</span></label><label><input type="radio" name="Timing" value="Within a month" id="tm2"><span>Within a month</span></label><label><input type="radio" name="Timing" value="In 2 to 3 months" id="tm3"><span>In 2–3 months</span></label><label><input type="radio" name="Timing" value="Just exploring" id="tm4"><span>Just exploring</span></label></div>
+   </div>
+   <div class="q"><label for="notes">Anything else?</label><textarea id="notes" name="Notes"></textarea></div>
+  </fieldset>
+
+  <fieldset data-title="Contact">
+   <legend>How to reach you</legend>
+   <p class="hint">We reply within 12 hours.</p>
+   <div class="two">
+    <div class="q"><label for="nm">Your name</label><input type="text" id="nm" name="Name" autocomplete="name"></div>
+    <div class="q"><label for="em">Email</label><input type="email" id="em" name="Email" autocomplete="email"></div>
+   </div>
+   <div class="two">
+    <div class="q"><label for="ph">Phone <small>optional</small></label><input type="tel" id="ph" name="Phone" autocomplete="tel"></div>
+    <div class="q"><span class="ql">Best way to reach you</span>
+     <div class="opts"><label><input type="radio" name="Contact by" value="Email" id="cb1"><span>Email</span></label><label><input type="radio" name="Contact by" value="Text" id="cb2"><span>Text</span></label><label><input type="radio" name="Contact by" value="Call" id="cb3"><span>Call</span></label></div>
+    </div>
+   </div>
+  </fieldset>
+
+  <fieldset data-title="Send">
+   <legend>Check and send</legend>
+   <p class="hint">This is what we will receive. Sending opens your email app with everything filled in.</p>
+   <div class="sum" id="sum" tabindex="0"></div>
+   <div class="done-box">
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+     <a class="btn solid" id="send" href="mailto:hello@mrspace.online">Send by email <span class="arr">→</span></a>
+     <button class="btn" type="button" id="copy">Copy answers</button>
+    </div>
+    <p style="font-size:14.5px;color:var(--mute)">If your email app does not open, copy the answers and send them to <span class="mailaddr">hello@mrspace.online</span>.</p>
+    <p id="copied" style="font-size:14px" aria-live="polite"></p>
+   </div>
+  </fieldset>
+
+  <p class="err" id="err" aria-live="polite"></p>
+  <div class="navrow">
+   <button class="btn" type="button" id="back">← Back</button>
+   <button class="btn solid" type="button" id="next">Next →</button>
+  </div>
+ </form>
+</main>
+
+<footer class="foot">
+ <div class="wrap">
+  <div style="display:grid;gap:12px">
+   <span class="sig"><i></i>Made by Mr. Space</span>
+   <p>Mr. Space is a web studio of Heron CA LLC, Venice Beach, California.</p>
+  </div>
+  <nav aria-label="Footer"><a href="../">Home</a><a href="../packages/">Packages</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+ </div>
+</footer>
+</div>
+
+<script>
+(function(){
+ var f = document.getElementById("f"), sets = f.querySelectorAll("fieldset"), nav = document.getElementById("stepnav");
+ var back = document.getElementById("back"), next = document.getElementById("next"), err = document.getElementById("err");
+ var cur = 0, KEY = "mrspace-start-v1";
+
+ sets.forEach(function(s, i){ var li = document.createElement("li"); li.textContent = s.getAttribute("data-title"); li.addEventListener("click", function(){ go(i); }); nav.appendChild(li); });
+
+ function values(){
+  var out = {};
+  f.querySelectorAll("input,textarea,select").forEach(function(el){
+   if (!el.name) return;
+   if ((el.type === "radio" || el.type === "checkbox") && !el.checked) return;
+   var hidden = el.closest("[data-if]:not(.show)"); if (hidden) return;
+   var v = (el.value || "").trim(); if (!v) return;
+   out[el.name] = out[el.name] ? out[el.name] + ", " + v : v;
+  });
+  return out;
+ }
+ function raw(name){ var v = []; f.querySelectorAll('[name="'+name+'"]:checked').forEach(function(e){ v.push(e.value); }); return v; }
+ function branch(){
+  f.querySelectorAll("[data-if]").forEach(function(el){
+   var c = el.getAttribute("data-if"), ok;
+   if (c.indexOf("~") > -1) { var p = c.split("~"); ok = raw(p[0]).some(function(v){ return v.toLowerCase().indexOf(p[1]) > -1; }); }
+   else { var q = c.split("="); ok = raw(q[0]).indexOf(q[1]) > -1; }
+   el.classList.toggle("show", ok);
+  });
+ }
+ function summary(){
+  var v = values(), lines = [];
+  Object.keys(v).forEach(function(k){ lines.push(k + ": " + v[k]); });
+  return lines.length ? lines.join("\n") : "(No answers yet)";
+ }
+ function go(i){
+  if (i === sets.length - 1) {
+   var e = (document.getElementById("em").value || "").trim(), p = (document.getElementById("ph").value || "").trim();
+   if (!e && !p) { err.textContent = "Add an email or a phone number so we can reply."; cur = sets.length - 2; render(); return; }
+  }
+  err.textContent = "";
+  cur = Math.max(0, Math.min(sets.length - 1, i)); render();
+  var top = document.querySelector(".shell").getBoundingClientRect().top + window.scrollY - 80;
+  if (window.scrollY > top) window.scrollTo(0, top);
+ }
+ function render(){
+  sets.forEach(function(s, i){ s.classList.toggle("on", i === cur); });
+  Array.prototype.forEach.call(nav.children, function(li, i){ li.className = i === cur ? "on" : (i < cur ? "done" : ""); });
+  back.style.visibility = cur === 0 ? "hidden" : "visible";
+  next.style.display = cur === sets.length - 1 ? "none" : "";
+  next.innerHTML = cur === sets.length - 2 ? "Review →" : "Next →";
+  if (cur === sets.length - 1) {
+   var s = summary(), biz = values()["Business name"] || "my business";
+   document.getElementById("sum").textContent = s;
+   document.getElementById("send").href = "mailto:hello@mrspace.online?subject=" + encodeURIComponent("New project: " + biz) + "&body=" + encodeURIComponent(s);
+  }
+ }
+ back.addEventListener("click", function(){ go(cur - 1); });
+ next.addEventListener("click", function(){ go(cur + 1); });
+ document.getElementById("copy").addEventListener("click", function(){
+  var t = summary(), msg = document.getElementById("copied");
+  function sel(){ var r = document.createRange(); r.selectNodeContents(document.getElementById("sum")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); msg.textContent = "Selected. Press Copy on your device."; }
+  try { navigator.clipboard.writeText(t).then(function(){ msg.textContent = "Copied. Paste it into an email to hello@mrspace.online."; }, sel); } catch (e) { sel(); }
+ });
+
+ /* draft: kept on this device only */
+ function save(){ try { var d = {}; f.querySelectorAll("input,textarea").forEach(function(el){ if (el.type === "radio" || el.type === "checkbox") { if (el.checked) d[el.id] = 1; } else if (el.value) d[el.id] = el.value; }); localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} }
+ function load(){ try { var d = JSON.parse(localStorage.getItem(KEY) || "{}"); Object.keys(d).forEach(function(id){ var el = document.getElementById(id); if (!el) return; if (el.type === "radio" || el.type === "checkbox") el.checked = true; else el.value = d[id]; }); } catch (e) {} }
+ load();
+ var m = /[?&]p=(first|rent|custom|handover)/.exec(location.search);
+ if (m) { var map = {first:"pk0", rent:"pk1", custom:"pk2", handover:"pk3"}; document.getElementById(map[m[1]]).checked = true; }
+ f.addEventListener("input", function(){ branch(); save(); });
+ f.addEventListener("change", function(){ branch(); save(); });
+ f.addEventListener("submit", function(e){ e.preventDefault(); });
+ branch(); render();
+})();
+</script>
+</body>
+</html>
