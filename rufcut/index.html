@@ -3,284 +3,326 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rufcut concept · Mr. Space</title>
+<title>Rufcut · Custom jeans in 3-5 days · Concept by Mr. Space</title>
 <meta name="robots" content="noindex">
 <meta property="og:title" content="Rufcut, a concept by Mr. Space">
 <meta property="og:image" content="https://mrspace.online/mrspace/og-rufcut.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231B2A4E'/><rect x='14' y='14' width='72' height='72' rx='10' fill='none' stroke='%23D9822B' stroke-width='5' stroke-dasharray='9 6'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><rect x='12' y='12' width='76' height='76' fill='none' stroke='white' stroke-width='5' stroke-dasharray='9 6'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ind:#1B2A4E; --deep:#111B33; --cop:#D9822B; --raw:#F3EEE4; --mute:#AEB8D0;
+  --k:#000; --w:#fff; --g:#5f5f5f;
   --d:"Anton",Impact,"Arial Narrow",sans-serif;
-  --f:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --m:"Space Mono",ui-monospace,Menlo,monospace;
+  --f:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 *,*:before,*:after{box-sizing:inherit;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 110px);background:var(--deep)}
-body{background:var(--deep);color:var(--raw);font-family:var(--f);font-size:17px;line-height:1.55}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 100px);background:var(--w)}
+body{background:var(--w);color:var(--k);font-family:var(--f);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:inherit}
-button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--cop);outline-offset:3px}
-.wrap{max-width:1160px;margin:0 auto;padding:0 26px}
-.denim{background-color:var(--ind);background-image:repeating-linear-gradient(135deg,#ffffff08 0 2px,transparent 2px 5px),repeating-linear-gradient(45deg,#00000014 0 1px,transparent 1px 4px)}
-.seam{height:0;border-top:2px dashed var(--cop);opacity:.8}
+button{font:inherit;color:inherit;cursor:pointer;background:none}
+:focus-visible{outline:3px solid #000;outline-offset:3px}
+.mono{font-family:var(--m);font-weight:700;font-size:12px;letter-spacing:.18em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 0 64px}
 
-/* concept ribbon */
-.ribbon{background:var(--cop);color:var(--deep);font-size:14px;font-weight:600;text-align:center;padding:8px 16px}
-.ribbon a{font-weight:700}
+/* tape measure on the left edge, like the proposal */
+.tape{position:fixed;left:0;top:0;bottom:0;width:38px;border-right:2px solid var(--k);background:
+  repeating-linear-gradient(180deg,var(--k) 0 2px,transparent 2px 40px) right 0/22px 100% no-repeat,
+  repeating-linear-gradient(180deg,var(--k) 0 1.5px,transparent 1.5px 20px) right 0/14px 100% no-repeat,
+  repeating-linear-gradient(180deg,var(--k) 0 1px,transparent 1px 4px) right 0/8px 100% no-repeat,var(--w);z-index:40}
 
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--deep);border-bottom:2px dashed #D9822B88}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
-.logo{font:30px/1 var(--d);letter-spacing:.04em;text-decoration:none}
-nav a{text-decoration:none;font-weight:600;font-size:15px;margin-left:24px}
-nav a:hover{color:var(--cop)}
-nav .book{border:2px solid var(--cop);padding:8px 14px;border-radius:4px}
-nav .book:hover{background:var(--cop);color:var(--deep)}
+.ribbon{background:var(--k);color:var(--w);text-align:center;padding:8px 16px 8px 54px}
+.ribbon a{text-underline-offset:3px}
 
-/* hero */
-.hero{position:relative;min-height:min(84vh,760px);display:flex;align-items:flex-end;overflow:hidden}
-.hero .bench{position:absolute;inset:0}
-.hero .inner{position:relative;padding:80px 26px 64px;max-width:1160px;margin:0 auto;width:100%}
-.hero h1{font:clamp(60px,10vw,150px)/.86 var(--d);text-transform:uppercase;letter-spacing:.005em}
-.hero p{font-size:clamp(18px,2vw,22px);max-width:36ch;margin-top:22px;color:#DCE2F0}
-.hero .row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.btn{display:inline-block;text-decoration:none;font-weight:700;font-size:16px;padding:14px 22px;border-radius:4px;border:2px solid var(--raw)}
-.btn.cop{background:var(--cop);border-color:var(--cop);color:var(--deep)}
-.btn.cop:hover{background:#e8963f}
-.btn:not(.cop):hover{background:var(--raw);color:var(--deep)}
-.hero .stitch{position:absolute;inset:16px;border:2px dashed #D9822B99;border-radius:8px;pointer-events:none}
-.machine{position:absolute;right:5%;top:9%;width:min(30vw,360px);opacity:.9}
-@media (prefers-reduced-motion:no-preference){
-  .needle{animation:sew .32s ease-in-out infinite alternate}
-  @keyframes sew{to{transform:translateY(14px)}}
-}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--w);border-bottom:2px dashed var(--k)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font:32px/1 var(--d);letter-spacing:.03em;text-decoration:none}
+nav{display:flex;gap:22px;align-items:center}
+nav a{text-decoration:none;font-family:var(--m);font-weight:700;font-size:12px;letter-spacing:.14em}
+nav a:hover{text-decoration:underline;text-underline-offset:5px}
+nav .book{background:var(--k);color:var(--w);padding:10px 14px}
+nav .book:hover{text-decoration:none;background:#222}
+
+.btn{display:inline-block;text-decoration:none;font-family:var(--m);font-weight:700;font-size:13px;letter-spacing:.14em;padding:15px 20px;border:2px solid currentColor}
+.btn.solid{background:var(--k);color:var(--w);border-color:var(--k)}
+.btn.inv{background:var(--w);color:var(--k);border-color:var(--w)}
+
+/* hero = the proposal cover */
+.cover{background:var(--k);color:var(--w);position:relative;overflow:hidden}
+.cover .wrap{padding-top:34px;padding-bottom:44px;position:relative}
+.cover .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.cover .big{font:clamp(110px,22vw,320px)/.8 var(--d);letter-spacing:-.01em;margin-top:22px}
+.cover .tag{font:clamp(22px,3vw,40px)/1 var(--d);margin-top:14px;letter-spacing:.01em}
+.cover .dots{position:absolute;right:0;bottom:0;width:46%;height:70%;background:radial-gradient(#fff 30%,transparent 33%) 0 0/12px 12px;-webkit-mask:linear-gradient(135deg,transparent 35%,#000 100%);mask:linear-gradient(135deg,transparent 35%,#000 100%);pointer-events:none}
+.promise{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:56px;align-items:center;padding:64px 0 30px}
+.promise h1{font:clamp(54px,7.4vw,104px)/.9 var(--d);text-transform:uppercase}
+.promise h1 u{text-decoration:none;border-bottom:6px dashed var(--k)}
+.promise p{font-size:clamp(17px,1.6vw,20px);max-width:40ch;margin-top:26px;color:#333}
+.promise .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.stitchline{border-top:2px solid var(--k);margin-top:8px}
+.stitchline + .stitchline{border-top-style:dashed;margin-top:4px}
 
 /* doors */
-.doors{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px dashed #D9822B88}
-.door{padding:40px 28px;text-decoration:none;border-right:2px dashed #D9822B88;display:block}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);border:3px solid var(--k);margin-top:40px}
+.door{display:block;text-decoration:none;padding:26px 24px;border-right:2px dashed var(--k)}
 .door:last-child{border-right:0}
-.door:hover{background:var(--ind)}
-.door h2{font:44px/1 var(--d);text-transform:uppercase}
-.door p{color:var(--mute);margin-top:8px}
+.door:hover{background:var(--k);color:var(--w)}
+.door b{font:52px/1 var(--d);display:block}
+.door span{display:block;margin-top:6px;font-size:15px}
 
-section{padding:96px 0}
-.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:40px;flex-wrap:wrap}
-.sh h2{font:clamp(48px,7vw,92px)/.9 var(--d);text-transform:uppercase}
-.sh p{max-width:44ch;color:var(--mute)}
+section{padding:100px 0 0}
+.sec{display:flex;align-items:flex-end;gap:16px;margin-bottom:14px}
+.sec .n{font:clamp(70px,9vw,118px)/.8 var(--d);color:var(--w);-webkit-text-stroke:2px var(--k)}
+.sec h2{font:clamp(50px,7vw,100px)/.85 var(--d);text-transform:uppercase}
+.lede{max-width:58ch;color:var(--g);margin-bottom:30px}
 
-/* builder */
-.builder{display:grid;grid-template-columns:minmax(260px,400px) 1fr;border:2px solid var(--raw);border-radius:8px;overflow:hidden}
-.preview{background:var(--raw);color:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;position:relative}
-.preview svg{width:100%;max-width:300px;height:auto}
-.preview .lbl{font-weight:700;font-size:14px;margin-top:14px;text-align:center}
-.opts{background:var(--deep)}
-.step{padding:20px 24px;border-bottom:2px dashed #D9822B66}
-.step h3{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--mute)}
-.step h3 b{color:var(--raw)}
+/* builder, exactly like page 3 */
+.builder{display:grid;grid-template-columns:minmax(240px,380px) 1fr;border:3px solid var(--k)}
+.preview{border-right:3px solid var(--k);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
+.preview svg{width:100%;max-width:250px;height:auto}
+.preview .mono{margin-top:16px;text-align:center}
+.step{padding:18px 22px;border-bottom:2px dashed var(--k)}
+.step h3{font-family:var(--m);font-size:12px;letter-spacing:.16em;font-weight:700;margin-bottom:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:2px solid #F3EEE466;background:none;border-radius:999px;padding:7px 14px;font-weight:600;font-size:15px}
-.chip:hover{border-color:var(--raw)}
-.chip[aria-pressed="true"]{background:var(--raw);color:var(--deep);border-color:var(--raw)}
-.sw{width:40px;height:40px;border-radius:50%;border:3px solid transparent;outline:2px solid #F3EEE466}
-.sw[aria-pressed="true"]{border-color:var(--deep);outline:3px solid var(--raw)}
-.ready{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 24px;flex-wrap:wrap}
-.ready .d{font:34px/1 var(--d);text-transform:uppercase}
-.ready small{display:block;color:var(--mute);font-size:14px;margin-top:4px}
-.note{margin-top:14px;color:var(--mute);font-size:15px}
+.chip{border:2px solid var(--k);border-radius:999px;padding:6px 14px;font-family:var(--m);font-weight:700;font-size:12px;letter-spacing:.08em}
+.chip[aria-pressed="true"]{background:var(--k);color:var(--w)}
+.sw{width:38px;height:38px;border-radius:50%;border:2px solid var(--k);box-shadow:inset 0 0 0 3px var(--w)}
+.sw[aria-pressed="true"]{outline:3px solid var(--k);outline-offset:2px}
+.ready{background:var(--k);color:var(--w);display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 22px;flex-wrap:wrap}
+.ready .d{font:36px/1 var(--d);text-transform:uppercase}
+.ready small{display:block;font-size:13px;color:#bbb;margin-top:4px}
+.points{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 34px;margin-top:22px}
+.points li{padding:12px 0 12px 30px;border-bottom:2px solid var(--k);position:relative}
+.points li:before{content:"";position:absolute;left:0;top:16px;width:16px;height:16px;border:2px solid var(--k);border-radius:50%;background:radial-gradient(var(--k) 35%,transparent 40%)}
+.points b{font-weight:800}
 
-/* vintage */
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;align-items:center}
-.filters span{color:var(--mute);margin-right:6px;font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.item{border:2px solid #F3EEE433;border-radius:8px;overflow:hidden;background:var(--deep)}
-.item .ph{aspect-ratio:4/5;display:grid;place-items:center;position:relative}
-.item .ph svg{width:52%}
-.item .tag{position:absolute;top:10px;left:10px;background:var(--raw);color:var(--deep);font-weight:700;font-size:13px;padding:3px 8px;border-radius:3px}
-.item .in{padding:14px}
-.item h4{font-size:17px;font-weight:700}
-.item p{font-size:14px;color:var(--mute)}
-.empty{grid-column:1/-1;padding:40px;border:2px dashed #D9822B88;border-radius:8px;text-align:center;color:var(--mute)}
+.band{background:var(--k);color:var(--w);margin-top:100px}
+.band .wrap{display:flex;justify-content:space-between;align-items:center;gap:30px;padding-top:56px;padding-bottom:56px;flex-wrap:wrap}
+.band b{font:clamp(44px,6.4vw,92px)/.9 var(--d)}
 
-/* repairs */
-.rep{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
-.rep div{display:flex;justify-content:space-between;gap:20px;padding:16px 0;border-bottom:2px dashed #D9822B55}
-.rep h4{font-size:19px;font-weight:700}
-.rep span{color:var(--mute);font-size:15px;text-align:right}
-.ba{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:40px}
-.ba figure{border-radius:8px;overflow:hidden;position:relative;aspect-ratio:16/10}
-.ba figcaption{position:absolute;left:12px;bottom:12px;background:var(--deep);padding:4px 10px;font-weight:700;font-size:14px;border-radius:3px}
+/* vintage as hang tags */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:26px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.vt{border:3px solid var(--k);border-radius:12px;position:relative;padding:48px 16px 16px;clip-path:polygon(18% 0,82% 0,100% 7%,100% 100%,0 100%,0 7%);text-align:center}
+.vt:before{content:"";position:absolute;top:14px;left:50%;width:18px;height:18px;margin-left:-9px;border:3px solid var(--k);border-radius:50%}
+.vt .size{font:40px/1 var(--d);margin:4px 0}
+.vt svg{width:48%;margin:10px auto 8px;display:block}
+.vt h4{font-size:15px;font-weight:800;border-top:2px dashed var(--k);padding-top:10px}
+.vt p{font-size:13px;color:var(--g)}
+.vt.blk{background:var(--k);color:var(--w)}
+.vt.blk:before{border-color:var(--w);background:var(--w)}
+.vt.blk h4{border-color:var(--w)}
+.vt.blk p{color:#bbb}
+.empty{grid-column:1/-1;border:3px dashed var(--k);padding:40px;text-align:center}
+.note{margin-top:14px;color:var(--g);font-size:14px}
+
+/* repairs as care label */
+.label{border:3px solid var(--k);display:grid;grid-template-columns:1fr 1fr}
+.label .head{grid-column:1/3;background:var(--k);color:var(--w);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.label .head b{font:36px/1 var(--d)}
+.rp{padding:18px 22px;border-top:2px solid var(--k);display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.rp:nth-child(odd){border-left:2px solid var(--k)}
+.rp h4{font:24px/1 var(--d);text-transform:uppercase}
+.rp span{font-size:14px;color:var(--g);text-align:right}
 
 /* tracker */
-.track{background:var(--raw);color:var(--deep);border-radius:8px;padding:34px}
+.track{border:3px solid var(--k);padding:30px}
 .track form{display:flex;gap:10px;flex-wrap:wrap}
-.track input{flex:1;min-width:200px;font:inherit;font-size:18px;padding:13px 16px;border:2px solid var(--deep);border-radius:4px;background:#fff}
-.track .btn{border-color:var(--deep);background:var(--deep);color:var(--raw)}
-.stages{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;position:relative}
-.stages li{list-style:none;position:relative;padding-top:44px;font-weight:700}
-.stages li:before{content:"";position:absolute;top:0;left:0;width:30px;height:30px;border-radius:50%;border:3px solid var(--deep);background:#fff;z-index:1}
-.stages li:after{content:"";position:absolute;top:14px;left:30px;right:0;border-top:3px dashed var(--deep)}
+.track input{flex:1;min-width:200px;font-family:var(--m);font-size:16px;font-weight:700;letter-spacing:.06em;padding:14px 16px;border:2px solid var(--k);background:var(--w);color:var(--k)}
+.track button{background:var(--k);color:var(--w);border:2px solid var(--k)}
+.stages{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);margin-top:32px}
+.stages li{position:relative;padding-top:40px;font-family:var(--m);font-weight:700;font-size:13px;letter-spacing:.12em}
+.stages li:before{content:"";position:absolute;top:0;left:0;width:26px;height:26px;border-radius:50%;border:3px solid var(--k);background:var(--w);z-index:1}
+.stages li:after{content:"";position:absolute;top:12px;left:30px;right:6px;border-top:3px dashed var(--k)}
 .stages li:last-child:after{display:none}
-.stages li.done:before{background:var(--deep)}
-.stages li.now:before{background:var(--cop);border-color:var(--cop)}
-.stages small{display:block;font-weight:500;color:#4b5570;font-size:14px}
-.msg{margin-top:16px;font-weight:600;min-height:1.5em}
+.stages li.done:before{background:var(--k)}
+.stages li.now:before{background:radial-gradient(var(--k) 40%,var(--w) 45%)}
+.stages small{display:block;font-family:var(--f);font-weight:500;letter-spacing:0;color:var(--g);font-size:14px;margin-top:2px}
+.msg{margin-top:18px;font-weight:700;min-height:1.5em}
 
 /* visit */
-.visit{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center}
-.visit h2{font:clamp(48px,7vw,92px)/.9 var(--d);text-transform:uppercase}
-.visit p{color:var(--mute);margin-top:16px}
-.hours div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:2px dashed #D9822B55;font-weight:600}
-.hours span{color:var(--mute);font-weight:500}
+.visit{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:start}
+.visit p{color:#333;margin-top:16px;max-width:42ch}
+.hours{border:3px solid var(--k)}
+.hours div{display:flex;justify-content:space-between;padding:16px 20px;border-bottom:2px dashed var(--k);font-weight:700}
+.hours div:last-child{border-bottom:0}
+.hours span{color:var(--g);font-weight:500}
 
-footer{padding:34px 0 48px;color:var(--mute);font-size:14px}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.close{border:3px dashed var(--k);margin:100px 0 0;padding:34px;display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
+.close b{font:clamp(40px,5vw,64px)/.9 var(--d);text-transform:uppercase}
+.close p{max-width:42ch;margin-top:10px;color:#333}
+footer{padding:40px 0 50px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:2px dashed var(--k);padding-top:16px}
 
 @media (max-width:900px){
+  .tape{width:16px;background:repeating-linear-gradient(180deg,var(--k) 0 2px,transparent 2px 20px) right 0/10px 100% no-repeat,var(--w)}
+  .wrap{padding:0 20px 0 34px}
+  .ribbon{padding-left:28px}
   nav a:not(.book){display:none}
-  .machine{opacity:.25;right:-10%;top:4%;width:80vw}
+  .promise{grid-template-columns:1fr;gap:20px;padding-top:40px}
+  .promise .pocket{max-width:220px}
   .doors{grid-template-columns:1fr}
-  .door{border-right:0;border-bottom:2px dashed #D9822B88;padding:28px 26px}
+  .door{border-right:0;border-bottom:2px dashed var(--k)}
+  .door:last-child{border-bottom:0}
   .builder{grid-template-columns:1fr}
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .rep,.ba,.visit{grid-template-columns:1fr}
-  .stages{grid-template-columns:1fr 1fr;row-gap:24px}
+  .preview{border-right:0;border-bottom:3px solid var(--k)}
+  .points{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr 1fr}
+  .label{grid-template-columns:1fr}
+  .label .head{grid-column:1}
+  .rp:nth-child(odd){border-left:0}
+  .stages{grid-template-columns:1fr 1fr;row-gap:26px}
   .stages li:nth-child(2):after{display:none}
-  section{padding:70px 0}
+  .visit{grid-template-columns:1fr}
+  section{padding-top:70px}
 }
 </style>
 </head>
 <body>
-
-<div class="ribbon">Design concept by <a href="../">Mr. Space</a>. Not the official Rufcut website.</div>
+<div class="tape" aria-hidden="true"></div>
+<div class="ribbon mono">DESIGN CONCEPT BY <a href="../">MR. SPACE</a>. NOT THE OFFICIAL RUFCUT WEBSITE.</div>
 
 <header>
  <div class="wrap">
   <a class="logo" href="#top">RUFCUT</a>
-  <nav aria-label="Main"><a href="#build">Build your jeans</a><a href="#vintage">Vintage</a><a href="#repairs">Repairs</a><a href="#order">My order</a><a class="book" href="#visit">Book a fitting</a></nav>
+  <nav aria-label="Main"><a href="#build">BUILD YOUR JEANS</a><a href="#vintage">VINTAGE</a><a href="#repairs">REPAIRS</a><a href="#order">MY ORDER</a><a class="book" href="#visit">BOOK A FITTING</a></nav>
  </div>
 </header>
 
 <main id="top">
- <div class="hero denim">
-  <svg class="machine" viewBox="0 0 400 300" aria-hidden="true" fill="none" stroke="#F3EEE4" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
-   <path d="M40 250 H370"/>
-   <path d="M70 250 V140 Q70 90 120 90 H300 Q340 90 340 130 V210"/>
-   <path d="M120 90 V50 H310 Q340 50 340 80 V130"/>
-   <circle cx="315" cy="105" r="22"/><circle cx="315" cy="105" r="6" fill="#F3EEE4"/>
-   <path d="M90 250 V190 H150"/>
-   <g class="needle"><path d="M150 130 V185" stroke="#D9822B"/><path d="M142 130 H158"/></g>
-   <path d="M40 255 H370" stroke="#D9822B" stroke-width="3" stroke-dasharray="10 8"/>
-  </svg>
-  <div class="stitch"></div>
-  <div class="inner">
-   <h1>Your fit.<br>Cut in 3-5 days.</h1>
-   <p>Custom jeans and jackets made on the Venice boardwalk. Vintage Levi's, alterations and repairs.</p>
-   <div class="row"><a class="btn cop" href="#build">Start your pair</a><a class="btn" href="#vintage">Shop vintage</a></div>
+ <div class="cover">
+  <div class="wrap">
+   <div class="row"><span class="mono">CUSTOM JEANS / VINTAGE LEVI'S / REPAIRS</span><span class="mono">517 OCEAN FRONT WALK / VENICE BEACH</span></div>
+   <div class="big">RUFCUT</div>
+   <div class="tag">A WORKSHOP ON THE BOARDWALK.</div>
   </div>
+  <div class="dots" aria-hidden="true"></div>
  </div>
 
- <div class="doors">
-  <a class="door" href="#build"><h2>Custom</h2><p>Jeans and jackets, cut to your measurements.</p></a>
-  <a class="door" href="#vintage"><h2>Vintage</h2><p>Levi's sorted by waist and length.</p></a>
-  <a class="door" href="#repairs"><h2>Repair</h2><p>Hems, patches, zips, tapering.</p></a>
+ <div class="wrap">
+  <div class="promise">
+   <svg class="pocket" viewBox="0 0 200 230" role="img" aria-label="Back pocket with Rufcut patch">
+    <path d="M14 10 H186 V150 L100 220 L14 150 Z" fill="none" stroke="#000" stroke-width="5"/>
+    <path d="M26 22 H174 V144 L100 204 L26 144 Z" fill="none" stroke="#000" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <path d="M34 30 H166 V140 L100 194 L34 140 Z" fill="none" stroke="#000" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <circle cx="22" cy="18" r="7"/><circle cx="178" cy="18" r="7"/>
+    <circle cx="22" cy="18" r="2.5" fill="#fff"/><circle cx="178" cy="18" r="2.5" fill="#fff"/>
+    <rect x="52" y="62" width="96" height="58"/>
+    <rect x="57" y="67" width="86" height="48" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="100" y="94" fill="#fff" font-family="Anton,Impact,sans-serif" font-size="24" text-anchor="middle">RUFCUT</text>
+    <text x="100" y="108" fill="#fff" font-family="Space Mono,monospace" font-weight="700" font-size="7.5" text-anchor="middle" letter-spacing="1.5">CUT IN VENICE</text>
+   </svg>
+   <div>
+    <span class="mono">THE PROMISE</span>
+    <div class="stitchline"></div><div class="stitchline"></div>
+    <h1 style="margin-top:20px">Your fit.<br>Cut for you.<br><u>3 to 5 days.</u></h1>
+    <p>Custom jeans and jackets made at the bench on the Venice boardwalk. Bring your old favorite pair, or build a new one from scratch.</p>
+    <div class="btns"><a class="btn solid" href="#build">START YOUR PAIR</a><a class="btn" href="#vintage">SHOP VINTAGE</a></div>
+   </div>
+  </div>
+  <div class="doors">
+   <a class="door" href="#build"><b>CUSTOM</b><span>Jeans and jackets cut to your measurements.</span></a>
+   <a class="door" href="#vintage"><b>VINTAGE</b><span>Levi's sorted by waist and length.</span></a>
+   <a class="door" href="#repairs"><b>REPAIR</b><span>Hems, patches, zips, tapering.</span></a>
+  </div>
  </div>
 
  <section id="build">
   <div class="wrap">
-   <div class="sh"><h2>Build your jeans</h2><p>Make your choices, see your pair, and get your ready date before anything is cut.</p></div>
+   <div class="sec"><span class="n">01</span><h2>Build your jeans</h2></div>
+   <p class="lede">Make your choices, see your pair, and get your ready date before anything is cut.</p>
    <div class="builder">
     <div class="preview">
-     <svg viewBox="0 0 130 210" aria-label="Preview of your jeans" role="img">
-      <path id="jBody" d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z" fill="#1E3466" stroke="#111B33" stroke-width="2.5"/>
-      <rect id="jBand" x="12" y="8" width="106" height="16" fill="#1E3466" stroke="#111B33" stroke-width="2.5"/>
+     <svg viewBox="-12 0 154 210" role="img" aria-label="Preview of your jeans">
+      <path id="jBody" d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z" fill="#1E3466" stroke="#000" stroke-width="3"/>
+      <rect id="jBand" x="12" y="8" width="106" height="16" fill="#1E3466" stroke="#000" stroke-width="3"/>
       <g id="jStitch" fill="none" stroke="#D9822B" stroke-width="1.8" stroke-dasharray="3.5 2.5">
-       <path d="M14 21 H116"/>
-       <path d="M65 24 V70 Q65 80 56 84"/>
+       <path d="M14 21 H116"/><path d="M65 24 V70 Q65 80 56 84"/>
        <path d="M16 27 Q34 50 46 27"/><path d="M114 27 Q96 50 84 27"/>
        <path id="hemL" d="M9 190 H55"/><path id="hemR" d="M75 190 H121"/>
       </g>
       <g id="jFly"></g>
       <rect id="cuffL" x="5" y="186" width="52" height="14" fill="none"/>
       <rect id="cuffR" x="73" y="186" width="52" height="14" fill="none"/>
-      <circle id="btn1" cx="65" cy="16" r="4" fill="#B87333" stroke="#111B33" stroke-width="1"/>
+      <circle cx="65" cy="16" r="4" fill="#B87333" stroke="#000"/>
       <circle cx="20" cy="30" r="2.2" fill="#B87333"/><circle cx="110" cy="30" r="2.2" fill="#B87333"/>
      </svg>
-     <div class="lbl" id="summary"></div>
+     <div class="mono" id="summary"></div>
     </div>
-    <div class="opts">
-     <div class="step"><h3>Fit: <b id="vFit"></b></h3><div class="chips" data-k="fit"><button class="chip">Slim</button><button class="chip">Straight</button><button class="chip">Relaxed</button><button class="chip">Wide</button></div></div>
-     <div class="step"><h3>Denim: <b id="vDenim"></b></h3><div class="chips" data-k="denim"><button class="chip">Raw</button><button class="chip">Rigid</button><button class="chip">Stretch</button><button class="chip">Selvedge</button></div></div>
-     <div class="step"><h3>Wash: <b id="vWash"></b></h3><div class="chips" data-k="wash">
-      <button class="sw" data-v="Dark indigo" style="background:#1E3466" aria-label="Dark indigo"></button>
-      <button class="sw" data-v="Mid blue" style="background:#3E5F99" aria-label="Mid blue"></button>
-      <button class="sw" data-v="Light stone" style="background:#8DA7CC" aria-label="Light stone"></button>
-      <button class="sw" data-v="Black" style="background:#232427" aria-label="Black"></button>
-      <button class="sw" data-v="Ecru" style="background:#E6DCC6" aria-label="Ecru"></button></div></div>
-     <div class="step"><h3>Thread: <b id="vThread"></b></h3><div class="chips" data-k="thread">
-      <button class="sw" data-v="Copper" style="background:#D9822B" aria-label="Copper"></button>
-      <button class="sw" data-v="Gold" style="background:#E2B33C" aria-label="Gold"></button>
-      <button class="sw" data-v="White" style="background:#F6F3EC" aria-label="White"></button>
-      <button class="sw" data-v="Tonal" style="background:#2C3D63" aria-label="Tonal"></button></div></div>
-     <div class="step"><h3>Fly: <b id="vFly"></b></h3><div class="chips" data-k="fly"><button class="chip">Button fly</button><button class="chip">Zip fly</button></div></div>
-     <div class="step"><h3>Hem: <b id="vHem"></b></h3><div class="chips" data-k="hem"><button class="chip">Chain stitch</button><button class="chip">Cuffed</button><button class="chip">Raw edge</button></div></div>
-     <div class="ready">
-      <div><div class="d" id="readyDate"></div><small>Ready date if you get fitted today</small></div>
-      <a class="btn cop" href="#visit">Book a fitting</a>
-     </div>
+    <div>
+     <div class="step"><h3>01 FIT: <span id="vFit"></span></h3><div class="chips" data-k="fit"><button class="chip">SLIM</button><button class="chip">STRAIGHT</button><button class="chip">RELAXED</button><button class="chip">WIDE</button></div></div>
+     <div class="step"><h3>02 DENIM: <span id="vDenim"></span></h3><div class="chips" data-k="denim"><button class="chip">RAW</button><button class="chip">RIGID</button><button class="chip">STRETCH</button><button class="chip">SELVEDGE</button></div></div>
+     <div class="step"><h3>03 WASH: <span id="vWash"></span></h3><div class="chips" data-k="wash">
+      <button class="sw" data-v="DARK INDIGO" style="background:#1E3466" aria-label="Dark indigo"></button>
+      <button class="sw" data-v="MID BLUE" style="background:#3E5F99" aria-label="Mid blue"></button>
+      <button class="sw" data-v="LIGHT STONE" style="background:#8DA7CC" aria-label="Light stone"></button>
+      <button class="sw" data-v="BLACK" style="background:#232427" aria-label="Black"></button>
+      <button class="sw" data-v="ECRU" style="background:#E6DCC6" aria-label="Ecru"></button></div></div>
+     <div class="step"><h3>04 THREAD: <span id="vThread"></span></h3><div class="chips" data-k="thread"><button class="chip">COPPER</button><button class="chip">GOLD</button><button class="chip">WHITE</button><button class="chip">TONAL</button></div></div>
+     <div class="step"><h3>05 HARDWARE: <span id="vFly"></span></h3><div class="chips" data-k="fly"><button class="chip">BUTTON FLY</button><button class="chip">ZIP FLY</button></div></div>
+     <div class="step" style="border-bottom:0"><h3>06 HEM: <span id="vHem"></span></h3><div class="chips" data-k="hem"><button class="chip">CHAIN STITCH</button><button class="chip">CUFFED</button><button class="chip">RAW EDGE</button></div></div>
+     <div class="ready"><div><div class="d" id="readyDate"></div><small>Ready date if you get fitted today</small></div><a class="btn inv" href="#visit">BOOK A FITTING</a></div>
     </div>
    </div>
-   <p class="note">Not in Venice? Send your measurements with our simple guide and we ship your pair. The same builder works for jackets.</p>
+   <ul class="points">
+    <li><b>See it before it is cut.</b> Every choice shows on the drawing.</li>
+    <li><b>Ready date up front.</b> Built on the 3 to 5 day promise.</li>
+    <li><b>Local or far away.</b> Book a fitting, or send measurements with a simple guide.</li>
+    <li><b>Jackets too.</b> The same builder works for jackets.</li>
+   </ul>
   </div>
  </section>
 
- <div class="seam"></div>
+ <div class="band">
+  <div class="wrap">
+   <b>BUILT ONLINE.<br>CUT ON THE BOARDWALK.</b>
+   <svg width="110" viewBox="0 0 100 100" aria-hidden="true"><circle cx="25" cy="72" r="13" fill="none" stroke="#fff" stroke-width="6"/><circle cx="75" cy="72" r="13" fill="none" stroke="#fff" stroke-width="6"/><path d="M33 62 L80 6 M67 62 L20 6" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>
+  </div>
+ </div>
 
  <section id="vintage">
   <div class="wrap">
-   <div class="sh"><h2>Vintage Levi's</h2><p>Every pair measured by hand. Pick your waist and we show only what fits.</p></div>
-   <div class="filters" id="wf"><span>Waist</span>
-    <button class="chip" aria-pressed="true" data-w="all">All</button><button class="chip" data-w="28">28</button><button class="chip" data-w="30">30</button><button class="chip" data-w="32">32</button><button class="chip" data-w="34">34</button><button class="chip" data-w="36">36</button>
+   <div class="sec"><span class="n">02</span><h2>Vintage Levi's</h2></div>
+   <p class="lede">Every pair measured by hand. Pick your waist and see only what fits.</p>
+   <div class="filters" id="wf"><span class="mono" style="margin-right:6px">WAIST</span>
+    <button class="chip" aria-pressed="true" data-w="all">ALL</button><button class="chip" data-w="28">28</button><button class="chip" data-w="30">30</button><button class="chip" data-w="32">32</button><button class="chip" data-w="34">34</button><button class="chip" data-w="36">36</button>
    </div>
    <div class="grid" id="items"></div>
    <p class="note">Sample listings for this concept.</p>
   </div>
  </section>
 
- <div class="seam"></div>
-
  <section id="repairs">
   <div class="wrap">
-   <div class="sh"><h2>Repairs</h2><p>Bring it in or drop it at the shop. Most jobs are ready the same week.</p></div>
-   <div class="rep">
-    <div><h4>Hemming</h4><span>Original hem kept or chain stitch</span></div>
-    <div><h4>Tapering</h4><span>Slimmer leg from the knee down</span></div>
-    <div><h4>Waist in or out</h4><span>Up to two sizes</span></div>
-    <div><h4>Zip replacement</h4><span>Metal zips, matched to the pair</span></div>
-    <div><h4>Patches and darning</h4><span>Knees, crotch, pockets</span></div>
-    <div><h4>Jacket fixes</h4><span>Sleeves, buttons, linings</span></div>
-   </div>
-   <div class="ba">
-    <figure class="denim"><svg viewBox="0 0 200 125" width="100%" height="100%" aria-hidden="true"><path d="M70 40 Q100 20 130 45 Q120 75 95 80 Q72 70 70 40Z" fill="#111B33"/><path d="M78 48 L122 50 M80 58 L118 62" stroke="#AEB8D0" stroke-width="1.5"/></svg><figcaption>Before</figcaption></figure>
-    <figure class="denim"><svg viewBox="0 0 200 125" width="100%" height="100%" aria-hidden="true"><rect x="66" y="32" width="68" height="54" rx="4" fill="#2C4478" stroke="#D9822B" stroke-width="2" stroke-dasharray="5 3"/><path d="M72 42 H128 M72 52 H128 M72 62 H128 M72 72 H128" stroke="#D9822B" stroke-width="1"/></svg><figcaption>After</figcaption></figure>
+   <div class="sec"><span class="n">03</span><h2>Repairs</h2></div>
+   <p class="lede">Bring it in or drop it at the shop. Most jobs are ready the same week.</p>
+   <div class="label">
+    <div class="head"><b>REPAIR INSTRUCTIONS</b><span class="mono">DROP OFF AT THE BENCH</span></div>
+    <div class="rp"><h4>Hemming</h4><span>Original hem kept, or chain stitch</span></div>
+    <div class="rp"><h4>Tapering</h4><span>Slimmer leg from the knee down</span></div>
+    <div class="rp"><h4>Waist in or out</h4><span>Up to two sizes</span></div>
+    <div class="rp"><h4>Zip replacement</h4><span>Metal zips, matched to the pair</span></div>
+    <div class="rp"><h4>Patches and darning</h4><span>Knees, crotch, pockets</span></div>
+    <div class="rp"><h4>Jacket fixes</h4><span>Sleeves, buttons, linings</span></div>
    </div>
   </div>
  </section>
 
- <section id="order" style="padding-top:20px">
+ <section id="order">
   <div class="wrap">
+   <div class="sec"><span class="n">04</span><h2>Where is my pair?</h2></div>
    <div class="track">
-    <h2 style="font:clamp(40px,6vw,72px)/.9 var(--d);text-transform:uppercase;margin-bottom:20px">Where is my pair?</h2>
-    <form id="tf"><input id="on" placeholder="Order number, try RC-1042" aria-label="Order number" autocomplete="off"><button class="btn" type="submit">Check order</button></form>
+    <form id="tf"><input id="on" placeholder="ORDER NUMBER, TRY RC-1042" aria-label="Order number" autocomplete="off"><button class="btn" type="submit">CHECK ORDER</button></form>
     <ol class="stages" id="stages">
-     <li>Measured<small>Fitting done</small></li>
-     <li>Cutting<small>Pattern on the denim</small></li>
-     <li>Sewing<small>On the machine</small></li>
-     <li>Ready<small>Pick up or ship</small></li>
+     <li>MEASURED<small>Fitting done</small></li>
+     <li>CUTTING<small>Pattern on the denim</small></li>
+     <li>SEWING<small>On the machine</small></li>
+     <li>READY<small>Pick up or ship</small></li>
     </ol>
     <div class="msg" id="msg" aria-live="polite"></div>
    </div>
@@ -288,77 +330,73 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
  </section>
 
  <section id="visit">
+  <div class="wrap">
+   <div class="sec"><span class="n">05</span><h2>Visit the bench</h2></div>
+  </div>
   <div class="wrap visit">
    <div>
-    <h2>Visit the bench</h2>
     <p>517 Ocean Front Walk, Venice Beach, California. Come in for a fitting, bring your old pair, or just watch the machine run.</p>
-    <div class="row" style="display:flex;gap:12px;margin-top:26px;flex-wrap:wrap"><a class="btn cop" href="#build">Book a fitting</a><a class="btn" href="https://maps.google.com/?q=517+Ocean+Front+Walk+Venice+CA" target="_blank" rel="noopener">Open in Maps</a></div>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap"><a class="btn solid" href="#build">BOOK A FITTING</a><a class="btn" href="https://maps.google.com/?q=517+Ocean+Front+Walk+Venice+CA" target="_blank" rel="noopener">OPEN IN MAPS</a></div>
    </div>
    <div class="hours" aria-label="Opening hours (sample)">
-    <div>Monday to Friday<span>Sample hours</span></div>
-    <div>Saturday<span>Sample hours</span></div>
-    <div>Sunday<span>Sample hours</span></div>
+    <div>MONDAY TO FRIDAY<span>Sample hours</span></div>
+    <div>SATURDAY<span>Sample hours</span></div>
+    <div>SUNDAY<span>Sample hours</span></div>
    </div>
   </div>
  </section>
+
+ <div class="wrap">
+  <div class="close">
+   <div><b>Made for Rufcut.<br>Ready to be yours.</b><p>This working concept was designed by Mr. Space, a few doors down on the boardwalk. Your photos, your prices, your hours, and it goes live.</p></div>
+   <a class="btn solid" href="../#contact">TALK TO MR. SPACE</a>
+  </div>
+ </div>
 </main>
 
-<section class="denim" style="padding:80px 0;border-top:2px dashed #D9822B88">
- <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap">
-  <div><h2 style="font:clamp(44px,6vw,80px)/.9 var(--d);text-transform:uppercase">Made for Rufcut.<br>Ready to be yours.</h2>
-  <p style="color:#DCE2F0;margin-top:14px;max-width:46ch">This working concept was designed by Mr. Space, a few doors down on the boardwalk. Your photos, your prices, your hours, and it goes live.</p></div>
-  <a class="btn cop" href="../#contact">Talk to Mr. Space</a>
- </div>
-</section>
-
-<footer><div class="wrap"><span>Concept for Rufcut, Venice Beach</span><span>Designed and built by <a href="../">Mr. Space</a></span></div></footer>
+<footer><div class="wrap mono"><span>CONCEPT FOR RUFCUT / VENICE BEACH</span><span>BY <a href="../">MR. SPACE</a></span></div></footer>
 
 <script>
 (function(){
-  var s={fit:'Straight',denim:'Raw',wash:'Dark indigo',thread:'Copper',fly:'Button fly',hem:'Chain stitch'};
-  var washC={'Dark indigo':'#1E3466','Mid blue':'#3E5F99','Light stone':'#8DA7CC','Black':'#232427','Ecru':'#E6DCC6'};
-  var thrC={'Copper':'#D9822B','Gold':'#E2B33C','White':'#F6F3EC','Tonal':'#2C3D63'};
-  var legs={Slim:'M12 24 L14 200 H54 L65 86 L76 200 H116 L118 24 Z',Straight:'M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z',Relaxed:'M12 24 L2 200 H58 L65 90 L72 200 H128 L118 24 Z',Wide:'M12 24 L-4 200 H60 L65 94 L70 200 H134 L118 24 Z'};
+  var s={fit:'STRAIGHT',denim:'RAW',wash:'DARK INDIGO',thread:'COPPER',fly:'BUTTON FLY',hem:'CHAIN STITCH'};
+  var washC={'DARK INDIGO':'#1E3466','MID BLUE':'#3E5F99','LIGHT STONE':'#8DA7CC','BLACK':'#232427','ECRU':'#E6DCC6'};
+  var thrC={'COPPER':'#D9822B','GOLD':'#E2B33C','WHITE':'#F6F3EC','TONAL':null};
+  var legs={SLIM:'M12 24 L14 200 H54 L65 86 L76 200 H116 L118 24 Z',STRAIGHT:'M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z',RELAXED:'M12 24 L2 200 H58 L65 90 L72 200 H128 L118 24 Z',WIDE:'M12 24 L-4 200 H60 L65 94 L70 200 H134 L118 24 Z'};
+  var cuffX={SLIM:[13,75],STRAIGHT:[5,73],RELAXED:[1,71],WIDE:[-5,69]};
   var $=function(i){return document.getElementById(i)};
   function val(b){return b.dataset.v||b.textContent.trim()}
   function render(){
-    document.querySelectorAll('[data-k]').forEach(function(g){
-      g.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',val(b)===s[g.dataset.k])});
-    });
-    $('jBody').setAttribute('d',legs[s.fit]);
-    $('jBody').setAttribute('fill',washC[s.wash]);$('jBand').setAttribute('fill',washC[s.wash]);
-    var tc=s.thread==='Tonal'?(s.wash==='Ecru'?'#B9AE95':'#5A6E99'):thrC[s.thread];
-    $('jStitch').setAttribute('stroke',tc);
-    var raw=s.hem==='Raw edge',cuff=s.hem==='Cuffed';
+    document.querySelectorAll('[data-k]').forEach(function(g){g.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',val(b)===s[g.dataset.k])})});
+    var wc=washC[s.wash];
+    $('jBody').setAttribute('d',legs[s.fit]);$('jBody').setAttribute('fill',wc);$('jBand').setAttribute('fill',wc);
+    $('jStitch').setAttribute('stroke',thrC[s.thread]||(s.wash==='ECRU'?'#B9AE95':'#6A7EA8'));
+    var raw=s.hem==='RAW EDGE',cuff=s.hem==='CUFFED';
     $('hemL').style.display=$('hemR').style.display=raw?'none':'';
-    ['cuffL','cuffR'].forEach(function(id){var r=$(id);r.setAttribute('fill',cuff?washC[s.wash]:'none');r.setAttribute('stroke',cuff?'#111B33':'none');r.setAttribute('stroke-width','2')});
-    var off={Slim:2,Straight:0,Relaxed:-4,Wide:-10}[s.fit];
-    $('cuffL').setAttribute('x',4+off);$('cuffR').setAttribute('x',74-off/2);
-    $('jFly').innerHTML=s.fly==='Button fly'?'<circle cx="62" cy="36" r="1.8" fill="#B87333"/><circle cx="62" cy="48" r="1.8" fill="#B87333"/><circle cx="62" cy="60" r="1.8" fill="#B87333"/>':'<rect x="60" y="30" width="4" height="34" rx="1" fill="#B87333" opacity=".7"/>';
-    ['Fit','Denim','Wash','Thread','Fly','Hem'].forEach(function(k){$('v'+k).textContent=s[k.toLowerCase()]});
-    $('summary').textContent=s.fit+', '+s.denim.toLowerCase()+' denim, '+s.wash.toLowerCase()+', '+s.thread.toLowerCase()+' thread';
-    var extra=(s.denim==='Selvedge'?1:0)+(s.hem==='Chain stitch'?0:0);
-    var d=new Date();var add=4+extra,n=0;while(n<add){d.setDate(d.getDate()+1);if(d.getDay()!==0)n++}
-    $('readyDate').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+    var cx=cuffX[s.fit];
+    [['cuffL',cx[0]],['cuffR',cx[1]]].forEach(function(a){var r=$(a[0]);r.setAttribute('x',a[1]);r.setAttribute('width',s.fit==='WIDE'?66:(s.fit==='SLIM'?42:52));r.setAttribute('fill',cuff?wc:'none');r.setAttribute('stroke',cuff?'#000':'none');r.setAttribute('stroke-width','3')});
+    $('jFly').innerHTML=s.fly==='BUTTON FLY'?'<circle cx="62" cy="36" r="1.8" fill="#B87333"/><circle cx="62" cy="48" r="1.8" fill="#B87333"/><circle cx="62" cy="60" r="1.8" fill="#B87333"/>':'<rect x="60" y="30" width="4" height="34" rx="1" fill="#B87333" opacity=".8"/>';
+    $('vFit').textContent=s.fit;$('vDenim').textContent=s.denim;$('vWash').textContent=s.wash;$('vThread').textContent=s.thread;$('vFly').textContent=s.fly;$('vHem').textContent=s.hem;
+    $('summary').textContent=s.fit+' / '+s.denim+' / '+s.wash;
+    var d=new Date(),add=4+(s.denim==='SELVEDGE'?1:0),n=0;while(n<add){d.setDate(d.getDate()+1);if(d.getDay()!==0)n++}
+    $('readyDate').textContent='READY: '+d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   }
   document.querySelectorAll('[data-k] button').forEach(function(b){b.addEventListener('click',function(){s[b.parentNode.dataset.k]=val(b);render()})});
   render();
 
-  var items=[['501, button fly','Dark wash, 1990s',30,32],['505, zip fly','Mid blue, 1980s',32,30],['501 orange tab','Light stone',34,32],['517 bootcut','Rinse, 1990s',32,34],['550 relaxed','Faded black',36,30],['501 selvedge','Raw indigo',28,32],['Trucker jacket','Mid blue, size M',0,0],['505 regular','Dark rinse',34,30]];
-  var shades=['#1E3466','#3E5F99','#8DA7CC','#2C4478','#232427','#1E3466','#3E5F99','#2C4478'];
+  var items=[['501, BUTTON FLY','Dark wash, 1990s',30,32],['505, ZIP FLY','Mid blue, 1980s',32,30],['501 ORANGE TAB','Light stone',34,32],['517 BOOTCUT','Rinse, 1990s',32,34],['550 RELAXED','Faded black',36,30],['501 SELVEDGE','Raw indigo',28,32],['TRUCKER JACKET','Mid blue, size M',0,0],['505 REGULAR','Dark rinse',34,30]];
   function list(w){
     var h='';items.forEach(function(it,i){if(w!=='all'&&it[2]!==+w)return;
-      h+='<div class="item"><div class="ph" style="background:'+shades[i]+'"><span class="tag">'+(it[2]?'W'+it[2]+' L'+it[3]:'Jacket')+'</span><svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="#F3EEE4" stroke-width="5"/></svg></div><div class="in"><h4>'+it[0]+'</h4><p>'+it[1]+'</p></div></div>'});
-    $('items').innerHTML=h||'<div class="empty">No pairs in this waist right now. New vintage comes in every week, check back soon.</div>';
+      var blk=i%4===2;
+      h+='<div class="vt'+(blk?' blk':'')+'"><span class="mono">NO. '+String(i+1).padStart(3,'0')+'</span><div class="size">'+(it[2]?'W'+it[2]+' L'+it[3]:'SIZE M')+'</div><svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="currentColor" stroke-width="6"/><path d="M65 24 V70" stroke="currentColor" stroke-width="3" stroke-dasharray="6 4"/></svg><h4>'+it[0]+'</h4><p>'+it[1]+'</p></div>'});
+    $('items').innerHTML=h||'<div class="empty"><b class="mono">NO PAIRS IN THIS WAIST RIGHT NOW.</b><p class="note">New vintage comes in every week. Check back soon.</p></div>';
   }
-  $('wf').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-    this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list(b.dataset.w)});
+  $('wf').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list(b.dataset.w)});
   list('all');
 
   $('tf').addEventListener('submit',function(e){e.preventDefault();
     var v=$('on').value.trim().toUpperCase(),li=$('stages').children;
     for(var i=0;i<li.length;i++)li[i].className='';
-    if(v==='RC-1042'){li[0].className='done';li[1].className='done';li[2].className='now';$('msg').textContent='Your pair is on the machine. Ready '+$('readyDate').textContent+'.';}
+    if(v==='RC-1042'){li[0].className='done';li[1].className='done';li[2].className='now';$('msg').textContent='Your pair is on the machine. '+$('readyDate').textContent+'.';}
     else if(!v){$('msg').textContent='Enter the order number from your receipt.';}
     else{$('msg').textContent='No order found with '+v+'. Check the number on your receipt, or try RC-1042 for this demo.';}
   });
