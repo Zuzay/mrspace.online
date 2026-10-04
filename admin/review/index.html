@@ -96,10 +96,11 @@ th{color:var(--mute);font-weight:500}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
+<script src="../../assets/ms-auth.js"></script>
 <script src="../../assets/ms-render.js"></script>
 <script>
 const C = window.MS_CONFIG;
-const sb = supabase.createClient(C.url, C.anon);
+const sb = supabase.createClient(C.url, C.anon, { auth: { autoRefreshToken: false, persistSession: false } });
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeUrl = (u) => /^https?:\/\//i.test(u || "") ? u : "#";
@@ -117,9 +118,7 @@ let tab = "queue";
 
 // ---------- giris ----------
 async function boot() {
-  const { data } = await sb.auth.getSession();
-  if (!data.session) { $("#login").hidden = false; return; }
-  if (P.get("next")) { location.href = P.get("next"); return; }
+  if (!(await window.msAdminGate(sb))) return;
   $("#login").hidden = true; $("#app").hidden = false;
   if (P.get("b")) openBuild(P.get("b")); else render();
 }
