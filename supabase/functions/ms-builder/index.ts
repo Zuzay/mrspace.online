@@ -32,7 +32,7 @@ const WARN_WORDS = ["cannabis", "marijuana", "weed", "cbd", "thc", "vape", "krat
   "guaranteed results", "garantili", "miracle cure", "mucize", "%100 garanti"];
 const ALCOHOL = ["alcohol", "alkol", "beer", "bira", "wine", "şarap", "rakı", "raki", "vodka", "votka",
   "whisky", "whiskey", "viski", "gin", "tequila", "cocktail", "kokteyl", "happy hour", "shots"];
-const PLACEHOLDER = /lorem ipsum|dolor sit amet|your (text|title|name|business) here|buraya (yaz|metin|başlık)|\bTODO\b|\bTBD\b|placeholder|example\.com|xxx-xxx/i;
+const PLACEHOLDER = /lorem ipsum|dolor sit amet|your (text|title|name|business) here|buraya (yaz|metin|başlık)|\bTODO\b|\bTBD\b|placeholder|example\.com|xxx-xxx|\[[^\]\n]{2,80}\]/i;
 
 // ---------- yardimcilar ----------
 function walk(v: unknown, path: string, out: { path: string; key: string; value: string }[]) {
@@ -257,21 +257,36 @@ async function runChecks(buildId: number) {
 async function upload(req: Request) {
   const form = await req.formData();
   const key = String(form.get("key") || "");
+  const trial = String(form.get("trial") || "");
   const file = form.get("file");
-  if (!/^[0-9a-f-]{36}$/i.test(key) || !(file instanceof File)) return json({ error: "bad_request" }, 400);
-  const { data: s } = await db.from("ms_sites").select("slug").eq("site_key", key).maybeSingle();
-  if (!s) return json({ error: "unknown_site" }, 403);
+  const uuid = /^[0-9a-f-]{36}$/i;
+  if (!(file instanceof File) || (!uuid.test(key) && !uuid.test(trial))) return json({ error: "bad_request" }, 400);
   const types: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
   if (!types[file.type]) return json({ error: "type" }, 400);
-  if (file.size > 5 * 1024 * 1024) return json({ error: "size" }, 400);
-  const since = new Date(Date.now() - 3600e3).toISOString();
-  const { count } = await db.from("ms_activity").select("id", { count: "exact", head: true })
-    .eq("site", s.slug).eq("action", "Image uploaded").gte("at", since);
-  if ((count || 0) >= 80) return json({ error: "too_many" }, 429);
-  const path = `${s.slug}/${crypto.randomUUID()}.${types[file.type]}`;
+
+  let folder = "", site: string | null = null;
+  if (uuid.test(key)) {
+    const { data: s } = await db.from("ms_sites").select("slug").eq("site_key", key).maybeSingle();
+    if (!s) return json({ error: "unknown_site" }, 403);
+    if (file.size > 5 * 1024 * 1024) return json({ error: "size" }, 400);
+    const since = new Date(Date.now() - 3600e3).toISOString();
+    const { count } = await db.from("ms_activity").select("id", { count: "exact", head: true })
+      .eq("site", s.slug).eq("action", "Image uploaded").gte("at", since);
+    if ((count || 0) >= 80) return json({ error: "too_many" }, 429);
+    folder = s.slug; site = s.slug;
+  } else {
+    // Ucretsiz deneme: taslak basina en fazla 15 gorsel, her biri 3 MB
+    const { data: t } = await db.from("ms_trials").select("id, status").eq("token", trial).maybeSingle();
+    if (!t || t.status !== "draft") return json({ error: "unknown_trial" }, 403);
+    if (file.size > 3 * 1024 * 1024) return json({ error: "size" }, 400);
+    const { data: list } = await db.storage.from("ms-media").list(`trials/${t.id}`, { limit: 100 });
+    if ((list?.length || 0) >= 15) return json({ error: "too_many" }, 429);
+    folder = `trials/${t.id}`;
+  }
+  const path = `${folder}/${crypto.randomUUID()}.${types[file.type]}`;
   const { error } = await db.storage.from("ms-media").upload(path, file, { contentType: file.type, cacheControl: "31536000" });
   if (error) return json({ error: error.message }, 500);
-  await db.from("ms_activity").insert({ site: s.slug, who: "client", action: "Image uploaded" });
+  if (site) await db.from("ms_activity").insert({ site, who: "client", action: "Image uploaded" });
   return json({ url: MEDIA + path });
 }
 
