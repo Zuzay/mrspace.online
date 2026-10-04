@@ -169,6 +169,7 @@ dialog::backdrop{background:#0E1014b3}
 dialog .panel-h{border-bottom:1px solid var(--line)}
 [hidden]{display:none!important}
 body.viewer [data-act],body.viewer .adm-only{display:none!important}
+body.demo .real-only{display:none!important}
 </style>
 </head>
 <body>
@@ -197,6 +198,8 @@ body.viewer [data-act],body.viewer .adm-only{display:none!important}
    <button data-v="usage">Kullanım</button>
    <button data-v="sites" class="adm-only">Siteler</button>
    <button data-v="access" class="adm-only">Erişim</button>
+      <button type="button" class="adm-only real-only" data-href="review/">Onay</button>
+      <button type="button" class="adm-only real-only" data-href="ideas/">Fikirler</button>
   </nav>
   <div class="me"><span id="who"></span><span class="demo-tag" id="demoTag" hidden>DEMO</span><span class="demo-tag" id="viewTag" hidden>SADECE İZLEME</span><button class="btn sm" id="out" type="button">Çıkış</button></div>
  </aside>
@@ -526,7 +529,7 @@ function bind(){
 async function refresh(){ try { await load(); } catch (e) { toast(e.message); } render(); }
 
 /* ---------------- start ---------------- */
-document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { VIEW = b.dataset.v; render(); });
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { if (b.dataset.href) { location.href = b.dataset.href; return; } VIEW = b.dataset.v; render(); });
 $("#out").onclick = logout;
 $("#demoBtn").onclick = () => { DEMO = true; demoData(); enter("Demo"); };
 $("#loginForm").onsubmit = async e => {
@@ -535,7 +538,7 @@ $("#loginForm").onsubmit = async e => {
     await auth("password", { email:u, password:$("#pw").value }); await start(); }
   catch (err) { $("#loginErr").textContent = T(err.message); }
 };
-function enter(who){ $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = who; $("#demoTag").hidden = !DEMO; render(); }
+function enter(who){ $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = who; $("#demoTag").hidden = !DEMO; document.body.classList.toggle("demo", DEMO); render(); }
 async function start(){
   try { const role = await rpc("ms_role", {}); if (!role) throw new Error("Bu hesabın panele erişimi yok");
     VIEWER = role === "viewer"; document.body.classList.toggle("viewer", VIEWER); $("#viewTag").hidden = !VIEWER;
