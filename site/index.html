@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title></title>
+<style>
+html,body{margin:0;height:100%;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f5f7;color:#1c2430}
+@media (prefers-color-scheme:dark){html,body{background:#141922;color:#e8ecf1}}
+.m{min-height:100%;display:grid;place-items:center;padding:24px;text-align:center}
+.m a{color:inherit}
+</style>
+</head>
+<body>
+<div class="m" id="msg"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="/assets/ms-config.js"></script>
+<script src="/assets/ms-render.js"></script>
+<script>
+(async () => {
+  const C = window.MS_CONFIG;
+  const sb = supabase.createClient(C.url, C.anon, { auth: { persistSession: false } });
+  const slug = new URLSearchParams(location.search).get("s");
+  const own = /(^|\.)mrspace\.online$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  const { data } = await sb.rpc("ms_public_site", { p_slug: slug || null, p_host: own ? null : location.hostname });
+  const msg = document.getElementById("msg");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  if (!data) {
+    document.title = "Not found";
+    msg.innerHTML = `<p>This site is not published yet.<br><a href="https://mrspace.online/">mrspace.online</a></p>`;
+    return;
+  }
+  if (data.state?.suspended) {
+    document.title = data.name;
+    msg.innerHTML = `<p><b>${esc(data.name)}</b><br>${esc(data.state.message)}<br><br><a href="https://mrspace.online/">mrspace.online</a></p>`;
+    return;
+  }
+  const html = window.MsRender.render(data.content, data.theme, { noindex: own });
+  document.open(); document.write(html); document.close();
+})();
+</script>
+</body>
+</html>
