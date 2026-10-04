@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Fikirler · Mr. Space</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f2; --paper:#ffffff; --ink:#1c2430; --mute:#5d6878; --line:#d5dae1;
+  --denim:#2f4a6b; --denim-soft:#dfe6ef; --thread:#b5502e; --ok:#2e6b4a;
+  --sans:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141922; --paper:#1d2430; --ink:#e8ecf1; --mute:#9aa5b4; --line:#2e3746; --denim:#8fb0d6; --denim-soft:#26344a; --thread:#e08a68; --ok:#7fc39c}
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font:16px/1.5 var(--sans)}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--denim); outline-offset:2px}
+.wrap{max-width:1080px; margin:0 auto; padding:20px 16px 60px}
+header.top{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:18px}
+header.top h1{margin:0; font-size:1.6rem; font-weight:700; letter-spacing:-.01em}
+header.top a{color:var(--mute); text-decoration:none; font-size:.95rem}
+.status{color:var(--mute); font-size:.9rem}
+.btn{border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:7px 12px; cursor:pointer}
+.btn:hover{border-color:var(--denim)}
+.btn.main{background:var(--denim); color:var(--paper); border-color:var(--denim)}
+.btn.small{padding:4px 9px; font-size:.88rem}
+nav.tabs{display:flex; gap:4px; overflow-x:auto; border-bottom:1px solid var(--line); margin-bottom:14px}
+nav.tabs button{background:none; border:0; border-bottom:2px solid transparent; padding:8px 12px; cursor:pointer; color:var(--mute); white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink); border-color:var(--thread); font-weight:500}
+.filters{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px}
+.filters select{border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:6px 10px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px}
+.card{background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:14px; display:flex; flex-direction:column; gap:10px}
+.card.module{border-left:4px solid var(--thread)}
+.card.keep{border-left:4px solid var(--ok)}
+.meta{display:flex; flex-wrap:wrap; gap:6px 10px; font-size:.82rem; color:var(--mute)}
+.meta b{color:var(--ink); font-weight:500}
+.card h3{margin:0; font-size:1.02rem; font-weight:500; line-height:1.35; overflow-wrap:anywhere}
+.card h3 a{color:inherit; text-decoration:none}
+.card h3 a:hover{text-decoration:underline}
+.quote{font-family:var(--serif); font-style:italic; font-size:1.25rem; line-height:1.4; margin:0}
+.chips{display:flex; flex-wrap:wrap; gap:5px}
+.chip{background:var(--denim-soft); border-radius:4px; padding:2px 7px; font-size:.8rem}
+.swatches{display:flex; height:44px; border-radius:4px; overflow:hidden; border:1px solid var(--line)}
+.swatches span{flex:1; position:relative}
+.swatches span:hover::after{content:attr(data-c); position:absolute; bottom:2px; left:3px; font-size:.7rem; background:var(--paper); color:var(--ink); padding:0 3px; border-radius:2px}
+.fonts{font-size:.85rem; color:var(--mute)}
+.actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:auto}
+.score{margin-left:auto; font-weight:700; color:var(--denim)}
+.empty{padding:40px 16px; text-align:center; color:var(--mute); background:var(--paper); border:1px dashed var(--line); border-radius:6px}
+table{width:100%; border-collapse:collapse; background:var(--paper); border:1px solid var(--line); border-radius:6px; overflow:hidden; font-size:.92rem}
+.table-wrap{overflow-x:auto}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line)}
+th{color:var(--mute); font-weight:500}
+form.add{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+form.add input,form.add select{border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:7px 10px}
+form.add input[name=ref]{flex:1; min-width:200px}
+.login{max-width:340px; margin:12vh auto; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:22px; display:grid; gap:10px}
+.login input{border:1px solid var(--line); background:var(--bg); border-radius:8px; padding:9px 11px}
+.err{color:var(--thread); font-size:.9rem; min-height:1.2em}
+.note{font-size:.85rem; color:var(--mute); margin:0 0 12px}
+</style>
+</head>
+<body>
+
+<div id="login" class="login" hidden>
+  <h2 style="margin:0">Mr. Space</h2>
+  <input id="u" placeholder="Kullanıcı adı" autocomplete="username" value="mr.space">
+  <input id="p" type="password" placeholder="Şifre" autocomplete="current-password">
+  <button class="btn main" id="go">Giriş yap</button>
+  <div class="err" id="lerr"></div>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <header class="top">
+    <div>
+      <h1>Fikirler</h1>
+      <div class="status" id="last">Son tarama yükleniyor</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="../">Panele dön</a>
+      <button class="btn main" id="run">Şimdi tara</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="today" aria-selected="true">Bugünün en iyileri</button>
+    <button role="tab" data-tab="tool">Araçlar</button>
+    <button role="tab" data-tab="phrase">Sözler</button>
+    <button role="tab" data-tab="theme">Temalar</button>
+    <button role="tab" data-tab="post">Gönderiler</button>
+    <button role="tab" data-tab="sources">Kaynaklar</button>
+  </nav>
+
+  <div class="filters" id="filters">
+    <select id="fStatus" aria-label="Durum">
+      <option value="new">Bakılmamış</option>
+      <option value="keep">Saklanan</option>
+      <option value="module">Modül adayı</option>
+      <option value="dropped">Atılan</option>
+      <option value="all">Hepsi</option>
+    </select>
+    <select id="fSector" aria-label="Sektör"></select>
+  </div>
+
+  <main id="view"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="../../assets/ms-config.js"></script>
+<script>
+const sb = supabase.createClient(window.MS_CONFIG.url, window.MS_CONFIG.anon);
+const SECTORS = {genel:"Genel", terzi:"Terzi", pastane:"Pastane", cicekci:"Çiçekçi", kafe:"Kafe", vintage:"Vintage", mobilya:"Mobilya"};
+const KINDS = {tool:"Araç", phrase:"Söz", theme:"Tema", post:"Gönderi"};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = (u) => /^https?:\/\//i.test(u || "") ? u : "#";
+let tab = "today";
+
+$("#fSector").innerHTML = `<option value="all">Tüm sektörler</option>` +
+  Object.entries(SECTORS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+
+// ---------- giriş ----------
+async function boot() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) { $("#login").hidden = false; $("#app").hidden = true; return; }
+  $("#login").hidden = true; $("#app").hidden = false;
+  loadLast(); render();
+}
+$("#go").onclick = async () => {
+  let u = $("#u").value.trim();
+  if (!u.includes("@")) u += "@mrspace.online";
+  const { error } = await sb.auth.signInWithPassword({ email: u, password: $("#p").value });
+  $("#lerr").textContent = error ? "Kullanıcı adı ya da şifre hatalı." : "";
+  if (!error) boot();
+};
+$("#p").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#go").click(); });
+
+// ---------- son tarama ----------
+async function loadLast() {
+  const { data } = await sb.from("ms_activity").select("at,action,meta")
+    .like("action", "Scout%").order("at", { ascending: false }).limit(1);
+  const r = data?.[0];
+  if (!r) { $("#last").textContent = "Henüz tarama yapılmadı."; return; }
+  const errs = r.meta?.errors?.length ? `, ${r.meta.errors.length} kaynak açılmadı` : "";
+  $("#last").textContent = `${new Date(r.at).toLocaleString("tr-TR")}: ${r.action.replace("Scout: ", "").replace("new ideas", "yeni fikir")}${errs}`;
+}
+$("#run").onclick = async () => {
+  const b = $("#run"); b.disabled = true; b.textContent = "Taranıyor";
+  const { error } = await sb.rpc("ms_scout_run_now");
+  b.textContent = error ? "Başlatılamadı" : "Başladı, 2 dk sonra yenile";
+  setTimeout(() => { b.disabled = false; b.textContent = "Şimdi tara"; loadLast(); render(); }, 120000);
+};
+
+// ---------- sekmeler ----------
+$("#tabs").onclick = (e) => {
+  const t = e.target.closest("button[data-tab]"); if (!t) return;
+  tab = t.dataset.tab;
+  document.querySelectorAll("#tabs button").forEach((x) => x.setAttribute("aria-selected", x === t));
+  $("#filters").hidden = tab === "sources";
+  render();
+};
+$("#fStatus").onchange = render;
+$("#fSector").onchange = render;
+
+async function render() {
+  if (tab === "sources") return renderSources();
+  let q = sb.from("ms_ideas").select("*");
+  const st = $("#fStatus").value, sec = $("#fSector").value;
+  if (tab === "today") {
+    q = q.eq("status", "new").gte("found_at", new Date(Date.now() - 26 * 3600e3).toISOString()).limit(10);
+  } else {
+    q = q.eq("kind", tab).limit(60);
+    if (st !== "all") q = q.eq("status", st);
+  }
+  if (sec !== "all") q = q.eq("sector", sec);
+  const { data, error } = await q.order("score", { ascending: false });
+  if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
+  if (!data.length) {
+    $("#view").innerHTML = `<div class="empty">${tab === "today"
+      ? "Son 24 saatte yeni fikir yok. Şimdi tara ile başlat ya da Kaynaklar'a site ekle."
+      : "Bu filtrede fikir yok."}</div>`;
+    return;
+  }
+  $("#view").innerHTML = `<div class="grid">${data.map(card).join("")}</div>`;
+}
+
+function card(i) {
+  const s = i.signals || {};
+  let body = "";
+  if (i.kind === "phrase") {
+    body = `<p class="quote">${esc(i.title)}</p><div class="meta">${esc(s.site || s.host || "")}</div>`;
+  } else {
+    body = `<h3><a href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener">${esc(i.title)}</a></h3>`;
+  }
+  if (i.kind === "theme") {
+    body += `<div class="swatches">${(s.colors || []).map((c) => `<span style="background:${esc(c)}" data-c="${esc(c)}"></span>`).join("")}</div>`;
+    if (s.fonts?.length) body += `<div class="fonts">Yazı: ${s.fonts.map(esc).join(", ")}</div>`;
+  }
+  const chips = [...(s.libs || []), ...(s.phrases || []), ...(s.words || [])];
+  if (chips.length) body += `<div class="chips">${[...new Set(chips)].slice(0, 8).map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>`;
+  if (s.out) body += `<div class="meta"><a href="${esc(safeUrl(s.out))}" target="_blank" rel="noopener">Bağlantıdaki site</a></div>`;
+
+  const extra = [s.ups ? `${s.ups} oy` : "", s.points ? `${s.points} puan` : ""].filter(Boolean).join(", ");
+  return `<article class="card ${esc(i.status)}" data-id="${i.id}">
+    <div class="meta"><b>${KINDS[i.kind] || i.kind}</b><span>${SECTORS[i.sector] || esc(i.sector)}</span><span>${esc(i.source || "")}</span>${extra ? `<span>${esc(extra)}</span>` : ""}<span class="score">${Math.round(i.score)}</span></div>
+    ${body}
+    <div class="actions">
+      <button class="btn small" data-set="keep">Sakla</button>
+      <button class="btn small" data-set="module">Modül adayı</button>
+      <button class="btn small" data-set="dropped">At</button>
+      ${i.kind === "phrase" ? "" : `<a class="btn small" href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener" style="text-decoration:none">Aç</a>`}
+    </div>
+  </article>`;
+}
+
+$("#view").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-set]"); if (!b) return;
+  const c = b.closest(".card");
+  const { error } = await sb.from("ms_ideas").update({ status: b.dataset.set }).eq("id", c.dataset.id);
+  if (error) { b.textContent = "Kaydedilemedi"; return; }
+  if ($("#fStatus").value === "all") { c.className = "card " + b.dataset.set; }
+  else c.remove();
+});
+
+// ---------- kaynaklar ----------
+async function renderSources() {
+  const { data, error } = await sb.from("ms_scout_sources").select("*").order("kind").order("sector").order("ref");
+  if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
+  const kindName = { reddit: "Reddit", hn: "Hacker News", site: "Site" };
+  $("#view").innerHTML = `
+    <p class="note">Reddit için sadece subreddit adı (Baking), HN için arama kelimesi, site için tam adres yaz. Taramada bulunan siteler buraya kendiliğinden eklenir.</p>
+    <form class="add" id="addSrc">
+      <select name="kind"><option value="site">Site</option><option value="reddit">Reddit</option><option value="hn">Hacker News</option></select>
+      <input name="ref" placeholder="https://ornek.com/ ya da Baking" required>
+      <select name="sector">${Object.entries(SECTORS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+      <button class="btn main">Kaynak ekle</button>
+    </form>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tür</th><th>Kaynak</th><th>Sektör</th><th>Son okuma</th><th>Durum</th></tr></thead>
+      <tbody>${data.map((s) => `<tr>
+        <td>${kindName[s.kind] || esc(s.kind)}</td>
+        <td style="overflow-wrap:anywhere">${s.kind === "site" ? `<a href="${esc(safeUrl(s.ref))}" target="_blank" rel="noopener">${esc(s.ref)}</a>` : esc(s.ref)}</td>
+        <td>${SECTORS[s.sector] || esc(s.sector)}</td>
+        <td>${s.last_run ? new Date(s.last_run).toLocaleDateString("tr-TR") : "Hiç"}</td>
+        <td><button class="btn small" data-src="${s.id}" data-on="${s.active}">${s.active ? "Açık" : "Kapalı"}</button></td>
+      </tr>`).join("")}</tbody>
+    </table></div>`;
+  $("#addSrc").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    let ref = String(f.get("ref")).trim();
+    if (f.get("kind") === "reddit") ref = ref.replace(/^\/?r\//i, "");
+    if (f.get("kind") === "site" && !/^https?:\/\//i.test(ref)) ref = "https://" + ref;
+    const { error } = await sb.from("ms_scout_sources").insert({ kind: f.get("kind"), ref, sector: f.get("sector") });
+    if (error) alert(error.code === "23505" ? "Bu kaynak zaten listede." : error.message);
+    renderSources();
+  };
+}
+$("#view").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-src]"); if (!b) return;
+  const on = b.dataset.on !== "true";
+  await sb.from("ms_scout_sources").update({ active: on }).eq("id", b.dataset.src);
+  b.dataset.on = on; b.textContent = on ? "Açık" : "Kapalı";
+});
+
+boot();
+</script>
+</body>
+</html>
