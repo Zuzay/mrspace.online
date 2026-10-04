@@ -222,7 +222,7 @@ dialog.tour{margin:auto;border:0;padding:0;background:transparent;max-width:min(
 dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 .tour-in{background:var(--paper);border-radius:16px;padding:18px;display:grid;gap:14px;max-height:92vh;overflow:auto}
 .tour-h{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.tour-h b{font-family:var(--display);font-weight:400;font-size:26px;text-transform:uppercase}
+.tour-h b{font-family:var(--display);font-weight:400;font-size:clamp(18px,5vw,26px);line-height:1.05;text-transform:uppercase}
 .tour-h button{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--ink);font-size:18px;display:grid;place-items:center}
 .tour-h button:hover{background:var(--ink);color:var(--paper)}
 .tour .player .screen.phone{max-width:300px}
@@ -601,7 +601,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 
  /* tour modal */
  var dlg = document.getElementById("tour"), body = document.getElementById("tourBody"), title = document.getElementById("tourTitle");
- var names = { heron: "Heron CA · how it works", laloo: "laloo · how it works", rufcut: "Rufcut · how it works" };
+ var names = { heron: "Shop + admin · how it works", laloo: "Map app · how it works", rufcut: "Workshop · how it works" };
  var players = {};
  document.querySelectorAll("[data-tour]").forEach(function(b){
   b.addEventListener("click", function(){
