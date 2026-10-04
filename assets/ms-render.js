@@ -72,7 +72,8 @@ h1{font-size:clamp(2.2rem,6vw,4rem)}
 h2{font-size:clamp(1.6rem,3.6vw,2.4rem)}
 h3{font-size:1.15rem}
 p{margin:0 0 1em;max-width:62ch}
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px;padding-bottom:18px}
+@media(max-width:640px){.top nav{display:none}}
 .top .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--head);font-weight:700;font-size:1.2rem}
 .top .brand img{height:44px;width:auto}
 .top nav{display:flex;gap:16px;flex-wrap:wrap;font-size:.95rem}
