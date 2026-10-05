@@ -167,6 +167,27 @@ table.t th{font:10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase
 dialog{border:0;border-radius:16px;padding:0;background:var(--card);color:var(--ink);width:min(560px,94vw);margin:auto}
 dialog::backdrop{background:#0E1014b3}
 dialog .panel-h{border-bottom:1px solid var(--line)}
+/* versions */
+.pill.withdrawn{background:transparent;border:1px dashed var(--line);color:var(--mute);text-decoration:line-through}
+.vsel{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.vsel label{display:flex;align-items:center;gap:6px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.vsel select{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font:13px var(--body)}
+.vsum{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--mute)}
+.vsum b{color:var(--ink);font-weight:600}
+.vgrid{display:grid}
+.vr{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:12px 16px;border-top:1px solid var(--line);font-size:14px;align-items:start}
+.vr.h{border-top:0;font:10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-bottom:4px}
+.vr .vt b{display:block;font-weight:600}
+.vr .vt small{display:block;color:var(--mute);font-size:12px;margin:3px 0 6px}
+.vr .vc{white-space:pre-wrap;word-break:break-word;line-height:1.5}
+.vr .vc.none{color:var(--mute);font-style:italic}
+.vr.same{opacity:.55}
+.vr ins{background:color-mix(in srgb,var(--ok) 22%,transparent);text-decoration:none;border-radius:3px;padding:0 1px}
+.vr del{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad);border-radius:3px;padding:0 1px}
+.pill.edited{background:var(--sun);color:#121418}.pill.added{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.pill.removed{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.vtag{font:500 10.5px var(--mono);padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+@media (max-width:760px){.vr{grid-template-columns:1fr;gap:6px}.vr.h{display:none}.vr .vc::before{content:attr(data-v) " ";font:10.5px var(--mono);color:var(--mute)}}
 [hidden]{display:none!important}
 body.viewer [data-act],body.viewer .adm-only{display:none!important}
 body.demo .real-only{display:none!important}
@@ -193,6 +214,7 @@ body.demo .real-only{display:none!important}
   <nav id="nav">
    <button data-v="overview" class="on">Genel bakış</button>
    <button data-v="changes">Talepler <b id="badge" hidden>0</b></button>
+   <button data-v="versions" class="adm-only">Sürümler</button>
    <button data-v="log">Kayıt</button>
    <button data-v="billing" class="adm-only">Ödemeler</button>
    <button data-v="usage">Kullanım</button>
@@ -258,23 +280,25 @@ async function api(path, opt = {}){
 const rpc = (fn, body) => api("rpc/" + fn, { method:"POST", body });
 
 /* ---------------- data ---------------- */
-let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{} };
+let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{}, subs:[], vers:[] };
 async function load(){
   if (DEMO) return;
-  if (VIEWER) { const v = await rpc("ms_viewer_snapshot", {}); D = { ...v, payments:[], viewers:[] }; return; }
+  if (VIEWER) { const v = await rpc("ms_viewer_snapshot", {}); D = { ...v, payments:[], viewers:[], subs:[], vers:[] }; return; }
   const since = new Date(Date.now() - 24 * 3600e3).toISOString();
-  const [sites, checks, changes, activity, usage, payments, viewers] = await Promise.all([
+  const [sites, checks, changes, activity, usage, payments, viewers, subs, vers] = await Promise.all([
     api("ms_sites?select=*&order=created_at"),
     api(`ms_checks?select=site,at,ok,ms,status&at=gte.${since}&order=at.asc&limit=3000`),
     api("ms_changes?select=*&order=created_at.desc&limit=300"),
     api("ms_activity?select=*&order=at.desc&limit=300"),
     api("ms_usage?select=*&order=site"),
     api("ms_payments?select=*&order=paid_at.desc&limit=200"),
-    api("ms_viewers?select=*&order=created_at")
+    api("ms_viewers?select=*&order=created_at"),
+    api("ms_submissions?select=*&order=updated_at.desc&limit=60").catch(() => []),
+    api("ms_submission_versions?select=*&order=submission_id.desc,version.asc&limit=800").catch(() => [])
   ]);
   const quota = {};
   await Promise.all(sites.map(async s => { const q = await rpc("ms_quota", { p_site:s.slug }); quota[s.slug] = q[0] || {}; }));
-  D = { sites, checks, changes, activity, usage, payments, viewers, quota };
+  D = { sites, checks, changes, activity, usage, payments, viewers, quota, subs, vers };
 }
 function demoData(){
   const now = Date.now(), iso = m => new Date(now - m * 60000).toISOString();
@@ -307,7 +331,18 @@ function demoData(){
   ];
   const payments = [{ site:"rufcut", amount_cents:30000, paid_at:addDays(today(), -9), period_to:addDays(today(), 21), note:"Setup (first client)" }];
   const quota = { rufcut:{ small_used:3, small_quota:8, big_used:1, big_quota:4 } };
-  D = { sites, checks, changes, activity, usage, payments, quota };
+  const subs = [{ id:7, site:"rufcut", edit_key:"demo", name:"Rufcut", email:"hello@rufcut.com", version:2, approved:["a","b","c","d","e","f","g","h","i"], created_at:iso(300), updated_at:iso(40) }];
+  const v1 = [
+    { id:11, kind:"small", target:"Heading: Custom jeans, cut in Venice", original:"Custom jeans, cut in Venice", request:"Custom jeans cut by hand in Venice", status:"new" },
+    { id:12, kind:"small", target:"Text: Open daily 11 to 7", original:"Open daily 11 to 7", request:"Open daily 10 to 7", status:"new" },
+    { id:13, kind:"small", target:"Image: hero", original:"/rufcut/hero.jpg", request:"Use the workbench photo", status:"new" }];
+  const v2 = [
+    { ...v1[0], request:"Custom jeans, cut by hand on the Venice boardwalk" }, v1[1],
+    { id:14, kind:"small", target:"Button: Book a fitting", original:"Book a fitting", request:"Book a fitting today", status:"new" }];
+  const vers = [{ submission_id:7, version:1, at:iso(300), items:v1 }, { submission_id:7, version:2, at:iso(40), items:v2 }];
+  v2.forEach(x => changes.unshift({ ...x, site:"rufcut", requested_by:"Rufcut", submission_id:7, created_at:iso(300) }));
+  changes.push({ ...v1[2], site:"rufcut", requested_by:"Rufcut", submission_id:7, status:"withdrawn", created_at:iso(300) });
+  D = { sites, checks, changes, activity, usage, payments, quota, subs, vers };
 }
 
 /* ---------------- views ---------------- */
@@ -333,8 +368,9 @@ function render(){
   const open = D.changes.filter(c => c.status === "new").length;
   $("#badge").hidden = !open; $("#badge").textContent = open;
   const m = $("#main");
-  if (VIEWER && ["billing","sites","access"].includes(VIEW)) VIEW = "overview";
-  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, access })[VIEW]();
+  if (VIEWER && ["billing","sites","access","versions"].includes(VIEW)) VIEW = "overview";
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, access, versions })[VIEW]();
+  if (VIEW === "versions" && VFOCUS) { const el = document.getElementById("sub-" + VFOCUS); VFOCUS = null; if (el) el.scrollIntoView({ block:"start" }); }
   bind();
   if (window.MSI18N) MSI18N.apply(document.body);
 }
@@ -374,6 +410,7 @@ function siteCard(s){
     ${s.admin_url ? `<a class="btn sm" href="${esc(s.admin_url)}" target="_blank" rel="noopener">Kendi paneli ↗</a>` : ""}
     <button class="btn sm ghost" data-act="newlog" data-site="${esc(s.slug)}">İş kaydet</button>
     ${s.kind === "client" ? `<button class="btn sm ghost" data-act="link" data-site="${esc(s.slug)}">Talep linki</button>` : ""}
+    ${s.kind === "client" ? `<button class="btn sm ghost adm-only real-only" data-act="member" data-site="${esc(s.slug)}">Panel erişimi</button>` : ""}
    </div>
   </article>`;
 }
@@ -382,15 +419,67 @@ function changes(){
   return `<div class="head"><div><h1>Talepler</h1><p>Müşteri talebi buraya düşer. Sen onaylarsın, iş bitince "Bitti" dersin. Aynı şey 12 saat içinde tekrar değişirse kotadan düşmez.</p></div>
    <button class="btn sun" data-act="newchange">+ Talep ekle</button></div>
   <div class="panel"><div class="panel-h"><h2>${list.length} ${T("talep")}</h2>
-   <div class="filters">${[["open","Açık"],["new","Yeni"],["done","Biten"],["rejected","Reddedilen"],["all","Hepsi"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
+   <div class="filters">${[["open","Açık"],["new","Yeni"],["done","Biten"],["rejected","Reddedilen"],["withdrawn","Geri çekilen"],["all","Hepsi"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
    ${list.length ? list.map(c => `<div class="row"><div>
       <div class="t">${esc(c.request)}</div>
       <div class="m"><b>${esc(siteName(c.site))}</b><span>${c.kind === "big" ? T("Büyük") : T("Küçük")}${c.target ? " · " + esc(c.target) : ""}</span><span>${esc(c.requested_by || "")}</span><span>${dt(c.created_at)}</span>${c.counts === false && c.status !== "rejected" ? "<span>" + T("kotadan düşmedi") + "</span>" : ""}${c.minutes ? `<span>${c.minutes} ${T("dk")}</span>` : ""}</div></div>
-     <div class="r"><span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret" })[c.status]}</span>
+     <div class="r">${subTag(c)}<span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret", withdrawn:"Geri çekildi" })[c.status] || esc(c.status)}</span>
       ${c.status === "new" ? `<button class="btn sm ok" data-act="decide" data-id="${c.id}" data-s="approved">Onayla</button><button class="btn sm bad" data-act="decide" data-id="${c.id}" data-s="rejected">Reddet</button>` : ""}
       ${c.status === "new" || c.status === "approved" ? `<button class="btn sm" data-act="done" data-id="${c.id}">Bitti</button>` : ""}
      </div></div>`).join("") : '<div class="empty">Bu filtrede talep yok.</div>'}
   </div>`;
+}
+/* ---------------- versions ---------------- */
+let VFOCUS = null; const VSEL = {};
+function subTag(c){
+  if (!c.submission_id) return "";
+  const s = (D.subs || []).find(x => x.id === c.submission_id);
+  if (!s || s.version < 2) return "";
+  return `<button class="vtag" data-act="vers" data-id="${s.id}" title="Sürümler">v${s.version}</button>`;
+}
+function wdiff(a, b){
+  const A = String(a || "").split(/(\s+)/), B = String(b || "").split(/(\s+)/);
+  if (A.length * B.length > 250000) return [esc(a), esc(b)];
+  const n = A.length, m = B.length, L = Array.from({ length:n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  let i = 0, j = 0, x = "", y = "";
+  while (i < n && j < m) {
+    if (A[i] === B[j]) { x += esc(A[i]); y += esc(B[j]); i++; j++; }
+    else if (L[i + 1][j] >= L[i][j + 1]) { x += /^\s+$/.test(A[i]) ? A[i] : `<del>${esc(A[i])}</del>`; i++; }
+    else { y += /^\s+$/.test(B[j]) ? B[j] : `<ins>${esc(B[j])}</ins>`; j++; }
+  }
+  while (i < n) { x += /^\s+$/.test(A[i]) ? A[i] : `<del>${esc(A[i])}</del>`; i++; }
+  while (j < m) { y += /^\s+$/.test(B[j]) ? B[j] : `<ins>${esc(B[j])}</ins>`; j++; }
+  return [x, y];
+}
+function versions(){
+  const subs = (D.subs || []).filter(s => (D.vers || []).some(v => v.submission_id === s.id));
+  const head = `<div class="head"><div><h1>Sürümler</h1><p>Müşteri talebini her düzelttiğinde yeni sürüm kaydedilir. İlk hali ile son halini yan yana gör, yanlış yöne gittiyse eski sürüme dön.</p></div></div>`;
+  if (!subs.length) return head + '<div class="panel"><div class="empty">Henüz gönderilmiş talep yok.</div></div>';
+  return head + subs.map(s => {
+    const vs = D.vers.filter(v => v.submission_id === s.id).sort((a, b) => a.version - b.version);
+    const sel = VSEL[s.id] || { a:vs[0].version, b:vs[vs.length - 1].version };
+    const va = vs.find(v => v.version === sel.a) || vs[0], vb = vs.find(v => v.version === sel.b) || vs[vs.length - 1];
+    const ids = [...new Set([...va.items, ...vb.items].map(x => x.id))];
+    const cnt = { edited:0, added:0, removed:0, same:0 };
+    const rows = ids.map(id => {
+      const a = va.items.find(x => x.id === id), b = vb.items.find(x => x.id === id), it = b || a;
+      const st = !b ? "removed" : !a ? "added" : (a.request === b.request && a.kind === b.kind) ? "same" : "edited"; cnt[st]++;
+      const [x, y] = st === "edited" ? wdiff(a.request, b.request) : [a ? esc(a.request) : "", b ? esc(b.request) : ""];
+      const lbl = { edited:"Değişti", added:"Eklendi", removed:"Kaldırıldı", same:"Aynı" }[st];
+      return `<div class="vr ${st}"><div class="vt"><b data-noi18n>${esc(it.target || T("Genel not"))}</b>${it.original ? `<small><span>Sitede:</span> <span data-noi18n>${esc(String(it.original).slice(0, 140))}</span></small>` : ""}<span class="pill ${st}">${lbl}</span>${it.kind === "big" ? ' <span class="pill big">Büyük</span>' : ""}</div>
+        <div class="vc ${a ? "" : "none"}" data-v="v${va.version}" data-noi18n>${a ? x : "–"}</div><div class="vc ${b ? "" : "none"}" data-v="v${vb.version}" data-noi18n>${b ? y : "–"}</div></div>`;
+    }).join("");
+    const opt = (side, cur) => `<select data-vsel="${s.id}" data-side="${side}">${vs.map(v => `<option value="${v.version}" ${v.version === cur ? "selected" : ""}>v${v.version} · ${esc(dt(v.at))}</option>`).join("")}</select>`;
+    return `<div class="panel" id="sub-${s.id}"><div class="panel-h"><div><h2>${esc(siteName(s.site))}</h2>
+       <div class="row" style="padding:0;border:0;display:block"><div class="m"><b data-noi18n>${esc(s.name || "")}</b><span data-noi18n>${esc(s.email || "")}</span><span>v${s.version}</span><span>${T("güncellendi")} ${ago(s.updated_at)}</span>${(s.approved || []).length ? `<span>${(s.approved || []).length} <span>parça onaylandı</span></span>` : ""}</div></div></div>
+      <div class="vsel"><label>A ${opt("a", va.version)}</label><label>B ${opt("b", vb.version)}</label>
+       <button class="btn sm ghost" data-act="vlink" data-id="${s.id}">Linki kopyala</button>
+       <a class="btn sm ghost" href="${SITE}/request/?e=${esc(s.edit_key)}" target="_blank" rel="noopener">Müşteri sayfası ↗</a>
+       ${va.version !== s.version ? `<button class="btn sm sun" data-act="restore" data-id="${s.id}" data-v="${va.version}"><span>A sürümüne dön</span> (v${va.version})</button>` : ""}</div></div>
+     <div class="vsum"><span><b>${cnt.edited}</b> değişti</span><span><b>${cnt.added}</b> eklendi</span><span><b>${cnt.removed}</b> kaldırıldı</span><span><b>${cnt.same}</b> aynı</span></div>
+     <div class="vgrid"><div class="vr h"><span>Parça</span><span>A: v${va.version}</span><span>B: v${vb.version}</span></div>${rows}</div></div>`;
+  }).join("");
 }
 function log(){
   return `<div class="head"><div><h1>Kayıt</h1><p>Elle ve otomatik yapılan her iş, harcanan süreyle. Bir şey bozulursa son yedek + bu kayıt ile geri dönülür.</p></div>
@@ -476,6 +565,20 @@ async function act(kind, el){
     await api(`ms_sites?slug=eq.${encodeURIComponent(slug)}`, { method:"PATCH", body:{ status:to } });
     await api("ms_activity", { method:"POST", body:{ site:slug, who:"uzay", action:to === "suspended" ? "Site suspended" : "Site reopened" } });
     toast(STATUS[to]); return refresh(); }
+  if (kind === "vers") { VIEW = "versions"; VFOCUS = id; return render(); }
+  if (kind === "vlink") { const s = D.subs.find(x => x.id === id); const url = `${SITE}/request/?e=${s.edit_key}`;
+    try { await navigator.clipboard.writeText(url); toast("Müşterinin düzeltme linki kopyalandı"); } catch (e) { prompt("Link", url); } return; }
+  if (kind === "restore") { const v = Number(el.dataset.v);
+    if (!confirm(T("Talep bu sürüme dönecek. Bu da yeni bir sürüm olarak kaydedilir. Devam?"))) return;
+    if (DEMO) { const s = D.subs.find(x => x.id === id), src = D.vers.find(x => x.submission_id === id && x.version === v);
+      s.version++; s.updated_at = new Date().toISOString(); D.vers.push({ submission_id:id, version:s.version, at:s.updated_at, items:JSON.parse(JSON.stringify(src.items)) });
+      delete VSEL[id]; toast("Demo: sürüme dönüldü"); return render(); }
+    await rpc("ms_restore_version", { p_sub:id, p_version:v }); delete VSEL[id]; toast("Sürüme dönüldü"); return refresh(); }
+  if (kind === "member") return openDlg("Panel erişimi · " + siteName(slug), f("Kullanıcı adı veya e-posta", "user"),
+    async v => { let e = (v.user || "").trim().toLowerCase(); if (!e) throw new Error("Kullanıcı adı yaz"); if (e.indexOf("@") < 0) e += "@mrspace.online";
+      await api("ms_site_users", { method:"POST", prefer:"resolution=merge-duplicates,return=minimal", body:{ email:e, site:slug } });
+      await api("ms_activity", { method:"POST", body:{ site:slug, who:"uzay", action:"Client panel access: " + e } });
+      toast("Eklendi. Supabase'de aynı e-postayla kullanıcı aç, giriş: mrspace.online/panel"); });
   if (kind === "link") { const s = D.sites.find(x => x.slug === slug); const url = `${SITE}/request/?k=${s.site_key}`;
     try { await navigator.clipboard.writeText(url); toast("Talep linki kopyalandı"); } catch (e) { prompt("Talep linki", url); } return; }
   if (kind === "newviewer") return openDlg("İzleyici ekle", f("Kullanıcı adı", "user") + f("Ad", "name") + f("Şu tarihe kadar (boş = süresiz)", "until", "", "date"),
@@ -525,6 +628,8 @@ async function act(kind, el){
 function bind(){
   document.querySelectorAll("[data-act]").forEach(el => el.onclick = () => act(el.dataset.act, el).catch(e => toast(e.message)));
   document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
+  document.querySelectorAll("[data-vsel]").forEach(el => el.onchange = () => { const id = Number(el.dataset.vsel), vs = D.vers.filter(v => v.submission_id === id).map(v => v.version);
+    const cur = VSEL[id] || { a:Math.min(...vs), b:Math.max(...vs) }; cur[el.dataset.side] = Number(el.value); VSEL[id] = cur; render(); document.getElementById("sub-" + id).scrollIntoView({ block:"start" }); });
 }
 async function refresh(){ try { await load(); } catch (e) { toast(e.message); } render(); }
 

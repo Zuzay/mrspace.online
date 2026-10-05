@@ -28,3 +28,23 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - `tour/heron`, `tour/laloo`, `tour/rufcut` : "Watch the tour" tıklamaları
 - `explore/...` : canlı sitede "Tap to explore"
 - `open/...` : "Open site" linkleri
+
+## Talepler v2: sitenin üstünde düzenleme ve sürümler (Ekim 2026)
+- `request/?k=ANAHTAR` artık müşterinin kendi tasarımını açar. Parçanın üstüne gelince "Edit me", tıklayınca sisli kutu açılır; yazdıkça sitede canlı görünür. Fotoğraf yerine resim linki yapıştırılırsa anında yerine oturur.
+- Gönderince bitiş ekranında ve mailde `request/?e=DÜZELTME_ANAHTARI` linki çıkar. Müşteri geri dönüp ekler, değiştirir, kaldırır. Onaylanmış/bitmiş işler kilitlidir.
+- Her gönderim bir sürüm (v1, v2...). Panelde **Sürümler**: iki sürüm yan yana, kelime kelime fark, "A sürümüne dön". Taleplerde revize edilmiş olanların yanında `v2` etiketi var.
+- Kurulum: `ms/mrspace-requests-v2.sql` (sistem SQL'inden sonra). Mail için Resend anahtarı: `select vault.create_secret('re_XXXX', 'resend_key');` (anahtar yoksa mail gitmez, gerisi çalışır).
+- Tasarımlarda düzenlenmesin istenen parçaya `data-ms-skip`, özellikle düzenlenebilir olsun istenen bloğa `data-ms-edit`.
+- Yerinde düzenleme tasarım mrspace.online altında durduğu sürece çalışır; başka alan adındaki sitelerde sayfa düz not formuna düşer.
+- Kontrol listesi: talep sayfası müşteriyi tasarımın başından sonuna adım adım götürür. Her adımda bir yönlendirme ("Enter your real opening hours" gibi) ve "Looks good / Change it" var. Adımlar tasarımda `data-ms-step="ipucu"` ile yazılır, birden çok parçayı kapsayan bloklara `data-ms-group` eklenir. Etiket yoksa sayfadaki başlık ve metinlerden otomatik liste çıkar. Onaylananlar `ms/mrspace-requests-v2b.sql` ile saklanır, panelde Sürümler kartında sayısı görünür.
+
+## Müşteri paneli + Square (Ekim 2026)
+- `panel/` : Müşterinin kendi paneli (mrspace.online/panel). Giriş kullanıcı adıyla (`rufcut` → `rufcut@mrspace.online`). Sekmeler: Genel bakış, Stok, Etiketler. Girişsiz "Örnek verilerle bak" demo modu var.
+- Square: müşteri panelde "Connect Square" der, kendi hesabıyla onay verir. Stok ve fiyatlar Square'den canlı gelir, sayı değiştirince Square'de de değişir, "Add item" yeni ürünü Square'e ekler. İstenirse stok sitede de gösterilir (`ms-square/public?site=...`).
+- Etiket: Code 128 barkod (SKU), fiyat, beden, dükkan adı. 2.25×1.25 in (Rollo/Zebra/Dymo 30334), 2×1, 1.5×1, 3×2 in ve Brother 62×29 mm. Barkod Square kasasında okutulunca ürün bulunur.
+- Kurulum:
+  1. `ms/mrspace-square.sql` (SQL Editor).
+  2. developer.squareup.com'da "Mr. Space" uygulaması. OAuth > Redirect URL: `https://tizfdnsjhhepxnqqrzuk.supabase.co/functions/v1/ms-square/callback`
+  3. Supabase > Edge Functions: `supabase/functions/ms-square/index.ts` deploy, "Enforce JWT verification" KAPALI. Secrets: `SQUARE_APP_ID`, `SQUARE_APP_SECRET`, `SQUARE_ENV` (`production` veya deneme için `sandbox`).
+  4. Authentication > Users > Add user: `rufcut@mrspace.online`, şifre, Auto confirm. Panel erişimi admin panelinde site kartındaki "Panel erişimi" ile verilir.
+- Square anahtarları `ms_square` tablosunda, politikası yok: sadece fonksiyon okur, panel ve REST göremez.
