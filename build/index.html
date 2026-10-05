@@ -102,6 +102,9 @@ dialog{border:1px solid var(--line);border-radius:10px;background:var(--paper);c
 dialog::backdrop{background:rgba(0,0,0,.4)}
 dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:7px;padding:8px;background:var(--bg);margin:10px 0}
 .dlg-act{display:flex;justify-content:flex-end;gap:8px}
+.hint{position:sticky;bottom:0;z-index:2;margin-top:12px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:.88rem;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
+.hint p{margin:0}
+.hint p+p{margin-top:6px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -254,7 +257,75 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":
 const root = document.getElementById("root");
 const FONT_SUGGEST = ["Bricolage Grotesque","Source Sans 3","Young Serif","Work Sans","Syne","Manrope","Fraunces","IBM Plex Sans","DM Serif Display","DM Sans","Playfair Display","Lora","Libre Baskerville","Archivo","Outfit","Space Grotesk","Cormorant Garamond","Josefin Sans","Rubik","Karla","Nunito Sans","Merriweather","Bebas Neue","Abril Fatface","Caveat"];
 
-const S = { admin: false, key: P.get("k") || "", site: null, build: null, data: { content: {}, theme: {} }, view: "edit" };
+const S = { admin: false, key: P.get("k") || "", site: null, build: null, data: { content: {}, theme: {} }, view: "edit", sector: "other", hint: null };
+
+// ---------- Yardimci (yapay zeka yok; sabit ipuclari) ----------
+const HINT_SECTORS = ["cafe", "bakery", "bar", "tailor", "florist", "boutique", "other"];
+Object.assign(DICT, {
+  h_name:["Write your business name exactly as customers know it.","İşletme adını müşterilerin bildiği şekliyle yazın.","Escribe el nombre de tu negocio tal como lo conocen tus clientes.","Schreibe den Namen deines Betriebs so, wie ihn deine Kunden kennen.","Écrivez le nom de votre commerce tel que vos clients le connaissent."],
+  h_tagline:["One short line on what you do. Up to 140 characters.","Ne yaptığınızı tek kısa satırda yazın. En fazla 140 karakter.","Una línea corta sobre lo que haces. Máximo 140 caracteres.","Eine kurze Zeile dazu, was du machst. Höchstens 140 Zeichen.","Une courte ligne sur ce que vous faites. 140 caractères maximum."],
+  h_logo:["Upload a clear square or wide image. JPG, PNG or WebP, up to 5 MB.","Net görünen kare ya da yatay bir görsel yükleyin. 5 MB'a kadar JPG, PNG ya da WebP.","Sube una imagen cuadrada o apaisada y nítida. JPG, PNG o WebP de hasta 5 MB.","Lade ein klares quadratisches oder breites Bild hoch. JPG, PNG oder WebP bis 5 MB.","Importez une image nette, carrée ou large. JPG, PNG ou WebP jusqu'à 5 Mo."],
+  h_phone:["The number customers can call, with country code, e.g. +90 212 000 00 00.","Müşterilerin arayabileceği numara, ülke koduyla. Örn. +90 212 000 00 00.","El número al que pueden llamar tus clientes, con prefijo del país, p. ej. +34 600 000 000.","Die Nummer, unter der Kunden anrufen können, mit Landesvorwahl, z. B. +49 30 000000.","Le numéro que vos clients peuvent appeler, avec l'indicatif du pays, ex. +33 1 00 00 00 00."],
+  h_email:["The address where customers can reach you. Check it twice.","Müşterilerin size ulaşacağı adres. İki kez kontrol edin.","La dirección donde tus clientes pueden escribirte. Revísala dos veces.","Die Adresse, unter der Kunden dich erreichen. Bitte zweimal prüfen.","L'adresse où vos clients peuvent vous écrire. Vérifiez-la deux fois."],
+  h_address:["Street, number, district and city, as it would appear on a map.","Sokak, numara, semt ve şehir; haritada görüneceği şekilde yazın.","Calle, número, barrio y ciudad, como aparecería en un mapa.","Straße, Hausnummer, Stadtteil und Stadt, so wie auf einer Karte.","Rue, numéro, quartier et ville, comme sur une carte."],
+  h_hours:["Set the opening and closing time for each day. Tick Closed for days off.","Her gün için açılış ve kapanış saatini girin. Tatil günlerini Kapalı olarak işaretleyin.","Indica la hora de apertura y cierre de cada día. Marca Cerrado en los días libres.","Trage für jeden Tag Öffnungs- und Schließzeit ein. Hake freie Tage als Geschlossen an.","Indiquez l'ouverture et la fermeture de chaque jour. Cochez Fermé pour les jours de repos."],
+  h_socials:["Paste the full link starting with https://. Leave empty what you don't use.","https:// ile başlayan tam linki yapıştırın. Kullanmadıklarınızı boş bırakın.","Pega el enlace completo que empieza por https://. Deja vacío lo que no uses.","Füge den vollständigen Link mit https:// ein. Lass Ungenutztes leer.","Collez le lien complet commençant par https://. Laissez vide ce que vous n'utilisez pas."],
+  h_hero_title:["A short headline on what you offer or how a visit feels. 3 to 8 words.","Ne sunduğunuzu ya da gelenlere nasıl hissettireceğinizi anlatan kısa bir başlık. 3-8 kelime.","Un titular corto sobre lo que ofreces o cómo se siente visitarte. De 3 a 8 palabras.","Eine kurze Überschrift dazu, was du anbietest oder wie sich ein Besuch anfühlt. 3 bis 8 Wörter.","Un titre court sur ce que vous proposez ou ce que l'on ressent chez vous. 3 à 8 mots."],
+  h_hero_text:["1-2 sentences under the headline: what you do and who it is for.","Başlığın altında 1-2 cümle: ne yaptığınız ve kimlere hitap ettiğiniz.","1-2 frases bajo el titular: qué haces y para quién.","1-2 Sätze unter der Überschrift: was du tust und für wen.","1 à 2 phrases sous le titre : ce que vous faites et pour qui."],
+  h_hero_btn_label:["A short action, e.g. Call us or See the menu.","Kısa bir eylem yazısı. Örn. Bizi arayın ya da Menüyü gör.","Una acción breve, p. ej. Llámanos o Ver la carta.","Ein kurzes Aktionswort, z. B. Ruf uns an oder Speisekarte ansehen.","Un court appel à l'action, ex. Appelez-nous ou Voir la carte."],
+  h_hero_btn_url:["Where the button goes: a web link, tel:+... to call, or #s3 to jump to a section.","Butonun gideceği yer: web linki, aramak için tel:+... ya da bir bölüme gitmek için #s3.","Adónde lleva el botón: un enlace web, tel:+... para llamar o #s3 para ir a una sección.","Wohin der Button führt: ein Weblink, tel:+... zum Anrufen oder #s3 für einen Abschnitt.","Où mène le bouton : un lien web, tel:+... pour appeler ou #s3 pour aller à une section."],
+  h_about_text:["2-3 sentences: who you are, how long you have been here, what sets you apart.","2-3 cümle: kimsiniz, ne zamandır buradasınız, sizi farklı kılan ne.","2-3 frases: quién eres, cuánto tiempo llevas aquí y qué te hace diferente.","2-3 Sätze: wer du bist, seit wann es dich gibt und was dich besonders macht.","2-3 phrases : qui vous êtes, depuis quand vous êtes là, ce qui vous distingue."],
+  h_group:["A category name that groups items, e.g. Coffee, Cakes or Alterations.","Ürünleri toplayan bir kategori adı. Örn. Kahveler, Pastalar ya da Tadilat.","El nombre de una categoría, p. ej. Cafés, Tartas o Arreglos.","Der Name einer Kategorie, z. B. Kaffee, Kuchen oder Änderungen.","Le nom d'une catégorie, ex. Cafés, Gâteaux ou Retouches."],
+  h_item:["The name customers will see, short and clear.","Müşterinin göreceği ad; kısa ve net olsun.","El nombre que verán tus clientes, corto y claro.","Der Name, den Kunden sehen, kurz und klar.","Le nom que verront vos clients, court et clair."],
+  h_price:["Write the price with its currency, e.g. 85 TL or €4.50.","Fiyatı para birimiyle yazın. Örn. 85 TL ya da €4,50.","Escribe el precio con su moneda, p. ej. 4,50 €.","Schreibe den Preis mit Währung, z. B. 4,50 €.","Écrivez le prix avec la devise, ex. 4,50 €."],
+  h_desc:["One short line: what is in it or why it is good. Optional.","Tek kısa satır: içinde ne var ya da neden güzel. İsteğe bağlı.","Una línea corta: qué lleva o por qué es bueno. Opcional.","Eine kurze Zeile: was drin ist oder warum es gut ist. Optional.","Une courte ligne : ce qu'il contient ou pourquoi il est bon. Facultatif."],
+  h_image_alt:["Describe what the photo shows in a few words, for people who cannot see it.","Fotoğrafta ne olduğunu birkaç kelimeyle anlatın; görmeyenler için okunur.","Describe en pocas palabras lo que muestra la foto, para quien no puede verla.","Beschreibe in wenigen Worten, was das Foto zeigt, für Menschen, die es nicht sehen können.","Décrivez en quelques mots ce que montre la photo, pour ceux qui ne peuvent pas la voir."],
+  h_caption:["Optional short text under the photo, e.g. the name of the dish.","Fotoğrafın altında görünen isteğe bağlı kısa yazı. Örn. yemeğin adı.","Texto breve opcional bajo la foto, p. ej. el nombre del plato.","Optionaler kurzer Text unter dem Foto, z. B. der Name des Gerichts.","Court texte facultatif sous la photo, ex. le nom du plat."],
+  ex_hero_text_cafe:["Freshly roasted coffee and homemade cakes, a few steps from the square.","Taze kavrulmuş kahve ve ev yapımı pastalar, meydana iki adım.","Café recién tostado y tartas caseras, a pocos pasos de la plaza.","Frisch gerösteter Kaffee und hausgemachte Kuchen, nur ein paar Schritte vom Platz.","Café fraîchement torréfié et gâteaux maison, à deux pas de la place."],
+  ex_hero_text_bakery:["Bread baked every morning with slow-risen dough and local flour.","Her sabah yavaş mayalanmış hamur ve yerel unla pişen ekmekler.","Pan horneado cada mañana con masa de fermentación lenta y harina local.","Jeden Morgen frisch gebackenes Brot aus langsam gereiftem Teig und regionalem Mehl.","Du pain cuit chaque matin, à la pâte longuement levée et à la farine locale."],
+  ex_hero_text_bar:["Classic cocktails, good music and a quiet corner to end your night.","Klasik kokteyller, iyi müzik ve gecenizi bitirecek sakin bir köşe.","Cócteles clásicos, buena música y un rincón tranquilo para cerrar la noche.","Klassische Cocktails, gute Musik und eine ruhige Ecke zum Abschluss des Abends.","Cocktails classiques, bonne musique et un coin tranquille pour finir la soirée."],
+  ex_hero_text_tailor:["Suits and alterations made to your measure, fitted by hand.","Ölçünüze göre dikilen takım elbise ve tadilatlar, elde provayla.","Trajes y arreglos a tu medida, probados a mano.","Anzüge und Änderungen nach deinem Maß, von Hand angepasst.","Costumes et retouches sur mesure, ajustés à la main."],
+  ex_hero_text_florist:["Seasonal bouquets arranged fresh each morning for every occasion.","Her fırsata uygun, her sabah taze hazırlanan mevsim buketleri.","Ramos de temporada preparados cada mañana para cualquier ocasión.","Saisonale Sträuße, jeden Morgen frisch gebunden für jeden Anlass.","Des bouquets de saison composés chaque matin pour toutes les occasions."],
+  ex_hero_text_boutique:["Carefully chosen clothes and accessories from independent designers.","Bağımsız tasarımcılardan özenle seçilmiş giysi ve aksesuarlar.","Ropa y accesorios elegidos con cuidado de diseñadores independientes.","Sorgfältig ausgewählte Kleidung und Accessoires unabhängiger Designer.","Vêtements et accessoires soigneusement choisis, signés de créateurs indépendants."],
+  ex_hero_text_other:["A short promise to your customers: what you do best and why to visit.","Müşterilerinize kısa bir söz: en iyi ne yaptığınız ve neden uğramaları gerektiği.","Una promesa breve a tus clientes: qué haces mejor y por qué visitarte.","Ein kurzes Versprechen an deine Kunden: was du am besten kannst und warum sie vorbeikommen sollten.","Une courte promesse à vos clients : ce que vous faites de mieux et pourquoi venir."],
+  ex_about_text_cafe:["We opened in 2015 as a tiny corner café, and we still roast our own beans and bake everything in-house.","2015'te küçük bir köşe kafe olarak açıldık; hâlâ kendi çekirdeklerimizi kavuruyor, her şeyi burada pişiriyoruz.","Abrimos en 2015 como una pequeña cafetería de barrio y seguimos tostando nuestro propio café y horneando todo en casa.","Wir haben 2015 als kleines Eckcafé eröffnet und rösten bis heute unsere Bohnen selbst und backen alles im Haus.","Nous avons ouvert en 2015 comme petit café de quartier, et nous torréfions toujours nos grains et cuisons tout sur place."],
+  ex_about_text_bakery:["Our family has baked here since 1998, and every loaf still starts with dough made the day before.","Ailemiz 1998'den beri burada ekmek pişiriyor; her somun hâlâ bir gün önceden hazırlanan hamurla başlıyor.","Nuestra familia hornea aquí desde 1998 y cada pan sigue naciendo de una masa preparada el día anterior.","Unsere Familie backt hier seit 1998, und jedes Brot beginnt noch immer mit einem Teig vom Vortag.","Notre famille cuit ici depuis 1998, et chaque pain naît encore d'une pâte préparée la veille."],
+  ex_about_text_bar:["We have poured drinks on this street since 2012, and our menu changes with the seasons.","2012'den beri bu sokakta içki servis ediyoruz; menümüz mevsimle birlikte değişiyor.","Servimos copas en esta calle desde 2012 y nuestra carta cambia con las estaciones.","Wir schenken seit 2012 in dieser Straße aus, und unsere Karte wechselt mit den Jahreszeiten.","Nous servons des verres dans cette rue depuis 2012, et notre carte change au fil des saisons."],
+  ex_about_text_tailor:["I have been sewing for twenty years, and every garment is cut, fitted and finished in my own workshop.","Yirmi yıldır dikiş dikiyorum; her parça kendi atölyemde kesilir, prova edilir ve tamamlanır.","Llevo veinte años cosiendo y cada prenda se corta, prueba y termina en mi propio taller.","Ich nähe seit zwanzig Jahren, und jedes Stück wird in meiner eigenen Werkstatt zugeschnitten, anprobiert und fertiggestellt.","Je couds depuis vingt ans, et chaque pièce est coupée, essayée et terminée dans mon propre atelier."],
+  ex_about_text_florist:["We have been arranging flowers since 2010, and we buy from local growers every morning.","2010'dan beri çiçek düzenliyoruz ve her sabah yerel üreticilerden alıyoruz.","Preparamos flores desde 2010 y cada mañana compramos a productores locales.","Wir binden seit 2010 Blumen und kaufen jeden Morgen bei Erzeugern aus der Region ein.","Nous composons des bouquets depuis 2010 et achetons chaque matin auprès de producteurs locaux."],
+  ex_about_text_boutique:["Since 2016 we have picked every piece ourselves, favouring small labels and fabrics that last.","2016'dan beri her parçayı kendimiz seçiyoruz; küçük markalara ve uzun ömürlü kumaşlara öncelik veriyoruz.","Desde 2016 elegimos cada pieza nosotros mismos, con preferencia por marcas pequeñas y tejidos duraderos.","Seit 2016 wählen wir jedes Stück selbst aus, am liebsten von kleinen Labels und aus langlebigen Stoffen.","Depuis 2016, nous choisissons chaque pièce nous-mêmes, en privilégiant les petites marques et les tissus durables."],
+  ex_about_text_other:["We started in [year], and what makes us different is [your strongest point].","[Yıl] yılında başladık; bizi farklı kılan [en güçlü yönünüz].","Empezamos en [año] y lo que nos diferencia es [tu punto más fuerte].","Wir haben [Jahr] angefangen, und was uns besonders macht, ist [deine größte Stärke].","Nous avons commencé en [année], et ce qui nous distingue, c'est [votre point fort]."],
+  h_ex:["Example:","Örnek:","Ejemplo:","Beispiel:","Exemple :"],
+});
+function hintKeyOf(el) {
+  const p = el.dataset.p || el.dataset.up; if (!p) return null;
+  const B = { "content.business.name": "name", "content.business.tagline": "tagline", "content.business.logo": "logo", "content.business.phone": "phone", "content.business.email": "email", "content.business.address": "address" };
+  if (B[p]) return B[p];
+  if (p.startsWith("content.business.hours.")) return "hours";
+  if (p.startsWith("content.business.socials.")) return "socials";
+  const m = p.match(/^content\.sections\.(\d+)\.(.+)$/); if (!m) return null;
+  const type = S.data.content.sections?.[m[1]]?.type, r = m[2];
+  if (r === "title") return type === "hero" ? "hero_title" : null;
+  if (r === "text") return type === "hero" ? "hero_text" : type === "about" ? "about_text" : null;
+  if (r === "button.label") return "hero_btn_label";
+  if (r === "button.url") return "hero_btn_url";
+  if (r === "image_alt" || /^images\.\d+\.alt$/.test(r)) return "image_alt";
+  if (/^images\.\d+\.caption$/.test(r)) return "caption";
+  if (/^groups\.\d+\.name$/.test(r)) return "group";
+  const it = r.match(/^groups\.\d+\.items\.\d+\.(name|price|desc)$/);
+  return it ? (it[1] === "name" ? "item" : it[1]) : null;
+}
+function hintInner(key) {
+  const ex = key === "hero_text" || key === "about_text" ? `<p><b>${T("h_ex")}</b> ${esc(T(`ex_${key}_${S.sector}`))}</p>` : "";
+  return `<p>${esc(T("h_" + key))}</p>${ex}`;
+}
+const hintHTML = () => `<div class="hint" id="hint" role="status" aria-live="polite" ${S.hint ? "" : "hidden"}>${S.hint ? hintInner(S.hint) : ""}</div>`;
+root.addEventListener("focusin", (e) => {
+  const key = hintKeyOf(e.target), box = document.getElementById("hint");
+  if (!key || key === S.hint || !box) return;
+  S.hint = key; box.innerHTML = hintInner(key); box.hidden = false;
+});
+
 
 // ---------- yol yardimcilari ----------
 function getP(path) { return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), S.data); }
@@ -393,6 +464,7 @@ function drawBuilder() {
         <div class="addsec"><select id="newSec">${Object.keys(R.SECTION_TYPES).map((k) => `<option value="${k}">${esc(R.sectionName(k, LANG))}</option>`).join("")}</select>
         <button class="btn" data-act="addsec">${T("add_section")}</button></div>
       </div></details>
+      ${hintHTML()}
     </div>
     <div class="preview"><iframe id="pv" title="${T("preview")}"></iframe></div>
   </div>`;
@@ -626,6 +698,7 @@ async function loadTrial() {
     S.site = { name: data.content?.business?.name || "Mr. Space", mode: "builder" };
     S.build = { id: 0, status: data.status, preview_key: data.preview_key };
     S.data.content = data.content; S.data.theme = data.theme;
+    S.sector = HINT_SECTORS.includes(data.sector) ? data.sector : "other";
     return draw();
   }
   drawStart();
