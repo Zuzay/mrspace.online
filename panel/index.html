@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Your panel | Mr. Space</title>
+<script src="../assets/i18n.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F2F3F1; --card:#FFFFFF; --ink:#121418; --mute:#5B606B; --line:#12141820;
+  --night:#0E1014; --sun:#F6B93B; --ok:#1F8A4C; --bad:#C2412D; --warn:#B7791F;
+  --display:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --body:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#0B0D10;--card:#15181D;--ink:#ECEDEA;--mute:#9AA0AA;--line:#ECEDEA1f;--ok:#4CC27F;--bad:#E8664F;--warn:#E3A846;color-scheme:dark}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.mono{font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:99px;border:1.5px solid var(--ink);font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:#121418}
+.btn.solid{background:var(--ink);color:var(--bg)}
+.btn.ghost{border-color:var(--line)}
+.btn.sm{padding:6px 11px;font-size:11px}
+.btn:disabled{opacity:.45;cursor:default}
+.mark{display:flex;align-items:center;gap:10px;font:400 22px var(--display);text-transform:uppercase}
+.mark i{width:22px;height:22px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
+.mark i::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun)}
+[hidden]{display:none!important}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login form{width:min(380px,100%);display:grid;gap:12px}
+.login h1{font-size:44px;margin-top:20px}
+.login p{color:var(--mute)}
+.login input{padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:16px}
+.login .err{color:var(--bad);font-size:14px;min-height:1.2em}
+
+/* shell */
+.top{position:sticky;top:0;z-index:5;background:var(--night);color:#F4F5F3;padding:calc(10px + env(safe-area-inset-top,0px)) clamp(14px,3vw,32px) 10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.top .mark i{background:#F4F5F3}.top .mark i::after{background:var(--sun)}
+.top nav{display:flex;gap:4px;flex:1;overflow-x:auto}
+.top nav button{padding:9px 13px;border-radius:10px;color:#C9CED8;font-size:14px;white-space:nowrap}
+.top nav button.on{background:#FFFFFF17;color:#fff}
+.top select{background:#FFFFFF14;color:#fff;border:1px solid #FFFFFF26;border-radius:9px;padding:6px 8px;font-size:13px}
+.top .out{color:#9AA0AA;font-size:13px}
+@media (max-width:640px){.top nav{order:3;flex-basis:100%}.top .out{margin-left:auto}}
+main{padding:24px clamp(14px,3vw,32px) 80px;max-width:1180px;margin:0 auto}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}
+.head h1{font-size:clamp(34px,5vw,52px)}
+.head p{color:var(--mute);font-size:14px;max-width:60ch;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start}
+.card h2{font-size:26px}
+.card p{color:var(--mute);font-size:14px}
+.card .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stat{display:flex;gap:18px;flex-wrap:wrap}
+.stat div{display:grid}
+.stat b{font:400 34px var(--display);line-height:1}
+.stat small{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.dot{display:inline-flex;align-items:center;gap:6px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:99px;width:max-content}
+.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.dot.on{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.dot.off{background:var(--line);color:var(--mute)}
+.switch{display:flex;align-items:center;gap:10px;font-size:14px}
+.switch input{width:18px;height:18px;accent-color:var(--ink)}
+
+/* stock */
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.bar input[type=search]{flex:1;min-width:200px;padding:10px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:15px}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px}
+.seg button{padding:6px 12px;border-radius:99px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.list{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.it{display:grid;grid-template-columns:52px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.it:first-child{border-top:0}
+.it .ph{width:52px;height:52px;border-radius:10px;background:var(--bg) center/cover no-repeat;border:1px solid var(--line)}
+.it .n{font-weight:600}
+.it .m{font-size:12.5px;color:var(--mute);display:flex;gap:4px 12px;flex-wrap:wrap;margin-top:2px}
+.it .m .mono{font-size:12px}
+.it .pr{font:600 15px var(--body);text-align:right;min-width:64px}
+.qty{display:flex;align-items:center;gap:4px}
+.qty button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);font-size:16px;line-height:1}
+.qty input{width:52px;text-align:center;padding:6px 4px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font:500 14px var(--mono)}
+.qty input.dirty{border-color:var(--sun);box-shadow:0 0 0 2px color-mix(in srgb,var(--sun) 35%,transparent)}
+.qty .out0{color:var(--bad)}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+@media (max-width:720px){
+  .it{grid-template-columns:44px minmax(0,1fr) auto;row-gap:8px}
+  .it .ph{width:44px;height:44px}
+  .it .acts{grid-column:1/-1;justify-content:space-between}
+}
+.empty{padding:36px 18px;text-align:center;color:var(--mute)}
+
+/* labels */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:900px){.lab{grid-template-columns:1fr}}
+.q .it{grid-template-columns:minmax(0,1fr) auto auto}
+.opts{display:grid;gap:10px}
+.opts label{display:grid;gap:4px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.opts select,.opts input[type=text],.opts input[type=number]{padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font:14px var(--body);text-transform:none;letter-spacing:0;color:var(--ink)}
+.opts label.switch{display:flex;font:14px var(--body);text-transform:none;letter-spacing:0;color:var(--ink)}
+.opts select{width:100%;min-width:0}
+.card.opts{min-width:0}
+.preview{display:grid;place-items:center;padding:22px;background:repeating-conic-gradient(var(--line) 0 25%,transparent 0 50%) 0 0/16px 16px;border-radius:12px}
+.preview .label{box-shadow:0 8px 30px -10px rgba(0,0,0,.35);zoom:1.35}
+
+/* the label itself: sized in inches, prints 1:1 */
+.label{background:#fff;color:#000;overflow:hidden;display:flex;flex-direction:column;padding:.06in .08in;font-family:Archivo,Arial,sans-serif;line-height:1.1}
+.label .shop{font:600 5.5pt/1 Archivo,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.label .nm{font-weight:700;font-size:7.5pt;margin-top:.02in;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.label .rw{display:flex;justify-content:space-between;align-items:baseline;margin-top:auto;gap:4px}
+.label .vr{font-size:7pt}
+.label .pc{font-weight:700;font-size:11pt}
+.label svg{display:block;width:100%;flex:0 0 auto;margin-top:.02in}
+.label .sku{font:6pt 'IBM Plex Mono',monospace;text-align:center;letter-spacing:.05em}
+
+dialog{border:0;border-radius:16px;background:var(--card);color:var(--ink);width:min(520px,94vw);margin:auto;padding:0}
+dialog::backdrop{background:#0E1014b3}
+dialog .dh{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+dialog .dh h2{font-size:26px}
+dialog form{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 18px}
+dialog label{display:grid;gap:4px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+dialog input,dialog textarea{padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font:15px var(--body);color:var(--ink);text-transform:none;letter-spacing:0}
+dialog .wide{grid-column:1/-1}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--night);color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;transition:.3s;z-index:50;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.demo-tag{font:500 10px var(--mono);letter-spacing:.1em;background:var(--sun);color:#121418;padding:3px 8px;border-radius:99px}
+
+#print{display:none}
+@media print{
+  body>*:not(#print){display:none!important}
+  #print{display:block!important}
+  #print .label{page-break-after:always;break-after:page}
+  html,body{background:#fff}
+}
+</style>
+<style id="pageSize"></style>
+</head>
+<body>
+
+<section class="login" id="login">
+ <form id="loginForm" novalidate>
+  <div class="mark"><i></i>Mr. Space</div>
+  <h1>Your panel</h1>
+  <p>Stock, labels and change requests for your site.</p>
+  <input id="em" type="text" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+  <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+  <p class="err" id="loginErr" aria-live="polite"></p>
+  <button class="btn sun" type="submit">Sign in</button>
+  <button class="btn" type="button" id="demoBtn">Look with sample data</button>
+ </form>
+</section>
+
+<div id="app" hidden>
+ <header class="top">
+  <div class="mark"><i></i><span id="siteName" data-noi18n></span></div>
+  <nav id="nav">
+   <button data-v="home" class="on">Overview</button>
+   <button data-v="stock">Stock</button>
+   <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
+  </nav>
+  <select id="sitePick" hidden aria-label="Site"></select>
+  <span class="demo-tag" id="demoTag" hidden>DEMO</span>
+  <button class="out" id="out">Sign out</button>
+ </header>
+ <main id="main"></main>
+</div>
+
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+<div id="print" aria-hidden="true"></div>
+
+<script>
+"use strict";
+const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
+const SB_KEY = "sb_publishable_DcfxBTRo0n2m1go5_yYjkw_qNzD6ie6";
+const FN = SB_URL + "/functions/v1/ms-square";
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const T = x => window.MSI18N ? MSI18N.t(x) : x;
+const money = (c, cur = "USD") => c == null ? "" : new Intl.NumberFormat("en-US", { style:"currency", currency:cur, minimumFractionDigits:c % 100 ? 2 : 0 }).format(c / 100);
+function toast(t){ const el = $("#toast"); el.textContent = T(t); el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2800); }
+
+/* ---------- session (same sign-in as the Mr. Space panel) ---------- */
+let SS = null, DEMO = false;
+try { SS = JSON.parse(localStorage.getItem("ms_panel") || "null"); } catch (e) {}
+function saveSession(d){ SS = { access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at || Math.floor(Date.now()/1000) + (d.expires_in || 3600), email:d.user ? d.user.email : (SS && SS.email) }; try { localStorage.setItem("ms_panel", JSON.stringify(SS)); } catch (e) {} }
+async function auth(grant, body){
+  const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=${grant}`, { method:"POST", headers:{ apikey:SB_KEY, "Content-Type":"application/json" }, body:JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error_description || d.msg || "Sign in failed");
+  saveSession(d);
+}
+async function fresh(){ if (SS && Date.now()/1000 > SS.expires_at - 60) { try { await auth("refresh_token", { refresh_token:SS.refresh_token }); } catch (e) { logout(); throw new Error("Session ended, sign in again"); } } }
+function logout(){ SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+async function rpc(fn, body = {}){
+  await fresh();
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify(body) });
+  if (!r.ok) throw new Error((await r.text()).slice(0, 200));
+  return r.json();
+}
+async function sq(action, extra = {}){
+  if (DEMO) return demoSq(action, extra);
+  await fresh();
+  const r = await fetch(FN, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify({ action, site:SITE.slug, ...extra }) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "Square request failed");
+  return d;
+}
+
+/* ---------- state ---------- */
+let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, FILTER = "all", QUERY = "";
+let QUEUE = []; // {key,name,variant,price,currency,sku,qty}
+const OPT = { size:"2.25x1.25", shop:true, price:true, variant:true };
+try { Object.assign(OPT, JSON.parse(localStorage.getItem("ms_label_opts") || "{}")); QUEUE = JSON.parse(localStorage.getItem("ms_label_queue") || "[]"); } catch (e) {}
+const saveQ = () => { try { localStorage.setItem("ms_label_queue", JSON.stringify(QUEUE)); localStorage.setItem("ms_label_opts", JSON.stringify(OPT)); } catch (e) {} };
+const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25, 1.25], "2x1":["2 × 1 in", 2, 1], "1.5x1":["1.5 × 1 in", 1.5, 1], "62x29mm":["62 × 29 mm (Brother)", 62/25.4, 29/25.4], "3x2":["3 × 2 in", 3, 2] };
+
+/* ---------- views ---------- */
+function render(){
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
+  $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
+  $("#main").innerHTML = ({ home, stock, labels })[VIEW]();
+  bind();
+  if (window.MSI18N) MSI18N.apply($("#main"));
+}
+function home(){
+  const s = SQ || {}, units = ITEMS ? ITEMS.flatMap(i => i.variations).reduce((n, v) => n + Math.max(0, v.stock || 0), 0) : null;
+  const low = ITEMS ? ITEMS.flatMap(i => i.variations).filter(v => v.stock === 0).length : null;
+  const reqUrl = `${location.origin}/request/?k=${SITE.site_key}`;
+  return `<div class="head"><div><h1 data-noi18n>${esc(SITE.name)}</h1><p>Your site, your stock and your labels in one place.</p></div></div>
+  <div class="grid">
+   <div class="card"><h2>Square</h2>
+    ${s.connected ? `<span class="dot on">Connected</span><p><span>Location</span>: <b data-noi18n>${esc(s.location || "")}</b></p>
+      ${ITEMS ? `<div class="stat"><div><b>${ITEMS.length}</b><small>Items</small></div><div><b>${units}</b><small>In stock</small></div><div><b>${low}</b><small>Sold out</small></div></div>` : ""}
+      <label class="switch"><input type="checkbox" data-act="public" ${s.public ? "checked" : ""}><span>Show my stock on my site</span></label>
+      <div class="row"><button class="btn solid" data-go="stock">Open stock</button><button class="btn ghost sm" data-act="disconnect">Disconnect</button></div>`
+    : `<span class="dot off">Not connected</span><p>Connect your Square account once. Your items, prices and stock then show up here and on your site. Sales stay in your Square, on your account.</p>
+      <div class="row"><button class="btn sun" data-act="connect">Connect Square</button></div>`}
+   </div>
+   <div class="card"><h2>Labels</h2><p>Print price and barcode labels for anything in your stock. Your Square register reads the barcode at checkout.</p>
+    <div class="row"><button class="btn solid" data-go="labels">Print labels</button></div></div>
+   <div class="card"><h2>Your site</h2><p>See your site and ask for changes right on top of it.</p>
+    <div class="row">${SITE.url ? `<a class="btn ghost" href="${esc(SITE.url)}" target="_blank" rel="noopener">Open site ↗</a>` : ""}<a class="btn solid" href="${esc(reqUrl)}" target="_blank" rel="noopener">Request changes</a></div></div>
+  </div>`;
+}
+function rows(){
+  const q = QUERY.toLowerCase();
+  const out = [];
+  (ITEMS || []).forEach(i => i.variations.forEach(v => {
+    if (q && !(i.name + " " + v.name + " " + v.sku).toLowerCase().includes(q)) return;
+    if (FILTER === "in" && !(v.stock > 0)) return;
+    if (FILTER === "out" && v.stock !== 0) return;
+    out.push({ i, v });
+  }));
+  return out;
+}
+function stock(){
+  if (!SQ || !SQ.connected) return `<div class="head"><div><h1>Stock</h1><p>Connect Square on the overview page first.</p></div></div><div class="list"><div class="empty"><button class="btn sun" data-act="connect">Connect Square</button></div></div>`;
+  const r = rows();
+  return `<div class="head"><div><h1>Stock</h1><p>Straight from your Square. Change a number and save, it updates in Square too.</p></div>
+    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="reload">Refresh</button><button class="btn sun" data-act="add">+ Add item</button></div></div>
+   <div class="bar"><input type="search" id="q" placeholder="Search name, size or SKU" value="${esc(QUERY)}">
+    <div class="seg">${[["all","All"],["in","In stock"],["out","Sold out"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
+   <div class="list" id="rows">${ITEMS == null ? '<div class="empty">Loading your stock</div>' : r.length ? r.map(({ i, v }) => `<div class="it">
+     <div class="ph" ${i.image ? `style="background-image:url('${esc(i.image)}')"` : ""}></div>
+     <div><div class="n" data-noi18n>${esc(i.name)}</div><div class="m" data-noi18n>${v.name && v.name !== "Regular" ? `<span>${esc(v.name)}</span>` : ""}<span class="mono">${esc(v.sku || "no SKU")}</span></div></div>
+     <div class="pr" data-noi18n>${money(v.price, v.currency)}</div>
+     <div class="acts">
+      ${v.stock == null ? '<span class="m">Not tracked</span>' : `<div class="qty"><button data-step="-1" data-v="${esc(v.id)}" aria-label="One less">−</button><input inputmode="numeric" data-count="${esc(v.id)}" data-was="${v.stock}" value="${v.stock}" class="${v.stock === 0 ? "out0" : ""}" aria-label="Stock"><button data-step="1" data-v="${esc(v.id)}" aria-label="One more">+</button></div>
+      <button class="btn sm solid" data-save="${esc(v.id)}" hidden>Save</button>`}
+      <button class="btn sm ghost" data-label="${esc(v.id)}">Label</button>
+     </div></div>`).join("") : '<div class="empty">Nothing matches.</div>'}</div>`;
+}
+function labelHTML(q){
+  const [, w, h] = SIZES[OPT.size] || SIZES["2.25x1.25"];
+  return `<div class="label" style="width:${w}in;height:${h}in">
+    ${OPT.shop ? `<div class="shop">${esc(SITE.name)}</div>` : ""}
+    <div class="nm">${esc(q.name)}</div>
+    <div class="rw"><span class="vr">${OPT.variant && q.variant && q.variant !== "Regular" ? esc(q.variant) : ""}</span><span class="pc">${OPT.price ? money(q.price, q.currency) : ""}</span></div>
+    ${q.sku ? code128svg(q.sku, Math.max(.26, h * .32)) + `<div class="sku">${esc(q.sku)}</div>` : ""}
+  </div>`;
+}
+function labels(){
+  const total = QUEUE.reduce((n, q) => n + q.qty, 0);
+  return `<div class="head"><div><h1>Labels</h1><p>Pick items from Stock with the Label button, or add one by hand. The barcode is the SKU, so Square finds the item when you scan it.</p></div>
+    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="manual">+ Add by hand</button><button class="btn sun" data-act="print" ${total ? "" : "disabled"}>Print ${total || ""} labels</button></div></div>
+   <div class="lab">
+    <div class="list q">${QUEUE.length ? QUEUE.map((q, k) => `<div class="it">
+      <div><div class="n" data-noi18n>${esc(q.name)}</div><div class="m" data-noi18n>${q.variant && q.variant !== "Regular" ? `<span>${esc(q.variant)}</span>` : ""}<span class="mono">${esc(q.sku || "no SKU")}</span><span>${money(q.price, q.currency)}</span></div></div>
+      <div class="qty"><button data-qstep="-1" data-k="${k}" aria-label="One less">−</button><input inputmode="numeric" data-qn="${k}" value="${q.qty}" aria-label="Copies"><button data-qstep="1" data-k="${k}" aria-label="One more">+</button></div>
+      <button class="btn sm ghost" data-qdel="${k}">Remove</button></div>`).join("") : '<div class="empty">No labels yet. Go to Stock and press Label on an item.</div>'}
+      ${QUEUE.length ? '<div class="it" style="grid-template-columns:1fr auto"><span class="m">Labels are kept on this device until you clear them.</span><button class="btn sm ghost" data-act="clearq">Clear all</button></div>' : ""}</div>
+    <div class="card opts">
+     <label>Label size<select id="optSize">${Object.entries(SIZES).map(([k, [l]]) => `<option value="${k}" ${OPT.size === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+     <label class="switch"><input type="checkbox" data-opt="shop" ${OPT.shop ? "checked" : ""}><span>Shop name</span></label>
+     <label class="switch"><input type="checkbox" data-opt="price" ${OPT.price ? "checked" : ""}><span>Price</span></label>
+     <label class="switch"><input type="checkbox" data-opt="variant" ${OPT.variant ? "checked" : ""}><span>Size or variant</span></label>
+     <div class="preview" data-noi18n>${labelHTML(QUEUE[0] || { name:"Levi's 501, 1990s", variant:"W32 L30", price:8500, currency:"USD", sku:"RC-1A2B3C" })}</div>
+     <p class="m" style="font-size:12.5px;color:var(--mute)">In the print window choose your label printer, set the paper to the same size, and scale to 100%.</p>
+    </div>
+   </div>`;
+}
+
+/* ---------- Code 128 (B) barcode ---------- */
+const C128 = "11011001100,11001101100,11001100110,10010011000,10010001100,10001001100,10011001000,10011000100,10001100100,11001001000,11001000100,11000100100,10110011100,10011011100,10011001110,10111001100,10011101100,10011100110,11001110010,11001011100,11001001110,11011100100,11001110100,11101101110,11101001100,11100101100,11100100110,11101100100,11100110100,11100110010,11011011000,11011000110,11000110110,10100011000,10001011000,10001000110,10110001000,10001101000,10001100010,11010001000,11000101000,11000100010,10110111000,10110001110,10001101110,10111011000,10111000110,10001110110,11101110110,11010001110,11000101110,11011101000,11011100010,11011101110,11101011000,11101000110,11100010110,11101101000,11101100010,11100011010,11101111010,11001000010,11110001010,10100110000,10100001100,10010110000,10010000110,10000101100,10000100110,10110010000,10110000100,10011010000,10011000010,10000110100,10000110010,11000010010,11001010000,11110111010,11000010100,10001111010,10100111100,10010111100,10010011110,10111100100,10011110100,10011110010,11110100100,11110010100,11110010010,11011011110,11011110110,11110110110,10101111000,10100011110,10001011110,10111101000,10111100010,11110101000,11110100010,10111011110,10111101110,11101011110,11110101110,11010000100,11010010000,11010011100".split(",");
+function code128svg(text, hIn){
+  const vals = [104], s = String(text).replace(/[^\x20-\x7e]/g, "");
+  for (const ch of s) vals.push(ch.charCodeAt(0) - 32);
+  let sum = 104; for (let i = 1; i < vals.length; i++) sum += vals[i] * i;
+  vals.push(sum % 103);
+  const bits = "0".repeat(10) + vals.map(v => C128[v]).join("") + "1100011101011" + "0".repeat(10);
+  let x = 0, rects = "";
+  while (x < bits.length) { if (bits[x] === "1") { let w = 1; while (bits[x + w] === "1") w++; rects += `<rect x="${x}" y="0" width="${w}" height="1"/>`; x += w; } else x++; }
+  return `<svg viewBox="0 0 ${bits.length} 1" preserveAspectRatio="none" style="height:${hIn}in" shape-rendering="crispEdges" aria-label="Barcode ${esc(s)}">${rects}</svg>`;
+}
+
+/* ---------- actions ---------- */
+function findVar(id){ for (const i of ITEMS || []) for (const v of i.variations) if (v.id === id) return { i, v }; return null; }
+function addToQueue(i, v, qty){
+  const key = v.id || ("m" + Date.now());
+  const ex = QUEUE.find(q => q.key === key);
+  if (ex) ex.qty += qty; else QUEUE.push({ key, name:i.name, variant:v.name, price:v.price, currency:v.currency || "USD", sku:v.sku, qty });
+  saveQ(); $("#qn").textContent = "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")";
+}
+async function loadItems(){
+  if (!SQ || !SQ.connected) return;
+  ITEMS = null; if (VIEW !== "labels") render();
+  try { const d = await sq("catalog"); ITEMS = d.items || []; } catch (e) { ITEMS = []; toast(e.message); }
+  render();
+}
+function dialog(title, fields, onSave, label = "Save"){
+  $("#dlgBody").innerHTML = `<div class="dh"><h2>${esc(T(title))}</h2><button class="btn sm ghost" type="button" data-close>Close</button></div>
+   <form id="dlgForm">${fields}<div class="wide" style="display:flex;justify-content:flex-end"><button class="btn sun" type="submit">${esc(T(label))}</button></div></form>`;
+  const d = $("#dlg"); if (window.MSI18N) MSI18N.apply(d); d.showModal();
+  d.querySelector("[data-close]").onclick = () => d.close();
+  $("#dlgForm").onsubmit = async e => {
+    e.preventDefault(); const btn = e.target.querySelector("[type=submit]"); btn.disabled = true;
+    try { await onSave(Object.fromEntries(new FormData(e.target).entries())); d.close(); } catch (err) { toast(err.message); }
+    btn.disabled = false;
+  };
+}
+const fld = (label, name, type = "text", extra = "", val = "") => `<label${extra}>${label}<input name="${name}" type="${type}" value="${esc(val)}" ${type === "number" ? 'step="any" min="0"' : ""}></label>`;
+
+async function act(a, el){
+  if (a === "connect") { if (DEMO) return toast("Demo: this opens Square to sign in"); const d = await sq("connect"); location.href = d.url; return; }
+  if (a === "disconnect") { if (!confirm(T("Disconnect Square from your panel and site?"))) return; await sq("disconnect"); SQ = { connected:false }; ITEMS = null; toast("Square disconnected"); return render(); }
+  if (a === "public") { await sq("set_public", { value:el.checked }); SQ.public = el.checked; return toast(el.checked ? "Your stock now shows on your site" : "Stock hidden from your site"); }
+  if (a === "reload") return loadItems();
+  if (a === "add") return dialog("Add item", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") +
+      fld("How many", "qty", "number", "", "1") + fld("SKU (empty = automatic)", "sku") +
+      `<label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
+    async v => {
+      if (!v.name) throw new Error(T("Enter a name"));
+      const d = await sq("add_item", { name:v.name, variant:v.variant, price:Number(v.price || 0), qty:Number(v.qty || 0), sku:v.sku, description:v.description });
+      toast("Added to Square");
+      if (v.labels && Number(v.qty) > 0) addToQueue({ name:v.name }, { id:d.variation, name:v.variant || "", price:Math.round(Number(v.price || 0) * 100), currency:SQ.currency || "USD", sku:d.sku }, Number(v.qty));
+      await loadItems();
+    }, "Add to Square");
+  if (a === "manual") return dialog("Add a label by hand", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") + fld("SKU or code", "sku") + fld("Copies", "qty", "number", "", "1"),
+    async v => { if (!v.name) throw new Error(T("Enter a name")); addToQueue({ name:v.name }, { id:null, name:v.variant, price:v.price === "" ? null : Math.round(Number(v.price) * 100), currency:"USD", sku:v.sku }, Math.max(1, Number(v.qty || 1))); render(); }, "Add");
+  if (a === "clearq") { QUEUE = []; saveQ(); return render(); }
+  if (a === "print") {
+    const [, w, h] = SIZES[OPT.size];
+    $("#pageSize").textContent = `@page{size:${w}in ${h}in;margin:0}`;
+    $("#print").innerHTML = QUEUE.flatMap(q => Array(q.qty).fill(labelHTML(q))).join("");
+    setTimeout(() => window.print(), 50);
+  }
+}
+function bind(){
+  document.querySelectorAll("[data-act]").forEach(el => { const h = () => act(el.dataset.act, el).catch(e => toast(e.message)); if (el.type === "checkbox") el.onchange = h; else el.onclick = h; });
+  document.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { VIEW = el.dataset.go; render(); });
+  document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
+  const q = $("#q"); if (q) q.oninput = () => { QUERY = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+  const dirty = inp => { const s = document.querySelector(`[data-save="${CSS.escape(inp.dataset.count)}"]`); const d = String(inp.value) !== String(inp.dataset.was); inp.classList.toggle("dirty", d); if (s) s.hidden = !d; };
+  document.querySelectorAll("[data-count]").forEach(inp => inp.oninput = () => { inp.value = inp.value.replace(/\D/g, ""); dirty(inp); });
+  document.querySelectorAll("[data-step]").forEach(b => b.onclick = () => { const inp = document.querySelector(`[data-count="${CSS.escape(b.dataset.v)}"]`); inp.value = Math.max(0, Number(inp.value || 0) + Number(b.dataset.step)); dirty(inp); });
+  document.querySelectorAll("[data-save]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.save, inp = document.querySelector(`[data-count="${CSS.escape(id)}"]`), f = findVar(id), qty = Number(inp.value || 0);
+    b.disabled = true;
+    try { await sq("set_count", { variation:id, qty, label:f ? f.i.name + " " + f.v.name : id }); f.v.stock = qty; toast("Saved in Square"); render(); } catch (e) { toast(e.message); b.disabled = false; }
+  });
+  document.querySelectorAll("[data-label]").forEach(b => b.onclick = () => { const f = findVar(b.dataset.label); if (!f) return; addToQueue(f.i, f.v, Math.max(1, f.v.stock || 1)); toast(T("Added to labels") + ": " + f.i.name); });
+  document.querySelectorAll("[data-qstep]").forEach(b => b.onclick = () => { const q = QUEUE[b.dataset.k]; q.qty = Math.max(1, q.qty + Number(b.dataset.qstep)); saveQ(); render(); });
+  document.querySelectorAll("[data-qn]").forEach(i => i.onchange = () => { QUEUE[i.dataset.qn].qty = Math.max(1, Number(i.value.replace(/\D/g, "") || 1)); saveQ(); render(); });
+  document.querySelectorAll("[data-qdel]").forEach(b => b.onclick = () => { QUEUE.splice(Number(b.dataset.qdel), 1); saveQ(); render(); });
+  const os = $("#optSize"); if (os) os.onchange = () => { OPT.size = os.value; saveQ(); render(); };
+  document.querySelectorAll("[data-opt]").forEach(c => c.onchange = () => { OPT[c.dataset.opt] = c.checked; saveQ(); render(); });
+}
+
+/* ---------- demo ---------- */
+function demoData(){
+  const v = (id, name, sku, price, stock) => ({ id, name, sku, upc:"", price, currency:"USD", track:true, stock });
+  return [
+    { id:"i1", name:"Levi's 501, 1990s, medium wash", description:"", image:null, variations:[v("v1","W32 L30","RC-0A1B2C",8500,1)] },
+    { id:"i2", name:"Levi's 505, 1980s, dark rinse", description:"", image:null, variations:[v("v2","W34 L32","RC-0A1B2D",9500,1)] },
+    { id:"i3", name:"Levi's 517 bootcut, black", description:"", image:null, variations:[v("v3","W30 L32","RC-0A1B2E",7500,0)] },
+    { id:"i4", name:"Levi's trucker jacket, type III", description:"", image:null, variations:[v("v4","M","RC-0A1B2F",14500,1), v("v5","L","RC-0A1B2G",14500,2)] },
+    { id:"i5", name:"Rufcut custom jeans, deposit", description:"", image:null, variations:[{ ...v("v6","Regular","RC-CUSTOM",10000,null), track:false }] },
+    { id:"i6", name:"Repair: chain stitch hem", description:"", image:null, variations:[{ ...v("v7","Regular","RC-HEM",2500,null), track:false }] },
+    { id:"i7", name:"Rufcut patch, leather", description:"", image:null, variations:[v("v8","Regular","RC-PATCH",1200,14)] }
+  ];
+}
+function demoSq(action, x){
+  if (action === "status") return { connected:true, location:"Rufcut, Venice Beach", currency:"USD", public:false };
+  if (action === "catalog") return { items:ITEMS && ITEMS.length ? ITEMS : demoData() };
+  if (action === "add_item") { const sku = x.sku || "RC-" + Date.now().toString(36).toUpperCase().slice(-6), id = "d" + Date.now();
+    ITEMS.push({ id, name:x.name, description:"", image:null, variations:[{ id:id + "v", name:x.variant || "Regular", sku, upc:"", price:Math.round(x.price * 100), currency:"USD", track:true, stock:x.qty }] });
+    return { ok:true, variation:id + "v", sku }; }
+  return { ok:true };
+}
+
+/* ---------- start ---------- */
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { VIEW = b.dataset.v; render(); });
+$("#out").onclick = logout;
+$("#sitePick").onchange = async () => { SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
+$("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", site_key:"demo" }]; await enter(); };
+$("#loginForm").onsubmit = async e => {
+  e.preventDefault(); $("#loginErr").textContent = "";
+  try { let u = $("#em").value.trim().toLowerCase(); if (u && u.indexOf("@") < 0) u += "@mrspace.online";
+    await auth("password", { email:u, password:$("#pw").value }); await start(); }
+  catch (err) { $("#loginErr").textContent = T(err.message); }
+};
+async function start(){
+  try { SITES = await rpc("ms_my_sites"); if (!SITES.length) throw new Error("This account has no site yet"); await enter(); }
+  catch (e) { logout(); $("#loginErr").textContent = T(e.message); }
+}
+async function enter(){
+  const want = new URLSearchParams(location.search).get("site");
+  SITE = SITES.find(s => s.slug === want) || SITES[0];
+  $("#sitePick").hidden = SITES.length < 2;
+  $("#sitePick").innerHTML = SITES.map(s => `<option value="${esc(s.slug)}">${esc(s.name)}</option>`).join("");
+  $("#sitePick").value = SITE.slug;
+  $("#login").hidden = true; $("#app").hidden = false; $("#demoTag").hidden = !DEMO;
+  const sp = new URLSearchParams(location.search).get("square");
+  if (sp) { toast(sp === "ok" ? "Square connected" : T("Square did not connect") + ": " + sp); history.replaceState(null, "", location.pathname); }
+  await enterSite();
+}
+async function enterSite(){
+  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; render();
+  try { SQ = await sq("status"); } catch (e) { SQ = { connected:false }; }
+  render();
+  if (SQ.connected) loadItems();
+}
+if (SS) start();
+</script>
+</body>
+</html>
