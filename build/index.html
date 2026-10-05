@@ -105,6 +105,12 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 .hint{position:sticky;bottom:0;z-index:2;margin-top:12px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:.88rem;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
 .hint p{margin:0}
 .hint p+p{margin-top:6px;color:var(--mute)}
+.prog .ph{display:flex;justify-content:space-between;gap:8px;font-weight:700;margin-bottom:6px}
+.prog .track{height:8px;border-radius:99px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--denim);transition:width .25s}
+.prog ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.prog ul .btn{width:100%;text-align:left}
+.prog .ok{margin:10px 0 0;color:var(--ok);font-weight:700}
 </style>
 </head>
 <body>
@@ -297,6 +303,74 @@ Object.assign(DICT, {
   ex_about_text_other:["We started in [year], and what makes us different is [your strongest point].","[Yıl] yılında başladık; bizi farklı kılan [en güçlü yönünüz].","Empezamos en [año] y lo que nos diferencia es [tu punto más fuerte].","Wir haben [Jahr] angefangen, und was uns besonders macht, ist [deine größte Stärke].","Nous avons commencé en [année], et ce qui nous distingue, c'est [votre point fort]."],
   h_ex:["Example:","Örnek:","Ejemplo:","Beispiel:","Exemple :"],
 });
+Object.assign(DICT, {
+  p_title:["What's next","Sırada ne var","Qué sigue","Was als Nächstes ansteht","La suite"],
+  p_done:["Ready, you can send it","Hazır, gönderebilirsiniz","Listo, puedes enviarlo","Fertig, du kannst es senden","Prêt, vous pouvez l'envoyer"],
+  p_name:["Add your business name","İşletme adını yazın","Escribe el nombre del negocio","Name des Unternehmens eintragen","Indiquez le nom de l'entreprise"],
+  p_tagline:["Write a short description","Kısa tanımı yazın","Escribe una descripción corta","Kurzbeschreibung schreiben","Écrivez une description courte"],
+  p_logo:["Upload your logo","Logonuzu yükleyin","Sube tu logo","Logo hochladen","Importez votre logo"],
+  p_contact:["Add a phone number or email","Telefon ya da e-posta ekleyin","Añade un teléfono o un correo","Telefonnummer oder E-Mail eintragen","Ajoutez un téléphone ou un e-mail"],
+  p_address:["Add your address","Adresinizi ekleyin","Añade tu dirección","Adresse eintragen","Ajoutez votre adresse"],
+  p_hours:["Set opening hours for at least one day","En az bir günün çalışma saatini girin","Indica el horario de al menos un día","Öffnungszeiten für mindestens einen Tag eintragen","Indiquez les horaires d'au moins un jour"],
+  p_hero:["Write the intro text","Giriş metnini yazın","Escribe el texto de introducción","Einleitungstext schreiben","Écrivez le texte d'introduction"],
+  p_about:["Write the about text","Hakkımızda metnini yazın","Escribe el texto sobre nosotros","Über-uns-Text schreiben","Écrivez le texte de présentation"],
+  p_menu:["Add at least 3 menu items","Menüye en az 3 ürün ekleyin","Añade al menos 3 productos a la carta","Mindestens 3 Artikel zur Speisekarte hinzufügen","Ajoutez au moins 3 articles à la carte"],
+  p_gallery:["Add at least 3 photos to the gallery","Galeriye en az 3 fotoğraf ekleyin","Añade al menos 3 fotos a la galería","Mindestens 3 Fotos zur Galerie hinzufügen","Ajoutez au moins 3 photos à la galerie"],
+});
+
+// ---------- ilerleme cubugu ve "Sirada ne var" (yapay zeka yok; sabit kurallar) ----------
+const filled = (v) => { const t = String(v ?? "").trim(); return t !== "" && !/\[[^\]]*\]/.test(t); };
+function checklist() {
+  const c = S.data.content, b = c.business || {}, secs = c.sections || [];
+  const bp = (k) => `[data-p="content.business.${k}"]`;
+  const out = [];
+  const add = (key, ok, panel, sel) => out.push({ key, ok, panel, sel });
+  add("p_name", filled(b.name), "business", bp("name"));
+  add("p_tagline", filled(b.tagline), "business", bp("tagline"));
+  add("p_logo", filled(b.logo), "business", '[data-up="content.business.logo"]');
+  add("p_contact", filled(b.phone) || filled(b.email), "business", filled(b.phone) ? bp("email") : bp("phone"));
+  add("p_address", filled(b.address), "business", bp("address"));
+  const hrs = Array.isArray(b.hours) ? b.hours : [];
+  add("p_hours", hrs.some((h) => h && !h.closed && filled(h.open) && filled(h.close)), "business", bp("hours.0.open"));
+  const textOf = (type) => {
+    const ix = secs.map((s, i) => (s.type === type ? i : -1)).filter((i) => i >= 0);
+    return { ok: ix.some((i) => filled(secs[i].text)), sel: ix.length ? `[data-p="content.sections.${ix[0]}.text"]` : "#newSec" };
+  };
+  const h = textOf("hero"); add("p_hero", h.ok, "sections", h.sel);
+  const a = textOf("about"); add("p_about", a.ok, "sections", a.sel);
+  secs.forEach((s, i) => {
+    if (s.type === "menu") {
+      const groups = s.groups || [];
+      let n = 0, sel = groups.length ? "" : `[data-act="addgroup"][data-i="${i}"]`;
+      groups.forEach((g, gi) => {
+        const items = g.items || [];
+        items.forEach((it, ii) => { if (filled(it.name)) n++; else if (!sel) sel = `[data-p="content.sections.${i}.groups.${gi}.items.${ii}.name"]`; });
+      });
+      if (!sel) sel = `[data-act="additem"][data-i="${i}"][data-g="${groups.length - 1}"]`;
+      add("p_menu", n >= 3, "sections", sel);
+    } else if (s.type === "gallery") {
+      add("p_gallery", (s.images || []).filter((g) => g && filled(g.url)).length >= 3, "sections", `[data-upgal="content.sections.${i}.images"]`);
+    }
+  });
+  return out;
+}
+function progInner() {
+  const all = checklist(), todo = all.filter((x) => !x.ok);
+  const pct = Math.round(((all.length - todo.length) / all.length) * 100);
+  return `<div class="ph"><span>${T("p_title")}</span><span>${all.length - todo.length} / ${all.length}</span></div>
+    <div class="track" role="progressbar" aria-label="${esc(T("p_title"))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div>
+    ${todo.length ? `<ul>${todo.slice(0, 4).map((x) => `<li><button class="btn small" data-go="${esc(x.sel)}" data-panel="${x.panel}">${esc(T(x.key))}</button></li>`).join("")}</ul>`
+      : `<p class="ok" role="status">${T("p_done")}</p>`}`;
+}
+function refreshProg() { const el = document.getElementById("prog"); if (el) el.innerHTML = progInner(); }
+root.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-go]"); if (!b) return;
+  const d = root.querySelector(`details.panel[data-panel="${b.dataset.panel}"]`); if (d) d.open = true;
+  const t = root.querySelector(b.dataset.go); if (!t) return;
+  t.scrollIntoView({ block: "center", behavior: "smooth" });
+  t.focus({ preventScroll: true });
+});
+
 function hintKeyOf(el) {
   const p = el.dataset.p || el.dataset.up; if (!p) return null;
   const B = { "content.business.name": "name", "content.business.tagline": "tagline", "content.business.logo": "logo", "content.business.phone": "phone", "content.business.email": "email", "content.business.address": "address" };
@@ -427,8 +501,8 @@ function drawBuilder() {
   root.innerHTML = barHTML() + `
   <div class="switch"><button class="btn small" data-act="view" data-v="edit" aria-pressed="${S.view === "edit"}">${T("edit")}</button><button class="btn small" data-act="view" data-v="preview" aria-pressed="${S.view === "preview"}">${T("preview")}</button></div>
   <div class="layout" data-view="${S.view}">
-    <div class="editor">${S.trial && !S.admin ? `<div class="note">${T("try_keep")}</div>` : ""}${returnedHTML()}
-      <details class="panel" open><summary>${T("look")}</summary><div class="pbody">
+    <div class="editor"><div class="note prog" id="prog">${progInner()}</div>${S.trial && !S.admin ? `<div class="note">${T("try_keep")}</div>` : ""}${returnedHTML()}
+      <details class="panel" data-panel="look" open><summary>${T("look")}</summary><div class="pbody">
         <div class="presets">${presets}</div>
         <div class="colors">${["bg", "ink", "accent", "soft"].map((x) => `<label>${T(x)}<input type="color" data-p="theme.colors.${x}" value="${esc(eff.colors[x])}"></label>`).join("")}</div>
         <div class="row2">
@@ -443,7 +517,7 @@ function drawBuilder() {
         <label class="f">${T("corners")}<input type="range" min="0" max="30" data-p="theme.radius" data-num="1" value="${Math.min(30, Number(eff.radius) || 0)}"></label>
       </div></details>
 
-      <details class="panel"><summary>${T("business")}</summary><div class="pbody">
+      <details class="panel" data-panel="business"><summary>${T("business")}</summary><div class="pbody">
         ${inp(T("name"), "content.business.name")}
         ${inp(T("tagline"), "content.business.tagline", "text", 'maxlength="140"')}
         ${imgField(T("logo"), "content.business.logo")}
@@ -459,7 +533,7 @@ function drawBuilder() {
         ${["instagram", "facebook", "tiktok", "google", "website"].map((k) => inp(k === "website" ? T("website") : k.charAt(0).toUpperCase() + k.slice(1), `content.business.socials.${k}`, "url", 'placeholder="https://"')).join("")}
       </div></details>
 
-      <details class="panel" open><summary>${T("sections")}</summary><div class="pbody">
+      <details class="panel" data-panel="sections" open><summary>${T("sections")}</summary><div class="pbody">
         ${(c.sections || []).map(secHTML).join("")}
         <div class="addsec"><select id="newSec">${Object.keys(R.SECTION_TYPES).map((k) => `<option value="${k}">${esc(R.sectionName(k, LANG))}</option>`).join("")}</select>
         <button class="btn" data-act="addsec">${T("add_section")}</button></div>
@@ -560,6 +634,7 @@ function save() {
     else ({ error } = await sb.rpc("ms_builder_save", { p_key: S.key, p_build: S.build.id, p_content: S.data.content, p_theme: S.data.theme }));
     if (error && /locked/.test(error.message)) { location.reload(); return; }
     markSaved(error ? "save_err" : "saved");
+    refreshProg();
   });
   return saving;
 }
