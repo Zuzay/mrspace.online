@@ -111,11 +111,36 @@ button{cursor:pointer;border:0;background:none}
 #fatal{position:fixed;inset:0;display:none;place-items:center;padding:24px;text-align:center;font-size:17px;color:#3a3d44}
 #fatal.on{display:grid}
 
+/* guided checklist */
+#guide{position:fixed;z-index:9;left:14px;bottom:calc(80px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 28px));border-radius:22px;padding:12px 16px 12px;display:none}
+#guide.on{display:block;animation:rise .2s ease-out}
+body.popping #guide{display:none!important}
+.g-top{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.g-top span{flex:1}
+.g-bar{height:4px;border-radius:2px;background:var(--soft);margin:6px 0 12px;overflow:hidden}
+.g-bar i{display:block;height:100%;background:var(--done);transition:width .35s}
+.g-sec{font-size:13px;font-weight:600;margin:0 0 4px;color:var(--muted)}
+.g-hint{font-size:18px;line-height:1.38;margin:0 0 8px;letter-spacing:-.005em}
+.g-note{font-size:13px;color:var(--done);margin:0 0 8px}
+.g-row{display:flex;gap:8px;margin-top:12px}
+.g-row .btn,.g-row .g-alt{flex:1;padding:12px 14px}
+.g-alt{border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:15px;background:var(--fog-strong)}
+.g-nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:13px;color:var(--muted)}
+.g-nav .link{font-size:13px;text-decoration:none;padding:6px 0}
+#hint{cursor:pointer}
+#clistHead{font-size:13px;font-weight:600;margin:18px 0 0;color:var(--muted)}
+.item.ck p{-webkit-line-clamp:2;font-size:14px;color:var(--muted)}
+.item.ck b{color:var(--ink);font-size:14px}
+.item.ck.ok b::before{content:"\2713  ";color:var(--done)}
+.item.ck.changed b::before{content:"\270E  ";color:var(--edit)}
+.item.ck.open b::before{content:"\25CB  ";color:var(--muted)}
 @media (max-width:640px){
+  #guide{left:10px;right:10px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .g-hint{font-size:17px}
   #pop{left:10px!important;right:10px;top:auto!important;width:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));border-radius:22px}
   #pop textarea{max-height:32vh}
   #sheet{top:auto;left:10px;right:10px;bottom:10px;width:auto;max-height:86vh}
-  #hint{display:none}
+  #hint{font-size:13px;padding:0 4px 0 8px}
   #dock{left:10px;right:10px;transform:none;justify-content:space-between}
 }
 @media (prefers-reduced-motion:reduce){#pop.on,#sheet.on{animation:none}#pill{transition:none}}
@@ -136,7 +161,7 @@ button{cursor:pointer;border:0;background:none}
 </div>
 
 <div id="dock" class="fog">
-  <span id="hint"></span>
+  <button id="hint" type="button"></button>
   <div id="mode" role="group">
     <button id="mEdit" aria-pressed="true"></button>
     <button id="mBrowse" aria-pressed="false"></button>
@@ -144,12 +169,16 @@ button{cursor:pointer;border:0;background:none}
   <button class="btn" id="reviewBtn"></button>
 </div>
 
+<div id="guide" class="fog" aria-live="polite"></div>
+
 <aside id="sheet" class="fog" aria-labelledby="sheetTitle">
   <div class="sheet-head"><h2 id="sheetTitle"></h2><button class="x" id="sheetClose" aria-label="Close">
     <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
   <div class="sheet-body">
     <p class="quota" id="quota"></p>
     <div id="list"></div>
+    <p id="clistHead"></p>
+    <div id="clist"></div>
     <label class="field"><span id="lOther"></span><textarea id="fOther"></textarea></label>
     <label class="field"><span id="lName"></span><input id="fName" autocomplete="name"></label>
     <label class="field"><span id="lEmail"></span><input id="fEmail" type="email" autocomplete="email" inputmode="email"></label>
@@ -229,13 +258,45 @@ const L = {
 const lang = (()=>{ let p=null; try{p=localStorage.getItem('ms_lang')}catch(e){}
   const c=(p||navigator.language||'en').slice(0,2).toLowerCase(); return L[c]?c:'en'; })();
 const t = L[lang]; document.documentElement.lang = lang;
+const G = {
+  en:{checklist:'Checklist',gTop:'Top of the page',looksGood:'Looks good',changeIt:'Change it',changeSome:'Change something',
+    gTapPart:'Tap the part you want to change on your site. Press Next when you are done.',gNext:'Next',gBack:'Back',gSkip:'Skip',gList:'See the list',gHide:'Hide',
+    gChanged:'You changed this part.',gOkd:'You marked this as good.',gDoneT:'All checked.',gDoneX:'Every part of your site has been looked at. Send it over and we will take it from here.',
+    gLeft:n=>n===1?'1 part left to check':n+' parts left to check',hHead:'Is this how you would say it?',hText:'Read this. Does it sound like you, and is it correct?',
+    hImg:'Should your own photo go here? Paste a link or describe it.',hFill:'This is a placeholder. Enter the real thing.'},
+  tr:{checklist:'Kontrol listesi',gTop:'Sayfanın başı',looksGood:'Doğru',changeIt:'Değiştir',changeSome:'Bir şeyi değiştir',
+    gTapPart:'Sitende değiştirmek istediğin yere dokun. Bitince İleri\'ye bas.',gNext:'İleri',gBack:'Geri',gSkip:'Atla',gList:'Listeyi gör',gHide:'Gizle',
+    gChanged:'Bu kısmı değiştirdin.',gOkd:'Bunu doğru olarak işaretledin.',gDoneT:'Hepsi kontrol edildi.',gDoneX:'Sitenin her kısmına bakıldı. Gönder, gerisi bizde.',
+    gLeft:n=>n+' kısım kontrol bekliyor',hHead:'Sen böyle mi söylerdin?',hText:'Bunu oku. Senin ağzından çıkmış gibi mi, doğru mu?',
+    hImg:'Buraya kendi fotoğrafın mı gelsin? Link yapıştır ya da anlat.',hFill:'Bu bir yer tutucu. Gerçeğini yaz.'},
+  es:{checklist:'Lista',gTop:'Inicio de la página',looksGood:'Está bien',changeIt:'Cambiar',changeSome:'Cambiar algo',
+    gTapPart:'Toca la parte de tu sitio que quieres cambiar. Pulsa Siguiente al terminar.',gNext:'Siguiente',gBack:'Atrás',gSkip:'Saltar',gList:'Ver la lista',gHide:'Ocultar',
+    gChanged:'Cambiaste esta parte.',gOkd:'La marcaste como correcta.',gDoneT:'Todo revisado.',gDoneX:'Revisaste cada parte de tu sitio. Envíalo y nosotros seguimos.',
+    gLeft:n=>n===1?'Falta 1 parte por revisar':'Faltan '+n+' partes por revisar',hHead:'¿Lo dirías así?',hText:'Léelo. ¿Suena como tú y es correcto?',
+    hImg:'¿Va aquí una foto tuya? Pega un enlace o descríbela.',hFill:'Esto es un ejemplo. Escribe el dato real.'},
+  de:{checklist:'Checkliste',gTop:'Seitenanfang',looksGood:'Passt',changeIt:'Ändern',changeSome:'Etwas ändern',
+    gTapPart:'Tippe auf den Teil deiner Seite, den du ändern willst. Danach auf Weiter.',gNext:'Weiter',gBack:'Zurück',gSkip:'Überspringen',gList:'Liste ansehen',gHide:'Ausblenden',
+    gChanged:'Du hast diesen Teil geändert.',gOkd:'Du hast das als passend markiert.',gDoneT:'Alles geprüft.',gDoneX:'Jeder Teil deiner Seite wurde angesehen. Schick es uns, wir übernehmen.',
+    gLeft:n=>n===1?'1 Teil noch offen':n+' Teile noch offen',hHead:'Würdest du es so sagen?',hText:'Lies das. Klingt es nach dir und stimmt es?',
+    hImg:'Soll hier dein eigenes Foto hin? Link einfügen oder beschreiben.',hFill:'Das ist ein Platzhalter. Trag das Echte ein.'},
+  fr:{checklist:'Liste',gTop:'Haut de page',looksGood:'C\'est bon',changeIt:'Modifier',changeSome:'Modifier quelque chose',
+    gTapPart:'Touchez la partie de votre site à modifier. Appuyez sur Suivant ensuite.',gNext:'Suivant',gBack:'Retour',gSkip:'Passer',gList:'Voir la liste',gHide:'Masquer',
+    gChanged:'Vous avez modifié cette partie.',gOkd:'Vous l\'avez marquée comme bonne.',gDoneT:'Tout est vérifié.',gDoneX:'Chaque partie de votre site a été vue. Envoyez-la, on s\'occupe du reste.',
+    gLeft:n=>n===1?'1 partie à vérifier':n+' parties à vérifier',hHead:'Le diriez-vous comme ça ?',hText:'Lisez. Est-ce votre ton, et est-ce exact ?',
+    hImg:'Votre propre photo ici ? Collez un lien ou décrivez-la.',hFill:'C\'est un exemple. Écrivez la vraie info.'}
+};
+Object.assign(t, G[lang] || G.en);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduced = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 const $ = s => document.querySelector(s);
 const frame = $('#site'), pill = $('#pill'), pop = $('#pop'), popBody = $('#popBody');
 const qs = new URLSearchParams(location.search), KEY = qs.get('k'), EDIT = qs.get('e');
 const NOTE = '\n\nNote: ', GENERAL = '__general';
 
-const S = { items:new Map(), sub:null, editing:true, cur:null, doc:null, win:null, hovered:null, first:true, pendingOpen:null, quota:null };
+const S = { items:new Map(), sub:null, editing:true, cur:null, doc:null, win:null, hovered:null, first:true, pendingOpen:null, quota:null,
+  steps:[], si:0, approved:new Set(), guideOn:true, grouping:false, finish:false, fromGuide:false, stepPage:null };
+const okKey = () => 'ms-ok-' + (EDIT || KEY);
 
 async function rpc(fn, args){
   const r = await fetch(SB+'/rest/v1/rpc/'+fn, {method:'POST', headers:{apikey:ANON, Authorization:'Bearer '+ANON, 'Content-Type':'application/json'}, body:JSON.stringify(args)});
@@ -254,7 +315,9 @@ function paint(){
 function realItems(){ return [...S.items.values()].filter(i=>i.anchor!==GENERAL) }
 function updateDock(){
   const n = realItems().length;
-  $('#hint').textContent = n ? t.count(n) : t.hint;
+  if(S.steps.length){ const d = doneCount(), all = S.steps.length;
+    $('#hint').textContent = mobile() ? '\u2713 '+d+'/'+all : t.checklist+' '+d+'/'+all+(n ? ', '+t.count(n) : ''); }
+  else $('#hint').textContent = n ? t.count(n) : t.hint;
   $('#reviewBtn').textContent = t.review + (n ? ' ('+n+')' : '');
 }
 
@@ -308,8 +371,10 @@ function wire(){
   try{ S.win = frame.contentWindow; S.doc = frame.contentDocument; if(!S.doc || !S.doc.body) throw 0 }catch(e){ return noOverlay() }
   const st = S.doc.createElement('style');
   st.textContent = '.ms-hover{outline:2px dashed rgba(45,88,210,.95)!important;outline-offset:4px!important;cursor:text!important}'
+   + '.ms-ok{outline:2px solid rgba(28,132,86,.45)!important;outline-offset:4px!important}'
    + '.ms-edited{outline:2px solid rgba(28,132,86,.85)!important;outline-offset:4px!important}'
    + '.ms-active{outline:2px solid rgba(45,88,210,1)!important;outline-offset:4px!important}'
+   + '.ms-step{outline:3px solid #F6B93B!important;outline-offset:6px!important;box-shadow:0 0 0 9999px rgba(18,20,24,.08)!important}'
    + '.ms-flash{animation:msf 1.8s ease 1}@keyframes msf{0%,100%{outline:2px dashed transparent;outline-offset:4px}35%,65%{outline:2px dashed rgba(45,88,210,.7);outline-offset:4px}}';
   S.doc.head.appendChild(st);
 
@@ -340,7 +405,10 @@ function wire(){
     it.origHTML = null; capture(it, el); show(it, it.text); el.classList.add('ms-edited');
   }
   if(S.pendingOpen){ const it=S.items.get(S.pendingOpen); S.pendingOpen=null; if(it && it.el) setTimeout(()=>focusItem(it),60) }
-  if(S.first){ S.first=false; flash() }
+  buildSteps(); paintSteps();
+  if(S.first){ S.first=false; flash(); setTimeout(()=>{ if(S.guideOn) showStep(firstOpen()) }, reduced() ? 0 : 1300) }
+  else if(S.guideOn) showStep(S.si);
+  updateDock();
 }
 function flash(){
   if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
@@ -370,7 +438,7 @@ function open(el){
     it.original = it.type==='image' ? (el.getAttribute('src')||bgUrl(el)||'') : el.innerText.trim();
     it.target = partName(el, it.original);
   } else if(!it.el) capture(it, el);
-  S.cur = it; el.classList.add('ms-active');
+  S.cur = it; el.classList.add('ms-active'); document.body.classList.add('popping');
   render(it);
   pop.classList.add('on');
   if(mobile()){ el.scrollIntoView({block:'start', behavior:'smooth'}); setTimeout(()=>S.win.scrollBy(0,-70),300) }
@@ -416,11 +484,11 @@ function place(){
   const x = Math.min(Math.max(12, r.left), innerWidth-pw-12);
   pop.style.left = x+'px'; pop.style.top = y+'px';
 }
-function closePop(){ if(S.cur && S.cur.el) S.cur.el.classList.remove('ms-active'); S.cur=null; pop.classList.remove('on') }
+function closePop(){ if(S.cur && S.cur.el) S.cur.el.classList.remove('ms-active'); S.cur=null; pop.classList.remove('on'); document.body.classList.remove('popping') }
 function cancel(){
   const it = S.cur; if(!it) return;
   if(it.status==='new'){ if(S.items.has(it.anchor)) show(it, it.text); else restore(it) }
-  closePop();
+  closePop(); S.fromGuide=false; renderGuide();
 }
 function commit(it){
   const v = $('#ta').value.trim(), note = $('#noteTa').value.trim(), big = $('#bigChk').checked;
@@ -429,11 +497,13 @@ function commit(it){
   it.text = unchanged ? (it.type==='image' ? '' : it.original) : v; it.note = note; it.kind = big ? 'big' : 'small';
   S.items.set(it.anchor, it); it.el.classList.add('ms-edited'); show(it, it.text);
   closePop(); updateDock(); if($('#sheet').classList.contains('on')) renderList();
+  afterEdit(it);
 }
 function undo(it){
   restore(it); if(it.el) it.el.classList.remove('ms-edited');
   S.items.delete(it.anchor); it.text=''; it.note='';
   closePop(); updateDock(); if($('#sheet').classList.contains('on')) renderList();
+  S.fromGuide=false; paintSteps(); renderGuide();
 }
 $('#popClose').onclick = cancel;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(S.cur) cancel(); else closeSheet() } });
@@ -446,6 +516,107 @@ function setMode(edit){
 }
 $('#mEdit').onclick = ()=>setMode(true);
 $('#mBrowse').onclick = ()=>setMode(false);
+
+/* ---------- guided checklist ---------- */
+function secName(el){
+  const s = el.closest('[data-ms-section],section,header,footer');
+  if(s){ if(s.dataset.msSection) return s.dataset.msSection; const h = s.querySelector('h2,h1'); if(h && h.innerText.trim()) return h.innerText.trim().replace(/\s+/g,' ').slice(0,40); }
+  return t.gTop;
+}
+function autoSteps(){
+  const out = [];
+  S.doc.querySelectorAll('h1,h2,h3,p,img,[data-ms-edit]').forEach(el=>{
+    if(out.length >= 30 || el.closest('[data-ms-skip]')) return;
+    const r = el.getBoundingClientRect(); if(r.width < 20 || r.height < 8) return;
+    const tx = (el.innerText || '').trim(); let h;
+    if(el.tagName==='IMG') h = t.hImg; else if(!tx) return;
+    else if(/sample|lorem|placeholder|xxx|your (name|phone|address)/i.test(tx)) h = t.hFill;
+    else if(/^H\d$/.test(el.tagName)) h = t.hHead; else h = t.hText;
+    out.push({el, hint:h, group:false});
+  });
+  return out;
+}
+function buildSteps(){
+  const tagged = [...S.doc.querySelectorAll('[data-ms-step]')].filter(el=>!el.closest('[data-ms-skip]'));
+  const raw = tagged.length ? tagged.map(el=>({el, hint:el.getAttribute('data-ms-step'), group:el.hasAttribute('data-ms-group')})) : autoSteps();
+  if(S.stepPage !== page()){ S.si = 0; S.stepPage = page() }
+  S.steps = raw.map(x=>({...x, sec:secName(x.el), anchor:anchorOf(x.el)}));
+  S.si = Math.min(S.si, Math.max(0, S.steps.length-1));
+}
+function stepState(s){
+  if(s.group){ for(const it of S.items.values()) if(it.el && s.el.contains(it.el)) return 'changed' }
+  else if(S.items.has(s.anchor)) return 'changed';
+  return S.approved.has(s.anchor) ? 'ok' : 'open';
+}
+const doneCount = () => S.steps.filter(s=>stepState(s)!=='open').length;
+const firstOpen = () => { const i = S.steps.findIndex(s=>stepState(s)==='open'); return i < 0 ? 0 : i };
+function paintSteps(){ S.steps.forEach(s=>s.el.classList.toggle('ms-ok', stepState(s)==='ok')) }
+function saveOk(){ try{ localStorage.setItem(okKey(), JSON.stringify([...S.approved])) }catch(e){} }
+function showStep(i){
+  if(!S.steps.length) return renderGuide();
+  S.si = Math.max(0, Math.min(i, S.steps.length-1)); S.grouping = false; S.finish = false; S.guideOn = true;
+  S.steps.forEach(s=>s.el.classList.remove('ms-step'));
+  const s = S.steps[S.si]; s.el.classList.add('ms-step');
+  const r = s.el.getBoundingClientRect(), vh = S.win.innerHeight;
+  if(r.top < 70 || r.bottom > vh*0.6) S.win.scrollBy({top:r.top - Math.max(70, vh*0.16), behavior:reduced() ? 'auto' : 'smooth'});
+  renderGuide();
+}
+function advance(){
+  const n = S.steps.length;
+  for(let k=1; k<=n; k++){ const j = (S.si+k) % n; if(stepState(S.steps[j])==='open') return showStep(j) }
+  S.finish = true; S.steps.forEach(s=>s.el.classList.remove('ms-step')); renderGuide();
+}
+function afterEdit(it){
+  paintSteps();
+  const s = S.steps[S.si];
+  if(S.fromGuide && s && !s.group && s.anchor===it.anchor){ S.fromGuide=false; return advance() }
+  S.fromGuide = false; renderGuide();
+}
+function renderGuide(){
+  const g = $('#guide'); updateDock();
+  if(!S.guideOn || !S.steps.length){ g.classList.remove('on'); S.steps.forEach(s=>s.el.classList.remove('ms-step')); return }
+  const n = S.steps.length, d = doneCount(), s = S.steps[S.si], st = stepState(s);
+  const x = '<svg width="13" height="13" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>';
+  let h = `<div class="g-top"><span>${esc(t.checklist)} ${d}/${n}</span><button class="x" data-g="hide" aria-label="${esc(t.gHide)}">${x}</button></div>
+    <div class="g-bar"><i style="width:${Math.round(100*d/n)}%"></i></div>`;
+  if(S.finish){
+    h += `<p class="g-hint" style="font-weight:600">${esc(t.gDoneT)}</p><p class="g-sec" style="font-weight:400">${esc(t.gDoneX)}</p>
+      <div class="g-row"><button class="g-alt" data-g="list">${esc(t.gList)}</button><button class="btn" data-g="send">${esc(t.review)}</button></div>`;
+  } else if(S.grouping){
+    h += `<p class="g-sec">${esc(s.sec)}</p><p class="g-hint">${esc(t.gTapPart)}</p>
+      <div class="g-row"><button class="btn" data-g="next">${esc(t.gNext)}</button></div>`;
+  } else {
+    h += `<p class="g-sec">${esc(s.sec)}</p><p class="g-hint">${esc(s.hint)}</p>`
+      + (st==='changed' ? `<p class="g-note">${esc(t.gChanged)}</p>` : st==='ok' ? `<p class="g-note">${esc(t.gOkd)}</p>` : '')
+      + `<div class="g-row"><button class="g-alt" data-g="change">${esc(s.group ? t.changeSome : t.changeIt)}</button><button class="btn" data-g="ok">${esc(t.looksGood)}</button></div>
+      <div class="g-nav"><button class="link" data-g="back" ${S.si ? '' : 'disabled style="visibility:hidden"'}>${esc(t.gBack)}</button><span>${S.si+1} / ${n}</span><button class="link" data-g="skip">${esc(t.gSkip)}</button></div>`;
+  }
+  g.innerHTML = h; g.classList.add('on');
+}
+$('#guide').addEventListener('click', e=>{
+  const b = e.target.closest('[data-g]'); if(!b) return;
+  const a = b.dataset.g, s = S.steps[S.si];
+  if(a==='hide'){ S.guideOn = false; renderGuide() }
+  else if(a==='ok'){ S.approved.add(s.anchor); saveOk(); paintSteps(); advance() }
+  else if(a==='change'){ setMode(true); if(s.group){ S.grouping = true; renderGuide() } else { S.fromGuide = true; open(s.el) } }
+  else if(a==='next'){ advance() }
+  else if(a==='back'){ showStep(S.si-1) }
+  else if(a==='skip'){ if(S.si >= S.steps.length-1){ S.finish = true; S.steps.forEach(x=>x.el.classList.remove('ms-step')); renderGuide() } else showStep(S.si+1) }
+  else if(a==='list' || a==='send'){ openSheet() }
+});
+$('#hint').onclick = ()=>{ if(!S.steps.length) return; if(S.guideOn && $('#guide').classList.contains('on')){ S.guideOn=false; renderGuide() } else showStep(S.finish ? firstOpen() : S.si) };
+function renderChecklist(){
+  const c = $('#clist'), head = $('#clistHead'); c.innerHTML = '';
+  if(!S.steps.length){ head.textContent = ''; return }
+  const left = S.steps.length - doneCount();
+  head.textContent = t.checklist + ': ' + doneCount() + ' / ' + S.steps.length + (left ? '. ' + t.gLeft(left) + '.' : '');
+  S.steps.forEach((s, i)=>{
+    const b = document.createElement('button'); b.className = 'item ck ' + stepState(s);
+    b.innerHTML = '<b></b><p></p>'; b.querySelector('b').textContent = s.sec; b.querySelector('p').textContent = s.hint;
+    b.onclick = ()=>{ closeSheet(); setMode(true); showStep(i) };
+    c.appendChild(b);
+  });
+}
 
 /* ---------- review sheet ---------- */
 function renderList(){
@@ -466,7 +637,7 @@ function renderList(){
   }
 }
 function focusItem(it){ it.el.scrollIntoView({block:'center'}); setTimeout(()=>open(it.el), 120) }
-function openSheet(){ cancel(); renderList(); $('#msg').textContent=''; $('#sheet').classList.add('on') }
+function openSheet(){ cancel(); renderList(); renderChecklist(); $('#msg').textContent=''; $('#sheet').classList.add('on') }
 function closeSheet(){ $('#sheet').classList.remove('on') }
 $('#reviewBtn').onclick = openSheet; $('#sheetClose').onclick = closeSheet;
 
@@ -489,10 +660,12 @@ $('#sendBtn').onclick = async ()=>{
   try{
     if(S.sub){
       const r = await rpc('ms_revise', {p_edit:EDIT, p_items:items, p_name:$('#fName').value, p_email:email});
+      await rpc('ms_set_approved', {p_edit:EDIT, p_anchors:[...S.approved]}).catch(()=>{});
       finish(EDIT, r.changed ? t.updated : t.noChange, r.changed ? t.savedV(r.version) : t.mailed);
     } else {
       const r = await rpc('ms_submit', {p_key:KEY, p_items:items, p_name:$('#fName').value, p_email:email});
       try{ localStorage.setItem('ms-edit-'+KEY, r.edit_key) }catch(e){}
+      await rpc('ms_set_approved', {p_edit:r.edit_key, p_anchors:[...S.approved]}).catch(()=>{});
       finish(r.edit_key, t.sent, t.mailed);
     }
   }catch(e){ msg.textContent = t.err }
@@ -523,6 +696,7 @@ function fromServer(c){
   S.items.set(c.anchor, {id:c.id, anchor:c.anchor, kind:c.kind, target:c.target, original:c.original||'', text, note, status:c.status, type:'text'});
 }
 (async function init(){
+  try{ (JSON.parse(localStorage.getItem(okKey()) || '[]')).forEach(a=>S.approved.add(a)) }catch(e){}
   paint();
   let url;
   try{
@@ -530,6 +704,7 @@ function fromServer(c){
       const d = await rpc('ms_get_submission', {p_edit:EDIT}); if(!d) throw 0;
       S.sub = d; url = d.url; S.quota = d.quota;
       (d.items||[]).forEach(fromServer);
+      (d.approved||[]).forEach(a=>S.approved.add(a));
       $('#fName').value = d.name || ''; $('#fEmail').value = d.email || '';
     } else if(KEY){
       const d = await rpc('ms_client_view', {p_key:KEY}); if(!d) throw 0;

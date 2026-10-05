@@ -185,7 +185,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 </head>
 <body>
 <div class="tape" aria-hidden="true"></div>
-<div class="ribbon mono">DESIGN CONCEPT BY <a href="../">MR. SPACE</a>. NOT THE OFFICIAL RUFCUT WEBSITE.</div>
+<div class="ribbon mono" data-ms-skip>DESIGN CONCEPT BY <a href="../">MR. SPACE</a>. NOT THE OFFICIAL RUFCUT WEBSITE.</div>
 
 <header>
  <div class="wrap">
@@ -197,9 +197,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
 <main id="top">
  <div class="cover">
   <div class="wrap">
-   <div class="row"><span class="mono">CUSTOM JEANS / VINTAGE LEVI'S / REPAIRS</span><span class="mono">517 OCEAN FRONT WALK / VENICE BEACH</span></div>
+   <div class="row"><span class="mono">CUSTOM JEANS / VINTAGE LEVI'S / REPAIRS</span><span class="mono" data-ms-edit data-ms-step="Is this your exact address? Fix anything that is off.">517 OCEAN FRONT WALK / VENICE BEACH</span></div>
    <div class="big">RUFCUT</div>
-   <div class="tag">A WORKSHOP ON THE BOARDWALK.</div>
+   <div class="tag" data-ms-edit data-ms-step="Your one-line slogan. Keep it, or write it the way you would say it out loud.">A WORKSHOP ON THE BOARDWALK.</div>
   </div>
   <div class="dots" aria-hidden="true"></div>
  </div>
@@ -220,12 +220,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
    <div>
     <span class="mono">THE PROMISE</span>
     <div class="stitchline"></div><div class="stitchline"></div>
-    <h1 style="margin-top:20px">Your fit.<br>Cut for you.<br><u>3 to 5 days.</u></h1>
-    <p>Custom jeans and jackets made at the bench on the Venice boardwalk. Bring your old favorite pair, or build a new one from scratch.</p>
+    <h1 style="margin-top:20px" data-ms-step="Your main promise. Is 3 to 5 days true for most orders? Change the number if not.">Your fit.<br>Cut for you.<br><u>3 to 5 days.</u></h1>
+    <p data-ms-step="Two sentences about what you do. Say it your way, like you would to someone at the door.">Custom jeans and jackets made at the bench on the Venice boardwalk. Bring your old favorite pair, or build a new one from scratch.</p>
     <div class="btns"><a class="btn solid" href="#build">START YOUR PAIR</a><a class="btn" href="#vintage">SHOP VINTAGE</a></div>
    </div>
   </div>
-  <div class="doors">
+  <div class="doors" data-ms-group data-ms-step="Your three services, one line each. Tap any line to change it.">
    <a class="door" href="#build"><b>CUSTOM</b><span>Jeans and jackets cut to your measurements.</span></a>
    <a class="door" href="#vintage"><b>VINTAGE</b><span>Levi's sorted by waist and length.</span></a>
    <a class="door" href="#repairs"><b>REPAIR</b><span>Hems, patches, zips, tapering.</span></a>
@@ -236,7 +236,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="wrap">
    <div class="sec"><span class="n">01</span><h2>Build your jeans</h2></div>
    <p class="lede">Make your choices, see your pair, and get your ready date before anything is cut.</p>
-   <div class="builder">
+   <div class="builder" data-ms-group data-ms-step="The choices people make when they build a pair. Are these your real fits, denims, washes and threads? Tap any to change it, and write your prices in a note.">
     <div class="preview">
      <svg viewBox="-12 0 154 210" role="img" aria-label="Preview of your jeans">
       <path id="jBody" d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z" fill="#1E3466" stroke="#000" stroke-width="3"/>
@@ -266,7 +266,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
      <div class="step"><h3>04 THREAD: <span id="vThread"></span></h3><div class="chips" data-k="thread"><button class="chip">COPPER</button><button class="chip">GOLD</button><button class="chip">WHITE</button><button class="chip">TONAL</button></div></div>
      <div class="step"><h3>05 HARDWARE: <span id="vFly"></span></h3><div class="chips" data-k="fly"><button class="chip">BUTTON FLY</button><button class="chip">ZIP FLY</button></div></div>
      <div class="step" style="border-bottom:0"><h3>06 HEM: <span id="vHem"></span></h3><div class="chips" data-k="hem"><button class="chip">CHAIN STITCH</button><button class="chip">CUFFED</button><button class="chip">RAW EDGE</button></div></div>
-     <div class="ready"><div><div class="d" id="readyDate"></div><small>Ready date if you get fitted today</small></div><a class="btn inv" href="#visit">BOOK A FITTING</a></div>
+     <div class="ready"><div><div class="d" id="readyDate"></div><small data-ms-step="How many days does a pair really take from fitting to pickup? We use it to show a ready date.">Ready date if you get fitted today</small></div><a class="btn inv" href="#visit">BOOK A FITTING</a></div>
     </div>
    </div>
    <ul class="points">
@@ -288,7 +288,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
  <section id="vintage">
   <div class="wrap">
    <div class="sec"><span class="n">02</span><h2>Vintage Levi's</h2></div>
-   <p class="lede">Every pair measured by hand. Pick your waist and see only what fits.</p>
+   <p class="lede" data-ms-step="Your vintage will come straight from your Square stock, with sizes and prices. Is this the right way to describe it?">Every pair measured by hand. Pick your waist and see only what fits.</p>
    <div class="filters" id="wf"><span class="mono" style="margin-right:6px">WAIST</span>
     <button class="chip" aria-pressed="true" data-w="all">ALL</button><button class="chip" data-w="28">28</button><button class="chip" data-w="30">30</button><button class="chip" data-w="32">32</button><button class="chip" data-w="34">34</button><button class="chip" data-w="36">36</button>
    </div>
@@ -301,7 +301,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   <div class="wrap">
    <div class="sec"><span class="n">03</span><h2>Repairs</h2></div>
    <p class="lede">Bring it in or drop it at the shop. Most jobs are ready the same week.</p>
-   <div class="label">
+   <div class="label" data-ms-group data-ms-step="Your repair list. Tap a line to change it, and add a price for each job.">
     <div class="head"><b>REPAIR INSTRUCTIONS</b><span class="mono">DROP OFF AT THE BENCH</span></div>
     <div class="rp"><h4>Hemming</h4><span>Original hem kept, or chain stitch</span></div>
     <div class="rp"><h4>Tapering</h4><span>Slimmer leg from the knee down</span></div>
@@ -316,7 +316,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
  <section id="order">
   <div class="wrap">
    <div class="sec"><span class="n">04</span><h2>Where is my pair?</h2></div>
-   <div class="track">
+   <div class="track" data-ms-group data-ms-step="Customers check their order here. Tap any stage to rename it, and tell us in a note how you number orders today.">
     <form id="tf"><input id="on" placeholder="ORDER NUMBER, TRY RC-1042" aria-label="Order number" autocomplete="off"><button class="btn" type="submit">CHECK ORDER</button></form>
     <ol class="stages" id="stages">
      <li>MEASURED<small>Fitting done</small></li>
@@ -335,10 +335,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
   </div>
   <div class="wrap visit">
    <div>
-    <p>517 Ocean Front Walk, Venice Beach, California. Come in for a fitting, bring your old pair, or just watch the machine run.</p>
-    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap"><a class="btn solid" href="#build">BOOK A FITTING</a><a class="btn" href="https://maps.google.com/?q=517+Ocean+Front+Walk+Venice+CA" target="_blank" rel="noopener">OPEN IN MAPS</a></div>
+    <p data-ms-step="What people can do when they come by. Check the address and the wording.">517 Ocean Front Walk, Venice Beach, California. Come in for a fitting, bring your old pair, or just watch the machine run.</p>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap"><a class="btn solid" href="#build" data-ms-step="How do people book a fitting today? Phone, text, walk in, or an online calendar? Write it here.">BOOK A FITTING</a><a class="btn" href="https://maps.google.com/?q=517+Ocean+Front+Walk+Venice+CA" target="_blank" rel="noopener">OPEN IN MAPS</a></div>
    </div>
-   <div class="hours" aria-label="Opening hours (sample)">
+   <div class="hours" aria-label="Opening hours (sample)" data-ms-edit data-ms-step="Enter your real opening hours for each day.">
     <div>MONDAY TO FRIDAY<span>Sample hours</span></div>
     <div>SATURDAY<span>Sample hours</span></div>
     <div>SUNDAY<span>Sample hours</span></div>
@@ -347,14 +347,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
  </section>
 
  <div class="wrap">
-  <div class="close">
+  <div class="close" data-ms-skip>
    <div><b>Made for Rufcut.<br>Ready to be yours.</b><p>This working concept was designed by Mr. Space, a few doors down on the boardwalk. Your photos, your prices, your hours, and it goes live.</p></div>
    <a class="btn solid" href="../#contact">TALK TO MR. SPACE</a>
   </div>
  </div>
 </main>
 
-<footer><div class="wrap mono"><span>CONCEPT FOR RUFCUT / VENICE BEACH</span><span>BY <a href="../">MR. SPACE</a></span></div></footer>
+<footer data-ms-skip><div class="wrap mono"><span>CONCEPT FOR RUFCUT / VENICE BEACH</span><span>BY <a href="../">MR. SPACE</a></span></div></footer>
 
 <script>
 (function(){
