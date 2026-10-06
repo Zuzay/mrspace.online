@@ -21,6 +21,11 @@ const HERON_ACTIONS = new Set([
   "admin_consign", "admin_mark_sold", "admin_ebay_photos", "admin_recent", "admin_cash_sale",
   "admin_receipts", "admin_receipt_log",
 ]);
+const HERON_WRITES = new Set([
+  "admin_create", "admin_offer_answer", "admin_queue_set", "admin_import", "admin_add_photos",
+  "admin_general", "admin_reprice", "admin_consign", "admin_mark_sold", "admin_ebay_photos",
+  "admin_cash_sale", "admin_receipt_log",
+]);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -45,6 +50,9 @@ Deno.serve(async (req) => {
     const text = await response.text();
     let result: unknown;
     try { result = text ? JSON.parse(text) : {}; } catch { result = { error: "invalid_heron_response" }; }
+    if (response.ok && HERON_WRITES.has(action)) {
+      await db.from("ms_activity").insert({ site: "heron", who: "uzay", action: `Site control: ${action}` }).catch(() => {});
+    }
     return json(result, response.status);
   } catch (e) {
     return json({ error: String((e as Error).message || e) }, 500);
