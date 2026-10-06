@@ -16,3 +16,5 @@ Heron remains in its own Supabase project and Square integration. `supabase/func
 If the secret is missing, Heron controls show a setup message and the existing Heron admin link remains available. No database migration is required. Keep the secret only in Supabase Function secrets; do not add it to GitHub, HTML, or local config files.
 
 No database migration is needed for the Laloo quick controls. The copied native panels continue to use their existing Supabase RLS and feature handlers. The Mr. Space project has one new server-side secret to configure for Heron before the embedded Heron panel can load.
+
+Successful Heron write actions and Laloo admin changes record a short summary in the Mr. Space activity log (`ms_activity`). The log omits product/place IDs, customer data, and submitted content; a log insert failure never blocks the underlying admin action.
