@@ -25,9 +25,12 @@ create table if not exists public.ms_square (
   currency       text not null default 'USD',
   sku_prefix     text,
   public_catalog boolean not null default false,  -- sitede stok gosterilsin mi
+  hidden_catalog_items text[] not null default '{}', -- genel yayin acikken gizli urunler
   connected_at   timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
+
+alter table public.ms_square add column if not exists hidden_catalog_items text[] not null default '{}';
 
 alter table public.ms_site_users enable row level security;
 drop policy if exists ms_admin_all on public.ms_site_users;

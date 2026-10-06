@@ -53,7 +53,8 @@ async function oauthToken(body: Record<string, string>) {
   return d;
 }
 type Acc = { site: string; access_token: string; refresh_token: string | null; expires_at: string | null; location_id: string | null;
-  location_name: string | null; currency: string; sku_prefix: string | null; public_catalog: boolean; merchant_id: string | null };
+  location_name: string | null; currency: string; sku_prefix: string | null; public_catalog: boolean; merchant_id: string | null;
+  hidden_catalog_items?: string[] };
 async function account(site: string): Promise<Acc | null> {
   const { data } = await db.from("ms_square").select("*").eq("site", site).maybeSingle();
   if (!data || !data.access_token) return null;
@@ -68,6 +69,21 @@ async function account(site: string): Promise<Acc | null> {
 
 type Variation = { id: string; name: string; sku: string; upc: string; price: number | null; currency: string; track: boolean; stock: number | null };
 type Item = { id: string; name: string; description: string; image: string | null; variations: Variation[] };
+async function uploadSquareImage(acc: Acc, itemId: string, dataUrl: string, name: string, primary: boolean) {
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
+  if (!m) throw new Error("bad_image");
+  const bytes = Uint8Array.from(atob(m[2]), (c) => c.charCodeAt(0));
+  if (bytes.length > 5 * 1024 * 1024) throw new Error("image_too_large");
+  const form = new FormData();
+  form.append("request", JSON.stringify({
+    idempotency_key: crypto.randomUUID(), object_id: itemId, is_primary: primary,
+    image: { type: "IMAGE", id: "#img", image_data: { name } },
+  }));
+  form.append("image_file", new Blob([bytes], { type: m[1] }), `${name}.${m[1].split("/")[1]}`);
+  const res = await fetch(API + "/v2/catalog/images", { method: "POST", headers: { Authorization: `Bearer ${acc.access_token}`, "Square-Version": VERSION }, body: form });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(out.errors?.[0]?.detail || `square_image_${res.status}`);
+}
 // deno-lint-ignore no-explicit-any
 async function catalog(acc: Acc): Promise<Item[]> {
   // deno-lint-ignore no-explicit-any
@@ -101,6 +117,15 @@ async function catalog(acc: Acc): Promise<Item[]> {
   }
   items.forEach((it) => it.variations.forEach((v) => { v.stock = stock.has(v.id) ? stock.get(v.id)! : (v.track ? 0 : null); }));
   return items.sort((a, b) => a.name.localeCompare(b.name));
+}
+async function rawCatalogItems(acc: Acc) {
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = []; let cursor = "";
+  for (let i = 0; i < 30; i++) {
+    const d = await sq(acc.access_token, `/v2/catalog/list?types=ITEM${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    out.push(...(d.objects || [])); if (!d.cursor) break; cursor = d.cursor;
+  }
+  return out;
 }
 async function setCount(acc: Acc, variationId: string, qty: number) {
   if (!acc.location_id) throw new Error("no_location");
@@ -157,11 +182,12 @@ Deno.serve(async (req) => {
       const site = url.searchParams.get("site") || "";
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
-      const items = (await catalog(acc)).map((i) => ({
+      const hidden = new Set(acc.hidden_catalog_items || []);
+      const items = (await catalog(acc)).filter((i) => !hidden.has(i.id)).map((i) => ({
         name: i.name, description: i.description, image: i.image,
         variations: i.variations.filter((v) => v.stock == null || v.stock > 0).map((v) => ({ name: v.name, price: v.price, currency: v.currency, stock: v.stock })),
       })).filter((i) => i.variations.length);
-      return json({ items }, 200, { "Cache-Control": "public, max-age=300" });
+      return json({ items }, 200, { "Cache-Control": "public, max-age=30" });
     }
 
     // ----- panel islemleri -----
@@ -189,12 +215,43 @@ Deno.serve(async (req) => {
     }
     if (!acc) return json({ error: "not_connected" }, 400);
 
-    if (action === "catalog") return json({ items: await catalog(acc), location: acc.location_name, currency: acc.currency });
+    if (action === "catalog") {
+      const hidden = new Set(acc.hidden_catalog_items || []);
+      return json({ items: (await catalog(acc)).map((i) => ({ ...i, visible: !hidden.has(i.id) })), location: acc.location_name, currency: acc.currency });
+    }
 
     if (action === "set_count") {
       await setCount(acc, String(body.variation), Number(body.qty));
       await log(site, `Stock set: ${String(body.label || body.variation).slice(0, 80)} = ${Math.max(0, Math.floor(Number(body.qty)))}`, r === "admin" ? "uzay" : "client");
       return json({ ok: true });
+    }
+
+    if (action === "assign_missing_skus") {
+      const objects = await rawCatalogItems(acc), used = new Set<string>();
+      for (const item of objects) for (const v of item.item_data?.variations || []) {
+        const sku = String(v.item_variation_data?.sku || "").trim(); if (sku) used.add(sku.toLowerCase());
+      }
+      const updates = [];
+      for (const item of objects) {
+        if (item.is_deleted) continue;
+        for (const v of item.item_data?.variations || []) {
+          const data = v.item_variation_data || {};
+          if (v.is_deleted || String(data.sku || "").trim()) continue;
+          let sku = "";
+          do { sku = `${acc.sku_prefix || site.slice(0, 2).toUpperCase()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`; }
+          while (used.has(sku.toLowerCase()));
+          used.add(sku.toLowerCase());
+          updates.push({ ...v, item_variation_data: { ...data, sku } });
+        }
+      }
+      for (let i = 0; i < updates.length; i += 1000) {
+        const d = await sq(acc.access_token, "/v2/catalog/batch-upsert", { method: "POST", body: JSON.stringify({
+          idempotency_key: crypto.randomUUID(), batches: [{ objects: updates.slice(i, i + 1000) }],
+        }) });
+        if (d.errors?.length) throw new Error(d.errors[0].detail || "sku_update_failed");
+      }
+      await log(site, `Missing SKUs assigned: ${updates.length}`, r === "admin" ? "uzay" : "client");
+      return json({ ok: true, updated: updates.length });
     }
 
     if (action === "add_item") {
@@ -212,14 +269,42 @@ Deno.serve(async (req) => {
       const variation = d.catalog_object?.item_data?.variations?.[0]?.id;
       const qty = Math.max(0, Math.floor(Number(body.qty || 0)));
       if (variation && qty) await setCount(acc, variation, qty);
+      const images = Array.isArray(body.images) ? body.images.slice(0, 6) : [];
+      let image_error: string | null = null, photos_uploaded = 0;
+      for (let i = 0; i < images.length; i++) {
+        try { await uploadSquareImage(acc, d.catalog_object?.id, String(images[i]), `${sku}-${i + 1}`, i === 0); photos_uploaded++; }
+        catch (e) { image_error = String(e.message || e).slice(0, 200); break; }
+      }
       await log(site, `Item added to Square: ${name}${body.variant ? " " + body.variant : ""} (${sku})`, r === "admin" ? "uzay" : "client");
-      return json({ ok: true, item: d.catalog_object?.id, variation, sku });
+      return json({ ok: true, item: d.catalog_object?.id, variation, sku, photos_uploaded, image_error });
+    }
+
+    if (action === "add_photos") {
+      const itemId = String(body.item || ""), images = Array.isArray(body.images) ? body.images.slice(0, 6) : [];
+      if (!itemId || !images.length || !(await catalog(acc)).some((i) => i.id === itemId)) return json({ error: "bad_photo_request" }, 400);
+      let photos_uploaded = 0;
+      for (let i = 0; i < images.length; i++) await uploadSquareImage(acc, itemId, String(images[i]), `${itemId}-${Date.now()}-${i + 1}`, i === 0);
+      photos_uploaded = images.length;
+      await log(site, `Photos added to Square item: ${itemId}`, r === "admin" ? "uzay" : "client");
+      return json({ ok: true, photos_uploaded });
     }
 
     if (action === "set_public") {
       await db.from("ms_square").update({ public_catalog: !!body.value, updated_at: new Date().toISOString() }).eq("site", site);
       await log(site, body.value ? "Stock shown on the site" : "Stock hidden from the site", r === "admin" ? "uzay" : "client");
       return json({ ok: true });
+    }
+
+    if (action === "set_item_public") {
+      const item = String(body.item || "");
+      const visible = !!body.value;
+      if (!item || !(await catalog(acc)).some((i) => i.id === item)) return json({ error: "item_not_found" }, 404);
+      const hidden = new Set(acc.hidden_catalog_items || []);
+      if (visible) hidden.delete(item); else hidden.add(item);
+      const { error } = await db.from("ms_square").update({ hidden_catalog_items: [...hidden], updated_at: new Date().toISOString() }).eq("site", site);
+      if (error) throw error;
+      await log(site, `${visible ? "Item shown on site" : "Item hidden from site"}: ${item}`, r === "admin" ? "uzay" : "client");
+      return json({ ok: true, visible });
     }
 
     if (action === "disconnect") {

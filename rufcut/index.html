@@ -99,6 +99,7 @@ section{padding:96px 0}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .item{border:2px solid #F3EEE433;border-radius:8px;overflow:hidden;background:var(--deep)}
 .item .ph{aspect-ratio:4/5;display:grid;place-items:center;position:relative}
+.item .ph img{width:100%;height:100%;object-fit:cover}
 .item .ph svg{width:52%}
 .item .tag{position:absolute;top:10px;left:10px;background:var(--raw);color:var(--deep);font-weight:700;font-size:13px;padding:3px 8px;border-radius:3px}
 .item .in{padding:14px}
@@ -213,8 +214,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
      <div class="lbl" id="summary"></div>
     </div>
     <div class="opts">
-     <div class="step"><h3>Fit: <b id="vFit"></b></h3><div class="chips" data-k="fit"><button class="chip">Slim</button><button class="chip">Straight</button><button class="chip">Relaxed</button><button class="chip">Wide</button></div></div>
-     <div class="step"><h3>Denim: <b id="vDenim"></b></h3><div class="chips" data-k="denim"><button class="chip">Raw</button><button class="chip">Rigid</button><button class="chip">Stretch</button><button class="chip">Selvedge</button></div></div>
+     <div class="step"><h3>Fit: <b id="vFit"></b></h3><div class="chips" data-k="fit"><button class="chip">Slim</button><button class="chip">Straight</button><button class="chip" data-v="Relaxed">Relaxed, Barrel-cut</button><button class="chip">Wide</button></div></div>
+     <div class="step"><h3>Denim: <b id="vDenim"></b></h3><div class="chips" data-k="denim"><button class="chip">Raw</button><button class="chip">Stretch</button><button class="chip">Selvedge</button></div></div>
      <div class="step"><h3>Wash: <b id="vWash"></b></h3><div class="chips" data-k="wash">
       <button class="sw" data-v="Dark indigo" style="background:#1E3466" aria-label="Dark indigo"></button>
       <button class="sw" data-v="Mid blue" style="background:#3E5F99" aria-label="Mid blue"></button>
@@ -242,10 +243,13 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
  <section id="vintage">
   <div class="wrap">
-   <div class="sh"><h2>Vintage Levi's</h2><p data-ms-step="Your vintage comes straight from your Square stock with sizes and prices. Connect Square in your panel, then check this line.">Every pair measured by hand. Pick your waist and we show only what fits.</p></div>
+   <div class="sh"><h2>Tucker jacket</h2><p data-ms-step="Your vintage comes straight from your Square stock with sizes and prices. Connect Square in your panel, then check this line.">Every pair measured by hand. Pick your waist and we show only what fits.</p></div>
    <div class="filters" id="wf"><span>Waist</span>
-    <button class="chip" aria-pressed="true" data-w="all">All</button><button class="chip" data-w="28">28</button><button class="chip" data-w="30">30</button><button class="chip" data-w="32">32</button><button class="chip" data-w="34">34</button><button class="chip" data-w="36">36</button>
+    <button class="chip" aria-pressed="true" data-w="all">All</button><button class="chip" data-w="28">28</button><button class="chip" data-w="29">29</button><button class="chip" data-w="30">30</button><button class="chip" data-w="31">31</button><button class="chip" data-w="32">32</button><span>Sizes 26–50</span>
    </div>
+   <div class="filters" id="sf"><span>Jacket size</span><button class="chip" aria-pressed="true" data-size="all">All</button><button class="chip" data-size="S">S</button><button class="chip" data-size="M">M</button><button class="chip" data-size="L">L</button><button class="chip" data-size="XL">XL</button><button class="chip" data-size="XXL">XXL</button></div>
+   <div class="filters" id="mf"><span>Model</span></div>
+   <div class="filters" id="ef"><span>Era</span></div>
    <div class="grid" id="items"></div>
    <p class="note" data-ms-skip>Sample listings for this concept.</p>
   </div>
@@ -343,19 +347,34 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
   var items=[['501, button fly','Dark wash, 1990s',30,32],['505, zip fly','Mid blue, 1980s',32,30],['501 orange tab','Light stone',34,32],['517 bootcut','Rinse, 1990s',32,34],['550 relaxed','Faded black',36,30],['501 selvedge','Raw indigo',28,32],['Trucker jacket','Mid blue, size M',0,0],['505 regular','Dark rinse',34,30]];
   var shades=['#1E3466','#3E5F99','#8DA7CC','#2C4478','#232427','#1E3466','#3E5F99','#2C4478'];
-  function list(w){
-    var h='';items.forEach(function(it,i){if(w!=='all'&&it[2]!==+w)return;
-      h+='<div class="item"><div class="ph" style="background:'+shades[i%shades.length]+'"><span class="tag">'+(it[2]?'W'+it[2]+' L'+it[3]:'Jacket')+'</span><svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="#F3EEE4" stroke-width="5"/></svg></div><div class="in"><h4>'+it[0]+'</h4><p>'+it[1]+'</p></div></div>'});
-    $('items').innerHTML=h||'<div class="empty">No pairs in this waist right now. New vintage comes in every week, check back soon.</div>';
+  var selected={waist:'all',size:'all',model:'all',era:'all'};
+  function modelOf(it){var m=(it[0]+' '+it[1]+' '+(it[4]||'')).match(/\b(\d{3})\b/);return m?m[1]:(/jacket/i.test(it[0])?'Jacket':'');}
+  function eraOf(it){var text=it[0]+' '+it[1]+' '+(it[4]||''),m=text.match(/\b((?:19|20)\d{2}s?|[5-9]0s)\b/i);if(!m)return '';var y=m[1];return /^[5-9]0s$/i.test(y)?'19'+y[0]+'0s':y.replace(/s?$/,'s');}
+  function sizeOf(it){var m=(it[0]+' '+it[1]+' '+(it[4]||'')).match(/\b(XXL|XL|L|M|S)\b/i);return m?m[1].toUpperCase():'';}
+  function filters(){
+    [['mf','model',modelOf],['ef','era',eraOf]].forEach(function(cfg){var el=$(cfg[0]),values=[];items.forEach(function(it){var v=cfg[2](it);if(v&&values.indexOf(v)<0)values.push(v)});values.sort();
+      if(values.indexOf(selected[cfg[1]])<0)selected[cfg[1]]='all';
+      el.innerHTML='<span>'+ (cfg[1]==='model'?'Model':'Era') +'</span><button class="chip" data-'+cfg[1]+'="all" aria-pressed="'+(selected[cfg[1]]==='all')+'">All</button>'+values.map(function(v){return '<button class="chip" data-'+cfg[1]+'="'+v+'" aria-pressed="'+(selected[cfg[1]]===v)+'">'+v+'</button>'}).join('');
+    });
   }
+  function list(){
+    var h='';items.forEach(function(it,i){if(selected.waist!=='all'&&it[2]!==+selected.waist)return;if(selected.size!=='all'&&sizeOf(it)!==selected.size)return;if(selected.model!=='all'&&modelOf(it)!==selected.model)return;if(selected.era!=='all'&&eraOf(it)!==selected.era)return;
+      var photo=photoURL(it[5]),art=photo?'<img src="'+esc(photo)+'" alt="'+esc(it[0])+'" loading="lazy">':'<svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="#F3EEE4" stroke-width="5"/></svg>';
+      h+='<div class="item"><div class="ph" style="background:'+shades[i%shades.length]+'"><span class="tag">'+(it[2]?'W'+it[2]+' L'+it[3]:(sizeOf(it)||'Jacket'))+'</span>'+art+'</div><div class="in"><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div></div>'});
+    $('items').innerHTML=h||'<div class="empty">No vintage pairs match these filters.</div>';
+  }
+  function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function photoURL(v){try{var u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch(e){return ''}}
   $('wf').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-    this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list(b.dataset.w)});
-  list('all');
+    selected.waist=b.dataset.w;this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list()});
+  $('sf').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;selected.size=b.dataset.size;this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list()});
+  [['mf','model'],['ef','era']].forEach(function(cfg){$(cfg[0]).addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;selected[cfg[1]]=b.dataset[cfg[1]];this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});list()})});
+  filters();list();
   fetch('https://tizfdnsjhhepxnqqrzuk.supabase.co/functions/v1/ms-square/public?site=rufcut').then(function(r){return r.json()}).then(function(d){
     if(!d||!d.items||!d.items.length)return;var n=[];
     d.items.forEach(function(it){it.variations.forEach(function(v){var m=(v.name||'').match(/W\s*(\d+)\D+L\s*(\d+)/i);
-      n.push([it.name,(v.price!=null?'$'+Math.round(v.price/100)+' ':'')+(v.name&&v.name!=='Regular'?v.name:''),m?+m[1]:0,m?+m[2]:0])})});
-    items=n;list('all');var nt=document.querySelector('#vintage .note');if(nt)nt.textContent='Live from the shop.';
+      n.push([it.name,(v.price!=null?'$'+Math.round(v.price/100)+' ':'')+(v.name&&v.name!=='Regular'?v.name:''),m?+m[1]:0,m?+m[2]:0,it.description||'',it.image||''])})});
+    items=n;filters();list();var nt=document.querySelector('#vintage .note');if(nt)nt.textContent='Live from the shop.';
   }).catch(function(){});
 
   $('tf').addEventListener('submit',function(e){e.preventDefault();

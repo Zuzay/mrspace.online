@@ -14,6 +14,7 @@ alter table public.ms_changes add column if not exists ai_note    text;     -- i
 alter table public.ms_changes add column if not exists pr_url     text;
 alter table public.ms_changes add column if not exists ai_cost    numeric not null default 0;  -- USD
 alter table public.ms_changes add column if not exists ai_at      timestamptz;
+alter table public.ms_changes add column if not exists ai_attempts integer not null default 0;
 
 -- 3) Aninda tetik: yeni talep gelince veya onay/red verilince GitHub'a sinyal
 -- Token'i bir kez kasaya koy (GitHub > Settings > Developer settings > Fine-grained token,

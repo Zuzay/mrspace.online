@@ -95,7 +95,7 @@ main{padding:24px clamp(14px,3vw,32px) 80px;max-width:1180px;margin:0 auto}
 .qty input{width:52px;text-align:center;padding:6px 4px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font:500 14px var(--mono)}
 .qty input.dirty{border-color:var(--sun);box-shadow:0 0 0 2px color-mix(in srgb,var(--sun) 35%,transparent)}
 .qty .out0{color:var(--bad)}
-.acts{display:flex;gap:6px;justify-content:flex-end}
+.acts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 @media (max-width:720px){
   .it{grid-template-columns:44px minmax(0,1fr) auto;row-gap:8px}
   .it .ph{width:44px;height:44px}
@@ -271,7 +271,7 @@ function stock(){
   if (!SQ || !SQ.connected) return `<div class="head"><div><h1>Stock</h1><p>Connect Square on the overview page first.</p></div></div><div class="list"><div class="empty"><button class="btn sun" data-act="connect">Connect Square</button></div></div>`;
   const r = rows();
   return `<div class="head"><div><h1>Stock</h1><p>Straight from your Square. Change a number and save, it updates in Square too.</p></div>
-    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="reload">Refresh</button><button class="btn sun" data-act="add">+ Add item</button></div></div>
+    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="assign-skus">${esc(T("Assign missing SKUs"))}</button><button class="btn ghost" data-act="reload">Refresh</button><button class="btn sun" data-act="add">+ Add item</button></div></div>
    <div class="bar"><input type="search" id="q" placeholder="Search name, size or SKU" value="${esc(QUERY)}">
     <div class="seg">${[["all","All"],["in","In stock"],["out","Sold out"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
    <div class="list" id="rows">${ITEMS == null ? '<div class="empty">Loading your stock</div>' : r.length ? r.map(({ i, v }) => `<div class="it">
@@ -281,6 +281,7 @@ function stock(){
      <div class="acts">
       ${v.stock == null ? '<span class="m">Not tracked</span>' : `<div class="qty"><button data-step="-1" data-v="${esc(v.id)}" aria-label="One less">−</button><input inputmode="numeric" data-count="${esc(v.id)}" data-was="${v.stock}" value="${v.stock}" class="${v.stock === 0 ? "out0" : ""}" aria-label="Stock"><button data-step="1" data-v="${esc(v.id)}" aria-label="One more">+</button></div>
       <button class="btn sm solid" data-save="${esc(v.id)}" hidden>Save</button>`}
+      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-publish="${esc(i.id)}">${esc(T(i.visible === false ? "Show online" : "Hide online"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
       <button class="btn sm ghost" data-label="${esc(v.id)}">Label</button>
      </div></div>`).join("") : '<div class="empty">Nothing matches.</div>'}</div>`;
 }
@@ -353,19 +354,47 @@ function dialog(title, fields, onSave, label = "Save"){
   };
 }
 const fld = (label, name, type = "text", extra = "", val = "") => `<label${extra}>${label}<input name="${name}" type="${type}" value="${esc(val)}" ${type === "number" ? 'step="any" min="0"' : ""}></label>`;
+async function photoData(input){
+  const files=[...(input?.files||[])], out=[];
+  if(files.length>6)throw new Error(T("Choose up to 6 photos"));
+  for(const file of files){
+    if(!file.type.startsWith("image/")||file.size>20*1024*1024)throw new Error(T("Photo upload failed"));
+    const src=URL.createObjectURL(file);
+    try{
+      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error(T("Photo upload failed")));x.src=src});
+      const scale=Math.min(1,1600/Math.max(img.width,img.height)),canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+      canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+      const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error(T("Photo upload failed"))),"image/jpeg",0.84));
+      const data=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve(rd.result);rd.onerror=()=>reject(new Error(T("Photo upload failed")));rd.readAsDataURL(blob)});
+      out.push(data);
+    }finally{URL.revokeObjectURL(src)}
+  }
+  return out;
+}
 
 async function act(a, el){
   if (a === "connect") { if (DEMO) return toast("Demo: this opens Square to sign in"); const d = await sq("connect"); location.href = d.url; return; }
   if (a === "disconnect") { if (!confirm(T("Disconnect Square from your panel and site?"))) return; await sq("disconnect"); SQ = { connected:false }; ITEMS = null; toast("Square disconnected"); return render(); }
   if (a === "public") { await sq("set_public", { value:el.checked }); SQ.public = el.checked; return toast(el.checked ? "Your stock now shows on your site" : "Stock hidden from your site"); }
+  if (a === "assign-skus") {
+    if (DEMO) return toast(T("Demo actions are not saved"));
+    if (!confirm(T("Generate SKUs for every Square variation that has no SKU?"))) return;
+    const d = await sq("assign_missing_skus");
+    await loadItems();
+    return toast(T("SKUs assigned") + `: ${d.updated}`);
+  }
   if (a === "reload") return loadItems();
   if (a === "add") return dialog("Add item", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") +
       fld("How many", "qty", "number", "", "1") + fld("SKU (empty = automatic)", "sku") +
-      `<label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
+      `<label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple capture="environment"></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
     async v => {
       if (!v.name) throw new Error(T("Enter a name"));
-      const d = await sq("add_item", { name:v.name, variant:v.variant, price:Number(v.price || 0), qty:Number(v.qty || 0), sku:v.sku, description:v.description });
+      const images=await photoData(document.querySelector('#dlgForm [name="photos"]'));
+      const d = await sq("add_item", { name:v.name, variant:v.variant, price:Number(v.price || 0), qty:Number(v.qty || 0), sku:v.sku, description:v.description, images });
       toast("Added to Square");
+      if(DEMO&&images.length)toast(T("Demo photos cannot be saved"));
+      if(d.image_error)toast(T("Photo upload failed")+": "+d.image_error);
       if (v.labels && Number(v.qty) > 0) addToQueue({ name:v.name }, { id:d.variation, name:v.variant || "", price:Math.round(Number(v.price || 0) * 100), currency:SQ.currency || "USD", sku:d.sku }, Number(v.qty));
       await loadItems();
     }, "Add to Square");
@@ -381,6 +410,10 @@ async function act(a, el){
 }
 function bind(){
   document.querySelectorAll("[data-act]").forEach(el => { const h = () => act(el.dataset.act, el).catch(e => toast(e.message)); if (el.type === "checkbox") el.onchange = h; else el.onclick = h; });
+  document.querySelectorAll("[data-photo]").forEach(el => el.onchange = async () => {
+    try { if(DEMO)return toast(T("Demo photos cannot be saved")); const images=await photoData(el); if(!images.length)return; await sq("add_photos",{item:el.dataset.photo,images}); toast(T("Photos added")); await loadItems(); }
+    catch(e){toast(T("Photo upload failed")+": "+e.message)} finally {el.value="";}
+  });
   document.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { VIEW = el.dataset.go; render(); });
   document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
   const q = $("#q"); if (q) q.oninput = () => { QUERY = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
@@ -391,6 +424,18 @@ function bind(){
     const id = b.dataset.save, inp = document.querySelector(`[data-count="${CSS.escape(id)}"]`), f = findVar(id), qty = Number(inp.value || 0);
     b.disabled = true;
     try { await sq("set_count", { variation:id, qty, label:f ? f.i.name + " " + f.v.name : id }); f.v.stock = qty; toast("Saved in Square"); render(); } catch (e) { toast(e.message); b.disabled = false; }
+  });
+  document.querySelectorAll("[data-publish]").forEach(b => b.onclick = async () => {
+    const item = ITEMS.find(i => i.id === b.dataset.publish);
+    if (!item) return;
+    b.disabled = true;
+    try {
+      const visible = item.visible === false;
+      await sq("set_item_public", { item:item.id, value:visible });
+      item.visible = visible;
+      toast(T(visible ? "Item shown on site" : "Item hidden from site"));
+      render();
+    } catch (e) { toast(e.message); b.disabled = false; }
   });
   document.querySelectorAll("[data-label]").forEach(b => b.onclick = () => { const f = findVar(b.dataset.label); if (!f) return; addToQueue(f.i, f.v, Math.max(1, f.v.stock || 1)); toast(T("Added to labels") + ": " + f.i.name); });
   document.querySelectorAll("[data-qstep]").forEach(b => b.onclick = () => { const q = QUEUE[b.dataset.k]; q.qty = Math.max(1, q.qty + Number(b.dataset.qstep)); saveQ(); render(); });
