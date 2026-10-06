@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Heron Admin</title><link rel="icon" href="/admin/heron-assets/heron-ca.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/heron-assets/heron.css?v=13">
+<style>
+.tabs{display:flex;gap:6px;margin:18px 0}
+label{display:block;margin:12px 0 4px}
+input,select,textarea{width:100%;font:inherit;padding:11px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:0}
+textarea{min-height:110px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.thumbs img{width:72px;aspect-ratio:4/5;object-fit:cover}
+.inv{display:grid;gap:10px}.inv .row{grid-template-columns:56px 1fr auto;border-bottom:1px solid var(--line);padding-bottom:10px}
+.inv .row img,.inv .noimg{width:56px;aspect-ratio:4/5;object-fit:cover;background:var(--cream)}
+.note{background:var(--cream);padding:10px 12px;margin:10px 0}
+</style></head>
+<body><main class="wrap" style="max-width:640px;padding-bottom:60px">
+<div class="bar"><img src="/admin/heron-assets/heron-wordmark.png" alt="Heron" style="height:22px"><span class="caps">Admin</span></div>
+
+<div id="login"><label>Password</label><input id="pw" type="password" autocomplete="current-password">
+<button class="btn" style="margin-top:12px" onclick="login()">Enter</button></div>
+
+<div id="app" hidden>
+<div class="tabs"><button class="chip on" data-t="add">Add item</button><button class="chip" data-t="inv">Inventory</button><button class="chip" data-t="imp">Import eBay</button><button class="chip" data-t="pub">Publish</button><button class="chip" data-t="off">Offers</button><button class="chip" data-t="cat">Catalog</button><button class="chip" data-t="rec">Receipts</button></div>
+
+<section id="t-add">
+  <label>Photos (first one is the cover)</label><input id="photos" type="file" accept="image/*" multiple>
+  <div class="thumbs" id="thumbs"></div>
+  <label>Title</label><input id="title" placeholder="Vince Silk Slip Dress, Black">
+  <div class="two"><div><label>Category</label><select id="category"></select></div>
+  <div><label>Size</label><input id="size" placeholder="M"></div></div>
+  <div class="two"><div><label>Store price ($)</label><input id="price" type="number" inputmode="decimal" step="0.01"></div>
+  <div><label>Condition</label><select id="cond"><option>New with tags</option><option>New without tags</option><option selected>Pre-owned, excellent</option><option>Pre-owned, good</option><option>Vintage</option></select></div></div>
+  <div class="small" id="siteprice"></div>
+  <label>Description</label><textarea id="desc" placeholder="Fabric, measurements, details"></textarea>
+  <button class="btn alt" style="margin-top:8px" disabled title="Turn on later">Write with AI (coming soon)</button>
+  <label style="display:flex;gap:8px;align-items:center;margin-top:14px"><input type="checkbox" id="consign" style="width:auto"> Consignment piece (50% goes to the owner, SKU starts HC-K)</label>
+  <label>SKU (leave empty for automatic)</label><input id="sku" placeholder="HC-V-DR-0001">
+  <button class="btn" style="margin-top:16px" id="save" onclick="save()">Save to Square and the site</button>
+</section>
+
+<section id="t-inv" hidden><div class="note small">Items without photos are hidden on the site. Add photos to show them.</div>
+  <input id="filter" placeholder="Search title or SKU" oninput="drawInv()">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"><button class="chip" onclick="selNew()">Select not printed yet</button><button class="chip" onclick="SEL.clear();drawInv()">Clear</button><select id="labelRows" class="chip" style="width:auto"><option value="8">Thin · 2×8 (16 per sheet)</option><option value="7" selected>Thin · 2×7 (14)</option><option value="6">Medium · 2×6 (12)</option><option value="5">Thick · 2×5 (10)</option><option value="4">Thick · 2×4 (8)</option></select><input id="labelStart" type="number" min="1" value="1" class="chip" style="width:70px" title="Start at label # (to use a half-used sheet)"><label class="chip" style="margin:0;display:flex;gap:6px;align-items:center;width:auto"><input type="checkbox" id="labelPhoto" style="width:auto;margin:0"> Photo</label><button class="chip on" onclick="printLabels()">Print labels (<span id="selN">0</span>)</button></div>
+  <div id="tagEdit" hidden style="border:1px solid #ddd;border-radius:8px;padding:10px;margin:8px 0"></div>
+  <div class="small">Prints on a 4x6 in shipping label, 2 columns. Cut along the dotted lines. "Start at" lets you use the rest of a half-used sheet (labels are counted left to right, top to bottom). Print at 4x6 in, scale 100%.</div>
+  <div class="inv" id="inv" style="margin-top:12px"></div></section>
+
+<section id="t-pub" hidden>
+  <div class="note small">Pieces you add with <b>Add item</b> wait here until you approve them. Publish now, or spread them out so something new goes live every day.</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:10px 0"><button class="chip" onclick="document.querySelectorAll('.pq').forEach((c) => c.checked = true)">Select all drafts</button>
+  <button class="chip on" onclick="pubSet('now')">Publish now</button>
+  <span class="small">or</span><input id="pubPer" type="number" value="1" min="1" style="width:60px" class="chip"><span class="small">per day from</span><input id="pubStart" type="date" class="chip" style="width:auto"><button class="chip on" onclick="pubSet('daily')">Schedule</button></div>
+  <div class="inv" id="pubList"></div></section>
+<section id="t-off" hidden><div class="note small">Bundle offers and price requests from the bag. Accept to create a payment link, then email it to the customer.</div><div id="offList" class="inv"></div></section>
+<section id="t-rec" hidden>
+  <div class="note small"><b>Cash sale / manual receipt.</b> Scan a barcode (or type a SKU) and press Enter, or add a line by hand. "Mark sold" takes the pieces off the site and stock. Every receipt you print is kept as a copy (outside Square) and listed below.</div>
+  <input id="recScan" placeholder="Scan barcode or type SKU, then Enter">
+  <div style="display:grid;grid-template-columns:1fr 100px auto;gap:6px;margin-top:6px"><input id="recName" placeholder="Manual line, e.g. Shipping"><input id="recPrice" type="number" step="0.01" placeholder="$"><button class="chip" onclick="recAddManual()">Add</button></div>
+  <div id="recLines" class="inv" style="margin:10px 0"></div>
+  <div style="display:flex;gap:6px;align-items:center"><select id="recMethod" style="width:auto"><option>Cash</option><option>Card (POS)</option><option>Other</option></select><input id="recNote" placeholder="Note (optional)"></div>
+  <div style="display:grid;gap:8px;margin-top:8px"><button class="btn" onclick="recSave(true)">Mark sold + print receipt</button><button class="btn alt" onclick="recSave(false)">Print receipt only (sale already in Square)</button></div>
+  <h3 class="serif" style="margin:28px 0 6px">Recent Square payments</h3><div id="recSq" class="inv"></div>
+  <h3 class="serif" style="margin:28px 0 6px">Printed receipts</h3><button class="chip" onclick="recCsv()">Download CSV</button><div id="recCash" class="inv" style="margin-top:8px"></div>
+</section>
+<section id="t-cat" hidden>
+  <div class="note small"><b>Store catalog</b>: small things sold in the shop only (jewelry, towels, scarves…). One barcode per line, scan it from the printed A4 sheet at the register. Not shown on the website, stock not counted. One line each: <i>Name | price | CODE</i>. Leave the price empty to type the price at the register.</div>
+  <textarea id="gen" style="min-height:300px;font-family:monospace;font-size:13px">2 Rings | 5 | RING2
+Earrings | 5 | EAR
+Necklace | 5 | NECK
+5 Bracelets | 5 | BRAC5
+Bracelet | 15 | BRAC1
+Sunglasses | 10 | SUN
+Shawl | 40 | SHAWL
+Hat | 35 | HAT
+Socks | 5 | SOCK5
+Socks | 8 | SOCK8
+Gloves |  | GLOVE
+Figurine |  | FIG
+Turkish Towel, Large | 25 | TWL-L
+Turkish Towel, Small | 15 | TWL-S
+Oya Headscarf | 40 | OYA
+$15 Rack Item | 15 | RACK15</textarea>
+  <div style="display:grid;gap:8px;margin-top:10px"><button class="btn" onclick="genCreate()">1. Create in Square</button><button class="btn alt" onclick="genPrint()">2. Print A4 barcode sheet</button><div id="genInfo" class="small"></div></div>
+</section>
+<section id="t-imp" hidden>
+  <div class="note small"><b>Aerial video</b> (one time): asks Google to make the flyover video of the shop. It can take a few hours; the site shows it by itself when ready.</div>
+  <button class="btn alt" style="margin-bottom:24px" onclick="aerialRender()">Request aerial video</button>
+  <div class="note small"><b>Moving to real Square</b><br>Step 1, while still in test mode: save the photos. Step 2, after switching to real Square and importing: put them back.</div>
+  <div style="display:grid;gap:8px;margin-bottom:24px"><button class="btn alt" onclick="savePhotos()">1. Save photo backup</button><button class="btn alt" onclick="restorePhotos()">2. Restore photos from backup</button><div id="bkInfo" class="small"></div></div>
+  <div class="note small"><b>Sold somewhere else?</b> Pick a Flyp sales report (xlsx or csv). Every piece in it is marked sold here and disappears from the site. In-store Square sales drop off by themselves.</div>
+  <input id="sales" type="file" accept=".xlsx,.csv"><div id="salesInfo" class="small" style="margin:10px 0 24px"></div>
+  <div class="note small">Pick the eBay "Active listings" CSV. Each listing becomes a Square item with stock 1, its own SKU and the photos from that eBay listing. Titles already in Square are skipped, so it is safe to run again.</div>
+  <input id="csv" type="file" accept=".csv"><div id="impInfo" class="small" style="margin:10px 0"></div>
+  <div id="conAsk" hidden class="note small"><b>Any consignment pieces in this file?</b> Tick them; they get HC-K SKUs (50% to the owner).<div id="conList" style="max-height:260px;overflow:auto;margin-top:8px"></div></div>
+  <button class="btn" id="impGo" disabled onclick="runImport()">Import</button>
+  <button class="btn alt" id="picGo" disabled style="margin-top:10px" onclick="runPhotos()">Fetch missing photos from eBay (slow)</button>
+  <div class="small" style="margin-top:6px">Copies photos for items that are already in Square but have none. It goes one item every few seconds so eBay does not block it. Keep this page open; you can run it again to continue.</div>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co", SB_KEY = "sb_publishable_DcfxBTRo0n2m1go5_yYjkw_qNzD6ie6";
+const HERON = { categories:["Tops","Dresses & Jumpsuits","Coats & Jackets","Shirts","Shoes","Bags & Accessories"], aerialKey:"", address:"517 Ocean Front Walk, Venice, CA 90291" };
+const money = c => "$" + (Number(c||0)/100).toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:2});
+const esc = s => String(s??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;"}[c]));
+async function api(action,data={}) {
+  let s; try{s=JSON.parse(localStorage.getItem("ms_admin")||"null");}catch{}
+  if(!s?.access_token) throw new Error("Mr. Space panel oturumunu yenileyip tekrar aç.");
+  if(Date.now()/1000>s.expires_at-60){
+    await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener("message",done);reject(new Error("Ana panel oturumu yenilenemedi"));},8000);function done(e){if(e.origin!==location.origin||!String(e.data?.type||"").startsWith("ms-admin-refresh-"))return;clearTimeout(timer);window.removeEventListener("message",done);e.data.type==="ms-admin-refreshed"?resolve():reject(new Error("Mr. Space oturumu bitti. Yeniden giriş yap."));}window.addEventListener("message",done);window.parent.postMessage({type:"ms-admin-refresh"},location.origin);});
+    try{s=JSON.parse(localStorage.getItem("ms_admin")||"null");}catch{} if(!s?.access_token) throw new Error("Mr. Space oturumu bitti. Yeniden giriş yap.");
+  }
+  const r=await fetch(`${SB_URL}/functions/v1/ms-site-control`,{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+s.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,...data})});
+  const j=await r.json().catch(()=>({error:"Yanıt okunamadı"})); if(!r.ok||j.error) throw new Error(j.error||`İstek başarısız (${r.status})`); return j;
+}
+</script>
+<script>
+let PHOTOS = [], INV = [], ROWS = [];
+const A = (action, data) => api(action, data);
+$("#category").innerHTML = HERON.categories.map((c) => `<option>${c}</option>`).join("");
+document.querySelectorAll(".tabs .chip").forEach((b) => b.onclick = () => {
+  document.querySelectorAll(".tabs .chip").forEach((x) => x.classList.toggle("on", x === b));
+  ["add", "inv", "imp", "cat", "pub", "off", "rec"].forEach((t) => $("#t-" + t).hidden = t !== b.dataset.t);
+  if (b.dataset.t === "rec") loadRec(); if (b.dataset.t === "pub") loadPub(); if (b.dataset.t === "off") loadOff();
+  if (b.dataset.t === "inv") loadInv();
+});
+async function login() { try { await A("admin_list"); $("#login").hidden = true; $("#app").hidden = false; } catch (e) { toast(e.message); } }
+if (localStorage.getItem("ms_admin")) login();
+
+// photos: crop to 4:5, max 1600px wide, jpeg
+function prep(file) { return new Promise((ok, no) => { const img = new Image(); img.onload = () => {
+  const r = 4 / 5; let w = img.width, h = img.height, sx = 0, sy = 0;
+  if (w / h > r) { sx = (w - h * r) / 2; w = h * r; } else { sy = (h - w / r) / 2; h = w / r; }
+  const W = Math.min(1600, w), c = document.createElement("canvas"); c.width = W; c.height = Math.round(W / r);
+  c.getContext("2d").drawImage(img, sx, sy, w, h, 0, 0, c.width, c.height); ok(c.toDataURL("image/jpeg", 0.85)); URL.revokeObjectURL(img.src);
+}; img.onerror = no; img.src = URL.createObjectURL(file); }); }
+$("#photos").onchange = async (e) => { PHOTOS = await Promise.all([...e.target.files].map(prep)); $("#thumbs").innerHTML = PHOTOS.map((p) => `<img src="${p}">`).join(""); };
+const MARKUP = 30; // other marketplaces = store price + 30% (use 25 to 35)
+$("#price").oninput = () => { const p = +$("#price").value; $("#siteprice").innerHTML = p ? `Store and site: <b>$${p}</b> (site shows <s>$${Math.ceil(p * 1.1)}</s>, 10% off) · List on eBay, Poshmark, Depop…: <b>$${Math.round(p * (1 + MARKUP / 100))}</b>` : ""; };
+
+async function save() {
+  const item = { title: $("#title").value.trim(), category: $("#category").value, size: $("#size").value.trim(), price: +$("#price").value,
+    description: [`Condition: ${$("#cond").value}`, $("#desc").value.trim()].filter(Boolean).join("\n\n"), sku: $("#sku").value.trim() || undefined, consign: $("#consign").checked, images: PHOTOS };
+  if (!item.title || !item.price) return toast("Title and price are required");
+  if (!PHOTOS.length && !confirm("No photos. It will be saved but hidden on the site. Continue?")) return;
+  $("#save").disabled = true; $("#save").textContent = "Saving…";
+  try { const r = await A("admin_create", { item }); toast(`Saved ${r.skus[0] || ""}`);
+    ["title", "size", "price", "desc", "sku", "photos"].forEach((i) => $("#" + i).value = ""); $("#consign").checked = false; PHOTOS = []; $("#thumbs").innerHTML = ""; $("#siteprice").textContent = "";
+  } catch (e) { toast(e.message); }
+  $("#save").disabled = false; $("#save").textContent = "Save to Square and the site";
+}
+
+async function loadInv() { $("#inv").innerHTML = "<p class='small'>Loading…</p>"; INV = (await A("admin_list")).items; drawInv(); }
+function drawInv() {
+  const f = $("#filter").value.toLowerCase();
+  $("#inv").innerHTML = INV.filter((x) => !f || (x.title + x.sku).toLowerCase().includes(f)).map((x) => `<div class="row">
+    <label style="margin:0;display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto" ${SEL.has(x.id) ? "checked" : ""} onchange="this.checked ? SEL.add('${x.id}') : SEL.delete('${x.id}'); $('#selN').textContent = SEL.size">${x.images[0] ? `<img src="${x.images[0]}">` : `<div class="noimg"></div>`}</label>
+    <div>${esc(x.title)}<div class="small">${esc(x.sku)} · ${money(x.price)} · ${x.qty > 0 ? "in stock" : "sold"} · ${x.images.length} photos${/^HC-K-/.test(x.sku) ? " · <b>consignment</b>" : ""}${PRINTED().has(x.id) ? " · label printed" : ""}</div></div>
+    <div style="display:grid;gap:6px">${x.qty > 0 ? `<button class="chip" onclick="markSold(['${x.id}'])">Sold</button><button class="chip" onclick="forFlyp('${x.id}')">Flyp</button>` : ""}<label class="chip" style="margin:0">+ Photos<input type="file" accept="image/*" multiple hidden onchange="addPhotos('${x.item_id}','${esc(x.sku)}',this)"></label></div></div>`).join("");
+  $("#selN").textContent = SEL.size;
+}
+const SEL = new Set();
+const PRINTED = () => { try { return new Set(JSON.parse(localStorage.getItem("heron-printed") || "[]")); } catch { return new Set(); } };
+function selNew() { const p = PRINTED(); INV.filter((x) => x.qty > 0 && !p.has(x.id)).forEach((x) => SEL.add(x.id)); drawInv(); }
+// labels on a 4x6 in shipping label sheet: 2 columns, 4 to 8 rows, cut along the dotted lines
+function labelCss(H) { // H = row height in mm, width is always 50.8 mm
+  if (H < 23) return `.t{padding:1mm 1.6mm}.lg,.in{display:none}.nm{font-size:6pt}.mid{margin:.3mm 0}.pr{font-size:13pt}.sz{font-size:8pt}.ft{font-size:5pt;margin-top:.3mm}.ph{width:8.5mm;height:8.5mm}`;
+  if (H < 28) return `.t{padding:1.5mm 2mm}.lg,.in{display:none}.nm{font-size:7pt}.mid{margin:.5mm 0}.pr{font-size:16pt}.sz{font-size:9.5pt}.ft{font-size:5.5pt;margin-top:.5mm}.ph{width:10.5mm;height:10.5mm}`;
+  if (H < 34) return `.t{padding:1.4mm 2mm}.lg{display:none}.nm{font-size:7pt}.in{font-size:5.6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mid{margin:.4mm 0}.pr{font-size:15pt}.sz{font-size:9pt}.ft{font-size:5.5pt;margin-top:.4mm}.ph{width:13mm;height:13mm}`;
+  return `.t{padding:1.8mm 2.4mm}.lg{display:block;height:3.4mm;width:auto;margin-bottom:.6mm;filter:grayscale(1) contrast(1.4)}.nm{font-size:7pt;white-space:normal;max-height:2.4em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.in{font-size:6pt;line-height:1.25;max-height:2.5em;overflow:hidden}.mid{margin:.5mm 0}.pr{font-size:18pt}.sz{font-size:10pt}.ft{font-size:5.5pt;margin-top:.5mm}.ph{width:15mm;height:15mm}.hp .pr{font-size:15pt}.hp .sz{font-size:9pt}`;
+}
+// short product facts for big labels: made in, fabric, model. Picked from the description, editable before printing.
+const TAGPHOTO = () => { try { return JSON.parse(localStorage.getItem("heron-tagphoto") || "{}"); } catch { return {}; } };
+function pickPhoto(id, i, el) { const n = TAGPHOTO(); n[id] = i; try { localStorage.setItem("heron-tagphoto", JSON.stringify(n)); } catch {} el.parentElement.querySelectorAll("img").forEach((im, k) => (im.style.outline = k === i ? "3px solid #000" : "none")); }
+const TAGNOTE = () => { try { return JSON.parse(localStorage.getItem("heron-tagnote") || "{}"); } catch { return {}; } };
+function facts(x) {
+  const d = String(x.description || "").replace(/\s+/g, " "), out = [];
+  const made = d.match(/made in ([a-z .]{3,20}?)(?=[.,;|\n]|\s(?:and|with|from)\b|$)/i); if (made) out.push("Made in " + made[1].trim().replace(/\b\w/g, (c) => c.toUpperCase()));
+  const mat = d.match(/\d{1,3}\s?%\s?[a-z]+(?:[\s,/&]+\d{1,3}\s?%\s?[a-z]+)*/i); if (mat) out.push(mat[0].replace(/\s?%\s?/g, "% "));
+  else { const m2 = d.match(/\b(silk|cashmere|wool|linen|leather|suede|cotton|denim|merino|alpaca|velvet|satin)\b/i); if (m2) out.push(m2[1][0].toUpperCase() + m2[1].slice(1).toLowerCase()); }
+  const mod = d.match(/\b(?:style|model|style no\.?|art\.?|ref\.?)\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{2,})/i); if (mod) out.push("Model " + mod[1]);
+  return out.join(" · ");
+}
+function saveNotes() { const n = TAGNOTE(); document.querySelectorAll("#tagEdit input[data-id]").forEach((i) => (n[i.dataset.id] = i.value.trim())); try { localStorage.setItem("heron-tagnote", JSON.stringify(n)); } catch {} }
+async function printLabels(ready = false) {
+  const items = INV.filter((x) => SEL.has(x.id)); if (!items.length) return toast("Select pieces first");
+  const rows0 = Number($("#labelRows").value), notes = TAGNOTE();
+  const withPhoto = $("#labelPhoto").checked; try { localStorage.setItem("heron-label-photo", withPhoto ? "1" : ""); } catch {}
+  if ((rows0 <= 5 || withPhoto) && !ready) {
+    const ph = TAGPHOTO();
+    $("#tagEdit").innerHTML = `<div class="small" style="margin-bottom:6px">${withPhoto ? "<b>Photo:</b> tap the photo to print on each label (the brand tag or the full piece). " : ""}${rows0 <= 5 ? "<b>Info line:</b> filled from the description when possible. Short is best: country, fabric, model." : ""}</div>` +
+      items.map((x) => `<div style="margin:8px 0;padding-bottom:8px;border-bottom:1px solid #eee"><div class="small">${esc(x.title)}</div>
+      ${withPhoto ? `<div style="display:flex;gap:4px;overflow-x:auto;margin:4px 0">${x.images.slice(0, 10).map((u, i) => `<img src="${u}" onclick="pickPhoto('${x.id}',${i},this)" style="width:48px;height:48px;object-fit:cover;border-radius:4px;cursor:pointer;outline:${(ph[x.id] ?? 0) === i ? "3px solid #000" : "none"}">`).join("") || `<span class="small">No photos</span>`}</div>` : ""}
+      ${rows0 <= 5 ? `<input data-id="${x.id}" maxlength="90" value="${esc(notes[x.id] ?? facts(x))}" placeholder="Made in Italy · 100% wool · Model 2019">` : ""}</div>`).join("") +
+      `<div style="display:flex;gap:6px;margin-top:8px"><button class="chip on" onclick="saveNotes();printLabels(true)">Print</button><button class="chip" onclick="$('#tagEdit').hidden=true">Cancel</button></div>`;
+    $("#tagEdit").hidden = false; return;
+  }
+  $("#tagEdit").hidden = true;
+  const rows = rows0, start = Math.max(1, Number($("#labelStart").value) || 1) - 1, H = 152.4 / rows, per = rows * 2;
+  try { localStorage.setItem("heron-label-rows", rows); } catch {}
+  if (!window.JsBarcode) await new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+  const bar = (code) => { const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); JsBarcode(svg, code, { format: "CODE128", displayValue: false, margin: 0, height: 40, width: 2 }); svg.setAttribute("preserveAspectRatio", "none"); return svg.outerHTML; };
+  const PH = TAGPHOTO(), NT = TAGNOTE();
+  const tag = (x) => { if (!x) return `<div class="t"></div>`; const img = withPhoto && x.images.length ? x.images[Math.min(PH[x.id] ?? 0, x.images.length - 1)] : "";
+    return `<div class="t${img ? " hp" : ""}"><div class="top"><div class="tx"><img class="lg" src="${location.origin}/admin/heron-assets/heron-logo.png"><div class="nm">${esc(x.title)}</div>
+    ${rows <= 5 && NT[x.id] ? `<div class="in">${esc(NT[x.id])}</div>` : ""}
+    <div class="mid"><div class="pr">${money(x.price)}</div><div class="sz">${x.size ? "SIZE " + esc(x.size) : ""}</div></div></div>${img ? `<img class="ph" src="${img}">` : ""}</div>
+    ${x.sku ? `<div class="bc">${bar(x.sku)}</div>` : `<div class="bc"></div>`}
+    <div class="ft"><span>${esc(x.sku)}</span><span>ALL SALES FINAL</span></div></div>`; };
+  const cells = [...Array(start).fill(null), ...items], pages = [];
+  for (let i = 0; i < cells.length; i += per) pages.push(`<div class="pg">${cells.slice(i, i + per).map(tag).join("")}</div>`);
+  const w = window.open("", "_blank"); if (!w) return toast("Allow pop-ups to print");
+  w.document.write(`<!doctype html><html><head><title>Heron labels</title><style>
+  @page{size:4in 6in;margin:0}*{box-sizing:border-box}html,body{margin:0;font-family:Helvetica,Arial,sans-serif;color:#000}
+  .pg{width:4in;height:6in;display:grid;grid-template-columns:50.8mm 50.8mm;grid-template-rows:repeat(${rows},${H.toFixed(2)}mm);overflow:hidden;page-break-after:always;break-after:page}
+  .pg:last-child{page-break-after:auto;break-after:auto}
+  .t{display:flex;flex-direction:column;overflow:hidden;border-right:.3pt dotted #000;border-bottom:.3pt dotted #000}.t:nth-child(2n){border-right:0}
+  .top{display:flex;gap:1.2mm;align-items:flex-start}.tx{flex:1;min-width:0}.ph{object-fit:cover;flex:none;filter:grayscale(1) contrast(1.25) brightness(1.05);border-radius:.6mm}
+  .lg{align-self:flex-start}.nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+  .mid{display:flex;justify-content:space-between;align-items:baseline}.pr{font-weight:700;line-height:1}.sz{font-weight:700;letter-spacing:.04em;white-space:nowrap}.mid{gap:1.5mm}
+  .bc{flex:1;min-height:0}.bc svg{width:100%;height:100%;display:block}.ft{display:flex;justify-content:space-between;letter-spacing:.05em;line-height:1}
+  ${labelCss(H)}
+  @media screen{body{background:#eee;padding:10px}.pg{background:#fff;margin:0 auto 10px}}</style></head><body>${pages.join("")}<script>onload=()=>setTimeout(()=>print(),400)<\/script></body></html>`);
+  w.document.close();
+  const p = PRINTED(); items.forEach((x) => p.add(x.id)); try { localStorage.setItem("heron-printed", JSON.stringify([...p])); } catch {}
+  SEL.clear(); drawInv();
+}
+async function addPhotos(item_id, sku, input) {
+  toast("Uploading…"); try { const images = await Promise.all([...input.files].map(prep)); await A("admin_add_photos", { item_id, sku, images }); toast("Photos added"); loadInv(); } catch (e) { toast(e.message); }
+}
+
+// eBay CSV import
+function parseCSV(t) { const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < t.length; i++) { const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true; else if (c === ",") { row.push(f); f = ""; } else if (c === "\n") { row.push(f.replace(/\r$/, "")); rows.push(row); row = []; f = ""; } else f += c; }
+  if (f || row.length) { row.push(f); rows.push(row); } return rows; }
+const MAP = { "Coats, Jackets & Vests": "Coats & Jackets", "Outerwear": "Coats & Jackets", "Dresses": "Dresses & Jumpsuits", "Jumpsuits & Rompers": "Dresses & Jumpsuits",
+  "Casual Button-Down Shirts": "Shirts", "Boots": "Shoes", "Heels": "Shoes", "Sandals": "Shoes", "Flats": "Shoes", "Athletic Shoes": "Shoes",
+  "Women's Bags & Handbags": "Bags & Accessories", "Bags": "Bags & Accessories", "Wallets": "Bags & Accessories", "Scarves & Wraps": "Bags & Accessories" };
+$("#csv").onchange = async (e) => {
+  const [h, ...rest] = parseCSV((await e.target.files[0].text()).replace(/^﻿/, "")); const k = (n) => h.indexOf(n);
+  ROWS = rest.filter((r) => r[k("Title")] && +r[k("Available quantity")] > 0).map((r) => ({
+    title: r[k("Title")].trim(), price: Math.round(+(r[k("Current price")] || r[k("Start price")]) / (1 + MARKUP / 100)),
+    category: MAP[r[k("eBay category 1 name")]] || "Tops", description: `Condition: ${r[k("Condition")]}`,
+    sku: (r[k("Custom label (SKU)")] || "").trim() || undefined, ebay: r[k("Item number")], start: r[k("Start date")] || "" }));
+  $("#conList").innerHTML = ROWS.map((r, i) => `<label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" style="width:auto" onchange="ROWS[${i}].consign = this.checked">${esc(r.title)} <span class="small">· ${esc(r.start.slice(0, 9))}</span></label>`).join(""); $("#conAsk").hidden = !ROWS.length;
+  $("#impInfo").textContent = `${ROWS.length} listings ready. Photos are copied from each eBay listing. This takes a few minutes.`;
+  $("#impGo").disabled = $("#picGo").disabled = !ROWS.length;
+};
+async function markSold(ids) {
+  if (!confirm(`Mark ${ids.length} piece(s) as sold? They will disappear from the site.`)) return;
+  try { await A("admin_mark_sold", { ids }); toast("Marked sold"); if (!$("#t-inv").hidden) loadInv(); } catch (e) { toast(e.message); }
+}
+$("#sales").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return; $("#salesInfo").textContent = "Reading…";
+  try {
+    if (!window.XLSX) await new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+    const wb = XLSX.read(await f.arrayBuffer()); const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
+    const cols = Object.keys(rows[0] || {}); const key = cols.find((k) => /title/i.test(k)) || cols.find((k) => /product name|item name|^name$/i.test(k));
+    if (cols.includes("Item number") && cols.includes("Available quantity")) throw new Error("This is the eBay active listings file. Pick it in the box at the bottom instead.");
+    if (!key) throw new Error("Could not find a title column in this file");
+    const norm = (t) => String(t).trim().toLowerCase().replace(/\s+/g, " ");
+    const titles = new Set(rows.map((r) => norm(r[key])).filter(Boolean));
+    const inv = (await A("admin_list")).items;
+    const hit = inv.filter((x) => x.qty > 0 && titles.has(norm(x.title)));
+    if (!hit.length) { $("#salesInfo").textContent = `${titles.size} sales in the file, none of them are still for sale here.`; return; }
+    $("#salesInfo").textContent = `${titles.size} sales in the file. Found ${hit.length} still for sale here: ${hit.map((x) => x.title).join(" · ")}`;
+    await markSold(hit.map((x) => x.id));
+    $("#salesInfo").textContent += " · Done.";
+  } catch (err) { $("#salesInfo").textContent = "Stopped: " + err.message; }
+};
+async function savePhotos() {
+  try { const items = (await api("list")).items; const map = {};
+    for (const x of items) if (x.images.length) map[x.title.trim().toLowerCase()] = x.images;
+    const txt = JSON.stringify(map); localStorage.setItem("heron-photo-backup", txt);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = "heron-photo-backup.json"; a.click();
+    $("#bkInfo").textContent = `Saved photos for ${Object.keys(map).length} pieces in this browser (and downloaded a copy).`;
+  } catch (e) { $("#bkInfo").textContent = "Stopped: " + e.message; }
+}
+async function restorePhotos() {
+  let map; try { map = JSON.parse(localStorage.getItem("heron-photo-backup") || "null"); } catch {}
+  if (!map) { $("#bkInfo").textContent = "No backup in this browser. Use the same browser where you pressed step 1."; return; }
+  const inv = (await A("admin_list")).items.filter((x) => !x.images.length && map[x.title.trim().toLowerCase()]);
+  let ok = 0, fail = 0;
+  for (const x of inv) { $("#bkInfo").textContent = `Photos ${ok + fail + 1} / ${inv.length}…`;
+    try { await A("admin_add_photos", { item_id: x.item_id, sku: x.sku, images: map[x.title.trim().toLowerCase()].slice(0, 6) }); ok++; } catch (e) { fail++; } }
+  $("#bkInfo").textContent = `Done. ${ok} pieces got photos, ${fail} failed.`;
+}
+async function aerialRender() {
+  if (!HERON.aerialKey) return toast("Add the Aerial View key in heron.js first");
+  const r = await fetch(`https://aerialview.googleapis.com/v1/videos:renderVideo?key=${HERON.aerialKey}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address: HERON.address }) });
+  const j = await r.json(); toast(j.state ? `Google says: ${j.state}` : (j.error?.message || "Request failed"));
+}
+let PUB = [];
+async function loadPub() { $("#pubStart").value ||= new Date(Date.now() + 864e5).toISOString().slice(0, 10); $("#pubList").innerHTML = "<p class='small'>Loading…</p>";
+  try { PUB = (await A("admin_queue")).rows; } catch (e) { $("#pubList").innerHTML = `<p class="small">${esc(e.message)}</p>`; return; }
+  $("#pubList").innerHTML = PUB.length ? PUB.map((r) => { const x = r.item, live = r.status === "approved" && Date.parse(r.publish_at) <= Date.now();
+    return `<div class="row">${r.status === "draft" ? `<input type="checkbox" class="pq" value="${r.item_id}" style="width:auto">` : "<span></span>"}<div>${esc(x.title)}<div class="small">${money(x.price)} · ${r.status === "draft" ? "<b>waiting for approval</b>" : live ? "live" : "goes live " + new Date(r.publish_at).toLocaleDateString()}</div></div><span></span></div>`; }).join("") : "<p class='small'>Nothing waiting.</p>"; }
+async function pubSet(mode) { const ids = [...document.querySelectorAll(".pq:checked")].map((c) => c.value); if (!ids.length) return toast("Select pieces first");
+  try { const r = await A("admin_queue_set", { ids, mode, perDay: +$("#pubPer").value, start: $("#pubStart").value }); toast(mode === "now" ? `${r.scheduled} pieces are live` : `Scheduled ${r.scheduled}, last one ${new Date(r.last).toLocaleDateString()}`); loadPub(); } catch (e) { toast(e.message); } }
+async function loadOff() { $("#offList").innerHTML = "<p class='small'>Loading…</p>";
+  let rows; try { rows = (await A("admin_offers")).rows; } catch (e) { $("#offList").innerHTML = `<p class="small">${esc(e.message)}</p>`; return; }
+  $("#offList").innerHTML = rows.length ? rows.map((o) => { const full = o.items.reduce((t, x) => t + x.price, 0);
+    return `<div class="note small" style="margin:0"><b>${esc(o.email)}</b> · ${new Date(o.created_at).toLocaleString()} · <b>${o.status}</b><br>${o.items.map((x) => esc(x.title) + " " + money(x.price)).join("<br>")}<br>Total ${money(full)} · ${o.amount_cents ? "Offer <b>" + money(o.amount_cents) + "</b>" : "<b>Asks for a price</b>"}
+    ${o.status === "new" ? `<div style="display:flex;gap:6px;margin-top:8px"><input id="oa${o.id}" type="number" placeholder="Your price $" value="${o.amount_cents ? o.amount_cents / 100 : ""}" class="chip" style="width:120px"><button class="chip on" onclick="offAns(${o.id},true)">Accept, make link</button><button class="chip" onclick="offAns(${o.id},false)">Decline</button></div>` : o.link ? `<br>Link: <a href="${o.link}" target="_blank">${o.link}</a>` : ""}</div>`; }).join("") : "<p class='small'>No offers yet.</p>"; }
+async function offAns(id, accept) { try { const r = await A("admin_offer_answer", { id, accept, amount: $("#oa" + id)?.value });
+  if (accept) { await navigator.clipboard?.writeText(r.link).catch(() => {}); location.href = `mailto:${r.email}?subject=${encodeURIComponent("Your Heron CA bundle")}&body=${encodeURIComponent("Hi! Here is your bundle at the price we agreed. The link is good for one checkout:\n\n" + r.link + "\n\nHeron CA, Venice Beach")}`; }
+  loadOff(); } catch (e) { toast(e.message); } }
+function forFlyp(id) {
+  const x = INV.find((i) => i.id === id); if (!x) return;
+  const txt = `${x.title}\n\nPrice: $${Math.round(x.price / 100 * (1 + MARKUP / 100))}\nSKU: ${x.sku}${x.size ? "\nSize: " + x.size : ""}\n\n${x.description || ""}`;
+  navigator.clipboard.writeText(txt).then(() => toast("Copied for Flyp (price +" + MARKUP + "%)")).catch(() => prompt("Copy this:", txt));
+}
+let REC = [];
+const TAX = 9.75; // prices include CA sales tax
+async function loadRec() {
+  if (!INV.length) INV = (await A("admin_list")).items;
+  $("#recSq").innerHTML = "<p class='small'>Loading…</p>";
+  try { const r = (await A("admin_recent")).rows;
+    $("#recSq").innerHTML = r.map((p, i) => `<div class="row"><span></span><div>${new Date(p.at).toLocaleString()} · <b>${money(p.total)}</b> · ${esc(p.method)}<div class="small">${p.lines.map((l) => esc(l.name)).join(", ")}</div></div><button class="chip" onclick="printSq(${i})">Receipt</button></div>`).join("") || "<p class='small'>No payments yet.</p>"; window.__sq = r;
+  } catch (e) { $("#recSq").innerHTML = `<p class="small">${esc(e.message)}</p>`; }
+  try { const c = (await A("admin_receipts")).rows; window.__rc = c;
+    $("#recCash").innerHTML = c.map((x, i) => `<div class="row"><span></span><div>R${x.id} · ${new Date(x.created_at).toLocaleString()} · <b>${money(x.total_cents)}</b> · ${esc(x.method || "")}<div class="small">${x.lines.map((l) => esc(l.name)).join(", ")}</div></div><button class="chip" onclick="reprint(${i})">Reprint</button></div>`).join("") || "<p class='small'>No receipts yet.</p>";
+  } catch (e) { $("#recCash").innerHTML = `<p class="small">${esc(e.message)}</p>`; }
+}
+function drawRec() { const tot = REC.reduce((t, l) => t + Math.round(l.price * 100), 0);
+  $("#recLines").innerHTML = REC.map((l, i) => `<div class="row"><span></span><div>${esc(l.name)}<div class="small">${esc(l.sku || "manual")}</div></div><div>${money(Math.round(l.price * 100))} <button class="chip" onclick="REC.splice(${i},1);drawRec()">×</button></div></div>`).join("") + (REC.length ? `<div class="small" style="text-align:right">Total <b>${money(tot)}</b></div>` : ""); }
+$("#recScan").addEventListener("keydown", async (e) => { if (e.key !== "Enter") return; const v = e.target.value.trim().toUpperCase(); e.target.value = ""; if (!v) return;
+  if (!INV.length) INV = (await A("admin_list")).items;
+  const x = INV.find((i) => i.sku.toUpperCase() === v); if (!x) return toast("No piece with SKU " + v);
+  if (REC.some((l) => l.id === x.id) && !x.sku.startsWith("HC-G-")) return toast("Already added");
+  let price = x.price / 100; if (!price) { price = +prompt(`Price for ${x.title}?`) || 0; }
+  REC.push({ id: x.sku.startsWith("HC-G-") ? null : x.id, name: x.title, sku: x.sku, price }); drawRec(); });
+function recAddManual() { const n = $("#recName").value.trim(), p = +$("#recPrice").value; if (!n || !p) return toast("Name and price"); REC.push({ id: null, name: n, sku: "", price: p }); $("#recName").value = $("#recPrice").value = ""; drawRec(); }
+async function recSave(save) { if (!REC.length) return toast("Add something first");
+  let at = new Date().toISOString();
+  if (save) { try { await A("admin_cash_sale", { ids: REC.map((l) => l.id).filter(Boolean), lines: REC.map(({ name, sku, price }) => ({ name, sku, price })), method: $("#recMethod").value, note: $("#recNote").value }); } catch (e) { return toast(e.message); } }
+  await printReceipt({ at, method: $("#recMethod").value, lines: REC.map((l) => ({ name: l.name, total: Math.round(l.price * 100) })) });
+  REC = []; drawRec(); INV = []; loadRec(); }
+function printSq(i) { const p = window.__sq[i]; printReceipt({ ref: p.id, source: "square", at: p.at, method: p.method, lines: p.lines, discount: p.discount }); }
+function reprint(i) { const x = window.__rc[i]; printReceipt({ no: "R" + x.id, at: x.created_at, method: x.method, lines: x.lines }, true); }
+function recCsv() { const rows = window.__rc || []; const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = ["receipt,date,method,total,items"].concat(rows.map((x) => [ "R" + x.id, x.created_at, x.method, (x.total_cents / 100).toFixed(2), x.lines.map((l) => l.name + " " + (l.total / 100).toFixed(2)).join(" | ") ].map(q).join(","))).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `heron-receipts-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); }
+async function printReceipt(r, already) {
+  const tot = r.lines.reduce((t, l) => t + l.total, 0), tax = Math.round(tot - tot / (1 + TAX / 100));
+  if (!already) { try { const k = await A("admin_receipt_log", { receipt: { no: r.ref || "", method: r.method, lines: r.lines, total: tot, source: r.source || "manual" } }); r.no = "R" + k.no; r.at = k.at || r.at; } catch (e) { toast("Copy not saved: " + e.message); } }
+  const w = window.open("", "_blank"); if (!w) return toast("Allow pop-ups to print");
+  w.document.write(`<!doctype html><html><head><title>Receipt</title><style>@page{size:4in 6in;margin:0}body{margin:0;padding:.25in;font-family:Helvetica,Arial,sans-serif;font-size:10pt;color:#000}
+  img{height:.32in;display:block;margin:0 auto .08in;filter:grayscale(1) contrast(1.4)}.c{text-align:center}.s{font-size:8pt}hr{border:0;border-top:1px dashed #000;margin:.1in 0}
+  .r{display:flex;justify-content:space-between;gap:8px;margin:2px 0}.t{font-weight:700;font-size:13pt}</style></head><body>
+  <img src="${location.origin}/admin/heron-assets/heron-logo.png"><div class="c s">Heron CA LLC · 517 Ocean Front Walk, Unit 6<br>Venice, CA 90291 · heronca.com · info@heronca.com</div><hr>
+  <div class="r s"><span>${new Date(r.at).toLocaleString()}</span><span>${r.no ? "No. " + esc(r.no) : ""}</span></div><hr>
+  ${r.lines.map((l) => `<div class="r"><span>${esc(l.name)}</span><span>${money(l.total)}</span></div>`).join("")}<hr>
+  ${r.discount ? `<div class="r s"><span>Discounts</span><span>-${money(r.discount)}</span></div>` : ""}
+  <div class="r t"><span>TOTAL</span><span>${money(tot)}</span></div><div class="r s"><span>Includes CA sales tax ${TAX}%</span><span>${money(tax)}</span></div><div class="r s"><span>Paid</span><span>${esc(r.method || "")}</span></div><hr>
+  <div class="c s">All sales are final. Thank you for shopping with us!<br>Vintage. New. Ours.</div><script>onload=()=>setTimeout(()=>print(),400)<\/script></body></html>`);
+  w.document.close();
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+async function runPhotos() {
+  $("#picGo").disabled = true; let ok = 0, fail = 0;
+  const inv = (await A("admin_list")).items, norm = (t) => t.trim().toLowerCase();
+  const todo = ROWS.map((r) => ({ r, x: inv.find((i) => norm(i.title) === norm(r.title)) })).filter((o) => o.x && !o.x.images.length && o.r.ebay);
+  for (let i = 0; i < todo.length; i++) {
+    const { r, x } = todo[i];
+    $("#impInfo").textContent = `Photos ${i + 1} / ${todo.length} · ${ok} done, ${fail} failed · ${r.title}`;
+    let done = false;
+    for (let t = 0; t < 2 && !done; t++) {
+      try { await A("admin_ebay_photos", { item_id: x.item_id, ebay: r.ebay, sku: x.sku }); done = true; }
+      catch (e) { if (t === 0) await wait(20000); }
+    }
+    done ? ok++ : fail++;
+    await wait(4000);
+  }
+  $("#impInfo").textContent = `Photos finished. ${ok} items got photos, ${fail} failed. Run again later for the failed ones, or add them from Inventory.`;
+  $("#picGo").disabled = false;
+}
+async function runImport() {
+  $("#impGo").disabled = true; let made = 0, skipped = 0, pics = 0;
+  try { for (let i = 0; i < ROWS.length; i += 4) { $("#impInfo").textContent = `Importing ${i} / ${ROWS.length}…`;
+      const r = await A("admin_import", { rows: ROWS.slice(i, i + 4) }); made += r.created; skipped += r.skipped; pics += r.with_photos; }
+    $("#impInfo").textContent = `Done. ${made} created (${pics} with photos), ${skipped} skipped (already in Square). Items without photos stay hidden; add photos from Inventory.`;
+  } catch (e) { $("#impInfo").textContent = "Stopped: " + e.message; $("#impGo").disabled = false; }
+}
+</script></body></html>

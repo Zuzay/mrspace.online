@@ -115,6 +115,19 @@ main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
 .q .bar i.full{background:var(--bad)}
 .q span:last-child{text-align:right;font-family:var(--mono);font-size:11.5px}
 .acts{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-top:1px solid var(--line)}
+.control-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.control-tabs button{font:11px var(--mono);letter-spacing:.04em;padding:7px 10px;border:1px solid var(--line);border-radius:99px}
+.control-tabs button.on{background:var(--ink);color:var(--bg)}
+.control-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.control-tools input,.control-tools select{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);min-width:170px}
+.control-list{display:grid;gap:8px}
+.control-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.control-row h3{font:600 15px var(--body);text-transform:none;letter-spacing:0;line-height:1.35}
+.control-row p,.control-row small{color:var(--mute);font-size:12.5px;overflow-wrap:anywhere}
+.control-row .acts{padding:0;border:0;justify-content:flex-end}
+.control-notice{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--mute);margin:0 0 14px}
+.control-frame{display:block;width:100%;height:min(82vh,1100px);min-height:680px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+@media(max-width:650px){.control-row{grid-template-columns:1fr}.control-row .acts{justify-content:flex-start}.control-tools input{width:100%}}
 
 /* lists */
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -219,6 +232,7 @@ body.demo .real-only{display:none!important}
    <button data-v="billing" class="adm-only">Ödemeler</button>
    <button data-v="usage">Kullanım</button>
    <button data-v="sites" class="adm-only">Siteler</button>
+   <button data-v="control" class="adm-only">Site yönetimi</button>
    <button data-v="access" class="adm-only">Erişim</button>
       <button type="button" class="adm-only real-only" data-href="review/">Onay</button>
       <button type="button" class="adm-only real-only" data-href="ideas/">Fikirler</button>
@@ -278,6 +292,16 @@ async function api(path, opt = {}){
   return r.status === 204 ? null : r.json();
 }
 const rpc = (fn, body) => api("rpc/" + fn, { method:"POST", body });
+async function controlApi(action, body){
+  await fresh();
+  const r = await fetch(`${SB_URL}/functions/v1/ms-site-control`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer "+S.access_token, "Content-Type":"application/json" }, body:JSON.stringify({ action, ...body }) });
+  const data = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error(data.error === "heron_bridge_not_configured" ? "Heron bağlantısı için HERON_ADMIN_PASSWORD sunucu sırrı eklenmeli." : (data.error || `Heron bağlantı hatası (${r.status})`));
+  return data;
+}
+async function logSiteControl(site, action){
+  try { await api("ms_activity", { method:"POST", prefer:"return=minimal", body:{ site, who:"uzay", action:"Site control: " + action } }); } catch (e) {}
+}
 
 /* ---------------- data ---------------- */
 let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{}, subs:[], vers:[] };
@@ -347,6 +371,7 @@ function demoData(){
 
 /* ---------------- views ---------------- */
 let VIEW = "overview", FILTER = "open";
+let CT_SITE = "laloo", CT_MODE = "quick", CT_TAB = "places", CT_Q = "", CT_ERROR = "", CT_DATA = { places:[], businesses:[], suggestions:[], cities:[], heron:[], queue:[], offers:[] }, CT_READY = { laloo:false, heron:false };
 function uptime(slug){
   const c = D.checks.filter(x => x.site === slug);
   if (!c.length) return { pct:null, last:null, avg:null, bars:[] };
@@ -368,8 +393,8 @@ function render(){
   const open = D.changes.filter(c => c.status === "new").length;
   $("#badge").hidden = !open; $("#badge").textContent = open;
   const m = $("#main");
-  if (VIEWER && ["billing","sites","access","versions"].includes(VIEW)) VIEW = "overview";
-  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, access, versions })[VIEW]();
+  if (VIEWER && ["billing","sites","control","access","versions"].includes(VIEW)) VIEW = "overview";
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, control:siteControl, access, versions })[VIEW]();
   if (VIEW === "versions" && VFOCUS) { const el = document.getElementById("sub-" + VFOCUS); VFOCUS = null; if (el) el.scrollIntoView({ block:"start" }); }
   bind();
   if (window.MSI18N) MSI18N.apply(document.body);
@@ -413,6 +438,41 @@ function siteCard(s){
     ${s.kind === "client" ? `<button class="btn sm ghost adm-only real-only" data-act="member" data-site="${esc(s.slug)}">Panel erişimi</button>` : ""}
    </div>
   </article>`;
+}
+function controlTabs(items, value, attr){ return `<div class="control-tabs">${items.map(([k,l])=>`<button class="${value===k?"on":""}" ${attr}="${k}">${l}</button>`).join("")}</div>`; }
+function controlRow(title, detail, actions="") { return `<article class="control-row"><div><h3>${esc(title)}</h3><p>${detail||""}</p></div><div class="acts">${actions}</div></article>`; }
+function siteControl(){
+  const header = `<div class="head"><div><h1>Site yönetimi</h1><p>Heron ve Laloo kontrolleri, kendi veritabanı ve izinleri üzerinden çalışır.</p></div><div class="control-tools"><select id="controlSite"><option value="laloo" ${CT_SITE==="laloo"?"selected":""}>Laloo</option><option value="heron" ${CT_SITE==="heron"?"selected":""}>Heron CA</option></select><a class="btn sm" href="${CT_SITE==="heron"?"https://heronca.com/admin.html":"https://www.laloo.org/admin.html"}" target="_blank" rel="noopener">Tam panel ↗</a><button class="btn sm" data-act="control-refresh">Yenile</button></div></div>`;
+  const modes = controlTabs([["quick","Hızlı kontroller"],["native","Tam yönetim"]], CT_MODE, "data-ctmode");
+  if (CT_MODE === "native") return `${header}${modes}<iframe class="control-frame" title="${CT_SITE==="heron"?"Heron":"Laloo"} tam yönetim" src="/admin/${CT_SITE}.html"></iframe>`;
+  if (CT_SITE === "laloo") {
+    const tabs = modes + controlTabs([["places","Harita yerleri"],["businesses","İşletmeler"],["suggestions","Öneriler"],["cities","Şehirler"]], CT_TAB, "data-ctab");
+    if (!CT_READY.laloo) return `${header}${tabs}<div class="control-notice">${esc(CT_ERROR||"Laloo yönetim verileri yükleniyor…")}</div>`;
+    const list = CT_DATA[CT_TAB] || [];
+    const q = CT_Q.trim().toLowerCase();
+    const filtered = !q ? list : list.filter(x => [x.name,x.info,x.city,x.address,x.category,x.note,x.id].some(v=>String(v||"").toLowerCase().includes(q)));
+    const tools = `<div class="control-tools" style="margin-bottom:12px"><input id="controlSearch" placeholder="${CT_TAB==="places"?"Yer, şehir veya adres ara":"İsim veya şehir ara"}" value="${esc(CT_Q)}"><span class="pill">${filtered.length}${CT_TAB==="places"?" / ilk 100":" kayıt"}</span></div>`;
+    const rows = filtered.map(x=>{
+      if (CT_TAB === "places") return controlRow(`${x.name||"Adsız yer"} · ${x.kind||""}`, `${esc([x.city,x.area,x.address,x.fee].filter(Boolean).join(" · "))} ${x.verified?"· doğrulandı":""}`, `<button class="btn sm ghost" data-act="place-edit" data-id="${x.id}">Düzenle</button><button class="btn sm ${x.active?"":"ghost"}" data-act="place-toggle" data-id="${x.id}" data-on="${x.active}">${x.active?"Yayında":"Gizli"}</button>`);
+      if (CT_TAB === "businesses") return controlRow(x.name, `${esc([x.category,x.city,x.address,x.plan].filter(Boolean).join(" · "))}`, `<button class="btn sm ghost" data-act="business-edit" data-id="${esc(x.id)}">Düzenle</button><button class="btn sm ${x.active?"":"ghost"}" data-act="business-toggle" data-id="${esc(x.id)}" data-on="${x.active}">${x.active?"Yayında":"Gizli"}</button>`);
+      if (CT_TAB === "suggestions") return controlRow(x.name, `${esc([x.city,x.address,x.source,x.note].filter(Boolean).join(" · "))}${x.url?` · <a href="${esc(x.url)}" target="_blank" rel="noopener">Bağlantı ↗</a>`:""}`, `<button class="btn sm ok" data-act="suggestion-set" data-id="${x.id}" data-status="approved">Onayla</button><button class="btn sm bad" data-act="suggestion-set" data-id="${x.id}" data-status="rejected">Reddet</button>`);
+      return controlRow(`${x.name} · ${x.country}`, `${esc(x.id)} · ${x.active?"aktif":"kapalı"}`, `<button class="btn sm ${x.active?"ghost":""}" data-act="city-toggle" data-id="${esc(x.id)}" data-on="${x.active}">${x.active?"Kapat":"Aç"}</button>`);
+    }).join("");
+    return `${header}<div class="control-notice">Laloo’nun canlı yönetim verileri. Harita yerlerinde ilk 100 kayıt gelir; filtreyi sonuç daraltmak için kullan. Değişiklikler Laloo sitesine anında yansır.</div>${tabs}${tools}<div class="control-list">${rows||'<div class="empty">Kayıt bulunamadı.</div>'}</div>`;
+  }
+  const tabs = modes + controlTabs([["heron","Ürünler"],["queue","Yayın sırası"],["offers","Teklifler"]], CT_TAB, "data-ctab");
+  if (!CT_READY.heron) return `${header}${tabs}<div class="control-notice">${esc(CT_ERROR||"Heron yönetim köprüsü bağlanıyor…")} <a href="https://heronca.com/admin.html" target="_blank" rel="noopener">Tam Heron yönetimini aç ↗</a></div>`;
+  const q = CT_Q.trim().toLowerCase();
+  if (CT_TAB === "heron") {
+    const rows = CT_DATA.heron.filter(x=>!q||`${x.title} ${x.sku} ${x.category}`.toLowerCase().includes(q)).slice(0,150).map(x=>controlRow(`${x.title} · ${x.size||"Tek beden"}`, `${esc([x.sku,x.category,"$"+(Number(x.price||0)/100).toFixed(2),x.qty+" adet"].join(" · "))}${x.images?.length?` · ${x.images.length} fotoğraf`:" · fotoğraf yok"}`, `<button class="btn sm ghost" data-photo-open="photo-${esc(x.id)}">Fotoğraf</button><input id="photo-${esc(x.id)}" data-photo-item="${esc(x.item_id)}" data-photo-sku="${esc(x.sku)}" type="file" accept="image/*" hidden><button class="btn sm ghost" data-act="heron-price" data-id="${esc(x.id)}" data-price="${Number(x.price||0)/100}">Fiyat</button><button class="btn sm ${x.qty>0?"bad":"ghost"}" data-act="heron-sold" data-id="${esc(x.id)}" data-sku="${esc(x.sku)}">${x.qty>0?"Satıldı":"Stokta yok"}</button>`)).join("");
+    return `${header}${tabs}<div class="control-tools" style="margin-bottom:12px"><input id="controlSearch" placeholder="Ürün veya SKU ara" value="${esc(CT_Q)}"><span class="pill">${CT_DATA.heron.length} ürün</span></div><div class="control-list">${rows||'<div class="empty">Ürün bulunamadı.</div>'}</div>`;
+  }
+  if (CT_TAB === "queue") {
+    const rows = CT_DATA.queue.map(x=>controlRow(x.item?.title||x.item_id, `${esc(x.status)}${x.publish_at?" · "+esc(dt(x.publish_at)):""}`)).join("");
+    return `${header}${tabs}<div class="control-notice">Yayın kuyruğunu buradan görüntüleyebilirsin. Ürünü kuyruğa alma ve zamanlama için <a href="https://heronca.com/admin.html" target="_blank" rel="noopener">Heron’un tam yönetim ekranını aç ↗</a>.</div><div class="control-list">${rows||'<div class="empty">Yayın sırası boş.</div>'}</div>`;
+  }
+  const rows = CT_DATA.offers.map(x=>controlRow(`${x.email} · ${x.status}`, `${esc(x.items?.map(i=>i.title).join(", ")||"")} · ${x.amount_cents?money(x.amount_cents):"teklif bekliyor"}`, x.status==="new"?`<button class="btn sm ok" data-act="heron-offer" data-id="${x.id}" data-accept="1" data-amount="${x.amount_cents||""}">Kabul et</button><button class="btn sm bad" data-act="heron-offer" data-id="${x.id}" data-accept="0">Reddet</button>`:"" )).join("");
+  return `${header}${tabs}<div class="control-list">${rows||'<div class="empty">Yeni teklif yok.</div>'}</div>`;
 }
 function changes(){
   const list = D.changes.filter(c => FILTER === "all" ? true : FILTER === "open" ? c.status === "new" || c.status === "approved" : c.status === FILTER);
@@ -543,6 +603,51 @@ const f = (label, name, val = "", type = "text", extra = "") => `<label${extra}>
 
 async function act(kind, el){
   const slug = el.dataset.site, id = Number(el.dataset.id);
+  if (kind === "control-refresh") { if(CT_MODE==="native"){document.querySelector(".control-frame")?.contentWindow?.location.reload();return;} await loadSiteControl(); return render(); }
+  if (kind === "place-toggle") {
+    const row = CT_DATA.places.find(x=>String(x.id)===el.dataset.id); if (!row) return;
+    await api(`places?id=eq.${encodeURIComponent(row.id)}`, { method:"PATCH", body:{ active:!row.active } }); await logSiteControl("laloo", "place visibility updated"); toast(row.active?"Harita yerinden kaldırıldı":"Harita yerinde yayınlandı"); await loadSiteControl(); return render();
+  }
+  if (kind === "place-edit") {
+    const x = CT_DATA.places.find(x=>String(x.id)===el.dataset.id); if (!x) return;
+    return openDlg("Harita yerini düzenle", f("Ad","name",x.name)+f("Adres","address",x.address||"")+f("Bölge","area",x.area||"")+f("Ücret","fee",x.fee||"")+f("Saatler","hours",x.hours||"")+`<label class="wide">Bilgi<textarea name="info" rows="3">${esc(x.info||"")}</textarea></label><label><span>Aktif</span><input name="active" type="checkbox" ${x.active?"checked":""}></label><label><span>Doğrulanmış</span><input name="verified" type="checkbox" ${x.verified?"checked":""}></label>`, async v=>{
+      const active = $("#dlgForm [name=active]").checked, verified = $("#dlgForm [name=verified]").checked;
+      await api(`places?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ name:v.name, address:v.address||null, area:v.area||null, fee:v.fee||null, hours:v.hours||null, info:v.info||null, active, verified } });
+      await logSiteControl("laloo", "place updated"); toast("Laloo harita kaydı güncellendi"); await loadSiteControl();
+    });
+  }
+  if (kind === "business-toggle") {
+    const x = CT_DATA.businesses.find(x=>x.id===el.dataset.id); if (!x) return;
+    await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); await logSiteControl("laloo", "business visibility updated"); toast("İşletme durumu güncellendi"); await loadSiteControl(); return render();
+  }
+  if (kind === "business-edit") {
+    const x = CT_DATA.businesses.find(x=>x.id===el.dataset.id); if (!x) return;
+    return openDlg("Laloo işletmesini düzenle", f("İşletme adı","name",x.name)+f("Kategori","category",x.category)+f("Şehir","city",x.city||"")+f("Adres","address",x.address||"")+f("Web sitesi","website",x.website||"","url")+f("Ücretli plan","plan",x.plan)+f("Plan fiyatı ($)","plan_price_usd",x.plan_price_usd,"number")+f("Üyelik bitişi","paid_until",x.paid_until||"","date")+`<label class="wide">Kısa açıklama<textarea name="blurb" rows="3">${esc(x.blurb||"")}</textarea></label>`, async v=>{
+      await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ name:v.name, category:v.category, city:v.city||null, address:v.address||null, website:v.website||null, plan:v.plan, plan_price_usd:Number(v.plan_price_usd||0), paid_until:v.paid_until||null, blurb:v.blurb||null } }); await logSiteControl("laloo", "business updated"); toast("Laloo işletmesi güncellendi"); await loadSiteControl();
+    });
+  }
+  if (kind === "suggestion-set") {
+    await api(`suggestions?id=eq.${encodeURIComponent(el.dataset.id)}`, { method:"PATCH", body:{ status:el.dataset.status } }); await logSiteControl("laloo", "suggestion moderated"); toast(el.dataset.status==="approved"?"Öneri onaylandı":"Öneri reddedildi"); await loadSiteControl(); return render();
+  }
+  if (kind === "city-toggle") {
+    const x = CT_DATA.cities.find(x=>x.id===el.dataset.id); if (!x) return;
+    await api(`cities?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); await logSiteControl("laloo", "city visibility updated"); toast("Şehir görünürlüğü güncellendi"); await loadSiteControl(); return render();
+  }
+  if (kind === "heron-price") {
+    const price = prompt("Yeni fiyat (USD)", el.dataset.price); if (price===null || !Number.isFinite(Number(price)) || Number(price)<0) return;
+    await controlApi("admin_reprice", { changes:[{ id:el.dataset.id, price:Number(price) }] }); toast("Heron fiyatı güncellendi"); await loadSiteControl(); return render();
+  }
+  if (kind === "heron-sold") {
+    if (!confirm(`“${el.dataset.sku||"Ürün"}” ürününü Square'de satıldı olarak işaretleyeyim mi?`)) return;
+    await controlApi("admin_mark_sold", { ids:[el.dataset.id] }); toast("Heron stoğu sıfırlandı"); await loadSiteControl(); return render();
+  }
+  if (kind === "heron-offer") {
+    const accept = el.dataset.accept === "1"; let amount;
+    if (accept) { amount = prompt("Teklif tutarı (USD)", el.dataset.amount?String(Number(el.dataset.amount)/100):""); if (amount===null) return; if (!Number.isFinite(Number(amount)) || Number(amount)<=0) throw new Error("Geçerli bir teklif tutarı yaz"); }
+    const out = await controlApi("admin_offer_answer", { id:Number(el.dataset.id), accept, ...(accept?{amount:Number(amount)}:{}) });
+    if (accept && out.link) { try { await navigator.clipboard.writeText(out.link); toast("Teklif kabul edildi, ödeme bağlantısı kopyalandı"); } catch { prompt("Ödeme bağlantısı",out.link); } } else toast(accept?"Teklif kabul edildi":"Teklif reddedildi");
+    await loadSiteControl(); return render();
+  }
   if (kind === "newlog") return openDlg("İş kaydet", `<label>Site<select name="site">${siteOpts(slug, true)}</select></label>${f("Süre (dk)", "minutes", "", "number")}<label class="wide">Ne yapıldı<textarea name="action" rows="2" required></textarea></label>`,
     async v => { if (DEMO) { D.activity.unshift({ site:v.site || null, who:"uzay", action:v.action, minutes:Number(v.minutes || 0), at:new Date().toISOString() }); return toast("Demo: kaydedildi"); }
       await api("ms_activity", { method:"POST", body:{ site:v.site || null, who:"uzay", action:v.action, minutes:Number(v.minutes || 0) } }); toast("Kaydedildi"); });
@@ -627,14 +732,51 @@ async function act(kind, el){
 }
 function bind(){
   document.querySelectorAll("[data-act]").forEach(el => el.onclick = () => act(el.dataset.act, el).catch(e => toast(e.message)));
+  document.querySelectorAll("[data-ctab]").forEach(el=>el.onclick=()=>{CT_TAB=el.dataset.ctab;CT_Q="";render();});
+  document.querySelectorAll("[data-ctmode]").forEach(el=>el.onclick=async()=>{CT_MODE=el.dataset.ctmode;render();if(CT_MODE==="quick"){try{await loadSiteControl();}catch(e){CT_ERROR=e.message;toast(e.message);}render();}});
+  const siteSelect=$("#controlSite"); if(siteSelect) siteSelect.onchange=async()=>{CT_SITE=siteSelect.value;CT_Q="";CT_ERROR="";if(CT_MODE==="native")return render();try{await loadSiteControl();}catch(e){CT_ERROR=e.message;toast(e.message);}render();};
+  const search=$("#controlSearch"); if(search) search.oninput=()=>{CT_Q=search.value;const pos=search.selectionStart;if(CT_SITE==="laloo"&&CT_TAB==="places"){render();const next=$("#controlSearch");next.focus();next.setSelectionRange(pos,pos);clearTimeout(window.__msControlSearch);window.__msControlSearch=setTimeout(async()=>{try{await loadSiteControl();}catch(e){CT_ERROR=e.message;toast(e.message);}render();},450);}else{render();const next=$("#controlSearch");next.focus();next.setSelectionRange(pos,pos);}};
+  document.querySelectorAll("[data-photo-open]").forEach(el=>el.onclick=()=>document.getElementById(el.dataset.photoOpen)?.click());
+  document.querySelectorAll("[data-photo-item]").forEach(el=>el.onchange=async()=>{
+    const file=el.files?.[0]; if(!file)return;
+    try { const data=await imageDataUrl(file); await controlApi("admin_add_photos",{item_id:el.dataset.photoItem,sku:el.dataset.photoSku,images:[data]}); toast("Heron ürün fotoğrafı eklendi"); await loadSiteControl(); render(); }
+    catch(e){toast(e.message);} finally{el.value="";}
+  });
   document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
   document.querySelectorAll("[data-vsel]").forEach(el => el.onchange = () => { const id = Number(el.dataset.vsel), vs = D.vers.filter(v => v.submission_id === id).map(v => v.version);
     const cur = VSEL[id] || { a:Math.min(...vs), b:Math.max(...vs) }; cur[el.dataset.side] = Number(el.value); VSEL[id] = cur; render(); document.getElementById("sub-" + id).scrollIntoView({ block:"start" }); });
 }
-async function refresh(){ try { await load(); } catch (e) { toast(e.message); } render(); }
+async function refresh(){ try { if(VIEW==="control"){await fresh();return;} await load(); } catch (e) { toast(e.message); } render(); }
+async function loadSiteControl(){
+  if (DEMO) throw new Error("Site yönetimi örnek modda kullanılamaz");
+  CT_ERROR="";
+  if (CT_SITE==="laloo") {
+    CT_READY.laloo=false;
+    const term=CT_TAB==="places"?CT_Q.trim().replace(/[^\p{L}\p{N}\s.'-]/gu," ").trim():"";
+    const placeFilter=term?`&or=${encodeURIComponent(`(name.ilike.*${term}*,city.ilike.*${term}*,address.ilike.*${term}*)`)}`:"";
+    const [places,businesses,suggestions,cities]=await Promise.all([
+      api(`places?select=id,kind,name,info,city,area,fee,hours,address,active,verified${placeFilter}&order=id.desc&limit=100`),
+      api("businesses?select=id,name,category,city,address,hours,blurb,website,plan,plan_price_usd,paid_until,active&order=created_at.desc&limit=200"),
+      api("suggestions?select=id,city,name,address,note,source,url,status,created_at&status=eq.pending&order=created_at.desc&limit=200"),
+      api("cities?select=id,name,country,active&order=country,name&limit=300")
+    ]);
+    CT_DATA={...CT_DATA,places,businesses,suggestions,cities}; CT_READY.laloo=true;
+  } else {
+    CT_READY.heron=false;
+    const [products,queue,offers]=await Promise.all([
+      controlApi("admin_list",{}), controlApi("admin_queue",{}), controlApi("admin_offers",{})
+    ]);
+    CT_DATA={...CT_DATA,heron:products.items||[],queue:queue.rows||[],offers:offers.rows||[]}; CT_READY.heron=true;
+  }
+}
+function imageDataUrl(file){
+  if(!file.type.startsWith("image/")) return Promise.reject(new Error("Fotoğraf dosyası seç"));
+  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error("Fotoğraf okunamadı"));reader.onload=()=>{const im=new Image();im.onerror=()=>reject(new Error("Fotoğraf açılamadı"));im.onload=()=>{const scale=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext("2d").drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL("image/jpeg",.86));};im.src=reader.result;};reader.readAsDataURL(file);});
+}
 
 /* ---------------- start ---------------- */
-document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { if (b.dataset.href) { location.href = b.dataset.href; return; } VIEW = b.dataset.v; render(); });
+document.querySelectorAll("#nav button").forEach(b => b.onclick = async () => { if (b.dataset.href) { location.href = b.dataset.href; return; } VIEW = b.dataset.v; render(); if(VIEW==="control"&&CT_MODE==="quick"){try{await loadSiteControl();}catch(e){CT_ERROR=e.message;toast(e.message);}render();} });
+window.addEventListener("message", async ev=>{if(ev.origin!==location.origin)return;if(ev.data?.type==="ms-admin-logout"){logout();return;}if(ev.data?.type==="ms-admin-refresh"){try{await fresh();ev.source?.postMessage({type:"ms-admin-refreshed"},ev.origin);}catch(e){ev.source?.postMessage({type:"ms-admin-refresh-failed"},ev.origin);}}});
 $("#out").onclick = logout;
 $("#demoBtn").onclick = () => { DEMO = true; demoData(); enter("Demo"); };
 $("#loginForm").onsubmit = async e => {

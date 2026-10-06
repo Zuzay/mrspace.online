@@ -129,7 +129,7 @@ async function prepare(c, spent) {
   const site = c.ms_sites;
   if (!site?.repo_path) { await patch(c.id, { ai_status: "needs_uzay", ai_note: "Sitenin repo klasoru tanimli degil (ms_sites.repo_path)." }); return 0; }
   if (spent >= BUDGET) { await patch(c.id, { ai_status: "needs_uzay", ai_note: `Aylik isci butcesi doldu (${BUDGET}$).` }); return 0; }
-  await patch(c.id, { ai_status: "working", ai_at: new Date().toISOString() });
+  await patch(c.id, { ai_status: "working", ai_at: new Date().toISOString(), ai_attempts: Number(c.ai_attempts || 0) + 1 });
 
   const dir = repoDir(site.repo);
   const base = git(dir, "rev-parse", "--abbrev-ref", "HEAD");
@@ -215,6 +215,21 @@ async function finish(c) {
 }
 
 // ---------- Ana dongu ----------
+// Zaman asimina ugrayan isleri bir kez yeniden kuyruga al; ikinci kez takilirsa insana birak.
+const staleBefore = encodeURIComponent(new Date(Date.now() - 15 * 60e3).toISOString());
+const stale = await sb(`ms_changes?ai_status=eq.working&ai_at=lt.${staleBefore}&select=id,site,ai_attempts&limit=20`);
+for (const c of stale) {
+  const attempts = Number(c.ai_attempts || 0);
+  if (attempts < 2) {
+    await patch(c.id, { ai_status: null, ai_at: null, ai_attempts: 1, ai_note: "Is 15 dakikadir yanit vermedi. Bir kez yeniden siraya alindi." });
+    console.log(`#${c.id} takildi; bir kez yeniden siraya alindi.`);
+  } else {
+    await patch(c.id, { ai_status: "needs_uzay", ai_note: "Is iki kez 15 dakikadan uzun surdu. Elle kontrol gerekli." });
+    await log(c.site, `Talep #${c.id} iki kez zaman asimina ugradi; elle kontrol gerekli.`, {});
+    console.log(`#${c.id} tekrar takildi; elle kontrole birakildi.`);
+  }
+}
+
 const spentRow = await sb("rpc/ms_ai_spend_month", { method: "POST", body: "{}" });
 let spent = Number(spentRow || 0);
 

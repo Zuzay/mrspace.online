@@ -48,3 +48,8 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
   3. Supabase > Edge Functions: `supabase/functions/ms-square/index.ts` deploy, "Enforce JWT verification" KAPALI. Secrets: `SQUARE_APP_ID`, `SQUARE_APP_SECRET`, `SQUARE_ENV` (`production` veya deneme için `sandbox`).
   4. Authentication > Users > Add user: `rufcut@mrspace.online`, şifre, Auto confirm. Panel erişimi admin panelinde site kartındaki "Panel erişimi" ile verilir.
 - Square anahtarları `ms_square` tablosunda, politikası yok: sadece fonksiyon okur, panel ve REST göremez.
+
+## Birleşik site yönetimi (Ekim 2026)
+- Mr. Space `/admin/` içindeki **Site yönetimi** bölümünden Laloo ve Heron'un hızlı kontrolleri ve tam panelleri açılır.
+- Heron köprüsü için gereken secret, güvenlik sınırları ve yayın adımları: [`ms/SITE-CONTROL.md`](ms/SITE-CONTROL.md).
+- Başarılı Laloo/Heron yönetim değişiklikleri hassas içerik taşımayan kısa kayıt olarak `ms_activity` tablosuna yazılır.
