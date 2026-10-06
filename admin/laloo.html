@@ -156,6 +156,10 @@ async function db(path, method = "GET", body = null, prefer = ""){
   if (r.status === 401){ logout(); throw new Error("Oturum bitti, tekrar giriş yap"); }
   const t = await r.text();
   if (!r.ok){ let m = t; try{ m = JSON.parse(t).message; }catch(e){} throw new Error(m); }
+  if (method !== "GET" && !path.startsWith("ms_activity")) {
+    const target = path.split("?")[0].slice(0, 70);
+    fetch(`${SB_URL}/rest/v1/ms_activity`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + S.access_token, "Content-Type":"application/json", Prefer:"return=minimal" }, body:JSON.stringify({ site:"laloo", who:"uzay", action:`Site control: ${method} ${target}` }) }).catch(() => {});
+  }
   return t ? JSON.parse(t) : null;
 }
 async function geocode(q){
