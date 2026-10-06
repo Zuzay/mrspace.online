@@ -299,6 +299,9 @@ async function controlApi(action, body){
   if (!r.ok) throw new Error(data.error === "heron_bridge_not_configured" ? "Heron bağlantısı için HERON_ADMIN_PASSWORD sunucu sırrı eklenmeli." : (data.error || `Heron bağlantı hatası (${r.status})`));
   return data;
 }
+async function logSiteControl(site, action){
+  try { await api("ms_activity", { method:"POST", prefer:"return=minimal", body:{ site, who:"uzay", action:"Site control: " + action } }); } catch (e) {}
+}
 
 /* ---------------- data ---------------- */
 let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{}, subs:[], vers:[] };
@@ -603,32 +606,32 @@ async function act(kind, el){
   if (kind === "control-refresh") { if(CT_MODE==="native"){document.querySelector(".control-frame")?.contentWindow?.location.reload();return;} await loadSiteControl(); return render(); }
   if (kind === "place-toggle") {
     const row = CT_DATA.places.find(x=>String(x.id)===el.dataset.id); if (!row) return;
-    await api(`places?id=eq.${encodeURIComponent(row.id)}`, { method:"PATCH", body:{ active:!row.active } }); toast(row.active?"Harita yerinden kaldırıldı":"Harita yerinde yayınlandı"); await loadSiteControl(); return render();
+    await api(`places?id=eq.${encodeURIComponent(row.id)}`, { method:"PATCH", body:{ active:!row.active } }); await logSiteControl("laloo", "place visibility updated"); toast(row.active?"Harita yerinden kaldırıldı":"Harita yerinde yayınlandı"); await loadSiteControl(); return render();
   }
   if (kind === "place-edit") {
     const x = CT_DATA.places.find(x=>String(x.id)===el.dataset.id); if (!x) return;
     return openDlg("Harita yerini düzenle", f("Ad","name",x.name)+f("Adres","address",x.address||"")+f("Bölge","area",x.area||"")+f("Ücret","fee",x.fee||"")+f("Saatler","hours",x.hours||"")+`<label class="wide">Bilgi<textarea name="info" rows="3">${esc(x.info||"")}</textarea></label><label><span>Aktif</span><input name="active" type="checkbox" ${x.active?"checked":""}></label><label><span>Doğrulanmış</span><input name="verified" type="checkbox" ${x.verified?"checked":""}></label>`, async v=>{
       const active = $("#dlgForm [name=active]").checked, verified = $("#dlgForm [name=verified]").checked;
       await api(`places?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ name:v.name, address:v.address||null, area:v.area||null, fee:v.fee||null, hours:v.hours||null, info:v.info||null, active, verified } });
-      toast("Laloo harita kaydı güncellendi"); await loadSiteControl();
+      await logSiteControl("laloo", "place updated"); toast("Laloo harita kaydı güncellendi"); await loadSiteControl();
     });
   }
   if (kind === "business-toggle") {
     const x = CT_DATA.businesses.find(x=>x.id===el.dataset.id); if (!x) return;
-    await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); toast("İşletme durumu güncellendi"); await loadSiteControl(); return render();
+    await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); await logSiteControl("laloo", "business visibility updated"); toast("İşletme durumu güncellendi"); await loadSiteControl(); return render();
   }
   if (kind === "business-edit") {
     const x = CT_DATA.businesses.find(x=>x.id===el.dataset.id); if (!x) return;
     return openDlg("Laloo işletmesini düzenle", f("İşletme adı","name",x.name)+f("Kategori","category",x.category)+f("Şehir","city",x.city||"")+f("Adres","address",x.address||"")+f("Web sitesi","website",x.website||"","url")+f("Ücretli plan","plan",x.plan)+f("Plan fiyatı ($)","plan_price_usd",x.plan_price_usd,"number")+f("Üyelik bitişi","paid_until",x.paid_until||"","date")+`<label class="wide">Kısa açıklama<textarea name="blurb" rows="3">${esc(x.blurb||"")}</textarea></label>`, async v=>{
-      await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ name:v.name, category:v.category, city:v.city||null, address:v.address||null, website:v.website||null, plan:v.plan, plan_price_usd:Number(v.plan_price_usd||0), paid_until:v.paid_until||null, blurb:v.blurb||null } }); toast("Laloo işletmesi güncellendi"); await loadSiteControl();
+      await api(`businesses?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ name:v.name, category:v.category, city:v.city||null, address:v.address||null, website:v.website||null, plan:v.plan, plan_price_usd:Number(v.plan_price_usd||0), paid_until:v.paid_until||null, blurb:v.blurb||null } }); await logSiteControl("laloo", "business updated"); toast("Laloo işletmesi güncellendi"); await loadSiteControl();
     });
   }
   if (kind === "suggestion-set") {
-    await api(`suggestions?id=eq.${encodeURIComponent(el.dataset.id)}`, { method:"PATCH", body:{ status:el.dataset.status } }); toast(el.dataset.status==="approved"?"Öneri onaylandı":"Öneri reddedildi"); await loadSiteControl(); return render();
+    await api(`suggestions?id=eq.${encodeURIComponent(el.dataset.id)}`, { method:"PATCH", body:{ status:el.dataset.status } }); await logSiteControl("laloo", "suggestion moderated"); toast(el.dataset.status==="approved"?"Öneri onaylandı":"Öneri reddedildi"); await loadSiteControl(); return render();
   }
   if (kind === "city-toggle") {
     const x = CT_DATA.cities.find(x=>x.id===el.dataset.id); if (!x) return;
-    await api(`cities?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); toast("Şehir görünürlüğü güncellendi"); await loadSiteControl(); return render();
+    await api(`cities?id=eq.${encodeURIComponent(x.id)}`, { method:"PATCH", body:{ active:!x.active } }); await logSiteControl("laloo", "city visibility updated"); toast("Şehir görünürlüğü güncellendi"); await loadSiteControl(); return render();
   }
   if (kind === "heron-price") {
     const price = prompt("Yeni fiyat (USD)", el.dataset.price); if (price===null || !Number.isFinite(Number(price)) || Number(price)<0) return;
