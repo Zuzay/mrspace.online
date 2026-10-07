@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>System handover · Mr. Space</title>
+<script src="../assets/i18n.js"></script>
+<meta name="description" content="A clear checklist for handing a business website and its accounts to the business owner.">
+<meta property="og:title" content="System handover · Mr. Space">
+<meta property="og:description" content="Your code, domain, database and billing under your control. A practical handover checklist.">
+<meta property="og:image" content="https://mrspace.online/og.png">
+<link rel="canonical" href="https://mrspace.online/handover/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.intro{padding-block:clamp(48px,8vw,104px);background:#0E1014;color:#F4F5F3;position:relative;overflow:hidden}
+.intro::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px 360px at 85% 20%,#F6B93B20,transparent 70%),linear-gradient(#FFFFFF08 1px,transparent 1px) 0 0/100% 48px,linear-gradient(90deg,#FFFFFF08 1px,transparent 1px) 0 0/48px 100%}
+.intro .wrap{position:relative}.intro .label{color:#A3A9B5}.intro h1{font-size:clamp(48px,8vw,104px);margin-top:20px;line-height:.9}.intro h1 span{color:var(--sun)}
+.intro p{max-width:62ch;margin-top:24px;color:#C9CED8;font-size:clamp(17px,1.5vw,20px)}
+.handover-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.7fr);gap:clamp(32px,7vw,96px);align-items:start}
+.steps{list-style:none;border-top:1.5px solid var(--ink);counter-reset:step}
+.steps li{counter-increment:step;display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;border-bottom:1px solid var(--rule)}
+.steps li::before{content:"0" counter(step);font:12px var(--mono);letter-spacing:.08em;color:var(--mute);padding-top:6px}
+.steps h2{font-size:clamp(24px,3vw,34px);margin-bottom:8px}.steps p{color:var(--mute);font-size:16px;max-width:62ch}
+.handover-note{position:sticky;top:88px;background:var(--inv-bg);color:var(--inv-fg);padding:24px;border:1.5px solid var(--inv-bg)}
+.handover-note .label{color:var(--sun)}.handover-note h2{font-size:32px;margin:14px 0}.handover-note p{color:var(--inv-mute);font-size:15px}
+.handover-note .btn{margin-top:20px;background:var(--sun);border-color:var(--sun);color:#121418;justify-content:center;width:100%}
+.cta{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta h2{font-size:clamp(38px,6vw,72px)}
+@media(max-width:820px){.handover-grid{grid-template-columns:1fr}.handover-note{position:static}.steps li{grid-template-columns:44px minmax(0,1fr);gap:12px}}
+</style>
+</head>
+<body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
+ <header class="top dark"><div class="wrap">
+  <a class="mark" href="../" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main">
+   <a class="hide-sm" href="../#work">Work</a><a class="hide-sm" href="../packages/">Packages</a>
+   <a class="btn sm solid" href="../start/?p=handover">Start a project</a>
+  </nav>
+ </div></header>
+
+ <main>
+  <section class="intro"><div class="wrap">
+   <div class="label">Package 03 · Full system handover</div>
+   <h1>Your system.<br><span>Your accounts.</span></h1>
+   <p>A full handover puts your business in control of its code, domain, database, hosting and billing. We confirm each account owner and document recovery steps before launch.</p>
+  </div></section>
+
+  <section class="sec"><div class="wrap handover-grid">
+   <div>
+    <div class="sec-head"><div class="label"><span>Handover checklist</span><span>Keep this with your business records</span></div><h2>Every key has an owner.</h2></div>
+    <ol class="steps">
+     <li><div><h2>Choose the owner</h2><p>Use an email address controlled by your business for account ownership and recovery. Confirm who will manage billing and access.</p></div></li>
+     <li><div><h2>Put the code in your GitHub organization</h2><p>The repository should belong to an organization your business controls. Give each person their own account and the smallest role they need.</p></div></li>
+     <li><div><h2>Keep the database and hosting in your name</h2><p>Place the Supabase project and hosting under an organization you control. Confirm the billing owner, recovery email and who can manage production settings.</p></div></li>
+     <li><div><h2>Keep the domain and email yours</h2><p>Your business should control the domain registrar, DNS, business email and payment methods. Record renewal dates and recovery contacts.</p></div></li>
+     <li><div><h2>Use separate access for every person</h2><p>Use unique passwords and multi-factor authentication. Invite a named collaborator for support instead of sharing passwords. Remove temporary access after handover.</p></div></li>
+     <li><div><h2>Write down recovery and restore steps</h2><p>Keep recovery codes in a secure password manager. Record project names, account owners, backup locations and how to restore the site in private business records.</p></div></li>
+    </ol>
+   </div>
+   <aside class="handover-note">
+    <div class="label">A safer handover</div>
+    <h2>No shared passwords.</h2>
+    <p>We do not publish account credentials here or ask you to reuse your panel password. Account invitations and recovery details are handled privately with the account owner.</p>
+    <a class="btn" href="../packages/">Review Package 03</a>
+   </aside>
+  </div></section>
+
+  <section class="sec"><div class="wrap cta">
+   <h2>Ready to own the whole system?</h2><a class="btn solid" href="../start/?p=handover">Start a Handover project <span class="arr">→</span></a>
+  </div></section>
+ </main>
+ <footer class="foot dark"><div class="wrap">
+  <div style="display:grid;gap:12px"><span class="sig"><i></i>Made by Mr. Space</span><p>Mr. Space is a web studio of Heron CA LLC, Venice Beach, California.</p></div>
+  <nav aria-label="Footer"><a href="../">Home</a><a href="../packages/">Packages</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+ </div></footer>
+</div>
+</body>
+</html>
