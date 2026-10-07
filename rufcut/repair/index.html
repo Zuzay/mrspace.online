@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Plan a Rufcut clothing repair and send the work order to the shop."><meta name="robots" content="noindex">
+<title>Plan a repair | Rufcut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="repair.css"><script src="../../assets/ms-config.js"></script><script defer src="repair.js"></script>
+</head>
+<body>
+<header><a class="brand" href="../"><span class="stitch-mark" aria-hidden="true"></span>RUFCUT</a><a class="home" href="../"><span id="backToShop">Back to shop</span> <span aria-hidden="true">↗</span></a></header>
+<main>
+ <section class="intro"><p class="kicker" id="heroKicker">REPAIRS · VENICE BEACH</p><h1><span id="heroLineOne">Give it</span><br><em id="heroLineTwo">another life.</em></h1><p id="heroCopy">Choose the piece and the work. Mark the spot on the garment, then send your work order straight to the shop.</p></section>
+ <div class="workbench">
+  <form id="repairForm" novalidate>
+  <div class="form-head"><div><span class="eyebrow" id="stepText">STEP 1 / 3</span><h2 id="stepTitle">Choose your garment</h2></div><label class="language"><span>Language</span><select id="language" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="zh">中文</option></select></label></div>
+   <section class="step" data-step="1">
+    <fieldset><legend>What needs work?</legend><div class="choices garments">
+     <label><input type="radio" name="garment" value="jeans" checked><span>Jeans</span></label><label><input type="radio" name="garment" value="pants"><span>Trousers</span></label><label><input type="radio" name="garment" value="skirt"><span>Skirt</span></label><label><input type="radio" name="garment" value="dress"><span>Dress</span></label><label><input type="radio" name="garment" value="shirt"><span>Shirt</span></label><label><input type="radio" name="garment" value="jacket"><span>Jacket</span></label><label><input type="radio" name="garment" value="other"><span>Other</span></label>
+    </div></fieldset>
+    <fieldset><legend>Who is it for?</legend><div class="choices gender"><label><input type="radio" name="gender" value="women" checked><span>Women's</span></label><label><input type="radio" name="gender" value="men"><span>Men's</span></label><label><input type="radio" name="gender" value="unisex"><span>Unisex / not sure</span></label></div></fieldset>
+    <p class="helper">The silhouette changes to match the garment and fit.</p>
+   </section>
+   <section class="step" data-step="2" hidden>
+    <fieldset><legend>What would you like done?</legend><div class="choices jobs" id="jobs">
+     <label><input type="checkbox" value="shorten"><span>Shorten</span></label><label><input type="checkbox" value="lengthen"><span>Lengthen</span></label><label><input type="checkbox" value="take_in"><span>Take in</span></label><label><input type="checkbox" value="let_out"><span>Let out</span></label><label><input type="checkbox" value="repair"><span>Repair a hole</span></label><label><input type="checkbox" value="patch"><span>Add a patch</span></label><label><input type="checkbox" value="zipper"><span>Replace zipper</span></label><label><input type="checkbox" value="other"><span>Other work</span></label>
+    </div></fieldset>
+    <div class="place-row"><span class="helper">Tap the garment to mark where the work is needed. You can move each red mark.</span><button type="button" class="text-button" id="clearMarks">Clear marks</button></div>
+    <label class="field"><span>How much? (inches, optional)</span><input id="inches" type="number" min="0" max="120" step="0.125" inputmode="decimal" placeholder="For example, 2"></label>
+    <label class="field"><span>Note for the tailor</span><textarea id="itemNote" maxlength="600" rows="3" placeholder="Describe the fit or the repair"></textarea></label>
+   </section>
+   <section class="step" data-step="3" hidden>
+    <div class="review" id="review"></div>
+    <label class="field"><span>Your name</span><input id="customerName" autocomplete="name" maxlength="100" required></label>
+    <label class="field"><span>Email</span><input id="customerEmail" type="email" autocomplete="email" maxlength="160" required></label>
+    <label class="field"><span>Phone (optional)</span><input id="customerPhone" type="tel" autocomplete="tel" maxlength="40"></label>
+    <label class="trap" aria-hidden="true">Leave this field empty<input id="website" tabindex="-1" autocomplete="off"></label>
+    <p class="helper">Your request goes to Rufcut and appears in the shop panel. We’ll show a ticket number you can use to check its status.</p>
+   </section>
+   <p id="error" class="error" role="status" aria-live="polite"></p>
+   <div class="controls"><button class="button secondary" id="back" type="button" hidden>Back</button><button class="button secondary" id="addAnother" type="button" hidden>Add another garment</button><button class="button primary" id="next" type="button">Continue <span aria-hidden="true">→</span></button><button class="button primary" id="send" type="submit" hidden>Send work order <span aria-hidden="true">→</span></button></div>
+  </form>
+  <aside class="preview-panel"><div class="preview-title"><div><span class="eyebrow" id="previewKicker">WORK ORDER PREVIEW</span><h2 id="previewName">Jeans</h2></div><span id="itemCount">01</span></div><div class="garment-wrap" id="garmentWrap" role="group" tabindex="0" aria-label="Selected garment with alteration marks"></div><div class="mark-help"><i aria-hidden="true"></i><span>Red haze marks the work area</span></div><div class="preview-list" id="previewList"><p>Choose a work type to see it marked here.</p></div><div class="saved"><span class="saved-mark" aria-hidden="true">✓</span><span id="savedText">Your progress saves on this device.</span></div></aside>
+ </div>
+ <section class="success" id="success" hidden><p class="kicker" id="successKicker">WORK ORDER SENT</p><h2>It’s in the shop.</h2><p>Keep this ticket number. Enter it in the order tracker on the Rufcut home page to see progress.</p><code id="ticketCode"></code><a class="button primary" id="successLink" href="../#order">Track this repair <span aria-hidden="true">→</span></a></section>
+</main><footer><a href="../">Rufcut</a><span>517 Ocean Front Walk · Venice Beach</span></footer>
+</body></html>
