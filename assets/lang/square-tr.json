@@ -4,7 +4,6 @@
   "SKU prompt": "SKU talimatı",
   "Square / Inventory system": "Square / Envanter sistemi",
   "Square SKU Setup Guide.": "Square SKU Düzenleme Rehberi.",
-  "Set up one clear SKU rule for every sellable item variation. This reusable workflow helps Rufcut and future Mr. Space clients keep Square stock, labels and website products in sync.": "Satılabilir her ürün varyasyonu için açık bir SKU kuralı oluştur. Bu tekrar kullanılabilir yöntem Rufcut ve gelecekteki Mr. Space müşterilerinin Square stoklarını, etiketlerini ve web sitesi ürünlerini uyumlu tutmasına yardımcı olur.",
   "Copy the Claude setup prompt": "Claude kurulum talimatını kopyala",
   "See the SKU rules": "SKU kurallarını gör",
   "1 / Export and back up": "1 / Dışa aktar ve yedekle",
@@ -21,8 +20,6 @@
   "Avoid prices, stock counts and other details that can change over time.": "Fiyat, stok adedi ve zamanla değişebilecek diğer bilgileri kullanma.",
   "Report blank and duplicate SKUs before proposing replacements.": "Yeni kod önermeden önce boş ve yinelenen SKU'ları raporla.",
   "Illustrative format only. Approve the real codes with the owner.": "Yalnızca örnek biçim. Gerçek kodları işletme sahibiyle onayla.",
-  "Client · item type · item number · variation": "İşletme · ürün türü · ürün numarası · varyasyon",
-  "This example could describe one Rufcut jeans variation. It is not a preset: Claude must first inspect the real catalog and suggest codes that fit the business.": "Bu örnek bir Rufcut jean varyasyonunu gösterebilir. Hazır kural değildir: Claude önce gerçek kataloğu inceleyip işletmeye uygun kodlar önermelidir.",
   "02 / Keep item groups clear": "02 / Ürün gruplarını ayır",
   "Same SKU logic, separate groups": "SKU mantığı aynı, gruplar ayrı",
   "Separate products, workshops and services.": "Ürünleri, atölyeleri ve hizmetleri ayır.",
@@ -59,7 +56,6 @@
   "Review the approved-copy comparison and Square's import preview before importing. Start with a small group if the catalog is large.": "İçe aktarmadan önce onaylanan kopyayı karşılaştır ve Square içe aktarma önizlemesini incele. Katalog büyükse küçük bir grupla başla.",
   "Square bulk import guide": "Square toplu içe aktarma rehberi",
   "Mr. Space customer panel": "Mr. Space müşteri paneli",
-  "A repeatable Square SKU setup workflow for Rufcut and future Mr. Space clients.": "Rufcut ve gelecekteki Mr. Space müşterileri için tekrar kullanılabilir Square SKU düzeni iş akışı.",
   "Copied": "Kopyalandı",
   "Select the prompt and copy it manually": "Talimatı seçip elle kopyala",
   "Mr. Space": "Mr. Space",
@@ -69,5 +65,9 @@
   "Mr. Space home": "Mr. Space ana sayfa",
   "Square's official export and import guide ↗": "Square'ın resmi dışa ve içe aktarma rehberi ↗",
   "Square bulk import guide ↗": "Square toplu içe aktarma rehberi ↗",
-  "Mr. Space customer panel ↗": "Mr. Space müşteri paneli ↗"
+  "Mr. Space customer panel ↗": "Mr. Space müşteri paneli ↗",
+  "Satılabilir her ürün varyasyonu için tutarlı bir SKU kuralı belirle. Ürünleri, atölyeleri ve hizmetleri inceleyip Square kataloğunu güncellemek için bu rehberi kullan.": "Satılabilir her ürün varyasyonu için açık bir SKU kuralı oluştur. Bu tekrar kullanılabilir yöntem Rufcut ve gelecekteki Mr. Space müşterilerinin Square stoklarını, etiketlerini ve web sitesi ürünlerini uyumlu tutmasına yardımcı olur.",
+  "Bu, jean varyasyonu için örnek bir SKU'dur; önerilen veya zorunlu bir kod değildir. Biçimi kataloğu inceledikten sonra belirle.": "Bu örnek bir Rufcut jean varyasyonunu gösterebilir. Hazır kural değildir: Claude önce gerçek kataloğu inceleyip işletmeye uygun kodlar önermelidir.",
+  "İşletme · ürün türü · ürün numarası · varyasyon": "İşletme · ürün türü · ürün numarası · varyasyon",
+  "Square'da ürün kodlarını ve varyasyonları düzenlemek için pratik bir rehber.": "Rufcut ve gelecekteki Mr. Space müşterileri için tekrar kullanılabilir Square SKU düzeni iş akışı."
 }
