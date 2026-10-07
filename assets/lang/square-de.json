@@ -67,5 +67,7 @@
   "Lege für jede verkaufbare Artikelvariante eine einheitliche SKU-Regel fest. Nutze diesen Leitfaden, um Produkte, Workshops und Dienstleistungen vor einer Aktualisierung deines Square-Katalogs zu prüfen.": "Lege für jede verkaufbare Artikelvariante eine klare SKU-Regel fest. Dieser wiederverwendbare Ablauf hält Square-Bestand, Etiketten und Website-Produkte bei Rufcut und zukünftigen Mr. Space Kunden synchron.",
   "Dies ist ein Beispiel für eine Jeansvariante, keine empfohlene SKU. Lege das Format erst nach Prüfung deines Katalogs fest.": "Dieses Beispiel könnte eine Rufcut-Jeansvariante beschreiben. Es ist keine Vorgabe: Claude muss zuerst den echten Katalog prüfen und passende Codes vorschlagen.",
   "Betrieb · Artikeltyp · Artikelnummer · Variante": "Betrieb · Artikeltyp · Artikelnummer · Variante",
-  "Ein praktischer Leitfaden zur Organisation von Artikelcodes und Varianten in Square.": "Ein wiederverwendbarer Ablauf zur Square-SKU-Einrichtung für Rufcut und zukünftige Mr. Space Kunden."
+  "Ein praktischer Leitfaden zur Organisation von Artikelcodes und Varianten in Square.": "Ein wiederverwendbarer Ablauf zur Square-SKU-Einrichtung für Rufcut und zukünftige Mr. Space Kunden.",
+  "Keep every existing non-empty SKU unchanged. First map the customer’s current pattern and adapt the Mr. Space integration to it.": "Alle vorhandenen SKUs unverändert lassen. Zuerst das bestehende Schema des Kunden erfassen und die Mr. Space-Integration daran anpassen.",
+  "List blank and duplicate SKUs separately. Propose codes only for blanks; flag duplicates for review without changing them.": "Leere und doppelte SKUs getrennt auflisten. Codes nur für leere Felder vorschlagen; Duplikate unverändert zur Prüfung markieren."
 }
