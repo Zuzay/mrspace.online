@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Square SKU Setup Guide · Mr. Space</title>
-<meta name="description" content="A practical, reusable system for reviewing and organizing Square SKUs across products, workshops and services.">
+<meta name="description" content="A practical, reusable guide to reviewing and organizing Square item SKUs for any kind of business.">
 <link rel="canonical" href="https://mrspace.online/square-sku-guide/">
 <meta property="og:title" content="Square SKU Setup Guide · Mr. Space">
 <meta property="og:description" content="Build a clear, consistent SKU system for Square inventory and Mr. Space websites.">
@@ -76,7 +76,7 @@
    <div>
     <div class="label">Square / Inventory system</div>
     <h1>Square SKU Setup Guide.</h1>
-    <p>Set up a consistent SKU rule for every sellable item variation. Use this guide to review products, workshops and services before updating your Square catalog.</p>
+    <p>Set up a consistent SKU rule that fits the way your business sells and tracks items. Review your Square catalog before changing any codes.</p>
     <div class="hero-actions">
      <a class="btn solid" href="#prompt">Copy the Claude setup prompt</a>
      <a class="btn" href="#sku-rules">See the SKU rules</a>
@@ -109,9 +109,9 @@
   </ul>
   <div class="sku-example">
    <strong>Illustrative format only. Approve the real codes with the owner.</strong>
-   <div class="sku-code">BUS-JNS-001-W32</div>
-   <div class="sku-parts">Business · item type · item number · variation</div>
-   <p>This is an illustrative jeans variation, not a recommended code. Choose a format only after reviewing your catalog.</p>
+   <div class="sku-code">ORG-CAT-001-VAR</div>
+   <div class="sku-parts">Organization · item group · item number · variation</div>
+   <p>This is a generic example, not a recommended code. Choose a format only after reviewing your catalog and existing SKU pattern.</p>
   </div>
  </div>
 </div></section>
@@ -119,13 +119,13 @@
 <section class="sec"><div class="wrap">
  <header class="sec-head">
   <div class="label"><span>02 / Keep item groups clear</span><span>Same SKU logic, separate groups</span></div>
-  <h2>Separate products, workshops and services.</h2>
-  <p>Use categories and item types to keep different parts of the business understandable. Do not mix workshops or repair services into the clothing product list.</p>
+  <h2>Organize the catalog around your business.</h2>
+  <p>Use the item types and categories that match what your business actually sells. Keep related items easy to find and report; do not add groups that do not apply.</p>
  </header>
  <div class="type-grid">
-  <article class="type-card"><div class="mono">01 / Retail</div><h3>Products</h3><p>Use the real garment type and keep size or color as Square variations. Each sellable variation needs its own SKU.</p></article>
-  <article class="type-card"><div class="mono">02 / Events</div><h3>Workshops</h3><p>Keep workshop records in a Workshops category and separate from retail stock. Use existing dates and capacity only; never guess them.</p></article>
-  <article class="type-card"><div class="mono">03 / Services</div><h3>Repairs</h3><p>Keep repair services in a Repairs category, separate from products. Any service code should follow a separately approved rule.</p></article>
+  <article class="type-card"><div class="mono">01 / Goods</div><h3>Products</h3><p>Use names and categories that reflect the actual items. Add variations only for real choices such as size, format, flavor or color.</p></article>
+  <article class="type-card"><div class="mono">02 / Optional</div><h3>Services</h3><p>If the business sells services, use clear service names and a separate category when it helps the owner find and report them.</p></article>
+  <article class="type-card"><div class="mono">03 / Optional</div><h3>Other items</h3><p>Include other sellable item types only when they are present in the catalog. Keep their names and grouping consistent with how they are sold.</p></article>
  </div>
 </div></section>
 
@@ -144,7 +144,7 @@
   </ul>
   <div class="callout">
    <strong>Mr. Space website visibility is a separate step.</strong>
-   <p>Square categories alone do not publish items on the custom website. In the Mr. Space customer panel, select which products to show online. Keep workshops and repairs hidden from the clothing grid until their own sections are ready.</p>
+   <p>Square categories alone do not publish items on a custom website. In the Mr. Space customer panel, choose which catalog items should appear online, based on the site's content and the owner's preference.</p>
    <a href="https://squareup.com/help/us/en/article/5153-import-items-online" target="_blank" rel="noopener">Square's official export and import guide ↗</a>
   </div>
  </div>
@@ -160,13 +160,14 @@
   <textarea id="claudePrompt" readonly aria-label="Claude Square SKU setup prompt">I am organizing my Square item catalog and setting an SKU rule that fits my business.
 
 Business name: [enter business name]
-Website: [enter website address]
+Business type: [describe what the business sells]
+Website: [enter website address, if applicable]
 Existing SKU rule, if known: [describe it or write "unknown"]
 
 I uploaded a WORKING COPY of my Square Item Library export. Work only from this file. Do not ask for or use my Square login, password, one-time code, payment details, customer list, API key or access token. Do not connect to Square. Do not use customer, order or payment exports.
 
 GOAL
-Review the item catalog and propose a simple, consistent SKU system that works for Square inventory, product variations and printed labels. Keep physical products, workshops/events and repair/services clearly separated. Do not edit the workbook until I approve the proposed rule.
+Review the catalog and propose a simple, consistent SKU system that fits how this business sells and tracks items in Square. Use only the item types and categories supported by the catalog. Do not assume this business sells any particular kind of product or service, and do not create groups that are not needed. Do not edit the workbook until I approve the proposed rule.
 
 SKU RULES
 - A SKU identifies a sellable item variation and must be unique across the catalog.
@@ -186,11 +187,11 @@ SQUARE FILE SAFETY
 - Do not edit, import or connect to my Square account.
 - Never use customer, order, payment or other personal data exports.
 
-ITEM GROUPS
-1. Retail products: keep the true garment/product type clear; use Square variations for real sizes and colors.
-2. Workshops/events: list separately from retail inventory. Use only event details already present in the file.
-3. Repairs/services: list separately from products and propose a separate code family only if the owner approves it.
-4. Ambiguous records: mark Needs owner review. Do not guess.
+CATALOG GROUPS
+1. Preserve existing Square categories and item types when they accurately describe the catalog.
+2. Use variations only for real choices present in the source data, such as size, format, flavor or color.
+3. Include services, events, fees or other item types only if they already appear in this business's catalog. Do not assume or add them.
+4. Flag records that do not fit an existing group as Needs owner review. Do not guess.
 
 FIRST RESPONSE — DO NOT EDIT
 Return:
@@ -223,7 +224,7 @@ Create a separate updated copy from the original Square template. Keep all exist
 </main>
 
 <footer class="foot"><div class="wrap">
- <div><span class="sig"><i></i>Mr. Space</span><p>A practical guide to organizing item codes and variations in Square.</p></div>
+ <div><span class="sig"><i></i>Mr. Space</span><p>A practical guide to organizing Square item codes for any kind of business.</p></div>
  <nav><a href="../">Mr. Space</a><a href="#prompt">Claude prompt</a><a href="#sku-rules">Back to top ↑</a></nav>
 </div></footer>
 </div>
