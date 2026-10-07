@@ -4,9 +4,9 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Plan a Rufcut clothing repair and send the work order to the shop."><meta name="robots" content="noindex">
 <title>Plan a repair | Rufcut</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="repair.css"><script src="../../assets/ms-config.js"></script><script defer src="repair.js"></script>
+<link rel="stylesheet" href="../fonts.css">
+<script>const repairParams=new URLSearchParams(location.search);if(repairParams.get('embed')==='1')document.documentElement.dataset.embed='true';const repairTheme=repairParams.get('theme');if(['light','dark'].includes(repairTheme))document.documentElement.dataset.theme=repairTheme;</script>
+<link rel="stylesheet" href="repair.css"><link rel="stylesheet" href="atelier-2026.css"><script src="../../assets/ms-config.js"></script><script defer src="repair.js"></script>
 </head>
 <body>
 <header><a class="brand" href="../"><span class="stitch-mark" aria-hidden="true"></span>RUFCUT</a><a class="home" href="../"><span id="backToShop">Back to shop</span> <span aria-hidden="true">↗</span></a></header>
@@ -43,6 +43,7 @@
   </form>
   <aside class="preview-panel"><div class="preview-title"><div><span class="eyebrow" id="previewKicker">WORK ORDER PREVIEW</span><h2 id="previewName">Jeans</h2></div><span id="itemCount">01</span></div><div class="garment-wrap" id="garmentWrap" role="group" tabindex="0" aria-label="Selected garment with alteration marks"></div><div class="mark-help"><i aria-hidden="true"></i><span>Red haze marks the work area</span></div><div class="preview-list" id="previewList"><p>Choose a work type to see it marked here.</p></div><div class="saved"><span class="saved-mark" aria-hidden="true">✓</span><span id="savedText">Your progress saves on this device.</span></div></aside>
  </div>
+ <p class="powered">powered by <a href="../../">mrspace ↗</a></p>
  <section class="success" id="success" hidden><p class="kicker" id="successKicker">WORK ORDER SENT</p><h2>It’s in the shop.</h2><p>Keep this ticket number. Enter it in the order tracker on the Rufcut home page to see progress.</p><code id="ticketCode"></code><a class="button primary" id="successLink" href="../#order">Track this repair <span aria-hidden="true">→</span></a></section>
 </main><footer><a href="../">Rufcut</a><span>517 Ocean Front Walk · Venice Beach</span></footer>
 </body></html>
