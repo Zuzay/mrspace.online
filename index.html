@@ -682,7 +682,8 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
   var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { load(e.target); io.unobserve(e.target); } }); }, { rootMargin: "400px" });
   boxes.forEach(function(b){ io.observe(b); });
  } else boxes.forEach(load);
- window.addEventListener("resize", function(){ boxes.forEach(fit); });
+ if ("ResizeObserver" in window) { var ro = new ResizeObserver(function(entries){ entries.forEach(function(e){ fit(e.target); }); }); boxes.forEach(function(b){ ro.observe(b); }); }
+ else window.addEventListener("resize", function(){ boxes.forEach(fit); });
  boxes.forEach(function(b){
   b.querySelector(".cover").addEventListener("click", function(){ b.classList.add("on"); count("explore/" + (b.closest(".band").className.split(" ")[1]), "Explored live site"); });
  });
