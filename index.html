@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="assets/demos.css">
 <script data-goatcounter="https://mrspace.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <style>
-/* Home v3: dark stage hero, yellow ticker, project bands in each client's own colors. */
+/* Studio home: work-led, editorial layout with real projects ahead of product mockups. */
 :root{
   --night:#0E1014; --night-2:#171A21; --night-line:#FFFFFF1F; --night-mute:#A3A9B5;
   --heron:#EDE6D8; --heron-ink:#1D1A16;
@@ -137,11 +137,6 @@ body{background:var(--paper)}
 
 /* ---------- made to measure ---------- */
 .mtm{background:var(--night);color:#F4F5F3;position:relative;overflow:hidden}
-.tape{height:46px;background:#F6B93B;color:#121418;position:relative;border-bottom:1.5px solid #121418;
- background-image:repeating-linear-gradient(90deg,#121418 0 1.5px,transparent 1.5px 12px),repeating-linear-gradient(90deg,#121418 0 1.5px,transparent 1.5px 96px);
- background-size:100% 12px,100% 22px;background-repeat:no-repeat;background-position:0 0,0 0}
-.tape .nums{position:absolute;left:0;right:0;bottom:6px;display:flex;font:500 11px var(--mono);overflow:hidden;white-space:nowrap}
-.tape .nums span{width:96px;flex:none;padding-left:4px}
 .mtm .inner{padding-block:clamp(60px,8vw,110px)}
 .mtm .top2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px 64px;align-items:end}
 .mtm h2{color:#F4F5F3;font-size:clamp(40px,5.6vw,76px)}
@@ -277,6 +272,85 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 .foot.dark .sig i{background:#F4F5F3}
 
 @media (prefers-reduced-motion:reduce){.ticker .row,.chip,.timeline::after{animation:none}}
+
+/* Deliberate, work-led visual language: warm stock, ink, and one brass accent. */
+:root{--night:#171916;--night-2:#232620;--night-line:#17191624;--night-mute:#64675F;--sun:#D6A83B;--paper:#F3F0E7;--panel:#F8F6F0;--ink:#171916;--rule:#D3CEC1;--mute:#5D6058}
+.top.dark{background:var(--paper);border-bottom:1px solid var(--rule);color:var(--ink)}
+.top.dark .mark i{background:var(--ink)}
+.top.dark .mark i::after{background:var(--sun)}
+.hero{background:var(--paper);color:var(--ink);padding-block:clamp(56px,8vw,110px) clamp(64px,9vw,120px)}
+.hero::before{display:none}
+.hero .wrap{grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:clamp(44px,8vw,120px)}
+.pill{border-radius:2px;border-color:#1719163D;color:#55594F}
+.pill i{border-radius:0;box-shadow:none;animation:none}
+.hero h1{font-size:clamp(54px,7.3vw,104px);line-height:.91;color:var(--ink);letter-spacing:-.055em}
+.hero h1{font-family:var(--body);font-size:clamp(54px,7.1vw,98px);font-weight:600;text-transform:none;line-height:.96;letter-spacing:-.075em}
+.hero h1 em{color:#80611E}
+.hero .lede{color:#53574F;max-width:50ch}
+.hero .lede b{color:var(--ink)}
+.btn.ghost{color:var(--ink);border-color:#17191670}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.hero .proof{color:#62655D}
+.hero .proof b{color:var(--ink)}
+.hero-work{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:14px 0 8px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.hero-work-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;color:#66695F;font:11px var(--mono);letter-spacing:.09em;text-transform:uppercase}
+.hero-project{display:grid;grid-template-columns:38px minmax(0,1fr) minmax(120px,.7fr) 24px;align-items:center;gap:12px;padding:19px 0;border-top:1px solid var(--rule);text-decoration:none;color:var(--ink);transition:padding .18s,color .18s}
+.hero-project:hover{padding-inline:8px;color:#7A5A1A}
+.project-no,.project-type{font:11px var(--mono);letter-spacing:.06em;color:#77786F}
+.project-name{font-size:clamp(20px,2.2vw,28px);font-weight:600;letter-spacing:-.035em}
+.project-arrow{font-size:21px;text-align:right}
+.hero-work-note{max-width:36ch;margin:20px 0 0 auto;color:#62655D;font-size:13px;line-height:1.5}
+.ticker{background:var(--sun);border:0}
+.ticker .row{width:auto;animation:none;justify-content:space-between;gap:22px;padding:0 clamp(20px,4vw,56px)}
+.ticker span{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:13px 0}
+.ticker span::after{width:4px;height:4px;margin:0 0 0 18px}
+.cards3{gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.card{background:transparent;border:0;border-right:1px solid var(--rule);border-radius:0;grid-template-rows:130px 1fr;transition:background .18s}
+.card:last-child{border-right:0}
+.card:hover{transform:none;box-shadow:none;background:#EAE6D9}
+.service-no{display:flex;flex-direction:column;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--rule);color:#706F66}
+.service-no span{font:10px var(--mono);letter-spacing:.1em}
+.service-no b{color:var(--ink);font:500 clamp(27px,3vw,38px)/1 var(--display);letter-spacing:-.04em}
+.card .txt{padding:22px;gap:10px}
+.card li{border-radius:2px}
+.band{border-top:1px solid var(--ink)}
+.band-head{margin-bottom:38px}
+.band .tags span{border-radius:2px}
+.frame,.adm{border-radius:2px;box-shadow:0 0 0 1px #121418}
+.frame .bar .lv::before{animation:none}
+.project-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:1px;align-items:stretch;background:#17191620}
+.project-mark{position:relative;isolation:isolate;min-height:340px;padding:clamp(26px,4vw,48px);display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;overflow:hidden}
+.project-mark small,.project-mark span{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.project-mark strong{font:600 clamp(56px,9vw,112px)/.82 var(--body);letter-spacing:-.085em}
+.project-mark span{align-self:flex-start;border-bottom:1px solid currentColor;padding-bottom:5px}
+.heron-mark{background:#EEE7D8;color:#24231F}
+.heron-mark strong{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;letter-spacing:-.07em;line-height:.74}
+.laloo-mark{background:#E4E8DB;color:#0F5857}
+.laloo-mark::before,.laloo-mark::after{content:"";position:absolute;z-index:-1;width:35vw;height:35vw;border-radius:50%;border:1px solid #0F585726;right:-10%;top:12%}
+.laloo-mark::after{width:24vw;height:24vw;right:0;top:26%}
+.rufcut-mark{background:#16223F;color:#F4F5F3}
+.rufcut-mark strong{letter-spacing:.05em;font-size:clamp(40px,6vw,76px)}
+.rufcut-mark span{color:#E08A3C}
+.project-details{background:#FFFFFFB8;color:#171916;padding:clamp(24px,3vw,38px);display:flex;flex-direction:column;justify-content:center;min-height:100%;border:1px solid #17191620}
+.project-kicker{font:10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#66695F}
+.project-details h4{font-size:clamp(23px,2.5vw,32px);line-height:1.08;letter-spacing:-.04em;margin:18px 0 12px}
+.project-details p{font-size:15px;line-height:1.6;max-width:38ch;color:#54574F}
+.project-details ul{list-style:none;margin:22px 0 0;border-top:1px solid #1719162b}
+.project-details li{padding:10px 0;border-bottom:1px solid #1719162b;font:11px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.band h3{font-family:var(--body);font-weight:600;text-transform:none;line-height:1;letter-spacing:-.065em}
+.band.heron .project-details{background:#F8F5EC}
+.band.laloo .project-details{background:#F8F4EA}
+.band.rufcut .project-details{background:#E7E1D4;color:#171916}
+.timeline::after{display:none}
+.timeline::before{background:var(--rule)}
+.timeline li::before{border-radius:0}
+.pk .tag{border-radius:2px}
+.pk .tag:hover{transform:none}
+.foot.dark{background:var(--night);color:#F4F5F3}
+@media(max-width:960px){.hero .wrap{grid-template-columns:1fr}.hero-work{margin-top:18px}.project-row{grid-template-columns:1fr 1fr}.project-details{min-height:300px}}
+@media(max-width:560px){.hero-project{grid-template-columns:30px minmax(0,1fr) 24px}.project-type{display:none}.hero-work-note{margin-left:0}.ticker .row{gap:20px}.card{border-right:0;border-bottom:1px solid var(--rule)}.card:last-child{border-bottom:0}.service-no{height:100px}}
+@media(max-width:700px){.project-row{grid-template-columns:1fr}.project-mark{min-height:240px}.project-mark strong{font-size:clamp(64px,18vw,90px)}.project-details{min-height:0}}
+@media(prefers-reduced-motion:reduce){.hero-project{transition:none}.hero-project:hover{padding-inline:0}}
 </style>
 </head>
 <body>
@@ -307,34 +381,18 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
      <a class="btn ghost" href="#work">See live work</a>
      <a class="btn ghost" href="try/">Try it free</a>
     </div>
-    <div class="proof"><span><b>15 days</b> standard delivery</span><span><b>12 h</b> reply time</span><span><b>Every night</b> encrypted backups</span></div>
+    <div class="proof"><span><b>Venice Beach</b> independent studio</span><span><b>Small business</b> focused</span><span><b>Made to fit</b> your daily work</span></div>
    </div>
 
-   <div class="stage-wrap" aria-label="Example of the Mr. Space control panel">
-    <div class="panel">
-    <div class="panel-h"><span>Customer panel · example</span><span class="live">Sample data</span></div>
-     <div class="tiles">
-      <div class="tile"><small>Sites online</small><b class="num">3 / 3</b><span>All checks passed</span></div>
-      <div class="tile"><small>Changes this month</small><b class="num" id="chg">7</b><span>All approved</span></div>
-      <div class="tile"><small>Last backup</small><b class="num">02:00</b><span>Encrypted</span></div>
-     </div>
-     <div class="sites">
-      <div class="site"><span class="ic" style="background:#1D1A16">H</span><div><b>Heron CA</b><small>Shop · Square sync on</small></div><span class="st">Live</span><span class="bar"><i style="width:75%"></i></span></div>
-      <div class="site"><span class="ic" style="background:linear-gradient(135deg,#0F8C8C,#F26B3A,#7B3FC4)">L</span><div><b>laloo</b><small>Map · 12 languages</small></div><span class="st">Live</span><span class="bar"><i style="width:25%"></i></span></div>
-      <div class="site"><span class="ic" style="background:#16223F">R</span><div><b>Rufcut</b><small>Jeans builder · orders</small></div><span class="st b">Building</span><span class="bar"><i style="width:60%;background:#F6B93B"></i></span></div>
-     </div>
-     <div class="logline"><span id="logt">Backup done · Heron CA · encrypted</span><span id="logk" style="color:#1F8A4C">AUTO</span></div>
-    </div>
-    <div class="chip c1"><span class="d" style="background:#1F8A4C1f;color:#1F8A4C">✓</span><span><small>Square</small><b class="swap" id="ch1">2 items synced</b></span></div>
-    <div class="chip c2"><span class="d" style="background:#F6B93B40;color:#8A5A00">#</span><span><small>New order</small><b class="swap" id="ch2">#1042 · ready Fri</b></span></div>
-    <div class="chip c3"><span class="d" style="background:#12141815;color:#121418">▤</span><span><small>Printer</small><b class="swap" id="ch3">Price label printed</b></span></div>
-   </div>
+   <aside class="hero-work" aria-label="Selected work">
+    <div class="hero-work-head"><span>Selected work</span><span>Venice Beach · 2026</span></div>
+    <a class="hero-project" href="#heron-project"><span class="project-no">01</span><span class="project-name">Heron CA</span><span class="project-type">Retail system</span><span class="project-arrow" aria-hidden="true">↗</span></a>
+    <a class="hero-project" href="#laloo-project"><span class="project-no">02</span><span class="project-name">laloo</span><span class="project-type">Local discovery</span><span class="project-arrow" aria-hidden="true">↗</span></a>
+    <a class="hero-project" href="#rufcut-project"><span class="project-no">03</span><span class="project-name">Rufcut</span><span class="project-type">Denim workshop</span><span class="project-arrow" aria-hidden="true">↗</span></a>
+    <p class="hero-work-note">Different businesses. Different systems. Built around the way each one works.</p>
+   </aside>
   </div>
  </section>
-
- <div class="ticker" aria-hidden="true"><div class="row" id="tick">
-  <span>Websites</span><span>Admin panels</span><span>Square sync</span><span>Price labels</span><span>Bookings</span><span>Order tracking</span><span>Nightly backups</span><span>AI on your own account</span><span>Business email</span><span>Made to measure</span>
- </div></div>
 
  <section class="sec" id="system">
   <div class="wrap">
@@ -345,34 +403,29 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
    </div>
    <div class="cards3">
     <article class="card">
-     <div class="art a1" aria-hidden="true"><div class="win"><div class="h"></div><div class="g"><i></i><i></i><i></i></div></div></div>
-     <div class="txt"><h3>The site</h3><p>Clean, fast and made for phones first. Your products, your hours, your story, in your own look.</p>
+     <div class="service-no"><span>01 / PUBLIC</span><b>Site</b></div>
+     <div class="txt"><h3>The site</h3><p>Clear, quick to use on a phone, and built around the way customers find and choose you.</p>
       <ul><li>Phone + desktop</li><li>Shop or bookings</li><li>Google listing</li><li>Logo + email</li></ul></div>
     </article>
     <article class="card">
-     <div class="art a2" aria-hidden="true">
-      <div class="row2"><span>Square sync</span><i class="tog on" data-tg></i></div>
-      <div class="row2"><span>AI descriptions</span><i class="tog" data-tg></i></div>
-      <div class="row2"><span>Label printer</span><i class="tog on" data-tg></i></div>
-     </div>
+     <div class="service-no"><span>02 / OPERATIONS</span><b>System</b></div>
      <div class="txt"><h3>The system</h3><p>Your own admin panel. Add a product, change a price, print a label, see an order, without calling anyone.</p>
-      <ul><li>Admin panel</li><li>POS sync</li><li>Product labels + receipts</li><li>Your own AI keys</li></ul></div>
+      <ul><li>Admin panel</li><li>POS connection</li><li>Product labels + receipts</li><li>Tools shaped to your workflow</li></ul></div>
     </article>
     <article class="card">
-     <div class="art a3" aria-hidden="true"><div class="ring" id="ring" data-t="Backup"></div></div>
-     <div class="txt"><h3>The care</h3><p>Backups, fixes, small changes and a log of everything we touched. Ask from your panel; it is ready for approval.</p>
-      <ul><li>Nightly backups</li><li>Activity log</li><li>12 h replies</li><li>Usage alerts</li></ul></div>
+     <div class="service-no"><span>03 / CONTINUITY</span><b>Care</b></div>
+     <div class="txt"><h3>The care</h3><p>Ongoing maintenance is agreed around your needs. Requests are reviewed with you before changes are made.</p>
+      <ul><li>Approved change requests</li><li>Maintenance plan</li><li>Backups by agreement</li><li>Clear ownership</li></ul></div>
     </article>
    </div>
   </div>
  </section>
 
  <section class="mtm">
-  <div class="tape" aria-hidden="true"><div class="nums" id="tape"></div></div>
   <div class="wrap inner">
    <div class="top2">
     <div><div class="label" style="color:#A3A9B5">Made to measure</div><h2 style="margin-top:14px">Written for <em>your</em> business. Not adapted from someone else's.</h2></div>
-    <p class="l">Every panel, form and tool is written from scratch around the way you sell, price, label and ship. No theme with your logo on it, no features you will never use. It fits like it was cut for you, because it was.</p>
+    <p class="l">We start with the way you sell, price, label and ship. The site and tools follow that workflow, with only the features your team needs to run it.</p>
    </div>
    <ol class="fit4">
     <li><b>We learn your day</b><span>A visit or a call. How an item comes in, gets a price and leaves the door.</span></li>
@@ -388,89 +441,56 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
    <div class="sec-head" style="margin-bottom:0">
     <div class="label"><span>Work</span><span>Live sites · working concepts</span></div>
     <h2>Built around<br>real work.</h2>
-    <p>Explore the live Heron and laloo sites. Rufcut is a working concept. The panels are sample views with example data. Press play for a short tour of how each system is designed to work.</p>
+    <p>Three different projects, each shaped around the business behind it. Heron CA and laloo are live. Rufcut is a working storefront concept.</p>
    </div>
   </div>
 
-  <article class="band heron">
+  <article class="band heron" id="heron-project">
    <div class="wrap">
     <div class="band-head">
      <div><div class="tags"><span class="k"><b>Our own brand</b></span><span>Retail · vintage + apparel</span></div>
-      <h3>Heron CA</h3><p class="one">A shop where one person adds a product in under two minutes: photos, AI description, Square sync, price label, live.</p></div>
+      <p class="one">An independent Venice Beach shop, with its product catalog and store operations connected to the customer experience.</p></div>
      <div class="acts">
-      <button class="watch solid" type="button" data-tour="heron"><span class="play"><svg viewBox="0 0 14 14"><path d="M2 1 L13 7 L2 13 Z"/></svg></span>Watch the tour · 45 s</button>
       <a class="link-out" href="https://heronca.com" target="_blank" rel="noopener" data-out="heron">Open site ↗</a>
      </div>
     </div>
-    <div class="duo">
-     <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">heronca.com</span><span class="lv">LIVE</span></div>
-      <div class="vpbox" data-src="https://heronca.com/"><span class="loading">Loading the live site…</span><button class="cover" type="button" aria-label="Explore the live Heron CA site"><span>Tap to explore</span></button></div></div>
-     <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
-      <div class="adm-k"><div><small>Items live</small><b class="num">128</b></div><div><small>Sold this week</small><b class="num">17</b></div></div>
-      <ul class="adm-l">
-       <li><span class="sw" style="background:#141414"></span><div>Silk slip dress<small>M · $128 · label printed</small></div><span class="pill2">Live</span></li>
-       <li><span class="sw" style="background:#8B705A"></span><div>Linen romper<small>S · $81 · synced to Square</small></div><span class="pill2">Live</span></li>
-       <li><span class="sw" style="background:#3C4A5C"></span><div>Rain boots<small>8 · $40.50 · needs photo</small></div><span class="pill2 y">Draft</span></li>
-      </ul>
-      <div class="adm-f"><span class="k">+ Add item</span><span>Write with AI</span><span>Print labels</span><span>Import eBay</span></div>
-     </div>
+    <div class="project-row">
+     <a class="project-mark heron-mark" href="https://heronca.com" target="_blank" rel="noopener" aria-label="Open Heron CA website"><small>01 / Retail · Venice Beach</small><strong>Heron<br>CA</strong><span>Open live site ↗</span></a>
+     <aside class="project-details"><span class="project-kicker">A working retail system</span><h4>From product intake to the shelf.</h4><p>Product editing and store operations are shaped around how Heron works day to day.</p><ul><li>Square catalog connection</li><li>Product photos and labels</li><li>Storefront and admin tools</li></ul></aside>
     </div>
    </div>
   </article>
 
-  <article class="band laloo">
+  <article class="band laloo" id="laloo-project">
    <div class="wrap">
     <div class="band-head">
      <div><div class="tags"><span class="k"><b>Our own product</b></span><span>Travel · maps</span></div>
-      <h3>laloo</h3><p class="one">A bathroom map for travelers that also shows local shops on the way. The shops pay to be seen.</p></div>
+      <p class="one">A travel utility that helps people find nearby restrooms and discover local businesses along the way.</p></div>
      <div class="acts">
-      <button class="watch solid" type="button" data-tour="laloo"><span class="play"><svg viewBox="0 0 14 14"><path d="M2 1 L13 7 L2 13 Z"/></svg></span>Watch the tour · 40 s</button>
       <a class="link-out" href="https://www.laloo.org" target="_blank" rel="noopener" data-out="laloo">Open site ↗</a>
      </div>
     </div>
-    <div class="duo">
-     <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">laloo.org</span><span class="lv">LIVE</span></div>
-      <div class="vpbox" data-src="https://www.laloo.org/"><span class="loading">Loading the live site…</span><button class="cover" type="button" aria-label="Explore the live laloo site"><span>Tap to explore</span></button></div></div>
-     <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
-      <div class="adm-k"><div><small>Places listed</small><b class="num">1,284</b></div><div><small>QR scans today</small><b class="num">312</b></div></div>
-      <ul class="adm-l">
-       <li><span class="sw" style="background:#EEEAE1"></span><div>New business request<small>Shop · on 3 walking routes</small></div><span class="pill2 y">Review</span></li>
-       <li><span class="sw" style="background:#0F8C8C"></span><div>New review ★5<small>Public restroom · 2 min ago</small></div><span class="pill2">Live</span></li>
-       <li><span class="sw" style="background:#7B3FC4"></span><div>12 languages<small>Texts update from one place</small></div><span class="pill2">On</span></li>
-      </ul>
-      <div class="adm-f"><span class="k">Approve</span><span>Places</span><span>QR stickers</span><span>Reviews</span></div>
-     </div>
+    <div class="project-row">
+     <a class="project-mark laloo-mark" href="https://www.laloo.org" target="_blank" rel="noopener" aria-label="Open laloo website"><small>02 / Travel · Local discovery</small><strong>laloo</strong><span>Open live site ↗</span></a>
+     <aside class="project-details"><span class="project-kicker">An original Mr. Space product</span><h4>Find a restroom. Find a local place.</h4><p>laloo combines practical travel information with a way to discover nearby businesses.</p><ul><li>Map-led discovery</li><li>Multiple languages</li><li>Built for people on the move</li></ul></aside>
     </div>
    </div>
   </article>
 
-  <article class="band rufcut">
+  <article class="band rufcut" id="rufcut-project">
    <div class="wrap">
     <div class="band-head">
      <div><div class="tags"><span class="k"><b>Client</b></span><span>Workshop · custom denim</span></div>
-      <h3>Rufcut</h3><p class="one">A busy old site put in order without losing a word, a jeans builder that shows the ready date, and an order board for the workshop.</p></div>
+      <p class="one">A storefront concept for custom denim, vintage stock and repair requests, designed around a working sewing studio.</p></div>
      <div class="acts">
-      <button class="watch solid" type="button" data-tour="rufcut"><span class="play"><svg viewBox="0 0 14 14"><path d="M2 1 L13 7 L2 13 Z"/></svg></span>Watch the tour · 40 s</button>
       <a class="link-out" href="rufcut/" data-out="rufcut">Open demo →</a>
      </div>
     </div>
-    <div class="duo">
-      <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">mrspace.online/rufcut</span><span class="lv concept">CONCEPT</span></div>
-      <div class="vpbox" data-src="rufcut/"><span class="loading">Loading the live demo…</span><button class="cover" type="button" aria-label="Explore the Rufcut demo"><span>Tap to explore</span></button></div></div>
-     <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
-      <div class="adm-k"><div><small>Open orders</small><b class="num">6</b></div><div><small>Ready this week</small><b class="num">4</b></div></div>
-      <ul class="adm-l">
-       <li><span class="sw" style="background:#2D4677"></span><div>#1042 · Straight, rinse<small>Copper thread · chain stitch hem</small></div><span class="pill2 y">Sew</span></li>
-       <li><span class="sw" style="background:#1B2A4E"></span><div>#1039 · Slim, raw<small>Deposit paid</small></div><span class="pill2 y">Cut</span></li>
-       <li><span class="sw" style="background:#6C86B5"></span><div>#1031 · Repair<small>Customer texted</small></div><span class="pill2">Ready</span></li>
-      </ul>
-      <div class="adm-f"><span class="k">Order board</span><span>Builder options</span><span>Send text</span></div>
-     </div>
+    <div class="project-row">
+     <a class="project-mark rufcut-mark" href="rufcut/" aria-label="Open Rufcut concept"><small>03 / Client concept · Denim</small><strong>RUFCUT</strong><span>Open working concept ↗</span></a>
+     <aside class="project-details"><span class="project-kicker">A working design concept</span><h4>Made for a denim workshop.</h4><p>The Rufcut concept brings custom jeans, vintage stock and repair requests into one clear customer journey.</p><ul><li>Made-to-measure builder</li><li>Vintage filters</li><li>Multilingual repair request</li></ul></aside>
     </div>
-    <p class="note">Rufcut demo is a concept built for the client. Admin panels show example data.</p>
+    <p class="note">Rufcut is a design concept. Product availability and workshop services are confirmed by the shop.</p>
    </div>
   </article>
  </section>
@@ -478,7 +498,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
  <section class="sec" id="process">
   <div class="wrap">
    <div class="sec-head">
-    <div class="label"><span>How it goes</span><span>Standard delivery · 15 days</span></div>
+    <div class="label"><span>How it goes</span><span>Scope · Build · Support</span></div>
     <h2>From first talk to launch.</h2>
     <p>Nothing starts before it is written down and signed. Fifteen days is our standard; it can be shorter or longer depending on what you need.</p>
    </div>
@@ -569,16 +589,8 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 <script src="assets/demos.js"></script>
 <script>
 (function(){
- var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-
  /* click counts: GoatCounter events (only if the counter script loaded) */
  function count(path, title){ try { if (window.goatcounter && goatcounter.count) goatcounter.count({ path: path, title: title, event: true }); } catch (e) {} }
-
- /* ticker: duplicate once for a seamless loop */
- var t = document.getElementById("tick"); if (t) t.innerHTML += t.innerHTML;
-
- /* tape measure numbers */
- var tp = document.getElementById("tape"); if (tp) { var h = ""; for (var i = 0; i < 40; i++) h += "<span>" + i + "</span>"; tp.innerHTML = h; }
 
  /* live sites in scaled frames, loaded when near the screen */
  var boxes = document.querySelectorAll(".vpbox");
@@ -624,26 +636,6 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
  dlg.addEventListener("click", function(e){ if (e.target === dlg) close(); });
  dlg.addEventListener("cancel", function(e){ e.preventDefault(); close(); });
 
- if (reduce) return;
-
- /* hero: rolling panel events */
- var logs = [["Backup done · Heron CA · encrypted","AUTO"],["Logo change approved · Rufcut · 4 min","UZAY"],["Uptime check · 3 sites OK","AUTO"],["New city added · laloo · 18 min","UZAY"],["Google images at 84% · warning emailed","AUTO"],["Change request · new hours · ready to approve","CLIENT"]];
- var c1 = ["2 items synced","Stock updated","1 item sold"], c2 = ["#1042 · ready Fri","#1043 · deposit paid","Booking · Sat 11:00"], c3 = ["Price label printed","Shipping label printed","Receipt printed"];
- var li = 0, ci = 0, chg = 7;
- function swap(id, txt){ var el = document.getElementById(id); el.style.opacity = 0; setTimeout(function(){ el.textContent = window.MSI18N ? MSI18N.t(txt) : txt; el.style.opacity = 1; }, 400); }
- setInterval(function(){
-  if (document.hidden) return;
-  li = (li + 1) % logs.length; ci++;
-  swap("logt", logs[li][0]); var k = document.getElementById("logk"); k.textContent = logs[li][1]; k.style.color = logs[li][1] === "AUTO" ? "#1F8A4C" : "#121418";
-  swap(["ch1","ch2","ch3"][ci % 3], [c1,c2,c3][ci % 3][Math.floor(ci / 3) % 3]);
-  if (logs[li][1] !== "AUTO") { chg++; if (chg > 12) chg = 7; document.getElementById("chg").textContent = chg; }
- }, 2600);
-
- /* card art: toggles flip, backup ring fills */
- var tg = document.querySelectorAll("[data-tg]"), ti = 0;
- setInterval(function(){ if (!document.hidden) tg[ti++ % tg.length].classList.toggle("on"); }, 1800);
- var ring = document.getElementById("ring"), pct = 0;
- setInterval(function(){ if (document.hidden) return; pct = pct >= 100 ? 0 : pct + 25; ring.style.setProperty("--p", pct + "%"); ring.setAttribute("data-t", pct >= 100 ? "Done" : "Backup"); }, 1200);
 })();
 </script>
 </body>
