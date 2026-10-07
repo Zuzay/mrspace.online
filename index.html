@@ -66,7 +66,7 @@ body{background:var(--paper)}
 .stage-wrap{position:relative;min-height:420px}
 .panel{position:relative;z-index:2;background:#F4F5F3;color:#121418;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px #0008,0 0 0 1px #FFFFFF14;transform:rotate(-1.2deg)}
 .panel-h{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#121418;color:#F4F5F3;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-.panel-h .live{display:flex;align-items:center;gap:6px}
+.panel-h .live{display:flex;align-items:center;gap:6px;color:#F6B93B}
 .panel-h .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sun);animation:blinkdot 2s infinite}
 @keyframes blinkdot{50%{opacity:.3}}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#12141822}
@@ -189,6 +189,8 @@ body{background:var(--paper)}
 .frame .bar .u{margin-left:10px;flex:1;max-width:320px;height:22px;border-radius:11px;background:#fff;font:11.5px/22px var(--mono);color:#444;padding:0 12px;white-space:nowrap;overflow:hidden}
 .frame .bar .lv{font:600 10px var(--mono);letter-spacing:.1em;color:#1F8A4C;display:flex;align-items:center;gap:5px}
 .frame .bar .lv::before{content:"";width:7px;height:7px;border-radius:50%;background:#1F8A4C;animation:blinkdot 2s infinite}
+.frame .bar .lv.concept{color:#94611c}
+.frame .bar .lv.concept::before{background:#D9822B}
 .vpbox{position:relative;aspect-ratio:16/10;overflow:hidden;background:#F1F1EF}
 .vpbox iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
 .vpbox.on iframe{pointer-events:auto}
@@ -310,7 +312,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 
    <div class="stage-wrap" aria-label="Example of the Mr. Space control panel">
     <div class="panel">
-     <div class="panel-h"><span>Mr. Space · control panel</span><span class="live">Live</span></div>
+    <div class="panel-h"><span>Customer panel · example</span><span class="live">Sample data</span></div>
      <div class="tiles">
       <div class="tile"><small>Sites online</small><b class="num">3 / 3</b><span>All checks passed</span></div>
       <div class="tile"><small>Changes this month</small><b class="num" id="chg">7</b><span>All approved</span></div>
@@ -384,9 +386,9 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
  <section id="work">
   <div class="wrap work-intro">
    <div class="sec-head" style="margin-bottom:0">
-    <div class="label"><span>Work</span><span>Live sites · real systems</span></div>
-    <h2>Three projects.<br>All live.</h2>
-    <p>On the left, the real site, live. Tap it to look around. On the right, the panel behind it, with the client's name swapped for yours. Press play for a short tour of how it all works.</p>
+    <div class="label"><span>Work</span><span>Live sites · working concepts</span></div>
+    <h2>Built around<br>real work.</h2>
+    <p>Explore the live Heron and laloo sites. Rufcut is a working concept. The panels are sample views with example data. Press play for a short tour of how each system is designed to work.</p>
    </div>
   </div>
 
@@ -404,7 +406,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
      <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">heronca.com</span><span class="lv">LIVE</span></div>
       <div class="vpbox" data-src="https://heronca.com/"><span class="loading">Loading the live site…</span><button class="cover" type="button" aria-label="Explore the live Heron CA site"><span>Tap to explore</span></button></div></div>
      <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>ADMIN</small></div>
+      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
       <div class="adm-k"><div><small>Items live</small><b class="num">128</b></div><div><small>Sold this week</small><b class="num">17</b></div></div>
       <ul class="adm-l">
        <li><span class="sw" style="background:#141414"></span><div>Silk slip dress<small>M · $128 · label printed</small></div><span class="pill2">Live</span></li>
@@ -431,7 +433,7 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
      <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">laloo.org</span><span class="lv">LIVE</span></div>
       <div class="vpbox" data-src="https://www.laloo.org/"><span class="loading">Loading the live site…</span><button class="cover" type="button" aria-label="Explore the live laloo site"><span>Tap to explore</span></button></div></div>
      <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>ADMIN</small></div>
+      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
       <div class="adm-k"><div><small>Places listed</small><b class="num">1,284</b></div><div><small>QR scans today</small><b class="num">312</b></div></div>
       <ul class="adm-l">
        <li><span class="sw" style="background:#EEEAE1"></span><div>New business request<small>Shop · on 3 walking routes</small></div><span class="pill2 y">Review</span></li>
@@ -455,10 +457,10 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
      </div>
     </div>
     <div class="duo">
-     <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">mrspace.online/rufcut</span><span class="lv">LIVE</span></div>
+      <div class="frame"><div class="bar"><b></b><b></b><b></b><span class="u">mrspace.online/rufcut</span><span class="lv concept">CONCEPT</span></div>
       <div class="vpbox" data-src="rufcut/"><span class="loading">Loading the live demo…</span><button class="cover" type="button" aria-label="Explore the Rufcut demo"><span>Tap to explore</span></button></div></div>
      <div class="adm" aria-label="Example admin panel">
-      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>ADMIN</small></div>
+      <div class="adm-h"><span class="ybm"><i></i>YOUR BRAND</span><small>EXAMPLE</small></div>
       <div class="adm-k"><div><small>Open orders</small><b class="num">6</b></div><div><small>Ready this week</small><b class="num">4</b></div></div>
       <ul class="adm-l">
        <li><span class="sw" style="background:#2D4677"></span><div>#1042 · Straight, rinse<small>Copper thread · chain stitch hem</small></div><span class="pill2 y">Sew</span></li>

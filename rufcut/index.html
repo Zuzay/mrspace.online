@@ -102,7 +102,10 @@ section{padding:96px 0}
 .item{border:2px solid #F3EEE433;border-radius:8px;overflow:hidden;background:var(--deep)}
 .item .ph{aspect-ratio:4/5;display:grid;place-items:center;position:relative}
 .item .ph img{width:100%;height:100%;object-fit:cover}
-.item .ph .photo-missing{font-size:13px;color:var(--raw);text-align:center;padding:12px}
+.item .ph .photo-missing{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:18px;text-align:center;background:radial-gradient(circle at 50% 35%,#FFFFFF12,transparent 55%),repeating-linear-gradient(135deg,#FFFFFF06 0 1px,transparent 1px 12px);color:var(--raw)}
+.item .ph .photo-missing i{width:48px;height:48px;display:grid;place-items:center;border:1px solid #F3EEE466;border-radius:50%;font-style:normal;font-size:20px}
+.item .ph .photo-missing b{font:12px var(--f);letter-spacing:.1em;text-transform:uppercase}
+.item .ph .photo-missing small{max-width:20ch;color:var(--mute);font-size:11px}
 .item .ph svg{width:52%}
 .item .tag{position:absolute;top:10px;left:10px;background:var(--raw);color:var(--deep);font-weight:700;font-size:13px;padding:3px 8px;border-radius:3px}
 .item .in{padding:14px}
@@ -115,6 +118,66 @@ section{padding:96px 0}
 .rep div{display:flex;justify-content:space-between;gap:20px;padding:16px 0;border-bottom:2px dashed #D9822B55}
 .rep h4{font-size:19px;font-weight:700}
 .rep span{color:var(--mute);font-size:15px;text-align:right}
+.repair-cta{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:34px;padding:24px;border:1px solid #D9822B88;background:linear-gradient(120deg,#D9822B18,transparent 65%);border-radius:8px}
+.repair-cta p{max-width:52ch;color:var(--mute);font-size:15px}
+.repair-cta .btn{flex:none}
+dialog.repair-dialog{width:min(920px,calc(100% - 24px));max-width:none;max-height:min(92dvh,900px);margin:auto;border:1px solid #D9822B88;border-radius:12px;padding:0;background:var(--deep);color:var(--raw);box-shadow:0 28px 90px #000b}
+dialog.repair-dialog::backdrop{background:#080C16D9;backdrop-filter:blur(5px)}
+.repair-shell{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(240px,.9fr);min-height:560px}
+.repair-main{padding:clamp(20px,4vw,38px);display:flex;flex-direction:column;min-width:0}
+.repair-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid #D9822B55}
+.repair-top .eyebrow{font:12px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.repair-top h3{font:34px/1 var(--d);text-transform:uppercase;margin-top:5px}
+.repair-top select{max-width:130px;background:var(--deep);color:var(--raw);border:1px solid #F3EEE466;padding:8px;border-radius:5px}
+.repair-close{width:40px;height:40px;border:1px solid #F3EEE466;border-radius:50%;font-size:22px;flex:none;background:transparent;color:var(--raw)}
+.repair-progress{display:flex;gap:6px;margin:20px 0 24px}
+.repair-progress i{height:4px;flex:1;background:#F3EEE426;border-radius:4px}
+.repair-progress i.on{background:var(--cop)}
+.repair-step{padding:0}
+.repair-step[hidden]{display:none}
+.repair-step h4{font-size:18px;margin-bottom:12px}
+.repair-options{display:flex;flex-wrap:wrap;gap:8px}
+.repair-choice{position:relative}
+.repair-choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+.repair-choice span{display:block;border:1px solid #F3EEE455;border-radius:99px;padding:9px 14px;font-size:14px;transition:background .16s,color .16s,border-color .16s}
+.repair-choice input:checked+span{background:var(--raw);color:var(--deep);border-color:var(--raw)}
+.repair-choice input:focus-visible+span{outline:3px solid var(--cop);outline-offset:3px}
+.repair-field{display:grid;gap:7px;margin-top:18px;font-size:13px;color:var(--mute)}
+.repair-field input,.repair-field textarea{width:100%;border:1px solid #F3EEE455;border-radius:5px;padding:11px 12px;background:#0D1529;color:var(--raw);font:16px var(--f)}
+.repair-field textarea{min-height:86px;resize:vertical}
+.repair-draft-note{font-size:12px;color:var(--mute);margin-top:18px}
+.repair-items{display:grid;gap:8px;margin:12px 0}
+.repair-item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid #F3EEE433;border-radius:6px;font-size:13px}
+.repair-item-row button{color:#F0B16D;text-decoration:underline;text-underline-offset:3px}
+.repair-error{color:#FFD3B5;font-size:13px;min-height:1.5em;margin-top:10px}
+.repair-actions{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:22px}
+.repair-actions .btn{font-size:13px;padding:11px 15px}
+.repair-actions button.btn{background:transparent;color:var(--raw)}
+.repair-actions button.btn.cop{background:var(--cop);color:var(--deep)}
+.repair-clear{align-self:flex-start;margin-top:8px;padding:4px 0;background:none;border:0;color:var(--mute);font:12px var(--f);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.repair-actions [hidden]{display:none}
+.repair-visual{background:var(--raw);color:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;position:relative;overflow:hidden}
+.repair-visual::before{content:"";position:absolute;inset:0;background:linear-gradient(#111B3310 1px,transparent 1px) 0 0/100% 28px,linear-gradient(90deg,#111B3310 1px,transparent 1px) 0 0/28px 100%;pointer-events:none}
+.repair-visual svg{position:relative;width:min(100%,250px);height:290px;filter:drop-shadow(0 14px 16px #111B3322)}
+.repair-visual .garment{fill:#1B2A4E;stroke:#111B33;stroke-width:3;stroke-linejoin:round;transition:d .2s}
+.repair-visual .repair-mark{fill:none;stroke:#D9822B;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7;opacity:.95}
+.repair-visual .measure-mark{fill:#D9822B;font:700 13px var(--f)}
+.repair-visual .visual-copy{position:relative;text-align:center;display:grid;gap:6px}
+.repair-visual .visual-copy b{font:25px/1 var(--d);text-transform:uppercase}
+.repair-visual .visual-copy span{font-size:12px;color:#4B5570}
+.repair-visual .saved-label{position:absolute;right:14px;bottom:12px;font:10px var(--f);letter-spacing:.1em;text-transform:uppercase;color:#4B5570}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){
+ .repair-shell{grid-template-columns:1fr;min-height:0}
+ .repair-visual{min-height:156px;grid-row:1;padding:10px}
+ .repair-visual svg{height:145px;width:140px}
+ .repair-visual .visual-copy{display:none}
+ .repair-main{min-height:0;padding:18px}
+ .repair-top h3{font-size:clamp(23px,6vw,30px)}
+ .repair-actions{position:sticky;bottom:0;background:var(--deep);padding-bottom:6px;z-index:2}
+}
+@media(max-width:520px){.repair-cta{align-items:flex-start;flex-direction:column}.repair-cta .btn{width:100%;justify-content:center}.repair-top h3{font-size:28px}.repair-actions{flex-wrap:wrap}.repair-actions .btn{flex:1;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.repair-choice span,.repair-visual .garment{transition:none}}
 
 /* tracker */
 .track{background:var(--raw);color:var(--deep);border-radius:8px;padding:34px}
@@ -271,6 +334,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     <div><h4>Embroidery</h4><span>By quote</span></div>
     <div><h4>Alterations and repairs</h4><span>By quote</span></div>
    </div>
+   <div class="repair-cta"><p>Tell us what needs changing. Choose the garment, mark the work, add an inch measurement if you have one, and review the request before opening your email app.</p><button class="btn cop" id="repairOpen" type="button">Plan a repair <span aria-hidden="true">↗</span></button></div>
   </div>
  </section>
 
@@ -304,6 +368,59 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   </div>
  </section>
 </main>
+
+<dialog class="repair-dialog" id="repairDialog" aria-labelledby="repairTitle">
+ <div class="repair-shell">
+  <div class="repair-main">
+   <div class="repair-top"><div><div class="eyebrow" data-repair-text="eyebrow">Repair request</div><h3 id="repairTitle" data-repair-text="title">Plan your repair</h3></div><div style="display:flex;gap:8px;align-items:center"><label class="sr" for="repairLang" data-repair-text="language">Language</label><select id="repairLang" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="zh">中文</option></select><button class="repair-close" id="repairClose" type="button" aria-label="Close repair request">×</button></div></div>
+   <div class="repair-progress" aria-label="Step 1 of 3"><i class="on"></i><i></i><i></i></div>
+   <section class="repair-step" data-repair-step="1">
+    <h4 data-repair-text="chooseGarment">What needs work?</h4>
+    <div class="repair-options" id="repairGarments">
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="jeans" checked><span data-repair-text="jeans">Jeans</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="pants"><span data-repair-text="pants">Trousers</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="skirt"><span data-repair-text="skirt">Skirt</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="dress"><span data-repair-text="dress">Dress</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="shirt"><span data-repair-text="shirt">Shirt</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="jacket"><span data-repair-text="jacket">Jacket</span></label>
+     <label class="repair-choice"><input type="radio" name="repairGarment" value="other"><span data-repair-text="other">Other</span></label>
+    </div>
+    <h4 style="margin-top:24px" data-repair-text="chooseWork">What would you like done?</h4>
+    <div class="repair-options" id="repairActions">
+     <label class="repair-choice"><input type="checkbox" value="shorten"><span data-repair-text="shorten">Shorten</span></label>
+     <label class="repair-choice"><input type="checkbox" value="lengthen"><span data-repair-text="lengthen">Lengthen</span></label>
+     <label class="repair-choice"><input type="checkbox" value="takeIn"><span data-repair-text="takeIn">Take in</span></label>
+     <label class="repair-choice"><input type="checkbox" value="letOut"><span data-repair-text="letOut">Let out</span></label>
+     <label class="repair-choice"><input type="checkbox" value="patch"><span data-repair-text="patch">Patch</span></label>
+     <label class="repair-choice"><input type="checkbox" value="zipper"><span data-repair-text="zipper">Replace zipper</span></label>
+     <label class="repair-choice"><input type="checkbox" value="repair"><span data-repair-text="repair">Repair</span></label>
+     <label class="repair-choice"><input type="checkbox" value="otherWork"><span data-repair-text="otherWork">Something else</span></label>
+    </div>
+   </section>
+   <section class="repair-step" data-repair-step="2" hidden>
+    <h4 data-repair-text="measurements">Add details</h4>
+    <p style="color:var(--mute);font-size:14px" data-repair-text="measurementHint">Measurements are optional. Enter inches if you know them.</p>
+    <label class="repair-field"><span data-repair-text="inches">Measurement (inches)</span><input id="repairInches" type="number" min="0" max="120" step="0.125" inputmode="decimal" placeholder="e.g. 2"></label>
+    <label class="repair-field"><span data-repair-text="notes">Anything else we should know?</span><textarea id="repairNotes" maxlength="600" data-repair-placeholder="notesPlaceholder" placeholder="Where is the change needed? Add fit details or a note for the tailor."></textarea></label>
+    <div class="repair-items" id="repairItems" aria-live="polite"></div>
+    <div class="repair-error" id="repairError" role="status"></div>
+   </section>
+   <section class="repair-step" data-repair-step="3" hidden>
+    <h4 data-repair-text="yourDetails">Your contact details</h4>
+    <p style="color:var(--mute);font-size:14px" data-repair-text="contactHint">Review the pieces, then open an email draft addressed to Rufcut.</p>
+    <div class="repair-items" id="repairReview" aria-live="polite"></div>
+    <label class="repair-field"><span data-repair-text="name">Name</span><input id="repairName" type="text" autocomplete="name" maxlength="100" required></label>
+    <label class="repair-field"><span data-repair-text="email">Email</span><input id="repairEmail" type="email" autocomplete="email" maxlength="160" required></label>
+    <label class="repair-field"><span data-repair-text="phone">Phone (optional)</span><input id="repairPhone" type="tel" autocomplete="tel" maxlength="40"></label>
+    <div class="repair-error" id="repairContactError" role="status"></div>
+   </section>
+   <p class="repair-draft-note" data-repair-text="localNotice">Your draft is saved on this device. Opening the email app does not send it automatically.</p>
+   <button class="repair-clear" id="repairClear" type="button" data-repair-text="clearDraft">Clear this device's saved draft</button>
+   <div class="repair-actions"><button class="btn" id="repairBack" type="button" data-repair-text="back" hidden>Back</button><span style="flex:1"></span><button class="btn" id="repairAddAnother" type="button" data-repair-text="addAnother" hidden>Add another piece</button><button class="btn cop" id="repairNext" type="button" data-repair-text="continue">Continue</button><button class="btn cop" id="repairEmailDraft" type="button" data-repair-text="openEmail" hidden>Open email draft</button></div>
+  </div>
+  <aside class="repair-visual" aria-label="Illustrated garment preview"><svg viewBox="0 0 180 260" role="img" aria-label="Garment with requested alteration marked"><path class="garment" id="repairGarmentShape" d="M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z"></path><path class="repair-mark" id="repairVisualMark" d="M33 192H147"></path><text class="measure-mark" id="repairVisualMeasure" x="91" y="184" text-anchor="middle"></text></svg><div class="visual-copy"><b id="repairVisualName">Jeans</b><span id="repairVisualAction">Choose a repair to preview the change</span></div><span class="saved-label" data-repair-text="visualLabel">Work preview</span></aside>
+ </div>
+</dialog>
 
 <section class="denim" data-ms-skip style="padding:80px 0;border-top:2px dashed #D9822B88">
  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap">
@@ -391,7 +508,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   }
   function list(){
     var h='';items.forEach(function(it,i){if(selected.waist!=='all'&&it[2]!==+selected.waist)return;if(selected.size!=='all'&&sizeOf(it)!==selected.size)return;if(selected.model!=='all'&&modelOf(it)!==selected.model)return;if(selected.era!=='all'&&eraOf(it)!==selected.era)return;
-      var photo=photoURL(it[5]),art=photo?'<img src="'+esc(photo)+'" alt="'+esc(it[0])+'" loading="lazy">':typeOf(it)==='Jacket'?'<svg viewBox="0 0 130 180" aria-hidden="true"><path d="M43 18 22 30 7 68l20 9 9-19v103h58V58l9 19 20-9-15-38-21-12-17 14H60Z M64 34v94 M48 23l16 11 16-11 M48 47h12m10 0h12" fill="none" stroke="#F3EEE4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>':typeOf(it)==='Jeans'?'<svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="#F3EEE4" stroke-width="5"/></svg>':'<span class="photo-missing">Photo coming soon</span>';
+      var photo=photoURL(it[5]),art=photo?'<img src="'+esc(photo)+'" alt="'+esc(it[0])+'" loading="lazy">':typeOf(it)==='Jacket'?'<svg viewBox="0 0 130 180" aria-hidden="true"><path d="M43 18 22 30 7 68l20 9 9-19v103h58V58l9 19 20-9-15-38-21-12-17 14H60Z M64 34v94 M48 23l16 11 16-11 M48 47h12m10 0h12" fill="none" stroke="#F3EEE4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>':typeOf(it)==='Jeans'?'<svg viewBox="0 0 130 210" aria-hidden="true"><path d="M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z M12 8 H118 V24 H12Z" fill="none" stroke="#F3EEE4" stroke-width="5"/></svg>':'<span class="photo-missing"><i aria-hidden="true">▧</i><b>No photo in Square</b><small>Add a product image in Square to show it here</small></span>';
       h+='<div class="item"><div class="ph" style="background:'+shades[i%shades.length]+'"><span class="tag">'+esc(tagOf(it))+'</span>'+art+'</div><div class="in"><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div></div>'});
     $('items').innerHTML=h||'<div class="empty">No vintage pairs match these filters.</div>';
   }
@@ -416,6 +533,60 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     else if(!v){$('msg').textContent='Enter the order number from your receipt.';}
     else{$('msg').textContent='No order found with '+v+'. Check the number on your receipt, or try RC-1042 for this demo.';}
   });
+})();
+
+(function(){
+ var copy={
+  en:{eyebrow:'Repair request',title:'Plan your repair',language:'Language',chooseGarment:'What needs work?',chooseWork:'What would you like done?',jeans:'Jeans',pants:'Trousers',skirt:'Skirt',dress:'Dress',shirt:'Shirt',jacket:'Jacket',other:'Other',shorten:'Shorten',lengthen:'Lengthen',takeIn:'Take in',letOut:'Let out',patch:'Patch',zipper:'Replace zipper',repair:'Repair',otherWork:'Something else',measurements:'Add details',measurementHint:'Measurements are optional. Enter inches if you know them.',inches:'Measurement (inches)',notes:'Anything else we should know?',notesPlaceholder:'Where is the change needed? Add fit details or a note for the tailor.',yourDetails:'Your contact details',contactHint:'Review the pieces, then open an email draft addressed to Rufcut.',name:'Name',email:'Email',phone:'Phone (optional)',localNotice:'Your draft is saved on this device. Opening the email app does not send it automatically.',clearDraft:'Clear this device’s saved draft',back:'Back',addAnother:'Add another piece',continue:'Continue',openEmail:'Open email draft',visualLabel:'Work preview',visualHint:'Choose a repair to preview the change',selectAction:'Choose at least one type of work to continue.',enterContact:'Add your name and a valid email address to continue.',piece:'Piece',saved:'Saved on this device',remove:'Remove',subject:'Repair request',mailHello:'Hello Rufcut,',mailRequest:'I would like a repair quote for:',mailName:'Name',mailEmail:'Email',mailPhone:'Phone',mailMeasurement:'Measurement',mailNotes:'Notes',mailNoMeasurement:'Not provided',mailNoNotes:'None',mailClose:'Thank you.'},
+  es:{eyebrow:'Solicitud de reparación',title:'Planifica tu arreglo',language:'Idioma',chooseGarment:'¿Qué prenda necesita trabajo?',chooseWork:'¿Qué trabajo necesitas?',jeans:'Jeans',pants:'Pantalones',skirt:'Falda',dress:'Vestido',shirt:'Camisa',jacket:'Chaqueta',other:'Otra prenda',shorten:'Acortar',lengthen:'Alargar',takeIn:'Entallar',letOut:'Ensachar',patch:'Parchar',zipper:'Cambiar cremallera',repair:'Reparar',otherWork:'Otro trabajo',measurements:'Añade detalles',measurementHint:'Las medidas son opcionales. Indica pulgadas si las sabes.',inches:'Medida (pulgadas)',notes:'¿Algo más que debamos saber?',notesPlaceholder:'¿Dónde se necesita el arreglo? Añade detalles para la persona que hará el trabajo.',yourDetails:'Tus datos de contacto',contactHint:'Revisa las prendas y abre un borrador de correo para Rufcut.',name:'Nombre',email:'Correo electrónico',phone:'Teléfono (opcional)',localNotice:'El borrador se guarda en este dispositivo. Abrir el correo no lo envía automáticamente.',clearDraft:'Borrar el borrador guardado en este dispositivo',back:'Atrás',addAnother:'Añadir otra prenda',continue:'Continuar',openEmail:'Abrir borrador de correo',visualLabel:'Vista del arreglo',visualHint:'Elige un arreglo para ver el cambio',selectAction:'Elige al menos un tipo de trabajo para continuar.',enterContact:'Añade tu nombre y un correo válido para continuar.',piece:'Prenda',saved:'Guardado en este dispositivo',remove:'Quitar',subject:'Solicitud de reparación',mailHello:'Hola Rufcut,',mailRequest:'Quisiera solicitar un presupuesto para:',mailName:'Nombre',mailEmail:'Correo',mailPhone:'Teléfono',mailMeasurement:'Medida',mailNotes:'Notas',mailNoMeasurement:'No indicada',mailNoNotes:'Ninguna',mailClose:'Gracias.'},
+  fr:{eyebrow:'Demande de réparation',title:'Préparer une réparation',language:'Langue',chooseGarment:'Quel vêtement faut-il retoucher ?',chooseWork:'Quel travail souhaitez-vous ?',jeans:'Jean',pants:'Pantalon',skirt:'Jupe',dress:'Robe',shirt:'Chemise',jacket:'Veste',other:'Autre',shorten:'Raccourcir',lengthen:'Allonger',takeIn:'Resserrer',letOut:'Élargir',patch:'Rapiécer',zipper:'Remplacer la fermeture',repair:'Réparer',otherWork:'Autre travail',measurements:'Ajouter des détails',measurementHint:'Les mesures sont facultatives. Indiquez les pouces si vous les connaissez.',inches:'Mesure (pouces)',notes:'Autre chose à nous indiquer ?',notesPlaceholder:'Où faut-il intervenir ? Ajoutez des détails pour la personne qui fera la retouche.',yourDetails:'Vos coordonnées',contactHint:'Vérifiez les vêtements, puis ouvrez un brouillon destiné à Rufcut.',name:'Nom',email:'E-mail',phone:'Téléphone (facultatif)',localNotice:'Le brouillon est enregistré sur cet appareil. Ouvrir votre messagerie ne l’envoie pas automatiquement.',clearDraft:'Effacer le brouillon enregistré sur cet appareil',back:'Retour',addAnother:'Ajouter un vêtement',continue:'Continuer',openEmail:'Ouvrir le brouillon',visualLabel:'Aperçu du travail',visualHint:'Choisissez une retouche pour voir le changement',selectAction:'Choisissez au moins un type de travail pour continuer.',enterContact:'Indiquez votre nom et une adresse e-mail valide.',piece:'Vêtement',saved:'Enregistré sur cet appareil',remove:'Retirer',subject:'Demande de réparation',mailHello:'Bonjour Rufcut,',mailRequest:'Je souhaite demander un devis pour :',mailName:'Nom',mailEmail:'E-mail',mailPhone:'Téléphone',mailMeasurement:'Mesure',mailNotes:'Notes',mailNoMeasurement:'Non indiquée',mailNoNotes:'Aucune',mailClose:'Merci.'},
+  zh:{eyebrow:'修改申请',title:'安排衣物修改',language:'语言',chooseGarment:'需要修改哪件衣物？',chooseWork:'希望进行什么处理？',jeans:'牛仔裤',pants:'长裤',skirt:'裙子',dress:'连衣裙',shirt:'衬衫',jacket:'夹克',other:'其他',shorten:'改短',lengthen:'加长',takeIn:'收窄',letOut:'放宽',patch:'补丁',zipper:'更换拉链',repair:'修补',otherWork:'其他处理',measurements:'补充细节',measurementHint:'尺寸为选填。如果知道，请填写英寸。',inches:'尺寸（英寸）',notes:'还有什么需要说明？',notesPlaceholder:'请说明修改位置，或给裁缝补充备注。',yourDetails:'联系方式',contactHint:'确认衣物信息，然后打开写给 Rufcut 的邮件草稿。',name:'姓名',email:'电子邮箱',phone:'电话（选填）',localNotice:'草稿保存在此设备上。打开邮件应用不会自动发送。',clearDraft:'清除此设备上保存的草稿',back:'返回',addAnother:'添加另一件',continue:'继续',openEmail:'打开邮件草稿',visualLabel:'修改预览',visualHint:'选择修改方式以预览效果',selectAction:'请至少选择一项处理方式。',enterContact:'请填写姓名和有效的电子邮箱。',piece:'衣物',saved:'已保存在此设备',remove:'移除',subject:'衣物修改申请',mailHello:'Rufcut，你好：',mailRequest:'我想为以下衣物询价：',mailName:'姓名',mailEmail:'电子邮箱',mailPhone:'电话',mailMeasurement:'尺寸',mailNotes:'备注',mailNoMeasurement:'未填写',mailNoNotes:'无',mailClose:'谢谢。'}
+ };
+ var garmentPath={jeans:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z',pants:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z',skirt:'M55 28h70l23 192H32Z',dress:'M68 22h44l11 54 31 144H26L57 76Z',shirt:'M58 28 37 38 19 95l28 13 8-20v132h70V88l8 20 28-13-18-57-21-10-22 15H77Z',jacket:'M58 26 37 38 19 95l28 13 8-20v132h70V88l8 20 28-13-18-57-21-12-22 17H77Z',other:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z'};
+ var garmentName={jeans:'jeans',pants:'pants',skirt:'skirt',dress:'dress',shirt:'shirt',jacket:'jacket',other:'other'};
+ var actionName={shorten:'shorten',lengthen:'lengthen',takeIn:'takeIn',letOut:'letOut',patch:'patch',zipper:'zipper',repair:'repair',otherWork:'otherWork'};
+ var $=function(id){return document.getElementById(id)}, dialog=$('repairDialog'), key='rufcut-repair-draft-v1';
+ if(!dialog)return;
+ var lang=(navigator.language||'en').toLowerCase().slice(0,2);if(!copy[lang])lang='en';
+ var draft={lang:lang,step:1,garment:'jeans',actions:[],inches:'',notes:'',items:[],editingId:null,name:'',email:'',phone:''};
+ try{var stored=JSON.parse(localStorage.getItem(key)||'null');if(stored&&typeof stored==='object'){draft=Object.assign(draft,stored);if(!copy[draft.lang])draft.lang=lang}}catch(e){}
+ function t(k){return (copy[draft.lang]||copy.en)[k]||copy.en[k]||k}
+ function save(){try{localStorage.setItem(key,JSON.stringify(draft))}catch(e){}}
+ function translate(){
+  document.querySelectorAll('[data-repair-text]').forEach(function(el){el.textContent=t(el.dataset.repairText)});
+  document.querySelectorAll('[data-repair-placeholder]').forEach(function(el){el.placeholder=t(el.dataset.repairPlaceholder)});
+  document.querySelectorAll('#repairGarments .repair-choice').forEach(function(label){label.querySelector('span').textContent=t(label.querySelector('input').value)});
+  document.querySelectorAll('#repairActions .repair-choice').forEach(function(label){label.querySelector('span').textContent=t(label.querySelector('input').value)});
+  $('repairLang').value=draft.lang;$('repairClose').setAttribute('aria-label',draft.lang==='zh'?'关闭修改申请':draft.lang==='es'?'Cerrar solicitud':draft.lang==='fr'?'Fermer la demande':'Close repair request');
+  $('repairLang').setAttribute('aria-label',t('language'));
+ }
+ function activeGarment(){var input=document.querySelector('input[name="repairGarment"]:checked');return input?input.value:draft.garment}
+ function activeActions(){return Array.from(document.querySelectorAll('#repairActions input:checked')).map(function(input){return input.value})}
+ function visual(){
+  draft.garment=activeGarment();draft.actions=activeActions();$('repairGarmentShape').setAttribute('d',garmentPath[draft.garment]||garmentPath.other);
+  $('repairVisualName').textContent=t(garmentName[draft.garment]||'other');
+  var action=draft.actions[0],paths={shorten:'M31 186H149 M56 178l-8 8 8 8 M124 178l8 8-8 8',lengthen:'M31 202H149 M56 194l-8 8 8 8 M124 194l8 8-8 8',takeIn:'M46 105l24 12m64-12-24 12',letOut:'M70 114 48 100m44 14 22-14',patch:'M112 78l20-13 13 20-20 13z',zipper:'M90 49v94',repair:'M72 98l12 12-12 12m36-24-12 12 12 12'};
+  $('repairVisualMark').setAttribute('d',action?paths[action]||paths.repair:'M31 186H149');$('repairVisualAction').textContent=action?t(actionName[action]||'repair'):t('visualHint');
+  $('repairVisualMeasure').textContent=draft.inches?draft.inches+' in':'';
+ }
+ function readInputs(){draft.garment=activeGarment();draft.actions=activeActions();draft.inches=$('repairInches').value;draft.notes=$('repairNotes').value;draft.name=$('repairName').value;draft.email=$('repairEmail').value;draft.phone=$('repairPhone').value;save();visual()}
+ function itemFromInputs(){readInputs();return {id:draft.editingId||Date.now()+'-'+Math.random().toString(36).slice(2,8),garment:draft.garment,actions:draft.actions.slice(),inches:draft.inches,notes:draft.notes}}
+ function commitCurrent(){var item=itemFromInputs();var i=draft.items.findIndex(function(row){return row.id===draft.editingId});if(i<0){draft.items.push(item)}else{draft.items[i]=item}draft.editingId=item.id;return item}
+ function renderItems(target,editable){target.replaceChildren();draft.items.forEach(function(item,index){var row=document.createElement('div'),text=document.createElement('span');row.className='repair-item-row';text.textContent=t('piece')+' '+(index+1)+': '+t(garmentName[item.garment]||'other')+' · '+item.actions.map(function(a){return t(actionName[a]||a)}).join(', ')+(item.inches?' · '+item.inches+' in':'');row.appendChild(text);if(editable){var button=document.createElement('button');button.type='button';button.dataset.removeItem=String(item.id);button.textContent=t('remove');row.appendChild(button)}target.appendChild(row)})}
+ function setStep(step){draft.step=step;document.querySelectorAll('[data-repair-step]').forEach(function(s){s.hidden=Number(s.dataset.repairStep)!==step});document.querySelectorAll('.repair-progress i').forEach(function(el,i){el.classList.toggle('on',i<step)});document.querySelector('.repair-progress').setAttribute('aria-label',(draft.lang==='zh'?'第':draft.lang==='es'?'Paso ':draft.lang==='fr'?'Étape ':'Step ')+step+(draft.lang==='zh'?'步':' of 3'));$('repairBack').hidden=step===1;$('repairNext').hidden=step===3;$('repairAddAnother').hidden=step!==2;$('repairEmailDraft').hidden=step!==3;$('repairError').textContent='';$('repairContactError').textContent='';if(step===2)renderItems($('repairItems'),true);if(step===3)renderItems($('repairReview'),false);save()}
+ function loadDraft(){document.querySelectorAll('input[name="repairGarment"]').forEach(function(i){i.checked=i.value===draft.garment});document.querySelectorAll('#repairActions input').forEach(function(i){i.checked=draft.actions.indexOf(i.value)>=0});$('repairInches').value=draft.inches||'';$('repairNotes').value=draft.notes||'';$('repairName').value=draft.name||'';$('repairEmail').value=draft.email||'';$('repairPhone').value=draft.phone||'';translate();visual();setStep(draft.step||1)}
+ $('repairOpen').addEventListener('click',function(){loadDraft();if(dialog.showModal)dialog.showModal();else dialog.setAttribute('open','')});
+ $('repairClose').addEventListener('click',function(){if(dialog.close)dialog.close();else dialog.removeAttribute('open')});dialog.addEventListener('click',function(e){if(e.target===dialog)dialog.close()});
+ $('repairClear').addEventListener('click',function(){try{localStorage.removeItem(key)}catch(e){}draft={lang:draft.lang,step:1,garment:'jeans',actions:[],inches:'',notes:'',items:[],editingId:null,name:'',email:'',phone:''};loadDraft()});
+ $('repairLang').addEventListener('change',function(){draft.lang=this.value;translate();visual();setStep(draft.step);save()});
+ document.querySelectorAll('#repairGarments input,#repairActions input').forEach(function(input){input.addEventListener('change',readInputs)});
+ ['repairInches','repairNotes','repairName','repairEmail','repairPhone'].forEach(function(id){$(id).addEventListener('input',readInputs)});
+ $('repairBack').addEventListener('click',function(){if(draft.step===3)setStep(2);else if(draft.step===2)setStep(1)});
+ $('repairNext').addEventListener('click',function(){readInputs();if(draft.step===1){if(!draft.actions.length){$('repairError').textContent=t('selectAction');return}setStep(2);return}if(draft.step===2){if(!draft.actions.length){$('repairError').textContent=t('selectAction');setStep(1);return}commitCurrent();setStep(3)}});
+ $('repairAddAnother').addEventListener('click',function(){if(!draft.actions.length){$('repairError').textContent=t('selectAction');return}commitCurrent();draft.editingId=null;draft.garment='jeans';draft.actions=[];draft.inches='';draft.notes='';loadDraft();setStep(1)});
+ document.querySelectorAll('#repairItems,#repairReview').forEach(function(list){list.addEventListener('click',function(e){var button=e.target.closest('[data-remove-item]');if(!button)return;draft.items=draft.items.filter(function(item){return String(item.id)!==button.dataset.removeItem});if(draft.editingId===Number(button.dataset.removeItem)){draft.editingId=null;draft.actions=[]}renderItems($('repairItems'),true);renderItems($('repairReview'),false);save()})});
+ $('repairEmailDraft').addEventListener('click',function(){readInputs();if(!draft.name.trim()||!/^\S+@\S+\.\S+$/.test(draft.email.trim())){$('repairContactError').textContent=t('enterContact');return}if(!draft.items.length){$('repairContactError').textContent=t('selectAction');setStep(2);return}var c=copy[draft.lang]||copy.en,workLabel={en:'Work requested',es:'Trabajo solicitado',fr:'Travail demandé',zh:'处理方式'}[draft.lang]||'Work requested',lines=[c.mailHello,'',c.mailRequest];draft.items.forEach(function(item,i){lines.push('',c.piece+' '+(i+1)+': '+t(garmentName[item.garment]||'other'),workLabel+': '+item.actions.map(function(a){return t(actionName[a]||a)}).join(', '),c.mailMeasurement+': '+(item.inches?item.inches+' in':c.mailNoMeasurement),c.mailNotes+': '+(item.notes||c.mailNoNotes))});lines.push('',c.mailName+': '+draft.name,c.mailEmail+': '+draft.email,c.mailPhone+': '+(draft.phone||c.mailNoNotes),'',c.mailClose);var subject=encodeURIComponent(c.subject),body=encodeURIComponent(lines.join('\n'));window.location.href='mailto:shop@rufcut.com?subject='+subject+'&body='+body});
+ loadDraft();
 })();
 </script>
 </body>
