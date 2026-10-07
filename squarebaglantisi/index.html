@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Square catalog guide · Mr. Space</title>
+<meta name="description" content="A reusable checklist and Claude prompt for organizing a Square catalog before connecting it to a Mr. Space website.">
+<link rel="canonical" href="https://mrspace.online/squarebaglantisi/">
+<meta property="og:title" content="Square catalog guide · Mr. Space">
+<meta property="og:description" content="Prepare products, workshops and services in Square with a safe, repeatable catalog workflow.">
+<meta property="og:image" content="https://mrspace.online/og.png">
+<script src="../assets/i18n.js" data-dict="square-"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.guide-hero{padding-block:clamp(58px,9vw,110px)}
+.guide-hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);gap:40px;align-items:end}
+.guide-hero h1{font-size:clamp(54px,8.8vw,108px);max-width:10ch;margin-block:24px}
+.guide-hero p{font-size:clamp(17px,2vw,21px);max-width:58ch;color:#C9CED8}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero-actions .btn{min-height:48px}
+.hero-actions .btn:not(.solid){background:transparent;color:#F4F5F3;border-color:#F4F5F399}
+.hero-actions .btn:not(.solid):hover{background:#F4F5F3;color:#121418}
+.hero-route{border-top:1px solid #FFFFFF40;padding-top:16px;display:grid;gap:13px}
+.hero-route span{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#D8DCE4}
+.safe-note{margin-top:40px;padding:14px 16px;border:1px solid #FFFFFF40;max-width:850px;font-size:14px;color:#E1E4EA}
+.sec-head h2{max-width:13ch}
+.guide-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.guide-step{border-top:1px solid var(--ink);padding:22px 0 26px;display:grid;align-content:start;gap:12px}
+.step-no{font:11px var(--mono);letter-spacing:.1em;color:var(--mute)}
+.guide-step h3{font-size:clamp(27px,3.4vw,42px)}
+.guide-step p,.type-card p{color:var(--mute);font-size:15px;max-width:58ch}
+.type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.type-card{border-top:3px solid var(--ink);padding:18px 8px 0 0;display:grid;align-content:start;gap:12px}
+.type-card:nth-child(2){border-color:var(--sun)}
+.type-card:nth-child(3){border-color:var(--mute)}
+.type-card h3{font-size:clamp(24px,3vw,34px)}
+.type-card .mono{color:var(--mute)}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.rule-list{list-style:none;border-top:1px solid var(--ink)}
+.rule-list li{padding:13px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.rule-list li::before{content:"+";font-family:var(--mono);margin-right:12px;color:var(--ok)}
+.callout{border:1px solid var(--ink);background:var(--panel);padding:18px 20px;display:grid;gap:8px}
+.callout p{font-size:15px;color:var(--mute)}
+.guide-links{display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:22px}
+.guide-links a{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.04em;text-underline-offset:4px}
+.prompt-sec{background:var(--inv-bg);color:var(--inv-fg)}
+.prompt-sec .sec-head p{color:var(--inv-mute)}
+.prompt-box{display:grid;gap:14px}
+.prompt-box textarea{width:100%;min-height:420px;resize:vertical;background:#0E1014;color:#F4F5F3;border:1px solid #FFFFFF55;padding:18px;font:12px/1.6 var(--mono);tab-size:2}
+.prompt-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.prompt-actions .btn{background:var(--sun);border-color:var(--sun);color:#121418}
+.prompt-actions .btn:hover{background:#F4F5F3;border-color:#F4F5F3}
+.prompt-status{font-size:14px;color:#D0D4DC}
+.prompt-note{font-size:14px;color:var(--inv-mute);max-width:70ch}
+.final-check{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.final-check h3{margin-bottom:14px}
+@media(max-width:800px){.guide-hero-grid,.type-grid,.rules-grid,.final-check{grid-template-columns:1fr}.guide-hero h1{max-width:12ch}.guide-route{grid-template-columns:1fr}}
+@media(max-width:600px){.guide-steps{grid-template-columns:1fr}.guide-hero{padding-block:48px}.guide-hero h1{font-size:clamp(48px,15vw,76px)}.prompt-box textarea{min-height:500px;font-size:11px}}
+</style>
+</head>
+<body>
+<div class="ruler" aria-hidden="true"></div>
+<div class="page">
+<header class="top dark">
+ <div class="wrap">
+  <a class="mark" href="../" aria-label="Mr. Space home"><i></i>Mr. Space</a>
+  <nav class="nav" aria-label="Main" data-lang-host>
+   <a class="hide-sm" href="../">Back to home</a>
+   <a class="btn sm solid" href="#prompt">Claude prompt</a>
+  </nav>
+ </div>
+</header>
+
+<section class="intro night guide-hero">
+ <div class="wrap">
+  <div class="guide-hero-grid">
+   <div>
+    <div class="label">Field guide / Square</div>
+    <h1>Get your Square catalog ready.</h1>
+    <p>Products, workshops and repair services need different handling. Use this repeatable guide to prepare the Square catalog for a Mr. Space website.</p>
+    <div class="hero-actions">
+     <a class="btn solid" href="#prompt">Copy Claude prompt</a>
+     <a class="btn" href="#backup">How this works</a>
+    </div>
+   </div>
+   <div class="hero-route" aria-label="Steps">
+    <span>1 / Export a copy</span>
+    <span>2 / Review with Claude</span>
+    <span>3 / Approve before import</span>
+   </div>
+  </div>
+  <p class="safe-note">Never share your Square password, one-time sign-in code, payment details or API keys. Claude works from an exported file, not your Square account.</p>
+ </div>
+</section>
+
+<main>
+<section class="sec" id="backup">
+ <div class="wrap">
+  <header class="sec-head">
+   <div class="label"><span>01 / Backup</span><span>Before editing</span></div>
+   <h2>Start with a full export.</h2>
+   <p>In Square Dashboard, open Items &amp; services → Items → Item library → Actions → Export Library. Choose All items and Excel (.xlsx). Menu names can vary slightly by account.</p>
+  </header>
+  <div class="callout">
+   <strong>Save the original untouched.</strong>
+   <p>Make a second working copy for Claude. Do not filter the export unless you intentionally want to leave items out.</p>
+  </div>
+  <div class="guide-links">
+   <a href="https://squareup.com/help/us/en/article/5153-import-items-online" target="_blank" rel="noopener">Square's official bulk import guide ↗</a>
+  </div>
+ </div>
+</section>
+
+<section class="sec">
+ <div class="wrap">
+  <header class="sec-head">
+   <div class="label"><span>02 / Catalog</span><span>Three item types</span></div>
+   <h2>Keep three kinds of items separate.</h2>
+   <p>Use Square categories for organization, and keep workshops and repair services out of the clothing list until their own website sections are ready.</p>
+  </header>
+  <div class="type-grid">
+   <article class="type-card">
+    <div class="mono">01 / Retail</div>
+    <h3>Products</h3>
+    <p>Use categories such as Vintage Jeans, Vintage Jackets and Shirts. Make the garment type clear in the item name; keep size and color choices as variations.</p>
+   </article>
+   <article class="type-card">
+    <div class="mono">02 / Event</div>
+    <h3>Workshops</h3>
+    <p>Use Square's Event item type when available and a Workshops category. Keep these hidden from the Rufcut product grid until a separate workshop section is ready.</p>
+   </article>
+   <article class="type-card">
+    <div class="mono">03 / Service</div>
+    <h3>Repair services</h3>
+    <p>Use the Service item type when available and a Repairs category. Keep them out of the clothing product grid; the repair request flow will manage the service choices.</p>
+   </article>
+  </div>
+  <div class="guide-links">
+   <a href="https://squareup.com/help/us/en/article/8024-create-and-manage-item-categories" target="_blank" rel="noopener">Square item category guide ↗</a>
+  </div>
+ </div>
+</section>
+
+<section class="sec">
+ <div class="wrap">
+  <header class="sec-head">
+   <div class="label"><span>03 / SKU + Site</span><span>Keep data reliable</span></div>
+   <h2>Protect the stock data.</h2>
+   <p>Make each product easy to identify in Square, in the Rufcut site and on a printed barcode label.</p>
+  </header>
+  <div class="rules-grid">
+   <ul class="rule-list">
+    <li>One unique SKU per sellable variation.</li>
+    <li>Keep valid existing SKUs exactly as they are; treat them as text.</li>
+    <li>For blanks or duplicates, ask Claude to study the current pattern and propose options first.</li>
+    <li>After Square is connected, Mr. Space can assign unique SKUs to missing variations if you prefer.</li>
+   </ul>
+   <div class="callout">
+    <strong>Square categories do not publish items on the Mr. Space website by themselves.</strong>
+    <p>In the customer panel, open Stock and use Show online or Hide online per item. Publish only selected products with confirmed names, real photos, prices and stock. Keep Workshops and Repairs hidden until their dedicated sections are ready.</p>
+    <p>Square Online channel settings are separate. Do not change them as part of this guide unless the owner explicitly wants that.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="sec prompt-sec" id="prompt">
+ <div class="wrap">
+  <header class="sec-head">
+   <div class="label"><span>04 / Claude</span><span>Copy and review</span></div>
+   <h2>Copy, paste, review.</h2>
+   <p>Download the Square export, make a working copy, and upload that copy to Claude. Paste the prompt below. Claude must report changes first and wait for approval before editing the working copy.</p>
+  </header>
+  <div class="prompt-box">
+   <textarea id="claudePrompt" readonly aria-label="Claude catalog review prompt">I am organizing my Square catalog for a Mr. Space website, inventory labels and workshops.
+
+Business name: [enter business name]
+Website: [enter website address]
+Existing SKU rule, if known: [describe it or write "unknown"]
+
+I uploaded a COPY of my Square Item Library export. Work only from this copy. Do not ask for my Square login, password, one-time code, payment details, API keys or access tokens. Do not connect to my Square account.
+
+SAFETY RULES
+- Keep the original column headers, column order and every Square Token value unchanged.
+- Do not delete or archive rows.
+- Do not change item IDs, prices, taxes, locations, on-hand quantities, variations or images unless I explicitly approve the specific changes.
+- Treat every SKU as text. Preserve every existing non-empty SKU exactly.
+- Never invent a price, stock count, size, date, capacity or product fact.
+
+CLASSIFY EACH ITEM
+1. Product: physical clothing or merchandise. Suggest a category such as Vintage Jeans, Vintage Jackets or Shirts. Keep real sizes and colors in variations. Make the garment type clear in the item name, but propose name changes before editing.
+2. Workshop/Event: keep separate from retail clothing. Use Square's Event item type and a Workshops category when those fields are available. Use only dates, times and capacity already in the file; otherwise mark the field missing.
+3. Repair/Service: keep separate from clothing stock. Use Square's Service item type and a Repairs category when those fields are available.
+4. Needs review: use this for anything ambiguous. Do not guess.
+
+SKU REVIEW
+- Check that each sellable variation has a unique SKU.
+- Report duplicate and blank SKUs in a separate list.
+- Study the existing SKU pattern. For missing SKUs, propose a consistent pattern and show five examples first. Wait for my approval before filling any blank SKU.
+- Do not replace valid existing SKUs. Mr. Space can generate unique missing SKUs later if I choose that option.
+
+WEBSITE REVIEW
+- List which retail products have a clear item name, real photo, price, SKU and stock information.
+- Recommend which exact items should be shown or hidden on the website.
+- Keep Workshops and Repairs out of the clothing product list. Website visibility for a Mr. Space site is controlled separately in its customer panel.
+
+FIRST RESPONSE
+Return a review table with: item name, variation, current SKU, proposed type, proposed category, missing information, and proposed change. Also list duplicate SKUs, blank SKUs, and any item that needs my decision.
+Do not edit the workbook yet. Wait for me to approve the proposed categories, names and SKU pattern.
+
+AFTER I APPROVE
+Create a separate updated copy from Square's original template. Keep all original columns, headers, order and Token values. Apply only the changes I approved, list every changed field, and leave all other values untouched. Do not import it into Square; I will review and upload the file myself.</textarea>
+   <div class="prompt-actions">
+    <button class="btn" type="button" id="copyPrompt">Copy Claude prompt</button>
+    <span class="prompt-status" id="copyStatus" aria-live="polite"></span>
+   </div>
+   <p class="prompt-note">The prompt stays in English to match Square's field names. The page language follows your device where supported; change it from the menu above.</p>
+  </div>
+ </div>
+</section>
+
+<section class="sec">
+ <div class="wrap">
+  <header class="sec-head">
+   <div class="label"><span>05 / Before import</span><span>Owner approves</span></div>
+   <h2>Check the changes yourself.</h2>
+   <p>Claude prepares a proposal. The business owner reviews the file and imports it into Square only after approving each change.</p>
+  </header>
+  <div class="final-check">
+   <ul class="rule-list">
+    <li>Keep Square's original column names and order, and leave the Token column untouched.</li>
+    <li>Check that every sellable variation has a unique SKU.</li>
+    <li>Confirm that no price, stock count, size or event detail was guessed.</li>
+    <li>Keep workshop and repair items separate from retail clothing.</li>
+   </ul>
+   <div class="callout">
+    <strong>Import only the approved copy.</strong>
+    <p>In Square Item Library, choose Actions → Import Library. Review Square's import preview before confirming. Start with a small, low-risk group if the catalog is large.</p>
+   </div>
+  </div>
+  <div class="guide-links">
+   <a href="https://squareup.com/help/us/en/article/5153-import-items-online" target="_blank" rel="noopener">Square bulk import guide ↗</a>
+   <a href="https://squareup.com/help/us/en/article/8024-create-and-manage-item-categories" target="_blank" rel="noopener">Square category guide ↗</a>
+   <a href="../panel/">Mr. Space customer panel ↗</a>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer class="foot">
+ <div class="wrap">
+  <div><span class="sig"><i></i>Mr. Space</span><p>Reusable for any Mr. Space client using Square. Start with a backup and make one category and visibility decision at a time.</p></div>
+  <nav><a href="../">Mr. Space</a><a href="#prompt">Claude prompt</a><a href="#backup">Back to top ↑</a></nav>
+ </div>
+</footer>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('copyPrompt'),field=document.getElementById('claudePrompt'),status=document.getElementById('copyStatus');
+  function say(message){status.textContent=window.MSI18N?window.MSI18N.t(message):message}
+  btn.addEventListener('click',function(){
+    function fallback(){
+      field.focus();field.select();
+      try{document.execCommand('copy');say('Copied');}
+      catch(e){say('Select the prompt and copy it manually.');}
+    }
+    if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(field.value).then(function(){say('Copied');},fallback);
+    else fallback();
+  });
+})();
+</script>
+</body>
+</html>
