@@ -3,7 +3,6 @@
   "SKU prompt": "Prompt de SKU",
   "Square / Inventory system": "Square / Sistema de inventario",
   "Square SKU Setup Guide.": "Guía de configuración de SKU de Square.",
-  "Set up one clear SKU rule for every sellable item variation. This reusable workflow helps Rufcut and future Mr. Space clients keep Square stock, labels and website products in sync.": "Define una regla clara de SKU para cada variación vendible. Este proceso reutilizable ayuda a Rufcut y a futuros clientes de Mr. Space a mantener sincronizados el inventario de Square, las etiquetas y los productos web.",
   "Copy the Claude setup prompt": "Copiar el prompt de configuración para Claude",
   "See the SKU rules": "Ver las reglas de SKU",
   "1 / Export and back up": "1 / Exportar y guardar copia",
@@ -20,8 +19,6 @@
   "Avoid prices, stock counts and other details that can change over time.": "Evita precios, existencias y otros datos que puedan cambiar.",
   "Report blank and duplicate SKUs before proposing replacements.": "Informa los SKU vacíos y duplicados antes de proponer reemplazos.",
   "Illustrative format only. Approve the real codes with the owner.": "Solo es un ejemplo. Aprueba los códigos reales con el propietario.",
-  "Client · item type · item number · variation": "Negocio · tipo de artículo · número · variación",
-  "This example could describe one Rufcut jeans variation. It is not a preset: Claude must first inspect the real catalog and suggest codes that fit the business.": "Este ejemplo podría describir una variación de jeans de Rufcut. No es una regla predeterminada: Claude debe revisar primero el catálogo real y proponer códigos adecuados.",
   "02 / Keep item groups clear": "02 / Separar grupos de artículos",
   "Same SKU logic, separate groups": "Misma lógica SKU, grupos separados",
   "Separate products, workshops and services.": "Separa productos, talleres y servicios.",
@@ -58,7 +55,6 @@
   "Review the approved-copy comparison and Square's import preview before importing. Start with a small group if the catalog is large.": "Compara la copia aprobada y revisa la vista previa de importación de Square. Si el catálogo es grande, empieza con un grupo pequeño.",
   "Square bulk import guide": "Guía de importación masiva de Square",
   "Mr. Space customer panel": "Panel de cliente de Mr. Space",
-  "A repeatable Square SKU setup workflow for Rufcut and future Mr. Space clients.": "Un proceso reutilizable para organizar SKU de Square en Rufcut y futuros clientes de Mr. Space.",
   "Copied": "Copiado",
   "Select the prompt and copy it manually": "Selecciona y copia el prompt manualmente",
   "Back to top ↑": "Volver arriba ↑",
@@ -67,5 +63,9 @@
   "Mr. Space home": "Inicio de Mr. Space",
   "Square's official export and import guide ↗": "Guía oficial de exportación e importación de Square ↗",
   "Square bulk import guide ↗": "Guía de importación masiva de Square ↗",
-  "Mr. Space customer panel ↗": "Panel de cliente de Mr. Space ↗"
+  "Mr. Space customer panel ↗": "Panel de cliente de Mr. Space ↗",
+  "Define una regla de SKU coherente para cada variación vendible. Usa esta guía para revisar productos, talleres y servicios antes de actualizar tu catálogo de Square.": "Define una regla clara de SKU para cada variación vendible. Este proceso reutilizable ayuda a Rufcut y a futuros clientes de Mr. Space a mantener sincronizados el inventario de Square, las etiquetas y los productos web.",
+  "Este es un ejemplo de SKU para una variación de jeans, no un código recomendado. Elige un formato después de revisar tu catálogo.": "Este ejemplo podría describir una variación de jeans de Rufcut. No es una regla predeterminada: Claude debe revisar primero el catálogo real y proponer códigos adecuados.",
+  "Negocio · tipo de artículo · número · variación": "Negocio · tipo de artículo · número · variación",
+  "Una guía práctica para organizar códigos de artículos y variaciones en Square.": "Un proceso reutilizable para organizar SKU de Square en Rufcut y futuros clientes de Mr. Space."
 }
