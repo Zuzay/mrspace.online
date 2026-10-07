@@ -3,8 +3,7 @@ name: Mr. Space isci
 on:
   repository_dispatch:
     types: [ms-work]
-  schedule:
-    - cron: "17 * * * *"
+  # Hourly runs are paused until the worker RPC backend is installed (see issue #28).
   workflow_dispatch:
 
 concurrency:
