@@ -137,6 +137,7 @@ dialog .wide{grid-column:1/-1}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--night);color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;transition:.3s;z-index:50;max-width:90vw}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .demo-tag{font:500 10px var(--mono);letter-spacing:.1em;background:var(--sun);color:#121418;padding:3px 8px;border-radius:99px}
+.repair-orders{display:grid;gap:14px}.repair-order{gap:16px}.repair-order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.repair-order-top h2{margin-top:7px}.repair-order-top p,.repair-order-top small{color:var(--mute);font-size:13px}.repair-order-top small{display:block;margin-top:5px}.repair-status{display:grid;gap:5px;min-width:150px;font:11px var(--mono);text-transform:uppercase;color:var(--mute)}.repair-status select,.repair-order-body textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:14px var(--body)}.repair-order-body{display:grid;grid-template-columns:minmax(170px,260px) minmax(0,1fr);gap:18px;align-items:start}.repair-order-body img{width:100%;max-height:340px;object-fit:contain;background:#111b33;border-radius:12px}.repair-order-visuals{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px}.repair-order-visuals img{max-height:340px}.repair-order-body h3{font-size:17px;margin:2px 0 8px}.repair-order-body p{color:var(--mute);font-size:13px;line-height:1.65;margin-bottom:14px}.repair-order-body label{display:grid;gap:5px;margin:12px 0;font-size:12px;color:var(--mute)}.repair-order-body textarea{min-height:70px;resize:vertical}@media(max-width:700px){.repair-order-top{flex-direction:column}.repair-status{min-width:100%}.repair-order-body{grid-template-columns:1fr}.repair-order-visuals img{max-height:280px}}
 
 #print{display:none}
 @media print{
@@ -170,6 +171,7 @@ dialog .wide{grid-column:1/-1}
    <button data-v="home" class="on">Overview</button>
    <button data-v="stock">Stock</button>
    <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
+   <button data-v="repairs" hidden>Repairs <span class="mono" id="repairCount"></span></button>
   </nav>
   <select id="sitePick" hidden aria-label="Site"></select>
   <span class="demo-tag" id="demoTag" hidden>DEMO</span>
@@ -221,7 +223,7 @@ async function sq(action, extra = {}){
 }
 
 /* ---------- state ---------- */
-let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, FILTER = "all", QUERY = "";
+let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, REPAIRS = null, FILTER = "all", QUERY = "";
 let QUEUE = []; // {key,name,variant,price,currency,sku,qty}
 const OPT = { size:"2.25x1.25", shop:true, price:true, variant:true };
 try { Object.assign(OPT, JSON.parse(localStorage.getItem("ms_label_opts") || "{}")); QUEUE = JSON.parse(localStorage.getItem("ms_label_queue") || "[]"); } catch (e) {}
@@ -232,7 +234,7 @@ const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25,
 function render(){
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
   $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
-  $("#main").innerHTML = ({ home, stock, labels })[VIEW]();
+  $("#main").innerHTML = ({ home, stock, labels, repairs })[VIEW]();
   bind();
   if (window.MSI18N) MSI18N.apply($("#main"));
 }
@@ -257,6 +259,26 @@ function home(){
     <div class="row">${SITE.url ? `<a class="btn ghost" href="${esc(SITE.url)}" target="_blank" rel="noopener">Open site ↗</a>` : ""}<a class="btn solid" href="${esc(reqUrl)}" target="_blank" rel="noopener">Request changes</a></div></div>
   </div>`;
 }
+async function repairCall(action, extra = {}){
+  if(DEMO) return { jobs:[] };
+  await fresh();
+  const r=await fetch(`${SB_URL}/functions/v1/ms-repair`,{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+SS.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Repair request failed");return d;
+}
+function repairs(){
+  if(SITE.slug!=="rufcut")return `<div class="head"><div><h1>Repairs</h1><p>Repair work orders are available for Rufcut.</p></div></div>`;
+  if(DEMO)return `<div class="head"><div><h1>Repairs</h1><p>Sign in to Rufcut to view customer work orders.</p></div></div>`;
+  if(REPAIRS===null)return `<div class="head"><div><h1>Repairs</h1><p>Loading work orders…</p></div></div>`;
+  if(!REPAIRS.length)return `<div class="head"><div><h1>Repairs</h1><p>Customer work orders and their garment markups appear here.</p></div></div><div class="list"><div class="empty">No repair work orders yet.</div></div>`;
+  const label=v=>({received:"Received",in_progress:"In progress",ready:"Ready",completed:"Complete"}[v]||v);
+  return `<div class="head"><div><h1>Repairs</h1><p>Work orders, garment markups, measurements and your fitting notes.</p></div><button class="btn ghost" data-repair-refresh>Refresh</button></div><div class="repair-orders">${REPAIRS.map(j=>{
+    const items=Array.isArray(j.items)?j.items:[];
+  const desc=items.map((it,i)=>`${i+1}. ${esc(it.gender||"")} ${esc(it.garment||"garment")} · ${(it.actions||[]).map(esc).join(", ")}${it.inches?` · ${esc(it.inches)} in`:""}${it.note?` · ${esc(it.note)}`:""}`).join("<br>");
+    const visuals=items.map(it=>it.preview_svg?`<img alt="${esc(it.garment||"Garment")} repair markup" loading="lazy" src="data:image/svg+xml,${encodeURIComponent(it.preview_svg)}">`:"").join("");
+    return `<article class="repair-order card"><div class="repair-order-top"><div><span class="mono">${esc(j.ticket)}</span><h2 data-noi18n>${esc(j.customer_name)}</h2><p>${esc(j.customer_email)}${j.customer_phone?` · ${esc(j.customer_phone)}`:""}</p><small>${new Date(j.created_at).toLocaleString()}</small></div><label class="repair-status">Status<select data-repair-status="${esc(j.id)}"><option value="received" ${j.status==="received"?"selected":""}>Received</option><option value="in_progress" ${j.status==="in_progress"?"selected":""}>In progress</option><option value="finishing" ${j.status==="finishing"?"selected":""}>Finishing · ready tomorrow</option><option value="ready" ${j.status==="ready"?"selected":""}>Ready</option><option value="completed" ${j.status==="completed"?"selected":""}>Complete</option></select></label></div><div class="repair-order-body"><div class="repair-order-visuals">${visuals}</div><div><h3>Requested work</h3><p>${desc}</p><label>Measurements from fitting<textarea data-repair-measure="${esc(j.id)}" maxlength="2000">${esc(j.measurements||"")}</textarea></label><label>Staff notes<textarea data-repair-notes="${esc(j.id)}" maxlength="3000">${esc(j.staff_notes||"")}</textarea></label><button class="btn sun" data-repair-save="${esc(j.id)}">Save work order</button></div></div></article>`;
+  }).join("")}</div>`;
+}
+async function loadRepairs(){try{const d=await repairCall("list");REPAIRS=d.jobs||[]}catch(e){REPAIRS=[];toast(e.message)}$("#repairCount").textContent=REPAIRS.length?`(${REPAIRS.length})`:"";}
 function rows(){
   const q = QUERY.toLowerCase();
   const out = [];
@@ -416,6 +438,12 @@ function bind(){
     catch(e){toast(T("Photo upload failed")+": "+e.message)} finally {el.value="";}
   });
   document.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { VIEW = el.dataset.go; render(); });
+  document.querySelectorAll("[data-repair-refresh]").forEach(el => el.onclick = async () => { el.disabled=true; await loadRepairs(); render(); });
+  document.querySelectorAll("[data-repair-save]").forEach(el => el.onclick = async () => {
+    const id=el.dataset.repairSave,status=document.querySelector(`[data-repair-status="${CSS.escape(id)}"]`).value;
+    const staff_notes=document.querySelector(`[data-repair-notes="${CSS.escape(id)}"]`).value,measurements=document.querySelector(`[data-repair-measure="${CSS.escape(id)}"]`).value;
+    el.disabled=true;try{await repairCall("update",{id,status,staff_notes,measurements});toast("Work order saved");await loadRepairs();render()}catch(e){toast(e.message);el.disabled=false}
+  });
   document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
   const q = $("#q"); if (q) q.oninput = () => { QUERY = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
   const dirty = inp => { const s = document.querySelector(`[data-save="${CSS.escape(inp.dataset.count)}"]`); const d = String(inp.value) !== String(inp.dataset.was); inp.classList.toggle("dirty", d); if (s) s.hidden = !d; };
@@ -469,7 +497,7 @@ function demoSq(action, x){
 }
 
 /* ---------- start ---------- */
-document.querySelectorAll("#nav button").forEach(b => b.onclick = () => { VIEW = b.dataset.v; render(); });
+document.querySelectorAll("#nav button").forEach(b => b.onclick = async () => { VIEW = b.dataset.v; if(VIEW==="repairs"&&REPAIRS===null)await loadRepairs(); render(); });
 $("#out").onclick = logout;
 $("#sitePick").onchange = async () => { SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
 $("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", site_key:"demo" }]; await enter(); };
@@ -495,7 +523,7 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
-  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; render();
+  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut"; render();
   try { SQ = await sq("status"); } catch (e) { SQ = { connected:false }; }
   render();
   if (SQ.connected) loadItems();
