@@ -124,77 +124,59 @@ section{padding:96px 0}
 .repair-cta{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:34px;padding:24px;border:1px solid #D9822B88;background:linear-gradient(120deg,#D9822B18,transparent 65%);border-radius:8px}
 .repair-cta p{max-width:52ch;color:var(--mute);font-size:15px}
 .repair-cta .btn{flex:none}
-dialog.repair-dialog{width:min(980px,calc(100% - 24px));max-width:none;max-height:min(92dvh,900px);margin:auto;border:1px solid #F3EEE433;border-radius:4px;padding:0;background:#111827;color:var(--raw);box-shadow:0 32px 100px #000c}
+dialog.repair-dialog{width:min(1040px,calc(100% - 24px));max-width:none;max-height:min(92dvh,900px);margin:auto;border:1px solid #F3EEE455;border-radius:4px;padding:0;background:#111B33;color:var(--raw);box-shadow:0 28px 90px #080C16D9;overflow:auto}
 dialog.repair-dialog::backdrop{background:#080C16D9;backdrop-filter:blur(5px)}
-.repair-shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);min-height:600px}
+.repair-shell{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);min-height:540px}
 .repair-main{padding:clamp(22px,4vw,42px);display:flex;flex-direction:column;min-width:0}
 .repair-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:20px;border-bottom:1px solid #FFFFFF20}
-.repair-top .eyebrow{font:11px var(--f);letter-spacing:.16em;text-transform:uppercase;color:#C3A47F}
+.repair-top .eyebrow{font:11px var(--f);letter-spacing:.16em;text-transform:uppercase;color:#F1B177}
 .repair-top h3{font:700 clamp(26px,3vw,32px)/1.04 var(--f);text-transform:none;letter-spacing:-.035em;margin-top:7px}
-.repair-top select{max-width:130px;background:var(--deep);color:var(--raw);border:1px solid #F3EEE466;padding:8px;border-radius:5px}
-.repair-close{width:40px;height:40px;border:1px solid #F3EEE466;border-radius:50%;font-size:22px;flex:none;background:transparent;color:var(--raw)}
-.repair-progress{display:flex;gap:5px;margin:22px 0 28px}
-.repair-progress i{height:2px;flex:1;background:#F3EEE426}
-.repair-progress i.on{background:#D9822B}
+.repair-top select{max-width:130px;background:#1B2A4E;color:var(--raw);border:1px solid #F3EEE466;padding:8px;border-radius:2px}
+.repair-close{width:40px;height:40px;border:1px solid #F3EEE466;border-radius:2px;font-size:22px;flex:none;background:transparent;color:var(--raw);transition:background .16s ease-out,color .16s ease-out}
+.repair-stage{margin:18px 0 24px;color:#F1B177;font:11px var(--f);letter-spacing:.14em;text-transform:uppercase}
 .repair-step{padding:0}
 .repair-step[hidden]{display:none}
-.repair-step h4{font-size:16px;font-weight:600;margin-bottom:13px;letter-spacing:.01em}
-.repair-options{display:flex;flex-wrap:wrap;gap:7px}
-.repair-choice{position:relative}
+.repair-step h4{font-size:16px;font-weight:600;margin-bottom:12px;letter-spacing:.01em}
+.repair-options{display:grid;gap:8px}
+#repairGarments{grid-template-columns:repeat(3,minmax(0,1fr))}
+#repairActions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.repair-choice{position:relative;min-width:0}
 .repair-choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
-.repair-choice span{display:block;border:1px solid #FFFFFF2D;border-radius:2px;padding:9px 12px;font-size:13px;color:#D8D8D2;transition:background .16s,color .16s,border-color .16s}
-.repair-choice input:checked+span{background:#E9DFD0;color:#172033;border-color:#E9DFD0}
-.repair-choice input:focus-visible+span{outline:3px solid var(--cop);outline-offset:3px}
-.repair-field{display:grid;gap:7px;margin-top:18px;font-size:13px;color:var(--mute)}
-.repair-field input,.repair-field textarea{width:100%;border:1px solid #F3EEE455;border-radius:5px;padding:11px 12px;background:#0D1529;color:var(--raw);font:16px var(--f)}
-.repair-field textarea{min-height:86px;resize:vertical}
-.repair-draft-note{font-size:12px;color:var(--mute);margin-top:18px}
-.repair-items{display:grid;gap:8px;margin:12px 0}
-.repair-item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid #F3EEE433;border-radius:6px;font-size:13px}
-.repair-item-row button{color:#F0B16D;text-decoration:underline;text-underline-offset:3px}
+.repair-choice span{display:flex;align-items:center;min-height:48px;width:100%;border:1px solid #FFFFFF3A;border-radius:2px;padding:10px 12px;font-size:13px;color:#E1E5EA;transition:background-color .16s ease,color .16s ease,border-color .16s ease}
+.repair-choice input:checked+span{background:#D9822B;color:#fff;border-color:#D9822B}
+.repair-choice input:focus-visible+span{outline:2px solid #F1B177;outline-offset:2px}
+.repair-field{display:grid;gap:7px;margin-top:18px;font-size:13px;color:#E1E5EA}
+.repair-field input,.repair-field textarea{width:100%;border:1px solid #FFFFFF45;border-radius:2px;padding:12px;background:#1B2A4E;color:#fff;font:16px var(--f)}
+.repair-field input::placeholder,.repair-field textarea::placeholder{color:#AEB9C9}
+.repair-field textarea{min-height:88px;resize:vertical}
+.repair-draft-note{font-size:12px;color:#B8C4D3;margin-top:18px}
+.repair-items{display:grid;gap:7px;margin:12px 0}
+.repair-item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #FFFFFF35;font-size:13px}
+.repair-item-row button{color:#F1B177;text-decoration:underline;text-underline-offset:3px}
 .repair-error{color:#FFD3B5;font-size:13px;min-height:1.5em;margin-top:10px}
-.repair-actions{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:22px}
-.repair-actions .btn{font-size:13px;padding:11px 15px}
+.repair-actions{display:flex;justify-content:space-between;gap:8px;margin-top:auto;padding-top:22px}
+.repair-actions .btn{font-size:12px;padding:11px 14px}
 .repair-actions button.btn{background:transparent;color:var(--raw)}
-.repair-actions button.btn.cop{background:var(--cop);color:var(--deep)}
-.repair-clear{align-self:flex-start;margin-top:8px;padding:4px 0;background:none;border:0;color:var(--mute);font:12px var(--f);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.repair-actions button.btn.cop{background:#D9822B;color:#fff;border-color:#D9822B}
+.repair-clear{align-self:flex-start;margin-top:8px;padding:4px 0;background:none;border:0;color:#B8C4D3;font:12px var(--f);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .repair-actions [hidden]{display:none}
-.repair-visual{background:#E8E0D3;color:#172033;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;position:relative;overflow:hidden;border-left:1px solid #111827}
-.repair-visual::before{content:"";position:absolute;inset:18px;border:1px solid #17203320;pointer-events:none}
-.repair-visual svg{position:relative;width:min(100%,280px);height:330px;filter:drop-shadow(0 12px 13px #17203318)}
-.repair-visual .garment{fill:url(#denimWeave);stroke:#15203A;stroke-width:2.4;stroke-linejoin:round;transition:d .2s}
-.repair-visual .garment-detail{fill:none;stroke:#8193B5;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
-.repair-visual .garment-stitch{fill:none;stroke:#C28A52;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.3 3.2;opacity:.95}
-.repair-visual svg:not(.pants-preview) .garment-detail,.repair-visual svg:not(.pants-preview) .garment-stitch{display:none}
-.repair-visual .repair-mark{fill:none;stroke:#B7522E;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:3 3;opacity:1}
-.repair-visual .measure-mark{fill:#B7522E;font:600 11px var(--f)}
-.repair-visual .visual-copy{position:relative;text-align:center;display:grid;gap:5px;margin-top:8px}
-.repair-visual .visual-copy b{font:25px/1 var(--d);text-transform:uppercase;letter-spacing:.025em}
-.repair-visual .visual-copy span{font-size:12px;color:#555B66}
-.repair-visual .saved-label{position:absolute;right:28px;bottom:26px;font:10px var(--f);letter-spacing:.15em;text-transform:uppercase;color:#555B66}
-.repair-choice span:hover{border-color:#E9DFD088;color:#fff}
-.repair-choice input:checked+span:hover{color:#172033}
-.repair-choice input:focus-visible+span{outline:2px solid #D9822B;outline-offset:3px}
-.repair-close{transition:background .16s,color .16s,border-color .16s}
-.repair-close:hover{background:#E9DFD0;color:#172033;border-color:#E9DFD0}
-.repair-field input,.repair-field textarea{border-radius:2px;border-color:#FFFFFF35}
-.repair-actions .btn,.repair-clear,.repair-item-row button{transition:color .16s,background .16s,border-color .16s}
-@media(hover:hover){.repair-actions .btn:hover{border-color:#E9DFD0}.repair-actions .btn.cop:hover{background:#F0B16D}}
-@media(prefers-reduced-motion:reduce){.repair-close,.repair-actions .btn,.repair-clear,.repair-item-row button{transition:none}}
+.repair-summary{background:#E9C64D;color:#172033;padding:clamp(22px,3vw,34px);display:flex;flex-direction:column;min-width:0}
+.repair-summary-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid #1720334D}
+.repair-summary-head .eyebrow{font:11px var(--f);letter-spacing:.14em;text-transform:uppercase}
+.repair-summary-head strong{font:600 13px var(--f)}
+.repair-summary-hint{margin-top:18px;color:#424A53;font-size:14px;line-height:1.55}
+.repair-summary-list{display:grid;gap:12px;margin-top:18px}
+.repair-summary-item{border-top:1px solid #1720334D;padding-top:12px}
+.repair-summary-item b{display:block;font-size:15px}
+.repair-summary-item p{margin-top:5px;color:#424A53;font-size:13px;line-height:1.45}
+.repair-summary-note{margin-top:auto;padding-top:26px;font:11px var(--f);letter-spacing:.06em;text-transform:uppercase}
+.repair-summary-trust{margin-top:8px;color:#424A53;font-size:12px;line-height:1.5}
+.repair-actions .btn,.repair-clear,.repair-item-row button{transition:color .16s ease,background-color .16s ease,border-color .16s ease}
+@media(hover:hover) and (pointer:fine){.repair-choice span:hover{border-color:#F1B177}.repair-close:hover{background:#D9822B;border-color:#D9822B}.repair-actions .btn.cop:hover{background:#EF8554;border-color:#EF8554}}
+@media(max-width:700px){.repair-shell{grid-template-columns:1fr;min-height:0}.repair-summary{min-height:220px;grid-row:2}.repair-main{min-height:0;padding:18px}.repair-top h3{font-size:clamp(23px,6vw,30px)}.repair-actions{position:sticky;bottom:0;background:#111B33;padding-bottom:6px;z-index:2}}
+@media(max-width:520px){.repair-cta{align-items:flex-start;flex-direction:column}.repair-cta .btn{width:100%;justify-content:center}.repair-top h3{font-size:26px}.repair-actions{flex-wrap:wrap}.repair-actions .btn{flex:1}#repairGarments{grid-template-columns:repeat(2,minmax(0,1fr))}.repair-summary{min-height:190px}}
+@media(prefers-reduced-motion:reduce){.repair-close,.repair-choice span,.repair-actions .btn,.repair-clear,.repair-item-row button{transition:none}}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:700px){
- .repair-shell{grid-template-columns:1fr;min-height:0}
- .repair-visual{min-height:174px;grid-row:1;padding:8px;border-left:0;border-bottom:1px solid #111827}
- .repair-visual::before{inset:10px}
- .repair-visual svg{height:142px;width:140px}
- .repair-visual .visual-copy{display:none}
- .repair-visual .saved-label{right:20px;bottom:17px}
- .repair-main{min-height:0;padding:18px}
- .repair-top h3{font-size:clamp(23px,6vw,30px)}
- .repair-actions{position:sticky;bottom:0;background:var(--deep);padding-bottom:6px;z-index:2}
-}
-@media(max-width:520px){.repair-cta{align-items:flex-start;flex-direction:column}.repair-cta .btn{width:100%;justify-content:center}.repair-top h3{font-size:26px}.repair-actions{flex-wrap:wrap}.repair-actions .btn{flex:1;justify-content:center}}
-@media(prefers-reduced-motion:reduce){.repair-choice span,.repair-visual .garment{transition:none}}
 
 /* tracker */
 .track{background:var(--raw);color:var(--deep);border-radius:8px;padding:34px}
@@ -337,76 +319,76 @@ footer{border-top:1px solid #1B2A4E22;color:#6D706F}
 @media(prefers-reduced-motion:reduce){.door,.item,.chip{transition:none}.item:hover{transform:none}}
 
 /* Denim-first art direction: saturated indigo, workshop blue, one copper accent. */
-:root{--ind:#172E58;--deep:#10213F;--cop:#D86738;--raw:#F4F0E7;--mute:#697483}
-header{background:#F4F0E7;border-bottom:1px solid #172E5833}
+:root{--ind:#1B2A4E;--deep:#111B33;--cop:#D9822B;--raw:#F3EEE4;--mute:#697483}
+header{background:#F3EEE4;border-bottom:1px solid #1B2A4E33}
 .logo{font-size:25px;letter-spacing:.17em}
 nav a{font-size:12px;letter-spacing:.055em;text-transform:uppercase}
-nav .book{background:#172E58;color:#F4F0E7;border-color:#172E58}
-nav .book:hover{background:#D86738;border-color:#D86738;color:#fff}
-.hero{background:#172E58;position:relative}
+nav .book{background:#1B2A4E;color:#F3EEE4;border-color:#1B2A4E}
+nav .book:hover{background:#D9822B;border-color:#D9822B;color:#fff}
+.hero{background:#1B2A4E;position:relative}
 .hero::before{content:"";position:absolute;inset:0 0 0 53%;background:#285487;clip-path:polygon(13% 0,100% 0,100% 100%,0 100%);pointer-events:none}
 .hero .inner{z-index:1;min-height:630px;grid-template-columns:minmax(0,1.1fr) minmax(330px,.85fr);gap:clamp(36px,6vw,92px)}
 .hero-copy{padding:0 0 12px}
 .hero-kicker{display:inline-block;color:#F1B177;border-bottom:1px solid #F1B17777;padding-bottom:8px}
 .hero h1{max-width:8ch;font-size:clamp(60px,8.5vw,116px);line-height:.88;letter-spacing:-.085em}
 .hero p{max-width:42ch;color:#E0E6EF}
-.hero-spec{position:relative;justify-self:stretch;align-self:end;min-width:0;width:100%;max-width:430px;gap:12px;padding:20px 20px 18px;border:1px solid #FFFFFF38;background:#1E3D6C;box-shadow:12px 12px 0 #D86738}
+.hero-spec{position:relative;justify-self:stretch;align-self:end;min-width:0;width:100%;max-width:430px;gap:12px;padding:20px 20px 18px;border:1px solid #FFFFFF38;background:#1E3D6C;box-shadow:12px 12px 0 #D9822B}
 .hero-spec>span{color:#F5B77E}
 .machine-plate{width:min(100%,390px);margin:0 auto;filter:drop-shadow(0 10px 10px #08152D55)}
 .hero-spec small{color:#E0E6EF}
-.hero .btn.cop{background:#D86738;border-color:#D86738;color:#fff}
+.hero .btn.cop{background:#D9822B;border-color:#D9822B;color:#fff}
 .hero .btn.cop:hover{background:#EF8554;border-color:#EF8554}
 .hero .btn:not(.cop){border-color:#FFFFFF75;color:#fff}
-.hero .btn:not(.cop):hover{background:#F4F0E7;color:#172E58}
-.doors{gap:0;background:transparent;border-bottom:1px solid #172E5830}
-.door{position:relative;min-height:132px;padding:24px clamp(18px,3vw,38px);border:0;border-right:1px solid #172E582E}
+.hero .btn:not(.cop):hover{background:#F3EEE4;color:#1B2A4E}
+.doors{gap:0;background:transparent;border-bottom:1px solid #1B2A4E30}
+.door{position:relative;min-height:132px;padding:24px clamp(18px,3vw,38px);border:0;border-right:1px solid #1B2A4E2E}
 .door:last-child{border-right:0}
 .door:nth-child(1){background:#E9C64D;color:#172033}
-.door:nth-child(2){background:#B9CFDF;color:#172E58}
-.door:nth-child(3){background:#D86738;color:#fff}
+.door:nth-child(2){background:#B9CFDF;color:#1B2A4E}
+.door:nth-child(3){background:#D9822B;color:#fff}
 .door:hover{filter:saturate(1.08);background:inherit}
 .door h2{font-size:21px;max-width:15ch}
 .door p{margin-top:11px;color:inherit;opacity:.78}
 section{padding:clamp(58px,7vw,92px) 0}
 .sh h2{max-width:11ch}
-.builder{border:0;box-shadow:12px 12px 0 #D86738;background:#172E58}
-.preview{min-height:420px;background:#284F7E;color:#F4F0E7;border:0}
-.preview svg{filter:drop-shadow(0 16px 18px #10213F50)}
-.summary-chip{background:#F4F0E7;color:#172E58;border-color:#F4F0E7}
-.opts{background:#F4F0E7}
-.step{padding:20px 24px;border-bottom:1px solid #172E5822}
+.builder{border:0;box-shadow:12px 12px 0 #D9822B;background:#1B2A4E}
+.preview{min-height:420px;background:#284F7E;color:#F3EEE4;border:0}
+.preview svg{filter:drop-shadow(0 16px 18px #111B3350)}
+.summary-chip{background:#F3EEE4;color:#1B2A4E;border-color:#F3EEE4}
+.opts{background:#F3EEE4}
+.step{padding:20px 24px;border-bottom:1px solid #1B2A4E22}
 .step h3{color:#58677B}
 .chip{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}
 .chip:active,.btn:active{transform:translateY(1px)}
-.chip[aria-pressed="true"]{background:#172E58;border-color:#172E58;color:#fff}
+.chip[aria-pressed="true"]{background:#1B2A4E;border-color:#1B2A4E;color:#fff}
 .ready{background:#E9C64D;color:#172033}
 .ready small{color:#394457}
 #vintage{background:#E6EBEF}
 #vintage .wrap{position:relative}
-#vintage .sh{border-left:5px solid #D86738;padding-left:18px}
-.filters{padding:9px 0;border-bottom:1px solid #172E5820}
+#vintage .sh{border-left:5px solid #D9822B;padding-left:18px}
+.filters{padding:9px 0;border-bottom:1px solid #1B2A4E20}
 .filters span{color:#506078;font-weight:700}
-.filters .chip{background:#F4F0E7;border-color:#172E5840;color:#172E58}
-.filters .chip[aria-pressed="true"]{background:#172E58;color:#fff;border-color:#172E58}
-.item{border:0;background:#F4F0E7;box-shadow:0 3px 0 #172E5817}
+.filters .chip{background:#F3EEE4;border-color:#1B2A4E40;color:#1B2A4E}
+.filters .chip[aria-pressed="true"]{background:#1B2A4E;color:#fff;border-color:#1B2A4E}
+.item{border:0;background:#F3EEE4;box-shadow:0 3px 0 #1B2A4E17}
 .item .ph{background:#C9D4DD!important}
 .item .tag{background:#E9C64D;color:#172033;font-weight:700}
-.item .in{border-top:3px solid #D86738}
-.empty{grid-template-columns:minmax(0,1fr) auto;gap:28px;padding:30px;background:#172E58;color:#E0E6EF;border:0;text-align:left}
+.item .in{border-top:3px solid #D9822B}
+.empty{grid-template-columns:minmax(0,1fr) auto;gap:28px;padding:30px;background:#1B2A4E;color:#E0E6EF;border:0;text-align:left}
 .empty strong{color:#fff;font-size:clamp(23px,3vw,34px)}
 .empty p{color:#D4DDE8}
 .empty .empty-mark{width:76px;height:76px;border:1px solid #F1B177;color:#F1B177;font-size:34px}
-.repairs,#repairs{background:#F4F0E7}
-.repair-cta{background:#E9C64D;border-left:5px solid #172E58;color:#172033}
+.repairs,#repairs{background:#F3EEE4}
+.repair-cta{background:#E9C64D;border-left:5px solid #1B2A4E;color:#172033}
 .repair-cta p{color:#313D4F}
-.track{background:#172E58;border-top:6px solid #D86738}
-.track .btn{background:#D86738;border-color:#D86738;color:#fff}
+.track{background:#1B2A4E;border-top:6px solid #D9822B}
+.track .btn{background:#D9822B;border-color:#D9822B;color:#fff}
 .track .btn:hover{background:#EF8554;border-color:#EF8554}
-.visit{border-top:1px solid #172E5830}
-.hours div{border-color:#172E5828}
-@media(hover:hover) and (pointer:fine){.door:hover{filter:brightness(.96)}.item:hover{transform:translateY(-3px);box-shadow:0 8px 0 #172E5822}}
+.visit{border-top:1px solid #1B2A4E30}
+.hours div{border-color:#1B2A4E28}
+@media(hover:hover) and (pointer:fine){.door:hover{filter:brightness(.96)}.item:hover{transform:translateY(-3px);box-shadow:0 8px 0 #1B2A4E22}}
 @media(max-width:900px){.hero::before{inset:56% 0 0;background:#285487;clip-path:none}.hero .inner{grid-template-columns:1fr;gap:38px}.hero-spec{justify-self:start;max-width:520px}.preview{min-height:330px}}
-@media(max-width:560px){.hero .inner{padding-block:64px 44px}.hero h1{font-size:clamp(52px,13vw,74px)}.hero-spec{box-shadow:7px 7px 0 #D86738;padding:16px}.machine-plate{width:min(100%,340px)}.door{min-height:0}.preview{min-height:280px}.empty .empty-mark{display:none}}
+@media(max-width:560px){.hero .inner{padding-block:64px 44px}.hero h1{font-size:clamp(52px,13vw,74px)}.hero-spec{box-shadow:7px 7px 0 #D9822B;padding:16px}.machine-plate{width:min(100%,340px)}.door{min-height:0}.preview{min-height:280px}.empty .empty-mark{display:none}}
 @media(prefers-reduced-motion:reduce){.chip,.btn,.item,.door{transition:none}.chip:active,.btn:active{transform:none}}
 </style>
 </head>
@@ -427,22 +409,18 @@ section{padding:clamp(58px,7vw,92px) 0}
    <div class="row"><a class="btn cop" href="#build">Start your pair</a><a class="btn" href="#vintage">Shop vintage</a></div>
    </div>
    <aside class="hero-spec"><span>Built at the bench</span>
-    <svg class="machine-plate" viewBox="0 0 420 270" role="img" aria-label="Union Special 43200g chain-stitch sewing machine">
-     <g fill="none" stroke="#E9DFD0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M32 224h356M72 224v-24h246v24M100 200v-62c0-37 25-58 61-58h129c34 0 54 20 54 53v67"/>
-      <path d="M143 80V48h142c35 0 59 22 59 54v9M160 80h106c24 0 37 13 37 35v28H145v-31c0-18 5-32 15-42Z" fill="#253858"/>
-      <path d="M266 143h83v31h-83zM266 174h48v26M147 143v31h-31v26M180 174v26M201 174v26M219 174v26"/>
-      <circle cx="325" cy="111" r="25"/><circle cx="325" cy="111" r="6" fill="#D7A46F" stroke="#D7A46F"/>
-      <path d="M125 200v-43h21m-3-22h-17m-10-3h-18m-17 92v-15m243 15v-15"/>
-      <path d="M176 48V28m-13 0h27m82 0V15m-13 0h27" stroke="#D7A46F"/>
-      <path d="M163 102h106v30H163z" fill="#17233D" stroke="#D7A46F" stroke-width="2"/>
-      <path d="M212 132v26m-8-2h16m-8 2v29" stroke="#D7A46F" stroke-width="3"/>
-      <path d="M33 230h354" stroke="#D7A46F" stroke-width="2"/>
+    <svg class="machine-plate" viewBox="0 0 400 300" role="img" aria-label="Union Special 43200g sewing machine" fill="none" stroke="#F3EEE4" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+     <path d="M40 250H370M70 250V140Q70 90 120 90H300Q340 90 340 130V210"/>
+     <path d="M120 90V50H310Q340 50 340 80V130"/>
+     <circle cx="315" cy="105" r="22"/><circle cx="315" cy="105" r="6" fill="#F3EEE4"/>
+     <path d="M90 250V190H150"/>
+     <g class="machine-mark" stroke="none" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="700">
+      <rect x="166" y="101" width="122" height="39" rx="2" fill="#111B33" stroke="#D9822B" stroke-width="2"/>
+      <text x="227" y="117" fill="#F3EEE4" font-size="9" letter-spacing="1.2">UNION SPECIAL</text>
+      <text x="227" y="133" fill="#F1B177" font-size="14" letter-spacing=".8">43200g</text>
      </g>
-     <g fill="#F3EEE4" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="700">
-      <text x="216" y="115" font-size="9" letter-spacing="1.4">UNION SPECIAL</text>
-      <text x="216" y="128" fill="#D7A46F" font-size="12" letter-spacing="1.1">43200g</text>
-     </g>
+     <g class="needle"><path d="M150 130V185" stroke="#D9822B"/><path d="M142 130H158" stroke="#D9822B"/></g>
+     <path d="M40 255H370" stroke="#D9822B" stroke-width="3" stroke-dasharray="10 8"/>
     </svg>
     <small>Chain stitch construction<br>517 Ocean Front Walk<br>Venice, California</small>
    </aside>
@@ -569,7 +547,7 @@ section{padding:clamp(58px,7vw,92px) 0}
  <div class="repair-shell">
   <div class="repair-main">
    <div class="repair-top"><div><div class="eyebrow" data-repair-text="eyebrow">Repair request</div><h3 id="repairTitle" data-repair-text="title">Plan your repair</h3></div><div style="display:flex;gap:8px;align-items:center"><label class="sr" for="repairLang" data-repair-text="language">Language</label><select id="repairLang" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="zh">中文</option></select><button class="repair-close" id="repairClose" type="button" aria-label="Close repair request">×</button></div></div>
-   <div class="repair-progress" aria-label="Step 1 of 3"><i class="on"></i><i></i><i></i></div>
+   <p class="repair-stage" id="repairStage" aria-live="polite">Step 1 of 3</p>
    <section class="repair-step" data-repair-step="1">
     <h4 data-repair-text="chooseGarment">What needs work?</h4>
     <div class="repair-options" id="repairGarments">
@@ -614,17 +592,13 @@ section{padding:clamp(58px,7vw,92px) 0}
    <button class="repair-clear" id="repairClear" type="button" data-repair-text="clearDraft">Clear this device's saved draft</button>
    <div class="repair-actions"><button class="btn" id="repairBack" type="button" data-repair-text="back" hidden>Back</button><span style="flex:1"></span><button class="btn" id="repairAddAnother" type="button" data-repair-text="addAnother" hidden>Add another piece</button><button class="btn cop" id="repairNext" type="button" data-repair-text="continue">Continue</button><button class="btn cop" id="repairEmailDraft" type="button" data-repair-text="openEmail" hidden>Open email draft</button></div>
   </div>
-  <aside class="repair-visual" aria-label="Illustrated garment preview"><svg viewBox="0 0 180 260" role="img" aria-label="Garment with requested alteration marked">
-   <defs>
-    <linearGradient id="denim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#35496E"/><stop offset=".48" stop-color="#253858"/><stop offset="1" stop-color="#1C2A45"/></linearGradient>
-    <pattern id="denimWeave" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="url(#denim)"/><path d="M0 1.2h5M0 3.8h5" stroke="#AFC0D4" stroke-opacity=".12" stroke-width=".45"/><path d="M1 0v5M4 0v5" stroke="#111B33" stroke-opacity=".18" stroke-width=".45"/></pattern>
-   </defs>
-   <path class="garment" id="repairGarmentShape" d="M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z"></path>
-   <path class="garment-detail" d="M54 30 49 62 77 73 89 47m37-17 5 32-29 11-12-26M90 47v60m-35-32 18 3-2 22-20-5Zm69 0-18 3 2 22 20-5M78 218l12-98 12 98M38 38l-8 178m112-178 8 178"/>
-   <path class="garment-stitch" d="M38 39 32 216m110-177 6 177M55 81l13 4m40-4-13 4M82 68h16m-11 9v25m-32-1 24 7m39-7-24 7M31 213h46m16-3 3 5m7-5 3-5m1 5h44"/>
-   <path class="repair-mark" id="repairVisualMark" d="M33 192H147"></path>
-   <text class="measure-mark" id="repairVisualMeasure" x="91" y="184" text-anchor="middle"></text>
-  </svg><div class="visual-copy"><b id="repairVisualName">Jeans</b><span id="repairVisualAction">Choose a repair to preview the change</span></div><span class="saved-label" data-repair-text="visualLabel">Work preview</span></aside>
+  <aside class="repair-summary" aria-label="Repair request summary">
+   <div class="repair-summary-head"><span class="eyebrow" data-repair-text="visualLabel">Your request</span><strong id="repairSummaryCount" aria-live="polite">0 pieces</strong></div>
+   <p class="repair-summary-hint" id="repairSummaryHint" data-repair-text="visualHint">Choose a garment and the work you need.</p>
+   <div class="repair-summary-list" id="repairSummaryList"></div>
+   <p class="repair-summary-note" data-repair-text="saved">Saved on this device</p>
+   <p class="repair-summary-trust" data-repair-text="trustNote">Your request opens as an email draft. It is not sent until you choose to send it.</p>
+  </aside>
  </div>
 </dialog>
 
@@ -744,12 +718,11 @@ function modelOf(it){var title=String(it[0]||''),m=title.match(/\b(\d{3,4})(?:[A
 
 (function(){
  var copy={
-  en:{eyebrow:'Repair request',title:'Plan your repair',language:'Language',chooseGarment:'What needs work?',chooseWork:'What would you like done?',jeans:'Jeans',pants:'Trousers',skirt:'Skirt',dress:'Dress',shirt:'Shirt',jacket:'Jacket',other:'Other',shorten:'Shorten',lengthen:'Lengthen',takeIn:'Take in',letOut:'Let out',patch:'Patch',zipper:'Replace zipper',repair:'Repair',otherWork:'Something else',measurements:'Add details',measurementHint:'Measurements are optional. Enter inches if you know them.',inches:'Measurement (inches)',notes:'Anything else we should know?',notesPlaceholder:'Where is the change needed? Add fit details or a note for the tailor.',yourDetails:'Your contact details',contactHint:'Review the pieces, then open an email draft addressed to Rufcut.',name:'Name',email:'Email',phone:'Phone (optional)',localNotice:'Your draft is saved on this device. Opening the email app does not send it automatically.',clearDraft:'Clear this device’s saved draft',back:'Back',addAnother:'Add another piece',continue:'Continue',openEmail:'Open email draft',visualLabel:'Work preview',visualHint:'Choose a repair to preview the change',selectAction:'Choose at least one type of work to continue.',enterContact:'Add your name and a valid email address to continue.',piece:'Piece',saved:'Saved on this device',remove:'Remove',subject:'Repair request',mailHello:'Hello Rufcut,',mailRequest:'I would like a repair quote for:',mailName:'Name',mailEmail:'Email',mailPhone:'Phone',mailMeasurement:'Measurement',mailNotes:'Notes',mailNoMeasurement:'Not provided',mailNoNotes:'None',mailClose:'Thank you.'},
-  es:{eyebrow:'Solicitud de reparación',title:'Planifica tu arreglo',language:'Idioma',chooseGarment:'¿Qué prenda necesita trabajo?',chooseWork:'¿Qué trabajo necesitas?',jeans:'Jeans',pants:'Pantalones',skirt:'Falda',dress:'Vestido',shirt:'Camisa',jacket:'Chaqueta',other:'Otra prenda',shorten:'Acortar',lengthen:'Alargar',takeIn:'Entallar',letOut:'Ensachar',patch:'Parchar',zipper:'Cambiar cremallera',repair:'Reparar',otherWork:'Otro trabajo',measurements:'Añade detalles',measurementHint:'Las medidas son opcionales. Indica pulgadas si las sabes.',inches:'Medida (pulgadas)',notes:'¿Algo más que debamos saber?',notesPlaceholder:'¿Dónde se necesita el arreglo? Añade detalles para la persona que hará el trabajo.',yourDetails:'Tus datos de contacto',contactHint:'Revisa las prendas y abre un borrador de correo para Rufcut.',name:'Nombre',email:'Correo electrónico',phone:'Teléfono (opcional)',localNotice:'El borrador se guarda en este dispositivo. Abrir el correo no lo envía automáticamente.',clearDraft:'Borrar el borrador guardado en este dispositivo',back:'Atrás',addAnother:'Añadir otra prenda',continue:'Continuar',openEmail:'Abrir borrador de correo',visualLabel:'Vista del arreglo',visualHint:'Elige un arreglo para ver el cambio',selectAction:'Elige al menos un tipo de trabajo para continuar.',enterContact:'Añade tu nombre y un correo válido para continuar.',piece:'Prenda',saved:'Guardado en este dispositivo',remove:'Quitar',subject:'Solicitud de reparación',mailHello:'Hola Rufcut,',mailRequest:'Quisiera solicitar un presupuesto para:',mailName:'Nombre',mailEmail:'Correo',mailPhone:'Teléfono',mailMeasurement:'Medida',mailNotes:'Notas',mailNoMeasurement:'No indicada',mailNoNotes:'Ninguna',mailClose:'Gracias.'},
-  fr:{eyebrow:'Demande de réparation',title:'Préparer une réparation',language:'Langue',chooseGarment:'Quel vêtement faut-il retoucher ?',chooseWork:'Quel travail souhaitez-vous ?',jeans:'Jean',pants:'Pantalon',skirt:'Jupe',dress:'Robe',shirt:'Chemise',jacket:'Veste',other:'Autre',shorten:'Raccourcir',lengthen:'Allonger',takeIn:'Resserrer',letOut:'Élargir',patch:'Rapiécer',zipper:'Remplacer la fermeture',repair:'Réparer',otherWork:'Autre travail',measurements:'Ajouter des détails',measurementHint:'Les mesures sont facultatives. Indiquez les pouces si vous les connaissez.',inches:'Mesure (pouces)',notes:'Autre chose à nous indiquer ?',notesPlaceholder:'Où faut-il intervenir ? Ajoutez des détails pour la personne qui fera la retouche.',yourDetails:'Vos coordonnées',contactHint:'Vérifiez les vêtements, puis ouvrez un brouillon destiné à Rufcut.',name:'Nom',email:'E-mail',phone:'Téléphone (facultatif)',localNotice:'Le brouillon est enregistré sur cet appareil. Ouvrir votre messagerie ne l’envoie pas automatiquement.',clearDraft:'Effacer le brouillon enregistré sur cet appareil',back:'Retour',addAnother:'Ajouter un vêtement',continue:'Continuer',openEmail:'Ouvrir le brouillon',visualLabel:'Aperçu du travail',visualHint:'Choisissez une retouche pour voir le changement',selectAction:'Choisissez au moins un type de travail pour continuer.',enterContact:'Indiquez votre nom et une adresse e-mail valide.',piece:'Vêtement',saved:'Enregistré sur cet appareil',remove:'Retirer',subject:'Demande de réparation',mailHello:'Bonjour Rufcut,',mailRequest:'Je souhaite demander un devis pour :',mailName:'Nom',mailEmail:'E-mail',mailPhone:'Téléphone',mailMeasurement:'Mesure',mailNotes:'Notes',mailNoMeasurement:'Non indiquée',mailNoNotes:'Aucune',mailClose:'Merci.'},
-  zh:{eyebrow:'修改申请',title:'安排衣物修改',language:'语言',chooseGarment:'需要修改哪件衣物？',chooseWork:'希望进行什么处理？',jeans:'牛仔裤',pants:'长裤',skirt:'裙子',dress:'连衣裙',shirt:'衬衫',jacket:'夹克',other:'其他',shorten:'改短',lengthen:'加长',takeIn:'收窄',letOut:'放宽',patch:'补丁',zipper:'更换拉链',repair:'修补',otherWork:'其他处理',measurements:'补充细节',measurementHint:'尺寸为选填。如果知道，请填写英寸。',inches:'尺寸（英寸）',notes:'还有什么需要说明？',notesPlaceholder:'请说明修改位置，或给裁缝补充备注。',yourDetails:'联系方式',contactHint:'确认衣物信息，然后打开写给 Rufcut 的邮件草稿。',name:'姓名',email:'电子邮箱',phone:'电话（选填）',localNotice:'草稿保存在此设备上。打开邮件应用不会自动发送。',clearDraft:'清除此设备上保存的草稿',back:'返回',addAnother:'添加另一件',continue:'继续',openEmail:'打开邮件草稿',visualLabel:'修改预览',visualHint:'选择修改方式以预览效果',selectAction:'请至少选择一项处理方式。',enterContact:'请填写姓名和有效的电子邮箱。',piece:'衣物',saved:'已保存在此设备',remove:'移除',subject:'衣物修改申请',mailHello:'Rufcut，你好：',mailRequest:'我想为以下衣物询价：',mailName:'姓名',mailEmail:'电子邮箱',mailPhone:'电话',mailMeasurement:'尺寸',mailNotes:'备注',mailNoMeasurement:'未填写',mailNoNotes:'无',mailClose:'谢谢。'}
+  en:{eyebrow:'Repair request',title:'Plan your repair',language:'Language',chooseGarment:'What needs work?',chooseWork:'What would you like done?',jeans:'Jeans',pants:'Trousers',skirt:'Skirt',dress:'Dress',shirt:'Shirt',jacket:'Jacket',other:'Other',shorten:'Shorten',lengthen:'Lengthen',takeIn:'Take in',letOut:'Let out',patch:'Patch',zipper:'Replace zipper',repair:'Repair',otherWork:'Something else',measurements:'Add details',measurementHint:'Measurements are optional. Enter inches if you know them.',inches:'Measurement (inches)',notes:'Anything else we should know?',notesPlaceholder:'Where is the change needed? Add fit details or a note for the tailor.',yourDetails:'Your contact details',contactHint:'Review the pieces, then open an email draft addressed to Rufcut.',name:'Name',email:'Email',phone:'Phone (optional)',localNotice:'Your draft is saved on this device. Opening the email app does not send it automatically.',clearDraft:'Clear this device’s saved draft',back:'Back',addAnother:'Add another piece',continue:'Continue',openEmail:'Open email draft',visualLabel:'Your request',visualHint:'Choose a garment and the work you need.',selectAction:'Choose at least one type of work to continue.',enterContact:'Add your name and a valid email address to continue.',piece:'Piece',pieces:'pieces',stepLabel:'Step',saved:'Draft saved on this device',trustNote:'Your request opens as an email draft. It is not sent until you choose to send it.',remove:'Remove',subject:'Repair request',mailHello:'Hello Rufcut,',mailRequest:'I would like a repair quote for:',mailName:'Name',mailEmail:'Email',mailPhone:'Phone',mailMeasurement:'Measurement',mailNotes:'Notes',mailNoMeasurement:'Not provided',mailNoNotes:'None',mailClose:'Thank you.'},
+  es:{eyebrow:'Solicitud de reparación',title:'Planifica tu arreglo',language:'Idioma',chooseGarment:'¿Qué prenda necesita trabajo?',chooseWork:'¿Qué trabajo necesitas?',jeans:'Jeans',pants:'Pantalones',skirt:'Falda',dress:'Vestido',shirt:'Camisa',jacket:'Chaqueta',other:'Otra prenda',shorten:'Acortar',lengthen:'Alargar',takeIn:'Entallar',letOut:'Ensachar',patch:'Parchar',zipper:'Cambiar cremallera',repair:'Reparar',otherWork:'Otro trabajo',measurements:'Añade detalles',measurementHint:'Las medidas son opcionales. Indica pulgadas si las sabes.',inches:'Medida (pulgadas)',notes:'¿Algo más que debamos saber?',notesPlaceholder:'¿Dónde se necesita el arreglo? Añade detalles para la persona que hará el trabajo.',yourDetails:'Tus datos de contacto',contactHint:'Revisa las prendas y abre un borrador de correo para Rufcut.',name:'Nombre',email:'Correo electrónico',phone:'Teléfono (opcional)',localNotice:'El borrador se guarda en este dispositivo. Abrir el correo no lo envía automáticamente.',clearDraft:'Borrar el borrador guardado en este dispositivo',back:'Atrás',addAnother:'Añadir otra prenda',continue:'Continuar',openEmail:'Abrir borrador de correo',visualLabel:'Resumen de la solicitud',visualHint:'Elige una prenda y el trabajo que necesitas.',selectAction:'Elige al menos un tipo de trabajo para continuar.',enterContact:'Añade tu nombre y un correo válido para continuar.',piece:'Prenda',pieces:'prendas',stepLabel:'Paso',saved:'Borrador guardado en este dispositivo',trustNote:'La solicitud se abrirá como borrador de correo. No se enviará hasta que tú lo envíes.',remove:'Quitar',subject:'Solicitud de reparación',mailHello:'Hola Rufcut,',mailRequest:'Quisiera solicitar un presupuesto para:',mailName:'Nombre',mailEmail:'Correo',mailPhone:'Teléfono',mailMeasurement:'Medida',mailNotes:'Notas',mailNoMeasurement:'No indicada',mailNoNotes:'Ninguna',mailClose:'Gracias.'},
+  fr:{eyebrow:'Demande de réparation',title:'Préparer une réparation',language:'Langue',chooseGarment:'Quel vêtement faut-il retoucher ?',chooseWork:'Quel travail souhaitez-vous ?',jeans:'Jean',pants:'Pantalon',skirt:'Jupe',dress:'Robe',shirt:'Chemise',jacket:'Veste',other:'Autre',shorten:'Raccourcir',lengthen:'Allonger',takeIn:'Resserrer',letOut:'Élargir',patch:'Rapiécer',zipper:'Remplacer la fermeture',repair:'Réparer',otherWork:'Autre travail',measurements:'Ajouter des détails',measurementHint:'Les mesures sont facultatives. Indiquez les pouces si vous les connaissez.',inches:'Mesure (pouces)',notes:'Autre chose à nous indiquer ?',notesPlaceholder:'Où faut-il intervenir ? Ajoutez des détails pour la personne qui fera la retouche.',yourDetails:'Vos coordonnées',contactHint:'Vérifiez les vêtements, puis ouvrez un brouillon destiné à Rufcut.',name:'Nom',email:'E-mail',phone:'Téléphone (facultatif)',localNotice:'Le brouillon est enregistré sur cet appareil. Ouvrir votre messagerie ne l’envoie pas automatiquement.',clearDraft:'Effacer le brouillon enregistré sur cet appareil',back:'Retour',addAnother:'Ajouter un vêtement',continue:'Continuer',openEmail:'Ouvrir le brouillon',visualLabel:'Récapitulatif',visualHint:'Choisissez un vêtement et la retouche souhaitée.',selectAction:'Choisissez au moins un type de travail pour continuer.',enterContact:'Indiquez votre nom et une adresse e-mail valide.',piece:'Vêtement',pieces:'vêtements',stepLabel:'Étape',saved:'Brouillon enregistré sur cet appareil',trustNote:'La demande ouvrira un brouillon d’e-mail. Elle ne sera envoyée qu’après votre confirmation.',remove:'Retirer',subject:'Demande de réparation',mailHello:'Bonjour Rufcut,',mailRequest:'Je souhaite demander un devis pour :',mailName:'Nom',mailEmail:'E-mail',mailPhone:'Téléphone',mailMeasurement:'Mesure',mailNotes:'Notes',mailNoMeasurement:'Non indiquée',mailNoNotes:'Aucune',mailClose:'Merci.'},
+  zh:{eyebrow:'修改申请',title:'安排衣物修改',language:'语言',chooseGarment:'需要修改哪件衣物？',chooseWork:'希望进行什么处理？',jeans:'牛仔裤',pants:'长裤',skirt:'裙子',dress:'连衣裙',shirt:'衬衫',jacket:'夹克',other:'其他',shorten:'改短',lengthen:'加长',takeIn:'收窄',letOut:'放宽',patch:'补丁',zipper:'更换拉链',repair:'修补',otherWork:'其他处理',measurements:'补充细节',measurementHint:'尺寸为选填。如果知道，请填写英寸。',inches:'尺寸（英寸）',notes:'还有什么需要说明？',notesPlaceholder:'请说明修改位置，或给裁缝补充备注。',yourDetails:'联系方式',contactHint:'确认衣物信息，然后打开写给 Rufcut 的邮件草稿。',name:'姓名',email:'电子邮箱',phone:'电话（选填）',localNotice:'草稿保存在此设备上。打开邮件应用不会自动发送。',clearDraft:'清除此设备上保存的草稿',back:'返回',addAnother:'添加另一件',continue:'继续',openEmail:'打开邮件草稿',visualLabel:'申请摘要',visualHint:'先选择衣物和需要的修改。',selectAction:'请至少选择一项处理方式。',enterContact:'请填写姓名和有效的电子邮箱。',piece:'衣物',pieces:'件衣物',stepLabel:'步骤',saved:'草稿已保存在此设备',trustNote:'申请将以邮件草稿打开，只有您确认发送后才会发出。',remove:'移除',subject:'衣物修改申请',mailHello:'Rufcut，你好：',mailRequest:'我想为以下衣物询价：',mailName:'姓名',mailEmail:'电子邮箱',mailPhone:'电话',mailMeasurement:'尺寸',mailNotes:'备注',mailNoMeasurement:'未填写',mailNoNotes:'无',mailClose:'谢谢。'}
  };
- var garmentPath={jeans:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z',pants:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z',skirt:'M55 28h70l23 192H32Z',dress:'M68 22h44l11 54 31 144H26L57 76Z',shirt:'M58 28 37 38 19 95l28 13 8-20v132h70V88l8 20 28-13-18-57-21-10-22 15H77Z',jacket:'M58 26 37 38 19 95l28 13 8-20v132h70V88l8 20 28-13-18-57-21-12-22 17H77Z',other:'M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z'};
  var garmentName={jeans:'jeans',pants:'pants',skirt:'skirt',dress:'dress',shirt:'shirt',jacket:'jacket',other:'other'};
  var actionName={shorten:'shorten',lengthen:'lengthen',takeIn:'takeIn',letOut:'letOut',patch:'patch',zipper:'zipper',repair:'repair',otherWork:'otherWork'};
  var $=function(id){return document.getElementById(id)}, dialog=$('repairDialog'), key='rufcut-repair-draft-v1';
@@ -769,30 +742,31 @@ function modelOf(it){var title=String(it[0]||''),m=title.match(/\b(\d{3,4})(?:[A
  }
  function activeGarment(){var input=document.querySelector('input[name="repairGarment"]:checked');return input?input.value:draft.garment}
  function activeActions(){return Array.from(document.querySelectorAll('#repairActions input:checked')).map(function(input){return input.value})}
- function visual(){
-  draft.garment=activeGarment();draft.actions=activeActions();$('repairGarmentShape').setAttribute('d',garmentPath[draft.garment]||garmentPath.other);$('repairGarmentShape').ownerSVGElement.classList.toggle('pants-preview',draft.garment==='jeans'||draft.garment==='pants');
-  $('repairVisualName').textContent=t(garmentName[draft.garment]||'other');
-  var action=draft.actions[0],paths={shorten:'M31 186H149 M56 178l-8 8 8 8 M124 178l8 8-8 8',lengthen:'M31 202H149 M56 194l-8 8 8 8 M124 194l8 8-8 8',takeIn:'M46 105l24 12m64-12-24 12',letOut:'M70 114 48 100m44 14 22-14',patch:'M112 78l20-13 13 20-20 13z',zipper:'M90 49v94',repair:'M72 98l12 12-12 12m36-24-12 12 12 12'};
-  $('repairVisualMark').setAttribute('d',action?paths[action]||paths.repair:'M31 186H149');$('repairVisualAction').textContent=action?t(actionName[action]||'repair'):t('visualHint');
-  $('repairVisualMeasure').textContent=draft.inches?draft.inches+' in':'';
+ function renderSummary(){
+  draft.garment=activeGarment();draft.actions=activeActions();
+  var rows=(Array.isArray(draft.items)?draft.items:[]).filter(function(item){return !draft.editingId||String(item.id)!==String(draft.editingId)});
+  if(draft.actions.length)rows.push({garment:draft.garment,actions:draft.actions,inches:draft.inches,notes:draft.notes});
+  $('repairSummaryCount').textContent=rows.length+' '+(rows.length===1?t('piece'):t('pieces'));
+  $('repairSummaryHint').hidden=rows.length>0;$('repairSummaryList').replaceChildren();
+  rows.forEach(function(item,index){var row=document.createElement('div'),title=document.createElement('b'),detail=document.createElement('p');row.className='repair-summary-item';title.textContent=t('piece')+' '+(index+1)+' · '+t(garmentName[item.garment]||'other');var work=(item.actions||[]).map(function(action){return t(actionName[action]||action)}).join(' · ');detail.textContent=work+(item.inches?' · '+item.inches+' in':'');row.appendChild(title);row.appendChild(detail);if(item.notes){var note=document.createElement('p');note.textContent=item.notes;row.appendChild(note)}$('repairSummaryList').appendChild(row)})
  }
- function readInputs(){draft.garment=activeGarment();draft.actions=activeActions();draft.inches=$('repairInches').value;draft.notes=$('repairNotes').value;draft.name=$('repairName').value;draft.email=$('repairEmail').value;draft.phone=$('repairPhone').value;save();visual()}
+ function readInputs(){draft.garment=activeGarment();draft.actions=activeActions();draft.inches=$('repairInches').value;draft.notes=$('repairNotes').value;draft.name=$('repairName').value;draft.email=$('repairEmail').value;draft.phone=$('repairPhone').value;save();renderSummary()}
  function itemFromInputs(){readInputs();return {id:draft.editingId||Date.now()+'-'+Math.random().toString(36).slice(2,8),garment:draft.garment,actions:draft.actions.slice(),inches:draft.inches,notes:draft.notes}}
- function commitCurrent(){var item=itemFromInputs();var i=draft.items.findIndex(function(row){return row.id===draft.editingId});if(i<0){draft.items.push(item)}else{draft.items[i]=item}draft.editingId=item.id;return item}
+ function commitCurrent(){var item=itemFromInputs();var i=draft.items.findIndex(function(row){return row.id===draft.editingId});if(i<0){draft.items.push(item)}else{draft.items[i]=item}draft.editingId=item.id;renderSummary();save();return item}
  function renderItems(target,editable){target.replaceChildren();draft.items.forEach(function(item,index){var row=document.createElement('div'),text=document.createElement('span');row.className='repair-item-row';text.textContent=t('piece')+' '+(index+1)+': '+t(garmentName[item.garment]||'other')+' · '+item.actions.map(function(a){return t(actionName[a]||a)}).join(', ')+(item.inches?' · '+item.inches+' in':'');row.appendChild(text);if(editable){var button=document.createElement('button');button.type='button';button.dataset.removeItem=String(item.id);button.textContent=t('remove');row.appendChild(button)}target.appendChild(row)})}
- function setStep(step){draft.step=step;document.querySelectorAll('[data-repair-step]').forEach(function(s){s.hidden=Number(s.dataset.repairStep)!==step});document.querySelectorAll('.repair-progress i').forEach(function(el,i){el.classList.toggle('on',i<step)});document.querySelector('.repair-progress').setAttribute('aria-label',(draft.lang==='zh'?'第':draft.lang==='es'?'Paso ':draft.lang==='fr'?'Étape ':'Step ')+step+(draft.lang==='zh'?'步':' of 3'));$('repairBack').hidden=step===1;$('repairNext').hidden=step===3;$('repairAddAnother').hidden=step!==2;$('repairEmailDraft').hidden=step!==3;$('repairError').textContent='';$('repairContactError').textContent='';if(step===2)renderItems($('repairItems'),true);if(step===3)renderItems($('repairReview'),false);save()}
- function loadDraft(){document.querySelectorAll('input[name="repairGarment"]').forEach(function(i){i.checked=i.value===draft.garment});document.querySelectorAll('#repairActions input').forEach(function(i){i.checked=draft.actions.indexOf(i.value)>=0});$('repairInches').value=draft.inches||'';$('repairNotes').value=draft.notes||'';$('repairName').value=draft.name||'';$('repairEmail').value=draft.email||'';$('repairPhone').value=draft.phone||'';translate();visual();setStep(draft.step||1)}
+ function setStep(step){step=Math.max(1,Math.min(3,Number(step)||1));draft.step=step;document.querySelectorAll('[data-repair-step]').forEach(function(s){s.hidden=Number(s.dataset.repairStep)!==step});$('repairStage').textContent=t('stepLabel')+' '+step+' / 3';$('repairBack').hidden=step===1;$('repairNext').hidden=step===3;$('repairAddAnother').hidden=step!==2;$('repairEmailDraft').hidden=step!==3;$('repairError').textContent='';$('repairContactError').textContent='';if(step===2)renderItems($('repairItems'),true);if(step===3)renderItems($('repairReview'),false);renderSummary();save()}
+ function loadDraft(){if(!Array.isArray(draft.items))draft.items=[];if(!Array.isArray(draft.actions))draft.actions=[];document.querySelectorAll('input[name="repairGarment"]').forEach(function(i){i.checked=i.value===draft.garment});document.querySelectorAll('#repairActions input').forEach(function(i){i.checked=draft.actions.indexOf(i.value)>=0});$('repairInches').value=draft.inches||'';$('repairNotes').value=draft.notes||'';$('repairName').value=draft.name||'';$('repairEmail').value=draft.email||'';$('repairPhone').value=draft.phone||'';translate();setStep(draft.step||1)}
  $('repairOpen').addEventListener('click',function(){loadDraft();if(dialog.showModal)dialog.showModal();else dialog.setAttribute('open','')});
  $('repairClose').addEventListener('click',function(){if(dialog.close)dialog.close();else dialog.removeAttribute('open')});dialog.addEventListener('click',function(e){if(e.target===dialog)dialog.close()});
  $('repairClear').addEventListener('click',function(){try{localStorage.removeItem(key)}catch(e){}draft={lang:draft.lang,step:1,garment:'jeans',actions:[],inches:'',notes:'',items:[],editingId:null,name:'',email:'',phone:''};loadDraft()});
- $('repairLang').addEventListener('change',function(){draft.lang=this.value;translate();visual();setStep(draft.step);save()});
+ $('repairLang').addEventListener('change',function(){draft.lang=this.value;translate();setStep(draft.step);save()});
  document.querySelectorAll('#repairGarments input,#repairActions input').forEach(function(input){input.addEventListener('change',readInputs)});
  ['repairInches','repairNotes','repairName','repairEmail','repairPhone'].forEach(function(id){$(id).addEventListener('input',readInputs)});
  $('repairBack').addEventListener('click',function(){if(draft.step===3)setStep(2);else if(draft.step===2)setStep(1)});
  $('repairNext').addEventListener('click',function(){readInputs();if(draft.step===1){if(!draft.actions.length){$('repairError').textContent=t('selectAction');return}setStep(2);return}if(draft.step===2){if(!draft.actions.length){$('repairError').textContent=t('selectAction');setStep(1);return}commitCurrent();setStep(3)}});
  $('repairAddAnother').addEventListener('click',function(){if(!draft.actions.length){$('repairError').textContent=t('selectAction');return}commitCurrent();draft.editingId=null;draft.garment='jeans';draft.actions=[];draft.inches='';draft.notes='';loadDraft();setStep(1)});
- document.querySelectorAll('#repairItems,#repairReview').forEach(function(list){list.addEventListener('click',function(e){var button=e.target.closest('[data-remove-item]');if(!button)return;draft.items=draft.items.filter(function(item){return String(item.id)!==button.dataset.removeItem});if(String(draft.editingId)===button.dataset.removeItem){draft.editingId=null;draft.garment='jeans';draft.actions=[];draft.inches='';draft.notes='';loadDraft()}renderItems($('repairItems'),true);renderItems($('repairReview'),false);save()})});
- $('repairEmailDraft').addEventListener('click',function(){readInputs();if(!draft.name.trim()||!/^\S+@\S+\.\S+$/.test(draft.email.trim())){$('repairContactError').textContent=t('enterContact');return}if(!draft.items.length){$('repairContactError').textContent=t('selectAction');setStep(2);return}var c=copy[draft.lang]||copy.en,workLabel={en:'Work requested',es:'Trabajo solicitado',fr:'Travail demandé',zh:'处理方式'}[draft.lang]||'Work requested',lines=[c.mailHello,'',c.mailRequest];draft.items.forEach(function(item,i){lines.push('',c.piece+' '+(i+1)+': '+t(garmentName[item.garment]||'other'),workLabel+': '+item.actions.map(function(a){return t(actionName[a]||a)}).join(', '),c.mailMeasurement+': '+(item.inches?item.inches+' in':c.mailNoMeasurement),c.mailNotes+': '+(item.notes||c.mailNoNotes))});lines.push('',c.mailName+': '+draft.name,c.mailEmail+': '+draft.email,c.mailPhone+': '+(draft.phone||c.mailNoNotes),'',c.mailClose);var subject=encodeURIComponent(c.subject),body=encodeURIComponent(lines.join('\n'));window.location.href='mailto:shop@rufcut.com?subject='+subject+'&body='+body});
+ document.querySelectorAll('#repairItems,#repairReview').forEach(function(list){list.addEventListener('click',function(e){var button=e.target.closest('[data-remove-item]');if(!button)return;draft.items=draft.items.filter(function(item){return String(item.id)!==button.dataset.removeItem});if(String(draft.editingId)===button.dataset.removeItem){draft.editingId=null;draft.garment='jeans';draft.actions=[];draft.inches='';draft.notes='';loadDraft()}renderItems($('repairItems'),true);renderItems($('repairReview'),false);renderSummary();save()})});
+ $('repairEmailDraft').addEventListener('click',function(){readInputs();if(!draft.actions.length){$('repairContactError').textContent=t('selectAction');return}commitCurrent();if(!draft.name.trim()||!/^\S+@\S+\.\S+$/.test(draft.email.trim())){$('repairContactError').textContent=t('enterContact');return}if(!draft.items.length){$('repairContactError').textContent=t('selectAction');setStep(2);return}var c=copy[draft.lang]||copy.en,workLabel={en:'Work requested',es:'Trabajo solicitado',fr:'Travail demandé',zh:'处理方式'}[draft.lang]||'Work requested',lines=[c.mailHello,'',c.mailRequest];draft.items.forEach(function(item,i){lines.push('',c.piece+' '+(i+1)+': '+t(garmentName[item.garment]||'other'),workLabel+': '+item.actions.map(function(a){return t(actionName[a]||a)}).join(', '),c.mailMeasurement+': '+(item.inches?item.inches+' in':c.mailNoMeasurement),c.mailNotes+': '+(item.notes||c.mailNoNotes))});lines.push('',c.mailName+': '+draft.name,c.mailEmail+': '+draft.email,c.mailPhone+': '+(draft.phone||c.mailNoNotes),'',c.mailClose);var subject=encodeURIComponent(c.subject),body=encodeURIComponent(lines.join('\n'));window.location.href='mailto:shop@rufcut.com?subject='+subject+'&body='+body});
  loadDraft();
 })();
 </script>
