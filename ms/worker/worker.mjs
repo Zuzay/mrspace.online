@@ -9,7 +9,6 @@ import path from "node:path";
 const E = process.env;
 const SB = E.SUPABASE_URL?.replace(/\/$/, "");
 const SBK = E.SUPABASE_SERVICE_KEY;
-const BUDGET = Number(E.MONTHLY_BUDGET_USD || 10);
 const HOME_REPO = E.GITHUB_REPOSITORY || "Zuzay/mrspace.online";
 const MAX_CTX = 120_000; // modele gonderilecek en fazla karakter
 
@@ -29,17 +28,24 @@ const patch = (id, body) => sb(`ms_changes?id=eq.${id}`, { method: "PATCH", body
 const log = (site, action, meta) =>
   sb("ms_activity", { method: "POST", body: JSON.stringify({ site, who: "auto", action, minutes: 0, meta }) }).catch(() => {});
 
+const CONFIG = await sb("rpc/ms_worker_runtime_config", { method: "POST", body: "{}" });
+if (!CONFIG?.enabled) { console.log("İşçi panelden kapalı, çalışmıyor."); process.exit(0); }
+const BUDGET = Number(CONFIG.budget_month), REQUEST_BUDGET = Number(CONFIG.budget_per_request);
+if (!Number.isFinite(BUDGET) || !Number.isFinite(REQUEST_BUDGET) || BUDGET <= 0 || REQUEST_BUDGET <= 0) {
+  console.log("İşçi bütçesi tanımlı değil, güvenli şekilde duruyor."); process.exit(0);
+}
+
 // ---------- Modeller ----------
 // Fiyatlar: 1M token basina USD (girdi, cikti). Degisebilir, env ile guncelle.
 const P = (v, d) => (v ? v.split(",").map(Number) : d);
 const PROVIDERS = {
   gemini: {
-    key: E.GEMINI_API_KEY, model: E.GEMINI_MODEL || "gemini-2.5-flash", price: P(E.GEMINI_PRICE, [0.3, 2.5]),
-    async call(sys, user) {
+    key: CONFIG.keys?.gemini, model: E.GEMINI_MODEL || "gemini-2.5-flash", price: P(E.GEMINI_PRICE, [0.3, 2.5]),
+    async call(sys, user, maxOutputTokens) {
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.key}`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: [{ role: "user", parts: [{ text: user }] }],
-                               generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
+                               generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens } }),
       });
       const j = await r.json(); if (!r.ok) throw new Error(JSON.stringify(j).slice(0, 300));
       const u = j.usageMetadata || {};
@@ -47,11 +53,11 @@ const PROVIDERS = {
     },
   },
   deepseek: {
-    key: E.DEEPSEEK_API_KEY, model: E.DEEPSEEK_MODEL || "deepseek-chat", price: P(E.DEEPSEEK_PRICE, [0.28, 0.42]),
-    async call(sys, user) {
+    key: CONFIG.keys?.deepseek, model: E.DEEPSEEK_MODEL || "deepseek-chat", price: P(E.DEEPSEEK_PRICE, [0.28, 0.42]),
+    async call(sys, user, maxOutputTokens) {
       const r = await fetch("https://api.deepseek.com/chat/completions", {
         method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.key}` },
-        body: JSON.stringify({ model: this.model, temperature: 0.1, response_format: { type: "json_object" },
+        body: JSON.stringify({ model: this.model, max_tokens:maxOutputTokens, temperature: 0.1, response_format: { type: "json_object" },
                                messages: [{ role: "system", content: sys }, { role: "user", content: user }] }),
       });
       const j = await r.json(); if (!r.ok) throw new Error(JSON.stringify(j).slice(0, 300));
@@ -59,11 +65,11 @@ const PROVIDERS = {
     },
   },
   haiku: {
-    key: E.ANTHROPIC_API_KEY, model: E.ANTHROPIC_MODEL || "claude-haiku-4-5", price: P(E.ANTHROPIC_PRICE, [1, 5]),
-    async call(sys, user) {
+    key: CONFIG.keys?.haiku, model: E.ANTHROPIC_MODEL || "claude-haiku-4-5", price: P(E.ANTHROPIC_PRICE, [1, 5]),
+    async call(sys, user, maxOutputTokens) {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", headers: { "Content-Type": "application/json", "x-api-key": this.key, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({ model: this.model, max_tokens: 8000, temperature: 0.1, system: sys,
+        body: JSON.stringify({ model: this.model, max_tokens:maxOutputTokens, temperature: 0.1, system: sys,
                                messages: [{ role: "user", content: user + "\n\nSadece JSON dondur." }] }),
       });
       const j = await r.json(); if (!r.ok) throw new Error(JSON.stringify(j).slice(0, 300));
@@ -72,11 +78,7 @@ const PROVIDERS = {
   },
 };
 // Hangi is hangi sirayla denenir (anahtari olmayan atlanir)
-const ROUTES = {
-  classify: ["gemini", "deepseek", "haiku"],
-  content:  ["gemini", "deepseek", "haiku"],
-  code:     ["deepseek", "haiku", "gemini"],
-};
+const ROUTES = CONFIG.routes || {};
 
 function parseJSON(t) {
   const s = t.indexOf("{"), e = t.lastIndexOf("}");
@@ -84,29 +86,38 @@ function parseJSON(t) {
 }
 
 // Sirayla dener; check() hata atarsa bir sonrakine gecer
-async function ask(route, sys, user, check = x => x) {
+async function ask(route, sys, user, check = x => x, alreadySpent = 0, limit = REQUEST_BUDGET) {
   let cost = 0, errs = [];
-  for (const name of ROUTES[route]) {
+  for (const name of ROUTES[route] || []) {
     const p = PROVIDERS[name]; if (!p.key) continue;
     try {
-      const r = await p.call(sys, user);
+      const remaining = limit - alreadySpent - cost;
+      if (remaining <= 0) throw new Error("Talep başı bütçe sınırına ulaşıldı");
+      const inputEstimate = Math.ceil((sys.length + user.length) / 2);
+      const maxOutputTokens = Math.floor((remaining * 1e6 - inputEstimate * p.price[0]) / p.price[1]);
+      if (!Number.isFinite(maxOutputTokens) || maxOutputTokens < 64) throw new Error("Bütçe bu model için yeterli değil");
+      const r = await p.call(sys, user, Math.min(8000, maxOutputTokens));
       cost += (r.tin * p.price[0] + r.tout * p.price[1]) / 1e6;
+      if (alreadySpent + cost > limit) { const err = new Error("Bu model çağrısı talep başı bütçe sınırını aştı; yeni model denenmedi."); err.cost = cost; throw err; }
       const out = await check(parseJSON(r.text));
       return { out, cost, model: `${name}:${p.model}` };
-    } catch (e) { errs.push(`${name}: ${String(e.message || e).slice(0, 200)}`); user += `\n\nOnceki deneme hatasi: ${e.message}`; }
+    } catch (e) {
+      if (e.cost) { const err = new Error(e.message); err.cost = cost; throw err; }
+      errs.push(`${name}: ${String(e.message || e).slice(0, 200)}`); user += `\n\nOnceki deneme hatasi: ${e.message}`;
+    }
   }
   const err = new Error(errs.join(" | ") || "Hic API anahtari yok"); err.cost = cost; throw err;
 }
 
 // ---------- Git ----------
 const git = (cwd, ...a) => execFileSync("git", a, { cwd, encoding: "utf8" }).trim();
-const gh = (...a) => execFileSync("gh", a, { encoding: "utf8", env: { ...E, GH_TOKEN: E.GH_PAT || E.GITHUB_TOKEN } }).trim();
+const gh = (...a) => execFileSync("gh", a, { encoding: "utf8", env: { ...E, GH_TOKEN: CONFIG.github_token || E.GH_PAT || E.GITHUB_TOKEN } }).trim();
 
 function repoDir(repo) {
   if (repo === HOME_REPO) return process.cwd();
   const dir = `/tmp/repos/${repo.replace("/", "__")}`;
   if (!fs.existsSync(dir)) execFileSync("git", ["clone", "--depth", "1",
-    `https://x-access-token:${E.GH_PAT}@github.com/${repo}.git`, dir]);
+    `https://x-access-token:${CONFIG.github_token || E.GH_PAT}@github.com/${repo}.git`, dir]);
   return dir;
 }
 
@@ -128,7 +139,8 @@ function listFiles(root, rel) {
 async function prepare(c, spent) {
   const site = c.ms_sites;
   if (!site?.repo_path) { await patch(c.id, { ai_status: "needs_uzay", ai_note: "Sitenin repo klasoru tanimli degil (ms_sites.repo_path)." }); return 0; }
-  if (spent >= BUDGET) { await patch(c.id, { ai_status: "needs_uzay", ai_note: `Aylik isci butcesi doldu (${BUDGET}$).` }); return 0; }
+  if (spent >= BUDGET) { await patch(c.id, { ai_status: "needs_uzay", ai_note: `Aylık işçi bütçesi doldu (${BUDGET}$).` }); return 0; }
+  const requestLimit = Math.min(REQUEST_BUDGET, BUDGET - spent);
   await patch(c.id, { ai_status: "working", ai_at: new Date().toISOString(), ai_attempts: Number(c.ai_attempts || 0) + 1 });
 
   const dir = repoDir(site.repo);
@@ -146,7 +158,7 @@ code: renk, yazi tipi, bosluk, bolum ekleme/cikarma gibi kucuk tasarim/kod isi.
 big: yeni sayfa, yeni ozellik, odeme/entegrasyon, tasarim degisikligi, anlasilmayan veya riskli talep.
 files: degisecek dosyalar, en fazla 4, sadece listedeki yollar.`,
     `${talep}\n\nDosyalar:\n${files.map(f => `${f.file} (${f.size}b)`).join("\n")}`,
-    o => { if (!["content", "code", "big"].includes(o.route)) throw new Error("route yok"); return o; });
+    o => { if (!["content", "code", "big"].includes(o.route)) throw new Error("route yok"); return o; }, 0, requestLimit);
   cost += cls.cost;
   const pick = (cls.out.files || []).filter(f => files.some(x => x.file === f)).slice(0, 4);
 
@@ -162,7 +174,8 @@ files: degisecek dosyalar, en fazla 4, sadece listedeki yollar.`,
   for (const f of pick) ctx += `\n===== ${f} =====\n${fs.readFileSync(path.join(dir, f), "utf8")}\n`;
   ctx = ctx.slice(0, MAX_CTX);
 
-  const edit = await ask(cls.out.route,
+  let edit;
+  try { edit = await ask(cls.out.route,
     `Bir web sitesinde musteri talebini uygulayan dikkatli bir gelistiricisin.
 Kurallar: sadece istenen degisikligi yap; tasarimi, dili, yapiyi bozma; yeni kutuphane ekleme.
 JSON dondur: {"edits":[{"file":"yol","find":"dosyada AYNEN bir kez gecen metin","replace":"yeni metin"}],"summary":"Turkce tek cumle"}
@@ -177,7 +190,8 @@ find dosyadan birebir kopyalanmali ve benzersiz olmali; kisa ama benzersiz tut.`
         if (n !== 1) throw new Error(`"${String(e.find).slice(0, 60)}" ${e.file} icinde ${n} kez geciyor, 1 olmali`);
       }
       return o;
-    });
+    }, cls.cost, requestLimit);
+  } catch (e) { e.cost = (e.cost || 0) + cost; throw e; }
   cost += edit.cost;
 
   // 3) Uygula, dal ac, PR
