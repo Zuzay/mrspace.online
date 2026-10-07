@@ -67,5 +67,7 @@
   "Définissez une règle SKU cohérente pour chaque variante vendable. Utilisez ce guide pour vérifier les produits, ateliers et services avant de mettre à jour votre catalogue Square.": "Définissez une règle SKU claire pour chaque variante vendable. Ce processus réutilisable aide Rufcut et les futurs clients Mr. Space à synchroniser le stock Square, les étiquettes et les produits du site.",
   "Voici un exemple de SKU pour une variante de jean, pas un code recommandé. Choisissez un format après avoir vérifié votre catalogue.": "Cet exemple pourrait décrire une variante de jean Rufcut. Ce n'est pas un modèle imposé: Claude doit d'abord examiner le catalogue réel et proposer des codes adaptés.",
   "Entreprise · type d'article · numéro · variante": "Entreprise · type d'article · numéro · variante",
-  "Un guide pratique pour organiser les codes d'articles et les variantes dans Square.": "Un processus réutilisable de configuration SKU Square pour Rufcut et les futurs clients Mr. Space."
+  "Un guide pratique pour organiser les codes d'articles et les variantes dans Square.": "Un processus réutilisable de configuration SKU Square pour Rufcut et les futurs clients Mr. Space.",
+  "Keep every existing non-empty SKU unchanged. First map the customer’s current pattern and adapt the Mr. Space integration to it.": "Conservez tous les SKU existants sans modification. Identifiez d'abord le format actuel du client et adaptez-y l'intégration Mr. Space.",
+  "List blank and duplicate SKUs separately. Propose codes only for blanks; flag duplicates for review without changing them.": "Listez séparément les SKU vides et en double. Proposez des codes uniquement pour les champs vides; signalez les doublons sans les modifier."
 }
