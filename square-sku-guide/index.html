@@ -101,11 +101,11 @@
  </header>
  <div class="rules-grid">
   <ul class="rule-list">
-   <li>Keep existing non-empty SKUs exactly as they are unless the owner approves a change.</li>
+   <li>Keep every existing non-empty SKU unchanged. First map the customer’s current pattern and adapt the Mr. Space integration to it.</li>
    <li>Give each sellable size, color or other variation its own unique SKU.</li>
    <li>Use a short, consistent format with clear separators; treat every SKU as text.</li>
    <li>Avoid prices, stock counts and other details that can change over time.</li>
-   <li>Report blank and duplicate SKUs before proposing replacements.</li>
+   <li>List blank and duplicate SKUs separately. Propose codes only for blanks; flag duplicates for review without changing them.</li>
   </ul>
   <div class="sku-example">
    <strong>Illustrative format only. Approve the real codes with the owner.</strong>
@@ -170,14 +170,15 @@ Review the item catalog and propose a simple, consistent SKU system that works f
 
 SKU RULES
 - A SKU identifies a sellable item variation and must be unique across the catalog.
-- Treat SKUs as text. Preserve every existing non-empty SKU exactly; do not silently reformat or replace one.
-- Report blank SKUs and duplicate SKUs separately.
-- Inspect the current catalog and existing SKU patterns before recommending anything.
-- Propose a short format using stable fields, for example BUSINESS-TYPE-ITEM-VARIANT. This is only a starting example, not a required rule.
+- Treat SKUs as text. Preserve every existing non-empty SKU exactly. Identify the customer’s current pattern and map it to the Mr. Space integration; do not silently reformat or replace codes.
+- Report blank SKUs and duplicate SKUs separately. Preserve duplicate values and flag them for owner review.
+- Inspect the current catalog and infer the customer's existing SKU pattern before recommending anything. Prefer adapting the Mr. Space integration to that pattern, so the customer does not need to redo their setup.
+- For existing SKUs, explain how the Mr. Space integration can recognize and use the customer's pattern. Do not propose replacing it just to standardize it.
+- Only for sellable variations with blank SKUs, propose a standard that fits the existing pattern where possible. If no usable pattern exists, propose a new format such as BUSINESS-TYPE-ITEM-VARIANT; this is only an example, not a required rule.
 - Do not include price, stock quantity or other values that can change.
 - Do not invent item facts, sizes, colors, dates, capacity or prices.
 - Suggest type/variation codes only when supported by the data. Mark uncertain rows for owner review.
-- Show at least five sample codes from real rows, clearly marked as proposals. Wait for my approval before assigning any new SKU.
+- Show at least five sample codes from real rows, clearly marked as proposals. Do not assign any code until I approve the mapping and proposed format.
 
 SQUARE FILE SAFETY
 - Keep every original column header, column order and Square Token value unchanged.
@@ -199,10 +200,10 @@ C. A table with item name, variation, current SKU, proposed item group, proposed
 D. Separate lists of blank SKUs, duplicate SKUs, and records needing owner review.
 E. At least five example SKUs based on real catalog rows.
 
-Stop and wait for my approval of the rule and examples. Do not fill blanks or change existing SKUs before approval.
+Stop and wait for my approval of the mapping, any proposed blank-SKU format and examples. Do not fill blanks or change existing SKUs before approval.
 
 AFTER APPROVAL
-Create a separate updated copy from the original Square template. Apply only the changes I approved. Preserve all original columns, headers, order and Token values. List each changed row and field. Leave every other value untouched. Do not import the file into Square; I will review and upload it myself.</textarea>
+Create a separate updated copy from the original Square template. Keep all existing SKUs unchanged. Fill only blank SKU cells for sellable variations using the approved rule. Apply only the changes I approved. Preserve all original columns, headers, order and Token values. List each changed row and field. Leave every other value untouched. Do not import the file into Square; I will review and upload it myself.</textarea>
   <div class="prompt-actions"><button class="btn" type="button" id="copyPrompt">Copy Claude prompt</button><span class="prompt-status" id="copyStatus" aria-live="polite"></span></div>
   <p class="prompt-note">The prompt stays in English to match Square's field names. The page itself follows the device language when supported; change it from the menu above.</p>
  </div>
