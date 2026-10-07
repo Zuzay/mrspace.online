@@ -67,5 +67,7 @@
   "Define una regla de SKU coherente para cada variación vendible. Usa esta guía para revisar productos, talleres y servicios antes de actualizar tu catálogo de Square.": "Define una regla clara de SKU para cada variación vendible. Este proceso reutilizable ayuda a Rufcut y a futuros clientes de Mr. Space a mantener sincronizados el inventario de Square, las etiquetas y los productos web.",
   "Este es un ejemplo de SKU para una variación de jeans, no un código recomendado. Elige un formato después de revisar tu catálogo.": "Este ejemplo podría describir una variación de jeans de Rufcut. No es una regla predeterminada: Claude debe revisar primero el catálogo real y proponer códigos adecuados.",
   "Negocio · tipo de artículo · número · variación": "Negocio · tipo de artículo · número · variación",
-  "Una guía práctica para organizar códigos de artículos y variaciones en Square.": "Un proceso reutilizable para organizar SKU de Square en Rufcut y futuros clientes de Mr. Space."
+  "Una guía práctica para organizar códigos de artículos y variaciones en Square.": "Un proceso reutilizable para organizar SKU de Square en Rufcut y futuros clientes de Mr. Space.",
+  "Keep every existing non-empty SKU unchanged. First map the customer’s current pattern and adapt the Mr. Space integration to it.": "Conserva sin cambios todos los SKU existentes. Primero identifica el patrón actual del cliente y adapta la integración de Mr. Space a ese patrón.",
+  "List blank and duplicate SKUs separately. Propose codes only for blanks; flag duplicates for review without changing them.": "Enumera por separado los SKU vacíos y duplicados. Propón códigos solo para los vacíos; señala los duplicados para revisión sin modificarlos."
 }
