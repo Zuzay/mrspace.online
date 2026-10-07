@@ -66,5 +66,7 @@
   "Copied": "Copié",
   "Select the prompt and copy it manually.": "Sélectionnez le prompt et copiez-le manuellement.",
   "Mr. Space": "Mr. Space",
-  "Back to top ↑": "Retour en haut ↑"
+  "Back to top ↑": "Retour en haut ↑",
+  "View Claude prompt": "Voir le prompt Claude",
+  "Never share your Square password, one-time sign-in code, payment details, customer lists or API keys. Claude works from a copy of your item export, not your Square account.": "Ne partagez jamais votre mot de passe Square, code de connexion, données de paiement, listes de clients ou clés API. Claude travaille sur une copie de l'export des articles, pas sur votre compte Square."
 }

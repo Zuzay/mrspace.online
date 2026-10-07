@@ -66,5 +66,7 @@
   "Copied": "Kopyalandı",
   "Select the prompt and copy it manually.": "Talimatı seçip elle kopyala.",
   "Mr. Space": "Mr. Space",
-  "Back to top ↑": "Başa dön ↑"
+  "Back to top ↑": "Başa dön ↑",
+  "View Claude prompt": "Claude talimatını gör",
+  "Never share your Square password, one-time sign-in code, payment details, customer lists or API keys. Claude works from a copy of your item export, not your Square account.": "Square şifreni, tek kullanımlık giriş kodunu, ödeme bilgilerini, müşteri listelerini veya API anahtarlarını paylaşma. Claude Square hesabına değil, ürün dışa aktarımının bir kopyasına bakar."
 }
