@@ -230,11 +230,109 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   .stages li:nth-child(2):after{display:none}
   section{padding:70px 0}
 }
+
+/* Rufcut: an atelier storefront, not a dark demo dashboard. */
+:root{--ind:#1B2A4E;--deep:#17233D;--cop:#B86B34;--raw:#F1EDE3;--mute:#6D706F;--d:"Archivo",ui-sans-serif,system-ui,sans-serif}
+html,body{background:#F1EDE3;color:#1B2A4E}
+header{background:#F1EDE3;border-bottom:1px solid #1B2A4E30}
+header .wrap{height:74px}
+.logo{font:700 24px/1 var(--f);letter-spacing:.13em}
+nav a{font-size:13px;margin-left:22px;color:#2D3850}
+nav .book{border:1px solid var(--ind);border-radius:0;padding:9px 13px}
+nav .book:hover{background:var(--ind);color:var(--raw)}
+.hero{min-height:0;display:block;background:var(--ind);color:#F3EEE4;padding:0;overflow:hidden}
+.hero .inner{max-width:1320px;min-height:580px;padding:clamp(70px,10vw,130px) 26px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.6fr);align-items:end;gap:48px}
+.hero-copy{max-width:760px}
+.hero-kicker,.hero-spec>span{font:11px var(--f);letter-spacing:.17em;text-transform:uppercase;color:#D5B28E}
+.hero h1{font:700 clamp(54px,8vw,112px)/.91 var(--d);text-transform:none;letter-spacing:-.075em;margin-top:24px}
+.hero p{max-width:48ch;margin-top:25px;color:#D2D7DE;font-size:clamp(17px,1.5vw,20px);line-height:1.55}
+.hero .row{margin-top:32px}
+.btn{border-radius:0;border-width:1px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:14px 18px}
+.btn.cop{background:#B86B34;border-color:#B86B34;color:#fff}
+.btn.cop:hover{background:#CA7B43;border-color:#CA7B43}
+.btn:not(.cop){border-color:#F3EEE477;color:#F3EEE4;background:transparent}
+.btn:not(.cop):hover{background:#F3EEE4;color:var(--ind)}
+.hero-spec{justify-self:end;display:grid;gap:20px;border-top:1px solid #F3EEE46B;border-bottom:1px solid #F3EEE46B;padding:22px 0 24px;min-width:min(100%,285px)}
+.machine-plate{display:block;width:min(100%,330px);height:auto;overflow:visible}
+.hero-spec strong{font:600 clamp(23px,3vw,34px)/1.06 var(--f);letter-spacing:-.04em;color:#F3EEE4}
+.hero-spec strong em{font-style:normal;color:#D7A46F;font-size:1.2em}
+.hero-spec small{font-size:12px;line-height:1.75;color:#B9C2D2}
+.doors{grid-template-columns:repeat(3,minmax(0,1fr));border:0;background:#DED8CC}
+.door{padding:25px clamp(20px,3vw,38px);border:0;border-right:1px solid #1B2A4E30;transition:background .18s}
+.door:last-child{border:0}.door:hover{background:#E8E2D7}
+.door h2{font:600 20px/1.1 var(--f);text-transform:none;letter-spacing:-.03em}
+.door p{font-size:13px;line-height:1.5;color:#626870}
+section{padding:clamp(66px,8vw,108px) 0}
+.sh{align-items:end;margin-bottom:34px}
+.sh h2{font:700 clamp(40px,6vw,72px)/.96 var(--d);text-transform:none;letter-spacing:-.07em}
+.sh p{font-size:15px;line-height:1.6;color:#686B6A}
+.builder{grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);border:1px solid #1B2A4E2B;border-radius:0;box-shadow:0 18px 38px #1B2A4E0D;background:#E9E4D9}
+.preview{background:#E6DFD2;padding:clamp(24px,4vw,46px);border-right:1px solid #1B2A4E24}
+.preview svg{max-width:330px;filter:drop-shadow(0 12px 15px #1B2A4E20)}
+.summary-chip{border-radius:1px;box-shadow:none}
+.opts{background:#F6F3EC}
+.step{padding:18px 22px;border-bottom:1px solid #1B2A4E1C}
+.step h3{font:11px var(--f);letter-spacing:.1em;text-transform:uppercase;color:#6C7073;margin-bottom:12px}
+.step h3 b{font-weight:600;color:var(--ind);text-transform:none;letter-spacing:0}
+.chips{gap:6px}
+.chip{border:1px solid #1B2A4E45;border-radius:1px;padding:8px 11px;font-size:13px;font-weight:500;color:#35415B}
+.chip:hover{border-color:var(--ind);background:#E9E4D9}
+.chip[aria-pressed="true"]{background:var(--ind);color:#F6F3EC;border-color:var(--ind)}
+.sw{width:34px;height:34px;border-radius:0;border:2px solid #F6F3EC;outline:1px solid #1B2A4E40}
+.sw[aria-pressed="true"]{outline:2px solid var(--cop);border:2px solid #F6F3EC}
+.ready{background:#E9E4D9;padding:20px 22px}
+.ready .d{font:600 25px/1.05 var(--f);text-transform:none;letter-spacing:-.03em}
+.ready small{font-size:12px;color:#656A72}
+.note{color:#686B6A;font-size:13px}
+.seam{border-top:1px solid #1B2A4E22;opacity:1}
+.filters{gap:6px;margin-bottom:10px}
+.filters span{font:10px var(--f);letter-spacing:.1em;text-transform:uppercase;color:#737675}
+.filters .chip{background:transparent;border-color:#1B2A4E35;color:#34415B}
+.filters .chip[aria-pressed="true"]{background:var(--ind);color:var(--raw)}
+.grid{gap:12px}
+.item{background:#F6F3EC;border:1px solid #1B2A4E1D;border-radius:0;transition:transform .2s,box-shadow .2s}
+.item:hover{transform:translateY(-3px);box-shadow:0 12px 22px #1B2A4E16}
+.item .ph{background:#D8D2C6!important}
+.item .ph .photo-missing{background:#DED8CC;color:#1B2A4E}
+.item .ph .photo-missing i{border-radius:0;border-color:#1B2A4E55}
+.item .ph .photo-missing small{color:#686B6A}
+.item .tag{border-radius:0;font:10px var(--f);letter-spacing:.06em;text-transform:uppercase}
+.item .in{padding:14px 15px 17px}
+.item h4{font:600 15px/1.3 var(--f);color:#1B2A4E}
+.item p{font-size:12px;color:#727674}
+.rep{gap:0 44px}
+.rep div{padding:18px 0;border-bottom:1px solid #1B2A4E24}
+.rep h4{font:600 16px var(--f)}
+.rep span{font:13px var(--f);color:#6D706F}
+.repair-cta{border:0;border-left:3px solid var(--cop);border-radius:0;background:#E3DED3;padding:24px 26px}
+.repair-cta p{color:#555D67;font-size:14px}
+.track{background:#1B2A4E;color:#F3EEE4;border-radius:0;padding:clamp(24px,4vw,42px)}
+.track .btn{background:#B86B34;color:#fff;border-color:#B86B34}
+.track input{border:1px solid #F3EEE477;border-radius:0;background:#F3EEE4;color:#17233D}
+.track h2{font:700 clamp(34px,5vw,58px)/1 var(--d)!important;text-transform:none!important;letter-spacing:-.065em}
+.stages li{font-size:13px}.stages li:before{border-radius:0;border-width:2px}.stages li:after{border-top:1px solid #F3EEE477}
+.stages li.done:before{background:#F3EEE4}.stages li.now:before{background:var(--cop);border-color:var(--cop)}
+.stages small{color:#C1C7D0;font-size:11px}
+.visit{align-items:start}
+.visit h2{font:700 clamp(40px,6vw,72px)/.96 var(--d);text-transform:none;letter-spacing:-.07em}
+.visit p{font-size:15px;color:#555D67;line-height:1.7}
+.hours div{border-bottom:1px solid #1B2A4E24;padding:13px 0;font-size:13px}
+.hours span{color:#6D706F}
+footer{border-top:1px solid #1B2A4E22;color:#6D706F}
+@media(max-width:900px){.hero .inner{grid-template-columns:1fr;min-height:0;padding-block:86px}.hero-spec{justify-self:start;max-width:100%;margin-top:18px}.doors{grid-template-columns:1fr}.door{border-right:0;border-bottom:1px solid #1B2A4E24}.builder{grid-template-columns:1fr}.preview{border-right:0;border-bottom:1px solid #1B2A4E24}.machine{display:none}}
+@media(max-width:560px){
+ header .wrap{height:auto;padding-block:12px}
+ header nav{display:flex!important;gap:16px!important;overflow-x:auto;width:100%;margin:12px 0 0!important;padding:0 0 5px;white-space:nowrap;scrollbar-width:none}
+ header nav::-webkit-scrollbar{display:none}
+ header nav a:not(.book){display:inline-flex!important;margin:0}
+ .hero .inner{padding:68px 22px}
+ .hero h1{font-size:clamp(42px,12vw,58px)}
+ .hero-spec{min-width:100%}.grid{grid-template-columns:1fr 1fr;gap:8px}.item .in{padding:10px}.rep{grid-template-columns:1fr}.track form{display:grid;grid-template-columns:1fr}.track input{min-width:0}.stages{grid-template-columns:1fr 1fr}.stages li{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.door,.item,.chip{transition:none}.item:hover{transform:none}}
 </style>
 </head>
 <body>
-
-<div class="ribbon" data-ms-skip>Design concept by <a href="../">Mr. Space</a>. Not the official Rufcut website.</div>
 
 <header>
  <div class="wrap">
@@ -245,25 +343,31 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 <main id="top">
  <div class="hero denim">
-  <svg class="machine" viewBox="0 0 400 300" role="img" aria-label="Union Special 43200g sewing machine" fill="none" stroke="#F3EEE4" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
-   <path d="M40 250 H370"/>
-   <path d="M70 250 V140 Q70 90 120 90 H300 Q340 90 340 130 V210"/>
-   <path d="M120 90 V50 H310 Q340 50 340 80 V130"/>
-   <circle cx="315" cy="105" r="22"/><circle cx="315" cy="105" r="6" fill="#F3EEE4"/>
-   <path d="M90 250 V190 H150"/>
-   <g class="machine-mark" stroke="none" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="700">
-    <rect x="166" y="101" width="122" height="39" rx="3" fill="#111B33" stroke="#D9822B" stroke-width="2"/>
-    <text x="227" y="117" fill="#F3EEE4" font-size="9" letter-spacing="1.2">UNION SPECIAL</text>
-    <text x="227" y="133" fill="#D9822B" font-size="14" letter-spacing=".8">43200g</text>
-   </g>
-   <g class="needle"><path d="M150 130 V185" stroke="#D9822B"/><path d="M142 130 H158"/></g>
-   <path d="M40 255 H370" stroke="#D9822B" stroke-width="3" stroke-dasharray="10 8"/>
-  </svg>
-  <div class="stitch"></div>
   <div class="inner">
-   <h1 data-ms-step="Your main promise. Is 3 to 5 days true for most orders? Change it if not.">Your fit.<br>Cut in 3-5 days.</h1>
-   <p data-ms-step="One line about the shop. Say it the way you would at the door.">Most denim sites look like a catalog. Rufcut is a bench, a machine and a pair of hands. Build a pair below, or walk in at 517 Ocean Front Walk.</p>
+   <div class="hero-copy"><span class="hero-kicker">Custom denim · Venice Beach</span><h1 data-ms-step="Your main promise. Is 3 to 5 days true for most orders? Change it if not.">Custom jeans.<br>Made in Venice.</h1>
+   <p data-ms-step="One line about the shop. Say it the way you would at the door.">Choose your fit, denim and finish. Or stop by the shop and make your pair with us.</p>
    <div class="row"><a class="btn cop" href="#build">Start your pair</a><a class="btn" href="#vintage">Shop vintage</a></div>
+   </div>
+   <aside class="hero-spec"><span>Built at the bench</span>
+    <svg class="machine-plate" viewBox="0 0 420 270" role="img" aria-label="Union Special 43200g chain-stitch sewing machine">
+     <g fill="none" stroke="#E9DFD0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M32 224h356M72 224v-24h246v24M100 200v-62c0-37 25-58 61-58h129c34 0 54 20 54 53v67"/>
+      <path d="M143 80V48h142c35 0 59 22 59 54v9M160 80h106c24 0 37 13 37 35v28H145v-31c0-18 5-32 15-42Z" fill="#253858"/>
+      <path d="M266 143h83v31h-83zM266 174h48v26M147 143v31h-31v26M180 174v26M201 174v26M219 174v26"/>
+      <circle cx="325" cy="111" r="25"/><circle cx="325" cy="111" r="6" fill="#D7A46F" stroke="#D7A46F"/>
+      <path d="M125 200v-43h21m-3-22h-17m-10-3h-18m-17 92v-15m243 15v-15"/>
+      <path d="M176 48V28m-13 0h27m82 0V15m-13 0h27" stroke="#D7A46F"/>
+      <path d="M163 102h106v30H163z" fill="#17233D" stroke="#D7A46F" stroke-width="2"/>
+      <path d="M212 132v26m-8-2h16m-8 2v29" stroke="#D7A46F" stroke-width="3"/>
+      <path d="M33 230h354" stroke="#D7A46F" stroke-width="2"/>
+     </g>
+     <g fill="#F3EEE4" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="700">
+      <text x="216" y="115" font-size="9" letter-spacing="1.4">UNION SPECIAL</text>
+      <text x="216" y="128" fill="#D7A46F" font-size="12" letter-spacing="1.1">43200g</text>
+     </g>
+    </svg>
+    <small>Chain stitch construction<br>517 Ocean Front Walk<br>Venice, California</small>
+   </aside>
   </div>
  </div>
 
