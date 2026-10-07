@@ -129,3 +129,11 @@ p{text-wrap:pretty}
 .player[hidden]{display:none}
 .ruler{display:none}
 .page{padding-left:0}
+
+
+/* Keep the homepage's decorative status lights still for reduced-motion users. */
+@media (prefers-reduced-motion: reduce){
+  .hero .pill i,
+  .hero .panel-h .live::before,
+  .hero .frame .bar .lv::before{animation:none}
+}
