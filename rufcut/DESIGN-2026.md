@@ -2,7 +2,7 @@
 
 Amaç: Rufcut'un indigo, bakır ve Anton/Archivo kimliğini koruyarak ana sayfayı yeniden tasarlamak; Jean Maker ve Repair Atelier'i aynı sayfada kullanılabilir hale getirmek.
 
-Tasarım ayarları: DESIGN_VARIANCE 7, MOTION_INTENSITY 4, VISUAL_DENSITY 3. Statik HTML/CSS/JS, yeni uygulama bağımlılığı yok. Açık ve koyu tema, az hareket tercihi, mobil yerleşim ve klavye desteği mevcut. Dikiş makinesi sağ üstte korunur. Her iki araç çerçevesinin altında “powered by mrspace” bağlantısı bulunur.
+Tasarım ayarları: DESIGN_VARIANCE 7, MOTION_INTENSITY 4, VISUAL_DENSITY 3. Statik HTML/CSS/JS, yeni uygulama bağımlılığı yok. İlk açılışta koyu tema kullanılır; ziyaretçinin son tema seçimi hatırlanır. Açık ve koyu tema, az hareket tercihi, mobil yerleşim ve klavye desteği mevcut. Dikiş makinesi sağ üstte korunur; modeli yalnızca makinenin üzerindeki etikette gösterilir. Her iki araç çerçevesinin altında “powered by mrspace” bağlantısı bulunur.
 
 ## Gerçek fotoğraflar
 
@@ -10,6 +10,8 @@ Kullanıcının isteğiyle AI üretimi ürün fotoğrafları kullanılmaz. Yeni 
 
 - `media/rufcut-store.webp`: Rufcut atölyesindeki gerçek dikiş fotoğrafı. Kaynak: https://138550530.cdn6.editmysite.com/uploads/1/3/8/5/138550530/IBDCKHFLENPFYL3QVUNTFVRY.jpeg
 - `media/rufcut-detail.webp`: Rufcut'un kendi atölye tezgâhı fotoğrafı. Kaynak: https://www.rufcut.com/uploads/b/4b19b8f0-b397-11f1-b647-a14608de4b3a/rufcut-social.jpg
+
+İki fotoğrafta CSS ile ortak renk düzenlemesi uygulanır: azaltılmış doygunluk, dengeli kontrast, indigo gölgeler ve hafif bakır ışık. Makine çizimi bu katmanların üstünde kalır. Mobil ve masaüstünde, açık ve koyu temalarda görsel kontrol yapıldı; ilk açılışın koyu olması ve son tema seçiminin saklanması doğrulandı.
 
 Jean Maker'da mevcut giysi çizimi seçimlere yanıt veren teknik önizleme olarak kullanılır; ürün fotoğrafı veya son ürünün birebir temsili değildir. Kesim, fiyat ve süre atölyede teyit edilir. Seçimler bu cihazda saklanır; “Request this pair” e-postaya bu seçimleri ekler.
 

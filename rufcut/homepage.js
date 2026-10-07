@@ -3,11 +3,10 @@
  const $=id=>document.getElementById(id),tr=s=>window.MSI18N?MSI18N.t(s):s;
  const root=document.documentElement,themeKey='rufcut-theme',draftKey='rufcut-jean-maker-v1';
  try{const theme=localStorage.getItem(themeKey);if(['light','dark'].includes(theme))root.dataset.theme=theme}catch{}
- const currentTheme=()=>root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+ const currentTheme=()=>root.dataset.theme||'dark';
  const frame=$('repairFrame');
  function syncRepairTheme(){try{if(frame.contentDocument)frame.contentDocument.documentElement.dataset.theme=currentTheme()}catch{}}
  $('themeToggle').onclick=()=>{root.dataset.theme=currentTheme()==='dark'?'light':'dark';try{localStorage.setItem(themeKey,root.dataset.theme)}catch{}syncRepairTheme()};
- matchMedia('(prefers-color-scheme:dark)').addEventListener('change',syncRepairTheme);
  const defaults={fit:'Straight',denim:'Raw',wash:'Dark indigo',thread:'Pig-skin',fly:'Button fly',hem:'Chain stitch'};
  const s={...defaults};
  try{const stored=JSON.parse(localStorage.getItem(draftKey)||'{}');Object.keys(defaults).forEach(k=>{const allowed=[...document.querySelectorAll(`[data-k="${k}"] button`)].map(b=>b.dataset.v);if(allowed.includes(stored[k]))s[k]=stored[k]})}catch{}
