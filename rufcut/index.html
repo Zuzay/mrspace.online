@@ -121,26 +121,26 @@ section{padding:96px 0}
 .repair-cta{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:34px;padding:24px;border:1px solid #D9822B88;background:linear-gradient(120deg,#D9822B18,transparent 65%);border-radius:8px}
 .repair-cta p{max-width:52ch;color:var(--mute);font-size:15px}
 .repair-cta .btn{flex:none}
-dialog.repair-dialog{width:min(920px,calc(100% - 24px));max-width:none;max-height:min(92dvh,900px);margin:auto;border:1px solid #D9822B88;border-radius:12px;padding:0;background:var(--deep);color:var(--raw);box-shadow:0 28px 90px #000b}
+dialog.repair-dialog{width:min(980px,calc(100% - 24px));max-width:none;max-height:min(92dvh,900px);margin:auto;border:1px solid #F3EEE433;border-radius:4px;padding:0;background:#111827;color:var(--raw);box-shadow:0 32px 100px #000c}
 dialog.repair-dialog::backdrop{background:#080C16D9;backdrop-filter:blur(5px)}
-.repair-shell{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(240px,.9fr);min-height:560px}
-.repair-main{padding:clamp(20px,4vw,38px);display:flex;flex-direction:column;min-width:0}
-.repair-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid #D9822B55}
-.repair-top .eyebrow{font:12px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.repair-top h3{font:34px/1 var(--d);text-transform:uppercase;margin-top:5px}
+.repair-shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);min-height:600px}
+.repair-main{padding:clamp(22px,4vw,42px);display:flex;flex-direction:column;min-width:0}
+.repair-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:20px;border-bottom:1px solid #FFFFFF20}
+.repair-top .eyebrow{font:11px var(--f);letter-spacing:.16em;text-transform:uppercase;color:#C3A47F}
+.repair-top h3{font:700 clamp(26px,3vw,32px)/1.04 var(--f);text-transform:none;letter-spacing:-.035em;margin-top:7px}
 .repair-top select{max-width:130px;background:var(--deep);color:var(--raw);border:1px solid #F3EEE466;padding:8px;border-radius:5px}
 .repair-close{width:40px;height:40px;border:1px solid #F3EEE466;border-radius:50%;font-size:22px;flex:none;background:transparent;color:var(--raw)}
-.repair-progress{display:flex;gap:6px;margin:20px 0 24px}
-.repair-progress i{height:4px;flex:1;background:#F3EEE426;border-radius:4px}
-.repair-progress i.on{background:var(--cop)}
+.repair-progress{display:flex;gap:5px;margin:22px 0 28px}
+.repair-progress i{height:2px;flex:1;background:#F3EEE426}
+.repair-progress i.on{background:#D9822B}
 .repair-step{padding:0}
 .repair-step[hidden]{display:none}
-.repair-step h4{font-size:18px;margin-bottom:12px}
-.repair-options{display:flex;flex-wrap:wrap;gap:8px}
+.repair-step h4{font-size:16px;font-weight:600;margin-bottom:13px;letter-spacing:.01em}
+.repair-options{display:flex;flex-wrap:wrap;gap:7px}
 .repair-choice{position:relative}
 .repair-choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
-.repair-choice span{display:block;border:1px solid #F3EEE455;border-radius:99px;padding:9px 14px;font-size:14px;transition:background .16s,color .16s,border-color .16s}
-.repair-choice input:checked+span{background:var(--raw);color:var(--deep);border-color:var(--raw)}
+.repair-choice span{display:block;border:1px solid #FFFFFF2D;border-radius:2px;padding:9px 12px;font-size:13px;color:#D8D8D2;transition:background .16s,color .16s,border-color .16s}
+.repair-choice input:checked+span{background:#E9DFD0;color:#172033;border-color:#E9DFD0}
 .repair-choice input:focus-visible+span{outline:3px solid var(--cop);outline-offset:3px}
 .repair-field{display:grid;gap:7px;margin-top:18px;font-size:13px;color:var(--mute)}
 .repair-field input,.repair-field textarea{width:100%;border:1px solid #F3EEE455;border-radius:5px;padding:11px 12px;background:#0D1529;color:var(--raw);font:16px var(--f)}
@@ -156,27 +156,41 @@ dialog.repair-dialog::backdrop{background:#080C16D9;backdrop-filter:blur(5px)}
 .repair-actions button.btn.cop{background:var(--cop);color:var(--deep)}
 .repair-clear{align-self:flex-start;margin-top:8px;padding:4px 0;background:none;border:0;color:var(--mute);font:12px var(--f);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .repair-actions [hidden]{display:none}
-.repair-visual{background:var(--raw);color:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;position:relative;overflow:hidden}
-.repair-visual::before{content:"";position:absolute;inset:0;background:linear-gradient(#111B3310 1px,transparent 1px) 0 0/100% 28px,linear-gradient(90deg,#111B3310 1px,transparent 1px) 0 0/28px 100%;pointer-events:none}
-.repair-visual svg{position:relative;width:min(100%,250px);height:290px;filter:drop-shadow(0 14px 16px #111B3322)}
-.repair-visual .garment{fill:#1B2A4E;stroke:#111B33;stroke-width:3;stroke-linejoin:round;transition:d .2s}
-.repair-visual .repair-mark{fill:none;stroke:#D9822B;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7;opacity:.95}
-.repair-visual .measure-mark{fill:#D9822B;font:700 13px var(--f)}
-.repair-visual .visual-copy{position:relative;text-align:center;display:grid;gap:6px}
-.repair-visual .visual-copy b{font:25px/1 var(--d);text-transform:uppercase}
-.repair-visual .visual-copy span{font-size:12px;color:#4B5570}
-.repair-visual .saved-label{position:absolute;right:14px;bottom:12px;font:10px var(--f);letter-spacing:.1em;text-transform:uppercase;color:#4B5570}
+.repair-visual{background:#E8E0D3;color:#172033;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;position:relative;overflow:hidden;border-left:1px solid #111827}
+.repair-visual::before{content:"";position:absolute;inset:18px;border:1px solid #17203320;pointer-events:none}
+.repair-visual svg{position:relative;width:min(100%,280px);height:330px;filter:drop-shadow(0 12px 13px #17203318)}
+.repair-visual .garment{fill:url(#denimWeave);stroke:#15203A;stroke-width:2.4;stroke-linejoin:round;transition:d .2s}
+.repair-visual .garment-detail{fill:none;stroke:#8193B5;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
+.repair-visual .garment-stitch{fill:none;stroke:#C28A52;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.3 3.2;opacity:.95}
+.repair-visual svg:not(.pants-preview) .garment-detail,.repair-visual svg:not(.pants-preview) .garment-stitch{display:none}
+.repair-visual .repair-mark{fill:none;stroke:#B7522E;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:3 3;opacity:1}
+.repair-visual .measure-mark{fill:#B7522E;font:600 11px var(--f)}
+.repair-visual .visual-copy{position:relative;text-align:center;display:grid;gap:5px;margin-top:8px}
+.repair-visual .visual-copy b{font:25px/1 var(--d);text-transform:uppercase;letter-spacing:.025em}
+.repair-visual .visual-copy span{font-size:12px;color:#555B66}
+.repair-visual .saved-label{position:absolute;right:28px;bottom:26px;font:10px var(--f);letter-spacing:.15em;text-transform:uppercase;color:#555B66}
+.repair-choice span:hover{border-color:#E9DFD088;color:#fff}
+.repair-choice input:checked+span:hover{color:#172033}
+.repair-choice input:focus-visible+span{outline:2px solid #D9822B;outline-offset:3px}
+.repair-close{transition:background .16s,color .16s,border-color .16s}
+.repair-close:hover{background:#E9DFD0;color:#172033;border-color:#E9DFD0}
+.repair-field input,.repair-field textarea{border-radius:2px;border-color:#FFFFFF35}
+.repair-actions .btn,.repair-clear,.repair-item-row button{transition:color .16s,background .16s,border-color .16s}
+@media(hover:hover){.repair-actions .btn:hover{border-color:#E9DFD0}.repair-actions .btn.cop:hover{background:#F0B16D}}
+@media(prefers-reduced-motion:reduce){.repair-close,.repair-actions .btn,.repair-clear,.repair-item-row button{transition:none}}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:700px){
  .repair-shell{grid-template-columns:1fr;min-height:0}
- .repair-visual{min-height:156px;grid-row:1;padding:10px}
- .repair-visual svg{height:145px;width:140px}
+ .repair-visual{min-height:174px;grid-row:1;padding:8px;border-left:0;border-bottom:1px solid #111827}
+ .repair-visual::before{inset:10px}
+ .repair-visual svg{height:142px;width:140px}
  .repair-visual .visual-copy{display:none}
+ .repair-visual .saved-label{right:20px;bottom:17px}
  .repair-main{min-height:0;padding:18px}
  .repair-top h3{font-size:clamp(23px,6vw,30px)}
  .repair-actions{position:sticky;bottom:0;background:var(--deep);padding-bottom:6px;z-index:2}
 }
-@media(max-width:520px){.repair-cta{align-items:flex-start;flex-direction:column}.repair-cta .btn{width:100%;justify-content:center}.repair-top h3{font-size:28px}.repair-actions{flex-wrap:wrap}.repair-actions .btn{flex:1;justify-content:center}}
+@media(max-width:520px){.repair-cta{align-items:flex-start;flex-direction:column}.repair-cta .btn{width:100%;justify-content:center}.repair-top h3{font-size:26px}.repair-actions{flex-wrap:wrap}.repair-actions .btn{flex:1;justify-content:center}}
 @media(prefers-reduced-motion:reduce){.repair-choice span,.repair-visual .garment{transition:none}}
 
 /* tracker */
@@ -418,7 +432,17 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
    <button class="repair-clear" id="repairClear" type="button" data-repair-text="clearDraft">Clear this device's saved draft</button>
    <div class="repair-actions"><button class="btn" id="repairBack" type="button" data-repair-text="back" hidden>Back</button><span style="flex:1"></span><button class="btn" id="repairAddAnother" type="button" data-repair-text="addAnother" hidden>Add another piece</button><button class="btn cop" id="repairNext" type="button" data-repair-text="continue">Continue</button><button class="btn cop" id="repairEmailDraft" type="button" data-repair-text="openEmail" hidden>Open email draft</button></div>
   </div>
-  <aside class="repair-visual" aria-label="Illustrated garment preview"><svg viewBox="0 0 180 260" role="img" aria-label="Garment with requested alteration marked"><path class="garment" id="repairGarmentShape" d="M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z"></path><path class="repair-mark" id="repairVisualMark" d="M33 192H147"></path><text class="measure-mark" id="repairVisualMeasure" x="91" y="184" text-anchor="middle"></text></svg><div class="visual-copy"><b id="repairVisualName">Jeans</b><span id="repairVisualAction">Choose a repair to preview the change</span></div><span class="saved-label" data-repair-text="visualLabel">Work preview</span></aside>
+  <aside class="repair-visual" aria-label="Illustrated garment preview"><svg viewBox="0 0 180 260" role="img" aria-label="Garment with requested alteration marked">
+   <defs>
+    <linearGradient id="denim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#35496E"/><stop offset=".48" stop-color="#253858"/><stop offset="1" stop-color="#1C2A45"/></linearGradient>
+    <pattern id="denimWeave" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="url(#denim)"/><path d="M0 1.2h5M0 3.8h5" stroke="#AFC0D4" stroke-opacity=".12" stroke-width=".45"/><path d="M1 0v5M4 0v5" stroke="#111B33" stroke-opacity=".18" stroke-width=".45"/></pattern>
+   </defs>
+   <path class="garment" id="repairGarmentShape" d="M54 24 34 32 26 220h52l12-104 12 104h52L146 32l-20-8-22 12H76Z"></path>
+   <path class="garment-detail" d="M54 30 49 62 77 73 89 47m37-17 5 32-29 11-12-26M90 47v60m-35-32 18 3-2 22-20-5Zm69 0-18 3 2 22 20-5M78 218l12-98 12 98M38 38l-8 178m112-178 8 178"/>
+   <path class="garment-stitch" d="M38 39 32 216m110-177 6 177M55 81l13 4m40-4-13 4M82 68h16m-11 9v25m-32-1 24 7m39-7-24 7M31 213h46m16-3 3 5m7-5 3-5m1 5h44"/>
+   <path class="repair-mark" id="repairVisualMark" d="M33 192H147"></path>
+   <text class="measure-mark" id="repairVisualMeasure" x="91" y="184" text-anchor="middle"></text>
+  </svg><div class="visual-copy"><b id="repairVisualName">Jeans</b><span id="repairVisualAction">Choose a repair to preview the change</span></div><span class="saved-label" data-repair-text="visualLabel">Work preview</span></aside>
  </div>
 </dialog>
 
@@ -563,7 +587,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
  function activeGarment(){var input=document.querySelector('input[name="repairGarment"]:checked');return input?input.value:draft.garment}
  function activeActions(){return Array.from(document.querySelectorAll('#repairActions input:checked')).map(function(input){return input.value})}
  function visual(){
-  draft.garment=activeGarment();draft.actions=activeActions();$('repairGarmentShape').setAttribute('d',garmentPath[draft.garment]||garmentPath.other);
+  draft.garment=activeGarment();draft.actions=activeActions();$('repairGarmentShape').setAttribute('d',garmentPath[draft.garment]||garmentPath.other);$('repairGarmentShape').ownerSVGElement.classList.toggle('pants-preview',draft.garment==='jeans'||draft.garment==='pants');
   $('repairVisualName').textContent=t(garmentName[draft.garment]||'other');
   var action=draft.actions[0],paths={shorten:'M31 186H149 M56 178l-8 8 8 8 M124 178l8 8-8 8',lengthen:'M31 202H149 M56 194l-8 8 8 8 M124 194l8 8-8 8',takeIn:'M46 105l24 12m64-12-24 12',letOut:'M70 114 48 100m44 14 22-14',patch:'M112 78l20-13 13 20-20 13z',zipper:'M90 49v94',repair:'M72 98l12 12-12 12m36-24-12 12 12 12'};
   $('repairVisualMark').setAttribute('d',action?paths[action]||paths.repair:'M31 186H149');$('repairVisualAction').textContent=action?t(actionName[action]||'repair'):t('visualHint');
