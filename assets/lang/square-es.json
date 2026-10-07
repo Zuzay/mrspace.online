@@ -61,5 +61,11 @@
   "A repeatable Square SKU setup workflow for Rufcut and future Mr. Space clients.": "Un proceso reutilizable para organizar SKU de Square en Rufcut y futuros clientes de Mr. Space.",
   "Copied": "Copiado",
   "Select the prompt and copy it manually": "Selecciona y copia el prompt manualmente",
-  "Back to top ↑": "Volver arriba ↑"
+  "Back to top ↑": "Volver arriba ↑",
+  "Claude Square SKU setup prompt": "Prompt de configuración SKU de Square para Claude",
+  "Workflow": "Proceso",
+  "Mr. Space home": "Inicio de Mr. Space",
+  "Square's official export and import guide ↗": "Guía oficial de exportación e importación de Square ↗",
+  "Square bulk import guide ↗": "Guía de importación masiva de Square ↗",
+  "Mr. Space customer panel ↗": "Panel de cliente de Mr. Space ↗"
 }
