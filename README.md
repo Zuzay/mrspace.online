@@ -49,6 +49,13 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
   4. Authentication > Users > Add user: `rufcut@mrspace.online`, şifre, Auto confirm. Panel erişimi admin panelinde site kartındaki "Panel erişimi" ile verilir.
 - Square anahtarları `ms_square` tablosunda, politikası yok: sadece fonksiyon okur, panel ve REST göremez.
 
+## Rufcut tamir iş emirleri
+- `rufcut/repair/`: ayrı tamir başvuru sayfası. Giysi ve kadın/erkek kalıbı seçilir, kırmızı sis işaretleri doğrudan giysi çizimi üstünde taşınır, birden çok parça ve ölçü/not girilebilir.
+- `panel/` içindeki **Repairs** sekmesi yalnızca Rufcut hesabına görünür; görsel, müşteri bilgileri, fiş numarası, iş durumu, prova ölçüleri ve atölye notları tek iş emrinde tutulur.
+- Rufcut ana sayfasındaki takip alanı aynı fiş numarasından gerçek durumu sorgular. Durumlar: received, in progress, finishing (yarına hazır), ready, completed.
+- Kurulum: `ms/mrspace-repair.sql` çalıştır, `supabase/functions/ms-repair/index.ts` fonksiyonunu deploy et ve `verify_jwt=false` ayarıyla yayınla. İsteğe bağlı e-posta bildirimi için `RESEND_API_KEY` ve `RESEND_FROM_EMAIL` secrets ekle. Kod e-posta göndermeden de iş emrini ve takibi kaydeder.
+- `ms_repair_jobs` tablosunda RLS açık ve doğrudan istemci erişimi kapalıdır. Tarayıcı yalnızca Edge Function'ı çağırır; Rufcut çalışanı panel oturumuyla yetkilendirilir.
+
 ## Birleşik site yönetimi (Ekim 2026)
 - Mr. Space `/admin/` içindeki **Site yönetimi** bölümünden Laloo ve Heron'un hızlı kontrolleri ve tam panelleri açılır.
 - Heron köprüsü için gereken secret, güvenlik sınırları ve yayın adımları: [`ms/SITE-CONTROL.md`](ms/SITE-CONTROL.md).
