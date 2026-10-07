@@ -16,24 +16,17 @@ Müşteri talebi gelir, ucuz modeller hazırlar, pull request açar. Uzay paneld
 Biri hata yaparsa (ör. yanlış yer bulursa) sıradaki dener. Hepsi başarısız olursa talep `failed` olur, sen Claude ile yaparsın.
 
 ## Kurulum (bir kez)
-1. **Anahtarlar**: Google AI Studio (Gemini), platform.deepseek.com, console.anthropic.com. Hepsi şart değil, en az biri yeter.
-2. **GitHub > repo > Settings > Secrets and variables > Actions > New secret**:
-   - `SUPABASE_URL` = https://tizfdnsjhhepxnqqrzuk.supabase.co
-   - `SUPABASE_SERVICE_KEY` = Supabase > Project Settings > API > service_role
-   - `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `ANTHROPIC_API_KEY`
-   - `GH_PAT` sadece site başka bir repodaysa gerekir
-   - Variables sekmesinde `MONTHLY_BUDGET_USD` (varsayılan 10)
-3. **Supabase SQL Editor**: `ms/mrspace-worker.sql` çalıştır.
-4. Anında tetik için GitHub'da fine-grained token aç (sadece bu repo, Contents: read/write), sonra SQL Editor'da:
-   `select vault.create_secret('github_pat_XXXX', 'ms_github_token');`
-   Yapmazsan işçi saatte bir kendisi bakar.
-5. Rufcut'u bağla: `update ms_sites set repo_path = 'KLASOR/' where slug = 'rufcut';`
-6. GitHub > Actions > "Mr. Space işçi" > Run workflow ile ilk denemeyi yap.
+1. GitHub Actions secrets içine yalnızca `SUPABASE_URL` ve `SUPABASE_SERVICE_KEY` koy. AI anahtarlarını GitHub'a ekleme.
+2. Supabase SQL Editor'da önce `ms/mrspace-system.sql`, sonra `ms/mrspace-worker-panel.sql` çalıştır. Bu migration varsayılan olarak kapalı işçi ayarı oluşturur.
+3. Mr. Space admin panelinde **İşçi** bölümünü aç. Google AI Studio, DeepSeek veya Anthropic API anahtarını ve GitHub fine-grained token'ını ekle. En az bir AI anahtarı ve GitHub token gerekir.
+4. GitHub token'ını yalnızca bu repo ile sınırla; Contents ve Pull requests için yazma izni ver. Token Supabase Vault'ta saklanır; panel sadece son dört haneyi gösterir.
+5. Her site için repo ve repo köküne göre klasör yolunu gir. Boş klasör yolu işçinin o siteye dokunmasını engeller.
+6. Aylık ve talep başı bütçeyi belirle. Modelleri iş türüne göre sırala. Hazır olunca işçiyi panelden aç ve **Şimdi çalıştır** ile dene.
 
 ## Güvenlik
 - İşçi sadece sitenin kendi klasöründeki dosyalara dokunur, en fazla 4 dosya.
 - Hiçbir şey onaysız yayına girmez.
-- Aylık bütçe dolunca durur, talepler "Uzay'a" düşer.
+- Aylık veya talep başı bütçe dolunca yeni model çağrısı yapmaz, talepler "Uzay'a" düşer.
 - Her iş `ms_activity`'ye yazılır (model, maliyet, PR linki).
 
 ## Fiyatlar

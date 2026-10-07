@@ -120,6 +120,16 @@ main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
 .control-tabs button.on{background:var(--ink);color:var(--bg)}
 .control-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .control-tools input,.control-tools select{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);min-width:170px}
+.worker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.worker-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.worker-card .panel-h{border-bottom:1px solid var(--line)}
+.worker-card .form{border:0}
+.worker-key{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,1fr) auto;gap:10px;align-items:end;padding:12px 16px;border-top:1px solid var(--line)}
+.worker-key small{display:block;color:var(--mute);font-size:12px}
+.worker-key label{display:grid;gap:4px;font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.worker-key input,.worker-route select{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg)}
+.worker-route{display:grid;grid-template-columns:110px repeat(3,minmax(0,1fr));gap:8px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
+.worker-route label{font:11px var(--mono);color:var(--mute)}
 .control-list{display:grid;gap:8px}
 .control-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .control-row h3{font:600 15px var(--body);text-transform:none;letter-spacing:0;line-height:1.35}
@@ -128,6 +138,7 @@ main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
 .control-notice{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--mute);margin:0 0 14px}
 .control-frame{display:block;width:100%;height:min(82vh,1100px);min-height:680px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
 @media(max-width:650px){.control-row{grid-template-columns:1fr}.control-row .acts{justify-content:flex-start}.control-tools input{width:100%}}
+@media(max-width:760px){.worker-grid{grid-template-columns:1fr}.worker-key{grid-template-columns:1fr}.worker-route{grid-template-columns:1fr 1fr}.worker-route label{grid-column:1/-1}}
 
 /* lists */
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -232,6 +243,7 @@ body.demo .real-only{display:none!important}
    <button data-v="billing" class="adm-only">Ödemeler</button>
    <button data-v="usage">Kullanım</button>
    <button data-v="sites" class="adm-only">Siteler</button>
+   <button data-v="worker" class="adm-only">İşçi</button>
    <button data-v="control" class="adm-only">Site yönetimi</button>
    <button data-v="access" class="adm-only">Erişim</button>
       <button type="button" class="adm-only real-only" data-href="review/">Onay</button>
@@ -304,12 +316,12 @@ async function logSiteControl(site, action){
 }
 
 /* ---------------- data ---------------- */
-let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{}, subs:[], vers:[] };
+let D = { sites:[], checks:[], changes:[], activity:[], usage:[], payments:[], quota:{}, subs:[], vers:[], worker:null };
 async function load(){
   if (DEMO) return;
   if (VIEWER) { const v = await rpc("ms_viewer_snapshot", {}); D = { ...v, payments:[], viewers:[], subs:[], vers:[] }; return; }
   const since = new Date(Date.now() - 24 * 3600e3).toISOString();
-  const [sites, checks, changes, activity, usage, payments, viewers, subs, vers] = await Promise.all([
+  const [sites, checks, changes, activity, usage, payments, viewers, subs, vers, worker] = await Promise.all([
     api("ms_sites?select=*&order=created_at"),
     api(`ms_checks?select=site,at,ok,ms,status&at=gte.${since}&order=at.asc&limit=3000`),
     api("ms_changes?select=*&order=created_at.desc&limit=300"),
@@ -318,11 +330,12 @@ async function load(){
     api("ms_payments?select=*&order=paid_at.desc&limit=200"),
     api("ms_viewers?select=*&order=created_at"),
     api("ms_submissions?select=*&order=updated_at.desc&limit=60").catch(() => []),
-    api("ms_submission_versions?select=*&order=submission_id.desc,version.asc&limit=800").catch(() => [])
+    api("ms_submission_versions?select=*&order=submission_id.desc,version.asc&limit=800").catch(() => []),
+    rpc("ms_worker_admin_snapshot", {}).catch(() => null)
   ]);
   const quota = {};
   await Promise.all(sites.map(async s => { const q = await rpc("ms_quota", { p_site:s.slug }); quota[s.slug] = q[0] || {}; }));
-  D = { sites, checks, changes, activity, usage, payments, viewers, quota, subs, vers };
+  D = { sites, checks, changes, activity, usage, payments, viewers, quota, subs, vers, worker };
 }
 function demoData(){
   const now = Date.now(), iso = m => new Date(now - m * 60000).toISOString();
@@ -366,7 +379,7 @@ function demoData(){
   const vers = [{ submission_id:7, version:1, at:iso(300), items:v1 }, { submission_id:7, version:2, at:iso(40), items:v2 }];
   v2.forEach(x => changes.unshift({ ...x, site:"rufcut", requested_by:"Rufcut", submission_id:7, created_at:iso(300) }));
   changes.push({ ...v1[2], site:"rufcut", requested_by:"Rufcut", submission_id:7, status:"withdrawn", created_at:iso(300) });
-  D = { sites, checks, changes, activity, usage, payments, quota, subs, vers };
+  D = { sites, checks, changes, activity, usage, payments, quota, subs, vers, worker:{ enabled:false, budget_month:10, budget_per_request:1, spend_month:0, routes:{ classify:["gemini","deepseek","haiku"], content:["gemini","deepseek","haiku"], code:["deepseek","haiku","gemini"] }, keys:[] } };
 }
 
 /* ---------------- views ---------------- */
@@ -394,7 +407,7 @@ function render(){
   $("#badge").hidden = !open; $("#badge").textContent = open;
   const m = $("#main");
   if (VIEWER && ["billing","sites","control","access","versions"].includes(VIEW)) VIEW = "overview";
-  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, control:siteControl, access, versions })[VIEW]();
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, worker, control:siteControl, access, versions })[VIEW]();
   if (VIEW === "versions" && VFOCUS) { const el = document.getElementById("sub-" + VFOCUS); VFOCUS = null; if (el) el.scrollIntoView({ block:"start" }); }
   bind();
   if (window.MSI18N) MSI18N.apply(document.body);
@@ -575,6 +588,26 @@ function siteSettings(){
   </div></div>`;
 }
 
+function worker(){
+  const w = D.worker;
+  if (!w) return `<div class="head"><div><h1>İşçi</h1><p>Önce işçi paneli SQL dosyasını Supabase projesine kur. Bu panel otomasyonu varsayılan olarak kapalı tutar.</p></div></div><div class="panel"><div class="empty">Veritabanı kurulumu bulunamadı. İşçi ayarları yüklenmedi ve otomasyon çalıştırılamaz.</div></div>`;
+  const routes = w.routes || {}, keys = w.keys || [];
+  const providerName = { gemini:"Gemini", deepseek:"DeepSeek", haiku:"Claude Haiku API", github:"GitHub token" };
+  const routeKeys = ["classify","content","code"], routeLabel = { classify:"Ayırma", content:"İçerik", code:"Kod" };
+  const opts = selected => ["gemini","deepseek","haiku"].map(p => `<option value="${p}" ${p === selected ? "selected" : ""}>${providerName[p]}</option>`).join("");
+  const routeRows = routeKeys.map(route => `<div class="worker-route"><label>${routeLabel[route]}</label>${[0,1,2].map(i => `<select data-route="${route}" data-pos="${i}" aria-label="${routeLabel[route]} ${i+1}. model">${opts((routes[route] || [])[i])}</select>`).join("")}</div>`).join("");
+  const keyRows = keys.map(k => `<div class="worker-key"><div><b>${providerName[k.provider]}</b><small>${k.configured ? `${T("Anahtar kayıtlı")} · ${T("sonu")} ${esc(k.last4 || "••••")}` : T("Anahtar eklenmedi")}</small></div><label>Yeni API anahtarı<input type="password" autocomplete="new-password" data-key="${k.provider}" placeholder="Yalnızca yeni anahtar yaz"></label><button class="btn sm" data-act="worker-key" data-provider="${k.provider}">Kaydet</button></div>`).join("");
+  const siteRows = D.sites.map(s => `<div class="worker-key"><div><b>${esc(s.name)}</b><small>${esc(s.slug)}</small></div><label>GitHub repo<input type="text" data-repo="${esc(s.slug)}" value="${esc(s.repo || "Zuzay/mrspace.online")}" placeholder="owner/repo"></label><label>Repo klasörü<input type="text" data-path="${esc(s.slug)}" value="${esc(s.repo_path || "")}" placeholder="rufcut/"></label><button class="btn sm" data-act="worker-site" data-site="${esc(s.slug)}">Kaydet</button></div>`).join("");
+  const spent = Number(w.spend_month || 0), limit = Number(w.budget_month || 0), pct = limit > 0 ? Math.min(100, Math.round(spent / limit * 100)) : 0;
+  return `<div class="head"><div><h1>İşçi</h1><p>API anahtarlarını, bütçeyi, model sırasını ve sitelerin repo klasörünü yönet.</p></div><button class="btn sun" data-act="worker-run">Şimdi çalıştır</button></div>
+   <div class="kpis"><div class="kpi"><small>Durum</small><b>${w.enabled ? "Açık" : "Kapalı"}</b><span>${w.updated_at ? "Güncellendi " + ago(w.updated_at) : "Kurulum bekliyor"}</span></div><div class="kpi"><small>Bu ay</small><b>$${spent.toFixed(2)}</b><span>/ $${limit.toFixed(2)} aylık tavan</span></div><div class="kpi"><small>Talep başı tavan</small><b>$${Number(w.budget_per_request || 0).toFixed(2)}</b><span>API çağrılarının toplam sınırı</span></div><div class="kpi"><small>Harcanan bütçe</small><b>${pct}%</b><span class="meter"><span class="bar"><i style="width:${pct}%"></i></span></span></div></div>
+   <div class="worker-grid">
+    <section class="worker-card"><div class="panel-h"><h2>Genel ayarlar</h2><button class="btn sm sun" data-act="worker-save">Ayarları kaydet</button></div><div class="form"><label class="wide" style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0"><input type="checkbox" id="workerEnabled" ${w.enabled ? "checked" : ""} style="width:auto"> Otomatik işçi açık</label><label>Aylık bütçe · USD<input type="number" id="workerBudgetMonth" min="0.01" max="10000" step="0.01" value="${esc(w.budget_month ?? 10)}"></label><label>Talep başı bütçe · USD<input type="number" id="workerBudgetRequest" min="0.01" step="0.01" value="${esc(w.budget_per_request ?? "")}"></label></div><div class="control-notice" style="margin:0 16px 16px">Açma işlemi yeni ve onaylanmış talepleri otomatik çalıştırır. Önce en az bir AI anahtarı ve GitHub token ile iki bütçe sınırını gir.</div></section>
+    <section class="worker-card"><div class="panel-h"><h2>API anahtarları</h2></div>${keyRows}<div class="control-notice" style="margin:0 16px 16px">GitHub token için bu repo ile sınırlı fine-grained token kullan; Contents ve Pull requests için yazma izni gerekir.</div></section>
+    <section class="worker-card"><div class="panel-h"><h2>İş türüne göre model sırası</h2><span class="mono">Öncelik 1 → 2 → 3</span></div>${routeRows}<div class="acts"><button class="btn sm sun" data-act="worker-save">Ayarları kaydet</button></div></section>
+    <section class="worker-card"><div class="panel-h"><h2>GitHub site klasörleri</h2></div>${siteRows || '<div class="empty">Site bulunamadı.</div>'}<div class="control-notice" style="margin:0 16px 16px">Klasör yolunu repo köküne göre yaz, ör. <code>rufcut/</code>. Boş yol bırakırsan işçi o siteye dokunmaz.</div></section>
+   </div>`;
+}
 function access(){
   const v = D.viewers || [];
   return `<div class="head"><div><h1>Erişim</h1><p>Sistemi göstermek istediğin kişiler buraya. Her şeyi görürler ama hiçbir şeyi değiştiremezler. Ödemeler, müşteri iletişimi ve gizli anahtarlar onlara gösterilmez.</p></div><button class="btn sun" data-act="newviewer">+ İzleyici ekle</button></div>
@@ -603,6 +636,34 @@ const f = (label, name, val = "", type = "text", extra = "") => `<label${extra}>
 
 async function act(kind, el){
   const slug = el.dataset.site, id = Number(el.dataset.id);
+  if (kind === "worker-key") {
+    const provider = el.dataset.provider, input = [...document.querySelectorAll("[data-key]")].find(x => x.dataset.key === provider), key = (input?.value || "").trim();
+    if (!key) throw new Error("Yeni API anahtarını yaz");
+    if (DEMO) { input.value = ""; return toast("Demo: anahtar kaydedilmedi"); }
+    await rpc("ms_set_ai_key", { p_provider:provider, p_key:key }); input.value = ""; toast("Anahtar güvenli kasaya kaydedildi"); return refresh();
+  }
+  if (kind === "worker-site") {
+    const repo = [...document.querySelectorAll("[data-repo]")].find(x => x.dataset.repo === slug)?.value.trim() || "";
+    const repoPath = [...document.querySelectorAll("[data-path]")].find(x => x.dataset.path === slug)?.value.trim() || "";
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) throw new Error("Repo biçimi owner/name olmalı");
+    if (repoPath && (repoPath.startsWith("/") || repoPath.split("/").includes("..") || !/^[A-Za-z0-9_.\/-]+$/.test(repoPath))) throw new Error("Klasör yolu göreli olmalı ve .. içermemeli");
+    if (DEMO) { const s = D.sites.find(x => x.slug === slug); s.repo = repo; s.repo_path = repoPath; return toast("Demo: kaydedildi"); }
+    await api(`ms_sites?slug=eq.${encodeURIComponent(slug)}`, { method:"PATCH", body:{ repo, repo_path:repoPath || null } }); toast("Repo ayarı kaydedildi"); return refresh();
+  }
+  if (kind === "worker-save") {
+    const budgetMonth = Number($("#workerBudgetMonth").value), budgetRequest = Number($("#workerBudgetRequest").value), routes = {};
+    for (const route of ["classify","content","code"]) routes[route] = [0,1,2].map(i => [...document.querySelectorAll("[data-route]")].find(x => x.dataset.route === route && Number(x.dataset.pos) === i)?.value).filter(Boolean);
+    const enabled = $("#workerEnabled").checked, keys = D.worker?.keys || [];
+    if (!Number.isFinite(budgetMonth) || budgetMonth <= 0 || !Number.isFinite(budgetRequest) || budgetRequest <= 0 || budgetRequest > budgetMonth) throw new Error("Bütçe sınırlarını kontrol et");
+    if (enabled && (!keys.some(x => x.provider !== "github" && x.configured) || !keys.some(x => x.provider === "github" && x.configured))) throw new Error("İşçiyi açmadan önce AI ve GitHub anahtarlarını kaydet");
+    if (DEMO) { D.worker.enabled = enabled; D.worker.budget_month = budgetMonth; D.worker.budget_per_request = budgetRequest; D.worker.routes = routes; return toast("Demo: kaydedildi"); }
+    await rpc("ms_set_worker_settings", { p_enabled:enabled, p_routes:routes, p_budget_month:budgetMonth, p_budget_per_request:budgetRequest }); toast("İşçi ayarları kaydedildi"); return refresh();
+  }
+  if (kind === "worker-run") {
+    if (!D.worker?.enabled && !DEMO) throw new Error("Önce işçiyi aç ve ayarları kaydet");
+    if (DEMO) return toast("Demo: çalıştırma gönderilmedi");
+    await rpc("ms_worker_run_now", {}); toast("İşçi çalıştırma isteği gönderildi"); return refresh();
+  }
   if (kind === "control-refresh") { if(CT_MODE==="native"){document.querySelector(".control-frame")?.contentWindow?.location.reload();return;} await loadSiteControl(); return render(); }
   if (kind === "place-toggle") {
     const row = CT_DATA.places.find(x=>String(x.id)===el.dataset.id); if (!row) return;
