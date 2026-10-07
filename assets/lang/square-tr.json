@@ -69,5 +69,7 @@
   "Satılabilir her ürün varyasyonu için tutarlı bir SKU kuralı belirle. Ürünleri, atölyeleri ve hizmetleri inceleyip Square kataloğunu güncellemek için bu rehberi kullan.": "Satılabilir her ürün varyasyonu için açık bir SKU kuralı oluştur. Bu tekrar kullanılabilir yöntem Rufcut ve gelecekteki Mr. Space müşterilerinin Square stoklarını, etiketlerini ve web sitesi ürünlerini uyumlu tutmasına yardımcı olur.",
   "Bu, jean varyasyonu için örnek bir SKU'dur; önerilen veya zorunlu bir kod değildir. Biçimi kataloğu inceledikten sonra belirle.": "Bu örnek bir Rufcut jean varyasyonunu gösterebilir. Hazır kural değildir: Claude önce gerçek kataloğu inceleyip işletmeye uygun kodlar önermelidir.",
   "İşletme · ürün türü · ürün numarası · varyasyon": "İşletme · ürün türü · ürün numarası · varyasyon",
-  "Square'da ürün kodlarını ve varyasyonları düzenlemek için pratik bir rehber.": "Rufcut ve gelecekteki Mr. Space müşterileri için tekrar kullanılabilir Square SKU düzeni iş akışı."
+  "Square'da ürün kodlarını ve varyasyonları düzenlemek için pratik bir rehber.": "Rufcut ve gelecekteki Mr. Space müşterileri için tekrar kullanılabilir Square SKU düzeni iş akışı.",
+  "Keep every existing non-empty SKU unchanged. First map the customer’s current pattern and adapt the Mr. Space integration to it.": "Dolu mevcut SKU’ların tamamını aynen koru. Önce müşterinin mevcut düzenini çıkar ve Mr. Space bağlantısını bu düzene uyarla.",
+  "List blank and duplicate SKUs separately. Propose codes only for blanks; flag duplicates for review without changing them.": "SKU’su boş olanları ve yinelenenleri ayrı listele. Yalnızca boşlar için kod öner; yinelenenleri değiştirmeden inceleme için işaretle."
 }
