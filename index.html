@@ -667,12 +667,14 @@ dialog.tour::backdrop{background:#0E1014d9;backdrop-filter:blur(4px)}
 
  /* live sites in scaled frames, loaded when near the screen */
  var boxes = document.querySelectorAll(".vpbox");
- function fit(box){ var f = box.querySelector("iframe"); if (!f) return; var s = box.clientWidth / 1280; f.style.transform = "scale(" + s + ")"; f.style.height = (box.clientHeight / s) + "px"; }
+ function fit(box){ var f = box.querySelector("iframe"), width = box.clientWidth; if (!f || !width) return; var s = width / 1280; f.style.transform = "scale(" + s + ")"; f.style.height = (box.clientHeight / s) + "px"; }
  function load(box){
   if (box.querySelector("iframe")) return;
   var f = document.createElement("iframe");
-  f.src = box.getAttribute("data-src"); f.title = "Live site"; f.loading = "lazy";
-  f.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+  f.src = box.getAttribute("data-src");
+  try { f.title = new URL(f.src, location.href).hostname + " live site preview"; } catch (e) { f.title = "Live site preview"; }
+  f.loading = "lazy"; f.referrerPolicy = "no-referrer";
+  f.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox");
   f.addEventListener("load", function(){ var l = box.querySelector(".loading"); if (l) l.remove(); });
   box.insertBefore(f, box.firstChild); fit(box);
  }
