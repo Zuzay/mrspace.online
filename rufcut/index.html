@@ -78,6 +78,9 @@ section{padding:96px 0}
 .preview{background:var(--raw);color:var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;position:relative}
 .preview svg{width:100%;max-width:300px;height:auto}
 .preview .lbl{font-weight:700;font-size:14px;margin-top:14px;text-align:center}
+.machine-stamp{margin-top:18px;padding-top:10px;border-top:1px solid #1B2A4E55;text-align:center;text-transform:uppercase;letter-spacing:.13em;font-size:10px}
+.machine-stamp span{display:block;font-size:9px;letter-spacing:.18em;opacity:.68;margin-bottom:3px}
+.machine-stamp strong{font-size:12px;letter-spacing:.12em}
 .opts{background:var(--deep)}
 .step{padding:20px 24px;border-bottom:2px dashed #D9822B66}
 .step h3{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--mute)}
@@ -214,6 +217,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
       <circle cx="20" cy="30" r="2.2" fill="#B87333"/><circle cx="110" cy="30" r="2.2" fill="#B87333"/>
      </svg>
      <div class="lbl" id="summary"></div>
+     <div class="machine-stamp"><span id="machineFinish">Hem finish: Chain stitch</span><strong>Union Special 43200G</strong></div>
     </div>
     <div class="opts">
      <div class="step"><h3>Fit: <b id="vFit"></b></h3><div class="chips" data-k="fit"><button class="chip">Slim</button><button class="chip">Straight</button><button class="chip" data-v="Relaxed">Relaxed, Barrel-cut</button><button class="chip">Wide</button></div></div>
@@ -228,7 +232,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
       <button class="sw" data-v="Pig-skin" style="background:#B88762" aria-label="Pig-skin"></button>
       <button class="sw" data-v="Mellow yellow" style="background:#E2B33C" aria-label="Mellow yellow"></button>
       <button class="sw" data-v="White" style="background:#F6F3EC" aria-label="White"></button>
-      <button class="sw" data-v="Tonal" style="background:#2C3D63" aria-label="Tonal"></button></div></div>
+      <button class="sw" data-v="Tonal" style="background:#3B4F77" aria-label="Tonal"></button>
+      <button class="sw" data-v="No contrast" style="background:#1E3466" aria-label="No contrast"></button></div></div>
      <div class="step"><h3>Fly: <b id="vFly"></b></h3><div class="chips" data-k="fly"><button class="chip">Button fly</button><button class="chip">Zip fly</button></div></div>
      <div class="step"><h3>Hem: <b id="vHem"></b></h3><div class="chips" data-k="hem"><button class="chip">Chain stitch</button><button class="chip">Cuffed</button><button class="chip">Raw edge</button></div></div>
      <div class="ready">
@@ -318,7 +323,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 (function(){
   var s={fit:'Straight',denim:'Raw',wash:'Dark indigo',thread:'Pig-skin',fly:'Button fly',hem:'Chain stitch'};
   var washC={'Dark indigo':'#1E3466','Wide blue/white stripe':'url(#stripeWide)','Narrow blue/white stripe':'url(#stripeNarrow)','Black':'#232427','White':'#F6F3EC'};
-  var thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C','White':'#F6F3EC','Tonal':'#2C3D63'};
+  var thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C','White':'#F6F3EC','Tonal':'#3B4F77'};
+  var tonalC={'Dark indigo':'#3B4F77','Wide blue/white stripe':'#52648D','Narrow blue/white stripe':'#52648D','Black':'#414141','White':'#E2DED5'};
   var legs={Slim:'M12 24 L14 200 H54 L65 86 L76 200 H116 L118 24 Z',Straight:'M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z',Relaxed:'M12 24 L2 200 H58 L65 90 L72 200 H128 L118 24 Z',Wide:'M12 24 L-4 200 H60 L65 94 L70 200 H134 L118 24 Z'};
   var $=function(i){return document.getElementById(i)};
   function val(b){return b.dataset.v||b.textContent.trim()}
@@ -328,8 +334,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     });
     $('jBody').setAttribute('d',legs[s.fit]);
     $('jBody').setAttribute('fill',washC[s.wash]);$('jBand').setAttribute('fill',washC[s.wash]);
-    var tc=s.thread==='Tonal'?(washC[s.wash].indexOf('url(')===0?'#5A6E99':washC[s.wash]):thrC[s.thread];
+    var tc=s.thread==='No contrast'?(s.wash==='Wide blue/white stripe'?'url(#stripeWide)':s.wash==='Narrow blue/white stripe'?'url(#stripeNarrow)':washC[s.wash]):s.thread==='Tonal'?tonalC[s.wash]:thrC[s.thread];
     $('jStitch').setAttribute('stroke',tc);
+    document.querySelector('[data-v="Tonal"]').style.background=tonalC[s.wash];
+    document.querySelector('[data-v="No contrast"]').style.background=s.wash==='Wide blue/white stripe'?'repeating-linear-gradient(90deg,#1E3466 0 8px,#F6F3EC 8px 16px)':s.wash==='Narrow blue/white stripe'?'repeating-linear-gradient(90deg,#1E3466 0 4px,#F6F3EC 4px 8px)':washC[s.wash];
     var raw=s.hem==='Raw edge',cuff=s.hem==='Cuffed';
     $('hemL').style.display=$('hemR').style.display=raw?'none':'';
     ['cuffL','cuffR'].forEach(function(id){var r=$(id);r.setAttribute('fill',cuff?washC[s.wash]:'none');r.setAttribute('stroke',cuff?'#111B33':'none');r.setAttribute('stroke-width','2')});
@@ -338,6 +346,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     $('jFly').innerHTML=s.fly==='Button fly'?'<circle cx="62" cy="36" r="1.8" fill="#B87333"/><circle cx="62" cy="48" r="1.8" fill="#B87333"/><circle cx="62" cy="60" r="1.8" fill="#B87333"/>':'<rect x="60" y="30" width="4" height="34" rx="1" fill="#B87333" opacity=".7"/>';
     ['Fit','Denim','Wash','Thread','Fly','Hem'].forEach(function(k){$('v'+k).textContent=s[k.toLowerCase()]});
     $('summary').textContent=s.fit+', '+s.denim.toLowerCase()+' denim, '+s.wash.toLowerCase()+', '+s.thread.toLowerCase()+' thread';
+    $('machineFinish').textContent='Hem finish: '+s.hem;
     var extra=(s.denim==='Selvedge'?1:0)+(s.hem==='Chain stitch'?0:0);
     var d=new Date();var add=4+extra,n=0;while(n<add){d.setDate(d.getDate()+1);if(d.getDay()!==0)n++}
     $('readyDate').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
