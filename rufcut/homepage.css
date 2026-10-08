@@ -60,3 +60,36 @@ footer{padding:35px 0 24px;border-top:1px solid var(--rule)}.footer-wordmark{fon
 .hero-art::before,.craft-layout figure::before{content:"";position:absolute;inset:0;z-index:1;background:#1e3466;mix-blend-mode:color;opacity:.28;pointer-events:none}
 .hero-art::after,.craft-layout figure::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(140deg,#101a2d1f,transparent 42%,#111b335e),linear-gradient(20deg,#b8733314,transparent 65%);box-shadow:inset 0 0 0 1px #f3eee414;pointer-events:none}
 .machine-corner{z-index:2}
+
+/* An atelier composition: type crosses the photograph, each bench has its own rhythm. */
+.hero-layout{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:30px}
+.hero-copy{position:relative;z-index:3;padding-block:30px}
+.hero h1{font-size:clamp(90px,10.15vw,148px);line-height:.94;width:max-content;position:relative}
+.hero-copy>p:last-of-type{max-width:34ch;margin-top:35px}
+.hero-art{height:620px;clip-path:polygon(0 0,100% 0,100% calc(100% - 32px),calc(100% - 32px) 100%,0 100%)}
+.hero-art::after{background:linear-gradient(90deg,var(--paper),transparent 33%),linear-gradient(0deg,#111b335e,transparent 54%),linear-gradient(25deg,#b8733319,transparent 65%);box-shadow:none}
+.hero-art>img{object-position:55% 45%}
+.studio-links{gap:30px;padding-block:18px}
+.studio-links>a{display:grid;grid-template-columns:1fr;gap:10px;position:relative;padding-block:7px}
+.studio-links strong{font-size:clamp(32px,3.4vw,48px);justify-content:space-between;gap:20px}
+.studio-links strong>span{font-size:32px}
+.studio-links>a>span{font:10px var(--mono);color:var(--mute)}
+#build .wrap{display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:40px;align-items:start}
+#build .section-heading{grid-column:1;grid-row:1;margin:0;position:sticky;top:116px}
+#build .section-heading h2{font-size:78px;line-height:1.02}
+#build .section-heading p{font-size:13px;line-height:1.7;max-width:25ch;margin-top:25px}
+#build .builder{grid-column:2;grid-row:1;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+#build .powered{grid-column:2;grid-row:2}#build .note{grid-column:2;grid-row:3}
+#build .garment-stage>svg{width:250px}
+.craft-layout{display:block;position:relative;padding-bottom:15px}
+.craft-layout figure{width:82%;height:455px}
+.craft-layout>div{position:relative;width:57%;margin:-145px 0 0 auto;padding:32px 0 0 38px;background:var(--paper)}
+.craft-layout h2{font-size:clamp(55px,5.9vw,82px);line-height:1.05;max-width:13ch}
+.craft-layout p{max-width:36ch;font-size:14px;margin:24px 0 20px}
+#repairs .section-heading h2{max-width:11ch;font-size:clamp(64px,7.6vw,100px)}
+#repairs .section-heading p{max-width:45ch}
+.repair-shell{border-top:3px solid var(--cop)}
+@media(max-width:1100px){.hero h1{font-size:10.1vw}.hero-art{height:530px}#build .wrap{grid-template-columns:180px minmax(0,1fr);column-gap:24px}#build .section-heading h2{font-size:63px}#build .preview{padding-inline:17px}#build .maker-panel{padding-inline:20px}#build .garment-stage>svg{width:210px}#build .preview-top{gap:10px}#build .ready{padding-inline:20px}.craft-layout figure{height:410px}.craft-layout>div{width:60%;padding-left:30px}.craft-layout h2{font-size:65px}}
+@media(max-width:860px){.hero h1{font-size:9.9vw}.hero-art{height:470px}.hero-copy>p:last-of-type{font-size:14px;max-width:30ch}.studio-links strong{font-size:31px}#build .wrap{grid-template-columns:1fr}#build .section-heading{position:static;grid-row:auto;grid-column:auto;margin-bottom:30px;max-width:620px}#build .section-heading h2{font-size:68px}#build .section-heading p{max-width:42ch;margin-top:15px}#build .builder,#build .powered,#build .note{grid-column:1;grid-row:auto}.craft-layout h2{font-size:54px}}
+@media(max-width:767px){.hero-layout{grid-template-columns:1fr;gap:0}.hero-copy{padding:5px 0 0}.hero h1{font-size:clamp(66px,12.8vw,98px);line-height:.98;width:auto}.hero-copy>p:last-of-type{margin-top:23px;max-width:39ch;font-size:15px}.hero-art{height:340px;margin-top:28px;clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}.hero-art::after{background:linear-gradient(0deg,var(--paper),transparent 35%),linear-gradient(145deg,#101a2d12,transparent 40%,#111b334a)}.hero-art>img{object-position:50% 55%}.studio-links{gap:18px;padding-block:20px}.studio-links>a{gap:9px;padding:0}.studio-links strong{font-size:32px}.studio-links>a+a{padding-top:20px}.studio-links strong>span{font-size:25px}#build .section-heading h2{font-size:clamp(48px,11.5vw,74px)}#build .section-heading p{font-size:14px;max-width:40ch}#build .builder{grid-template-columns:1fr}#build .preview{padding-inline:20px}#build .garment-stage>svg{width:240px}.craft-layout{padding-bottom:0}.craft-layout figure{width:100%;height:320px}.craft-layout>div{width:92%;margin:-50px 0 0 auto;padding:24px 0 0 22px}.craft-layout h2{font-size:clamp(44px,10.2vw,64px);max-width:15ch}.craft-layout p{font-size:13px;max-width:37ch;margin:20px 0}#repairs .section-heading h2{font-size:clamp(48px,12vw,74px)}#repairs .section-heading p{font-size:13px}}
+@media(max-width:359px){.hero h1{font-size:12.3vw}.hero-art{height:300px}.studio-links strong{font-size:29px}.craft-layout figure{height:280px}.craft-layout>div{padding-left:18px}.craft-layout h2{font-size:40px}}
