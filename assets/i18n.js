@@ -11,6 +11,7 @@
   var base = (me && me.src ? me.src.replace(/i18n\.js.*$/, "") : "/assets/") + "lang/";
   var source = (me && me.getAttribute("data-source")) || "en";
   var prefix = (me && me.getAttribute("data-dict")) || "";
+  var dictVersion = (me && me.getAttribute("data-dict-version")) || "";
 
   function norm(s) { return String(s).replace(/\s+/g, " ").trim(); }
   function pick() {
@@ -85,7 +86,7 @@
     function go() {
       switcher();
       if (lang === source) { done(); return res(); }
-      fetch(base + prefix + lang + ".json", { cache: "force-cache" }).then(function (r) { return r.ok ? r.json() : {}; })
+      fetch(base + prefix + lang + ".json" + (dictVersion ? "?v=" + encodeURIComponent(dictVersion) : ""), { cache: "force-cache" }).then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (d) { DICT = d; apply(); }).catch(function () {}).then(function () { done(); res(); });
     }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
