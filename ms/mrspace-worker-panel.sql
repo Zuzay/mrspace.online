@@ -228,8 +228,8 @@ returns numeric language sql stable security definer set search_path = public as
   where c.ai_at >= date_trunc('month', now() at time zone 'America/Los_Angeles')
     at time zone 'America/Los_Angeles';
 $$;
-revoke all on function public.ms_ai_spend_month() from public, anon;
-grant execute on function public.ms_ai_spend_month() to authenticated, service_role;
+revoke all on function public.ms_ai_spend_month() from public, anon, authenticated;
+grant execute on function public.ms_ai_spend_month() to service_role;
 
 -- ---------- 7) Manual run-now dispatch ----------
 create or replace function public.ms_worker_run_now()
@@ -266,6 +266,7 @@ begin
   return new;
 end $$;
 
+revoke all on function public.ms_ping_worker() from public, anon, authenticated;
 drop trigger if exists ms_changes_ping on public.ms_changes;
 create trigger ms_changes_ping after insert or update of status on public.ms_changes
 for each row when (new.status in ('new','approved','rejected')) execute function public.ms_ping_worker();

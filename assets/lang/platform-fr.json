@@ -197,5 +197,7 @@
   "preparation_failed": "Préparation impossible",
   "invalid_brief": "Description non valide",
   "invalid_kind": "Type de brouillon non valide",
-  "interface_language": "Langue de l’interface"
+  "interface_language": "Langue de l’interface",
+  "prepare_queue": "Préparer les brouillons en attente",
+  "draft_processing_error": "La demande a été enregistrée. La préparation a échoué ; prépare à nouveau les brouillons en attente."
 }

@@ -197,5 +197,7 @@
   "preparation_failed": "Draft preparation failed",
   "invalid_brief": "Invalid brief",
   "invalid_kind": "Invalid draft type",
-  "interface_language": "Interface language"
+  "interface_language": "Interface language",
+  "prepare_queue": "Prepare queued drafts",
+  "draft_processing_error": "The request was saved. Preparation failed; use Prepare queued drafts to retry."
 }

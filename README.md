@@ -20,7 +20,7 @@ Mr. Space web stüdyosu sitesi. Ekim 2026 planına göre yeniden yazıldı.
 
 ## Yapılacaklar
 - hello@mrspace.online çalışıyor mu kontrol et.
-- Form için ileride: Supabase'e kayıt + otomatik mail (şu an mail uygulaması üzerinden).
+- Otomatik e-posta teslimatı ayrı kurulum gerektirir; başvuru özel Supabase kuyruğuna gerçek makbuzla kaydedilir.
 - Rufcut kabul ederse etiketi "Client" olarak kalır; etmezse `index.html` içinde "Concept" yap.
 
 ## Tıklama sayacı
@@ -61,6 +61,6 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - Heron köprüsü için gereken secret, güvenlik sınırları ve yayın adımları: [`ms/SITE-CONTROL.md`](ms/SITE-CONTROL.md).
 - Başarılı Laloo/Heron yönetim değişiklikleri hassas içerik taşımayan kısa kayıt olarak `ms_activity` tablosuna yazılır.
 
-## Ortak hizmet platformu (inceleme dalı)
+## Ortak hizmet platformu
 
-Plan: [ms/PLATFORM-PLAN.md](ms/PLATFORM-PLAN.md). Kurulum, sınırlar ve testler: [ms/PLATFORM-DELIVERY.md](ms/PLATFORM-DELIVERY.md). `/studio/` izole inceleme ekranlarını açar. `/edit/` kolay talepler, `/admin/changes/` kırmızı insan incelemesi, `/library/` sektör başlangıçları, `/tools/denim/` deneysel ölçü aracı. `/admin/` ve `/panel/` ortak çalışma alanını kullanır. Kaynak SQL ve Functions bu dalda hazırlanmıştır; canlı kurulum kullanıcı onayından sonra yapılır.
+Plan: [ms/PLATFORM-PLAN.md](ms/PLATFORM-PLAN.md). Kurulum, sınırlar ve testler: [ms/PLATFORM-DELIVERY.md](ms/PLATFORM-DELIVERY.md). `/studio/` izole inceleme ekranlarını açar. `/edit/` kolay talepler, `/admin/changes/` kırmızı insan incelemesi, `/library/` sektör başlangıçları, `/tools/denim/` deneysel ölçü aracı. `/admin/` ve `/panel/` ortak çalışma alanını kullanır. Platform SQL’i ve Functions kullanıcı onayıyla canlıya kuruldu. Ücretsiz taslak hazırlama yönetici oturumuyla çalışır; ücretli model işçisi kapalıdır. Native bağlantıların eksik kurulumları açıkça gösterilir.

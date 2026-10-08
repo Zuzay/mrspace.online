@@ -1,6 +1,8 @@
 // Secure server-side bridge from the Mr. Space admin panel to Heron's existing admin API.
 // Set HERON_ADMIN_PASSWORD as a Supabase Function secret. Never expose it to the browser.
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import "../../../assets/ms-render.js";
+import { createDraft } from "../../../ms/draft-render.mjs";
 
 const URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -26,6 +28,22 @@ const HERON_WRITES = new Set([
   "admin_general", "admin_reprice", "admin_consign", "admin_mark_sold", "admin_ebay_photos",
   "admin_cash_sale", "admin_receipt_log",
 ]);
+
+async function prepareDrafts() {
+  const prepared: { id: number; status: string }[] = [];
+  for (let n = 0; n < 2; n++) {
+    const { data: job, error: claimError } = await db.rpc("ms_claim_draft");
+    if (claimError) return json({ error: "draft_claim_failed" }, 503);
+    if (!job) break;
+    let html = null, error = null;
+    try { html = createDraft(job, (globalThis as unknown as { MsRender: unknown }).MsRender); }
+    catch (e) { error = ["invalid_brief", "human_implementation_required", "invalid_kind"].includes((e as Error).message) ? (e as Error).message : "preparation_failed"; }
+    const { error: saveError } = await db.rpc("ms_complete_draft", { p_id: job.id, p_html: html, p_error: error });
+    if (saveError) return json({ error: "draft_save_failed" }, 503);
+    prepared.push({ id: job.id, status: error ? "failed" : "review" });
+  }
+  return json({ ok: true, prepared });
+}
 
 async function checkConnections(jwt: string, site: string, email: string) {
   if (!/^[a-z0-9_-]{1,80}$/.test(site)) return json({ error: "invalid_site" }, 400);
@@ -106,6 +124,7 @@ Deno.serve(async (req) => {
     if (!admin) return json({ error: "forbidden" }, 403);
     const body = await req.json().catch(() => ({}));
     const action = String(body.action || "");
+    if (action === "prepare_drafts") return await prepareDrafts();
     if (action === "check_connections") return await checkConnections(jwt, String(body.site || ""), user.email);
     if (action === "preview_snapshot") return await previewSnapshot(String(body.site || ""));
     if (!HERON_PASSWORD) return json({ error: "heron_bridge_not_configured" }, 503);

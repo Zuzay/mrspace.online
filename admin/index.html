@@ -412,7 +412,7 @@ function render(){
   m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, worker, control:siteControl, workspaces:()=>'<div id="workspaceRoot"></div>', access, versions })[VIEW]();
   if (VIEW === "versions" && VFOCUS) { const el = document.getElementById("sub-" + VFOCUS); VFOCUS = null; if (el) el.scrollIntoView({ block:"start" }); }
   bind();
-  if(VIEW === "workspaces") MsPlatform.mount(document.getElementById("workspaceRoot"), {admin:true,demo:DEMO,rpc,probe:site=>controlApi("check_connections",{site})});
+  if(VIEW === "workspaces") MsPlatform.mount(document.getElementById("workspaceRoot"), {admin:true,demo:DEMO,rpc,prepare:()=>controlApi("prepare_drafts",{}),probe:site=>controlApi("check_connections",{site})});
   if (window.MSI18N) MSI18N.apply(document.body);
 }
 function overview(){

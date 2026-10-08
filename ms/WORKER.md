@@ -34,4 +34,4 @@ Güncel model fiyatları operatör tarafından `GEMINI_PRICE`, `DEEPSEEK_PRICE`,
 
 ## Taslak atölyesi
 
-`draft-worker.mjs` ücretli modellerden bağımsızdır. `MS_DRAFT_ENABLED` varsayılan kapalıdır. İki işi atomik alır, mevcut renderer ile özel HTML hazırlayıp insan incelemesine bırakır. Yeni/belirsiz araç insan geliştirmesi gerektirir. İnceleme kabulü müşteri yayını veya PR merge değildir. Sonraki kurulum ve doğrulama: [PLATFORM-DELIVERY.md](PLATFORM-DELIVERY.md).
+Yönetici kuyruğu `ms-site-control` üzerinden ücretsiz, anlık hazırlama kullanır. Her çağrı en fazla iki işi alır; kayıt hatası tekrar deneme gerektirir. `draft-worker.mjs` ek zamanlanmış seçenektir ve ücretli modellerden bağımsızdır. `MS_DRAFT_ENABLED` varsayılan kapalıdır. İki işi atomik alır, mevcut renderer ile özel HTML hazırlayıp insan incelemesine bırakır. Yeni/belirsiz araç insan geliştirmesi gerektirir. İnceleme kabulü müşteri yayını veya PR merge değildir. Sonraki kurulum ve doğrulama: [PLATFORM-DELIVERY.md](PLATFORM-DELIVERY.md).

@@ -92,5 +92,27 @@ try{
   await f.page.locator('#submitProject').click();await f.page.waitForFunction(()=>document.getElementById('projectStatus').textContent.includes('#73'));
   const requests=f.calls.filter(c=>c.path.endsWith('ms-intake'));assert.equal(requests[0].body.token,requests[1].body.token);assert.deepEqual(f.errors,[]);await f.context.close();
  });
+ await test('draft preparation failure preserves the queued job and retry reaches human review',async()=>{
+  const f=await fixture();await f.page.goto(origin+'/library/');await f.page.waitForFunction(()=>window.MsPlatform);
+  await f.page.evaluate(async()=>{
+   await MsPlatform.ready;const root=document.createElement('div');root.id='draftTest';document.body.append(root);
+   window.draftTestState={jobs:[],queueCalls:[],prepareCalls:0};const state=window.draftTestState;
+   const options={admin:true,rpc:async(name,body)=>{
+    if(name==='ms_workspace_snapshot')return {admin:true,sites:[],jobs:state.jobs};
+    if(name==='ms_intake_list')return [];
+    if(name==='ms_queue_draft'){state.queueCalls.push(body);state.jobs=[{id:81,status:'queued',sector:body.p_sector,kind:body.p_kind,brief:body.p_brief}];return 81;}
+    if(name==='ms_review_draft'){state.jobs[0].status=body.p_status;return null;}
+    throw new Error('unexpected RPC');
+   },prepare:async()=>{if(++state.prepareCalls===1)throw new Error('offline');state.jobs[0].status='review';return {ok:true};}};
+   await MsPlatform.mount(root,options);
+  });
+  const root=f.page.locator('#draftTest');await root.locator('textarea[name=brief]').fill('A neighborhood retail design');await root.locator('.ms-draft-form button').click();
+  await root.locator('[data-prepare-queue]').waitFor();assert.match(await root.locator('.ms-platform-status').innerText(),/Talep kaydedildi/);
+  assert.equal(await f.page.evaluate(()=>draftTestState.queueCalls.length),1);
+  await root.locator('[data-prepare-queue]').click();await root.locator('[data-review][data-status=ready]').waitFor();
+  assert.equal(await f.page.evaluate(()=>draftTestState.prepareCalls),2);assert.equal(await f.page.evaluate(()=>draftTestState.jobs[0].status),'review');
+  await root.locator('[data-review][data-status=ready]').click();await root.locator('[data-review]').waitFor({state:'detached'});
+  assert.equal(await f.page.evaluate(()=>draftTestState.jobs[0].status),'ready');assert.equal(f.calls.length,0);assert.deepEqual(f.errors,[]);await f.context.close();
+ });
  console.log(`${passed} browser checks passed; live APIs were blocked`);
 }finally{await browser.close();}

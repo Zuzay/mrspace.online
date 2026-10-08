@@ -197,5 +197,7 @@
   "preparation_failed": "Taslak hazırlanamadı",
   "invalid_brief": "Geçersiz ihtiyaç tanımı",
   "invalid_kind": "Geçersiz taslak türü",
-  "interface_language": "Panel dili"
+  "interface_language": "Panel dili",
+  "prepare_queue": "Sıradaki taslakları hazırla",
+  "draft_processing_error": "Talep kaydedildi. Hazırlama başarısız oldu; Sıradaki taslakları hazırla ile tekrar dene."
 }

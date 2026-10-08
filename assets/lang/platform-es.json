@@ -197,5 +197,7 @@
   "preparation_failed": "No se pudo preparar",
   "invalid_brief": "Descripción no válida",
   "invalid_kind": "Tipo de borrador no válido",
-  "interface_language": "Idioma del panel"
+  "interface_language": "Idioma del panel",
+  "prepare_queue": "Preparar borradores pendientes",
+  "draft_processing_error": "La solicitud se guardó. La preparación falló; vuelve a preparar los borradores pendientes."
 }

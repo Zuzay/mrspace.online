@@ -120,6 +120,7 @@ form.add input[name=ref]{flex:1; min-width:200px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
 <script src="../../assets/ms-auth.js"></script>
+<script src="../../assets/ms-api.js"></script>
 <script src="../../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
 <link rel="stylesheet" href="../../assets/ms-platform.css"><script src="../../assets/ms-platform.js"></script>
 <script>
@@ -251,7 +252,7 @@ $("#view").addEventListener("click",async e=>{
  const dialog=document.createElement('dialog');dialog.className='ms-platform ms-profile-dialog';dialog.setAttribute('data-noi18n','');
  const token=crypto.randomUUID();dialog.innerHTML=`<form><h2>${esc(t('queue_draft'))}</h2><p>${esc(t('draft_intro'))}</p><label>${esc(t('sector'))}<select name="sector">${['general','retail','fashion','food','services','community'].map(k=>`<option value="${k}" ${k===sector?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label>${esc(t('kind'))}<select name="kind"><option value="design">${esc(t('design'))}</option><option value="tool" ${button.dataset.kind==='tool'?'selected':''}>${esc(t('tool'))}</option></select></label><label>${esc(t('brief'))}<textarea name="brief" minlength="10" maxlength="2000" rows="5" required></textarea></label><div><button class="btn main">${esc(t('queue_draft'))}</button><button class="btn" type="button" data-close>${esc(t('close'))}</button></div><p role="status"></p></form>`;
  document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();dialog.querySelector('[data-close]').onclick=()=>dialog.close();
- dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const data=new FormData(event.target),submit=dialog.querySelector('button');submit.disabled=true;try{const {error}=await sb.rpc('ms_queue_draft',{p_sector:data.get('sector'),p_kind:data.get('kind'),p_brief:data.get('brief'),p_token:token});if(error)throw error;dialog.querySelector('[role=status]').textContent=t('queued');}catch{dialog.querySelector('[role=status]').textContent=t('queue_error');submit.disabled=false;}};
+ dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const data=new FormData(event.target),submit=dialog.querySelector('button');submit.disabled=true;try{const {error}=await sb.rpc('ms_queue_draft',{p_sector:data.get('sector'),p_kind:data.get('kind'),p_brief:data.get('brief'),p_token:token});if(error)throw error;try{await MsApi.create().control({action:'prepare_drafts'});dialog.querySelector('[role=status]').textContent=t('queued');}catch{dialog.querySelector('[role=status]').textContent=t('draft_processing_error');}}catch{dialog.querySelector('[role=status]').textContent=t('queue_error');submit.disabled=false;}};
 });
 
 // ---------- kaynaklar ----------

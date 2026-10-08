@@ -197,5 +197,7 @@
   "preparation_failed": "Entwurf konnte nicht erstellt werden",
   "invalid_brief": "Ungültige Beschreibung",
   "invalid_kind": "Ungültiger Entwurfstyp",
-  "interface_language": "Oberflächensprache"
+  "interface_language": "Oberflächensprache",
+  "prepare_queue": "Entwürfe vorbereiten",
+  "draft_processing_error": "Die Anfrage wurde gespeichert. Die Vorbereitung ist fehlgeschlagen; bereite die Entwürfe erneut vor."
 }

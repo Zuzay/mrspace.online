@@ -1,6 +1,6 @@
 // Mr. Space · Paket 1 site cizici
 // Kurucu onizlemesi, onay ekrani ve yayin sayfasi ayni dosyayi kullanir.
-(function () {
+(function (host) {
   const PRESETS = {
     commerce: { label: "Commerce", colors: { bg: "#f5f6f7", ink: "#181d24", accent: "#1e4fe0", soft: "#e8ecf3" }, fonts: { head: "Archivo", body: "Archivo" }, layout: "left", radius: 3 },
     atelier: { label: "Atelier", colors: { bg: "#101820", ink: "#edf0f2", accent: "#d0e5a4", soft: "#1d2b37" }, fonts: { head: "Anton", body: "Archivo" }, layout: "left", radius: 0 },
@@ -310,5 +310,5 @@ ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div clas
     data.sections.splice(2,0,{type:'menu',title:food?word('On the menu','Menüde','En la carta','Auf der Karte','À la carte'):fashion?word('What we make','Neler üretiyoruz','Lo que hacemos','Was wir herstellen','Ce que nous créons'):word('The collection','Koleksiyon','La colección','Die Kollektion','La collection'),groups:[{items:items.map(name=>({name,price:'',desc:word('Sample item. Add your own details.','Örnek parça. Kendi ayrıntılarını ekle.','Ejemplo. Añade tus detalles.','Beispiel. Ergänze deine Angaben.','Exemple. Ajoute tes détails.')}))}]});
     return data;
   }
-  window.MsRender = { PRESETS, SECTION_TYPES, LANGS, render, starter, example, themeOf, sectionName, presetName, dayShort };
-})();
+  host.MsRender = { PRESETS, SECTION_TYPES, LANGS, render, starter, example, themeOf, sectionName, presetName, dayShort };
+})(typeof window === "undefined" ? globalThis : window);

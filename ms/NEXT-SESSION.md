@@ -1,0 +1,12 @@
+# Sonraki yatırım oturumu
+
+Bu sürümün üzerine kurulacak işler. Kullanıcının önceliği görünümden önce çalışan sistem ve gelir sağlayan hizmettir. Bunlar mevcut sürümde tamamlanmış özellikler değildir.
+
+1. **Baştan sona ilk gerçek müşteri akışı.** Admin ve ayrı müşteri oturumuyla talep gönderme, #makbuz, kırmızı öneri, revizyon, hazırlanmış PR, tam SHA onayı, gerçek deployment, müşteri ekranında tamamlanma. Kabul: aynı talep iki kez kaydedilmez; deployment doğrulanmadan tamamlandı yazılmaz; başarısızlık tekrar denenebilir. Ekrana anahtar veya iletişim bilgisi sızmaz.
+2. **Paket 1 gerçek yayın hizmeti.** Wildcard DNS/TLS ve host yönlendirme için mevcut sağlayıcı/hosting seçilir. Markanın içeriği ve domaini ayrı workspace’e bağlanır. Kabul: iki test marka kendi alan adında çalışır, birbirinin içeriğini okuyamaz, aynı içerik admin önizlemesi ve yayında eşleşir; geri dönüş sürümü vardır. Hosting ücreti ve DNS değişikliği ayrıca somutlaştırılır.
+3. **Talep ve üretim güvenilirliği.** Ücretsiz hazırlamada kalıcı başarısızlık/timeout teşhisi, operatör tekrar denemesi ve sürümlenmiş çıktı. Ücretli modeller ancak açık bütçe, sağlayıcı limiti, fiyat ve gerekli anahtarlar hazırsa açılır. Kabul: hizmet kesintisi kayıp kayıt, mükerrer iş veya yanlış başarı oluşturmaz.
+4. **Gerçek ihtiyaca göre araçlar.** Denim aracını atölyeden ölçü/toplama ve teslim notu geri bildirimiyle ilerlet; kesim doğruluğu kanıtlanmadan kalıp üreticisi iddiası verme. Yeni araç fikirleri kullanım sıklığı, zaman tasarrufu ve ödeme isteğine göre sırala. Kabul: bir müşteri gerçek işini araçla tamamlar; sonuç kaydedilir veya dışa aktarılır; yalnızca ekran maketi teslim edilmez.
+5. **Kütüphaneyi ürüne çevirme.** Hazır tasarım kabulünden sonra workspace’e kopyalanan sürümlü kaynak; sektör ve ihtiyaç eşleşmesi; canlı önizleme; ürün/portföy ayrımı. Kabul: önerilen her araç çalışır, her tasarım gerçek içerikle düzenlenir ve kaydedilir; başkasının özel içeriği önerilere girmez.
+6. **Native bağlantılar ve eski güvenlik borcu.** Heron GitHub erişimi ve bridge secret’ı, gerçek rol hesabıyla Laloo yönetim yetkisi, Square/Rufcut izinleri ayrı ayrı doğrulanır. Mevcut native Laloo security-definer view ve mutable-search-path uyarıları veri/rol haritasıyla incelenir; otomatik toplu yetki değişikliği yapılmaz. Kabul: kontrol zamanı ve hata görünür; eksik bağlantı yeşil olmaz; viewer özel talepleri görmez.
+
+İlk oturum bu listeden 1 ve 3 ile başlamalı. Her büyük iş küçük doğrulanabilir teslimlere ayrılır; yayın ve müşteri işlemlerinin onay kapısı korunur.
