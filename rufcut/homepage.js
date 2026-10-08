@@ -49,6 +49,7 @@
  let frameObserver;
  function connectFrame(){try{frameObserver?.disconnect();const doc=frame.contentDocument;if(!doc?.body)return;syncRepairTheme();const resize=()=>{const main=doc.querySelector('main');if(main){const height=Math.ceil(main.getBoundingClientRect().height);if(height>0&&frame.style.height!==height+'px')frame.style.height=height+'px'}};frameObserver=new ResizeObserver(resize);frameObserver.observe(doc.querySelector('main'));resize();doc.fonts.ready.then(resize)}catch{}}
  frame.addEventListener('load',connectFrame);
- if(window.MSI18N)MSI18N.ready.then(()=>{render();frame.src='repair/?embed=1&lang='+encodeURIComponent(MSI18N.lang)+'&theme='+currentTheme()});
+ frame.src='repair/?embed=1&lang='+encodeURIComponent(window.MSI18N?.lang||root.lang||'en')+'&theme='+currentTheme();
+ if(window.MSI18N)MSI18N.ready.then(render);
  window.addEventListener('pagehide',()=>frameObserver?.disconnect());
 })();

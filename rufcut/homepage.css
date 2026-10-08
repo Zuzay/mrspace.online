@@ -93,3 +93,25 @@ footer{padding:35px 0 24px;border-top:1px solid var(--rule)}.footer-wordmark{fon
 @media(max-width:860px){.hero h1{font-size:9.9vw}.hero-art{height:470px}.hero-copy>p:last-of-type{font-size:14px;max-width:30ch}.studio-links strong{font-size:31px}#build .wrap{grid-template-columns:1fr}#build .section-heading{position:static;grid-row:auto;grid-column:auto;margin-bottom:30px;max-width:620px}#build .section-heading h2{font-size:68px}#build .section-heading p{max-width:42ch;margin-top:15px}#build .builder,#build .powered,#build .note{grid-column:1;grid-row:auto}.craft-layout h2{font-size:54px}}
 @media(max-width:767px){.hero-layout{grid-template-columns:1fr;gap:0}.hero-copy{padding:5px 0 0}.hero h1{font-size:clamp(43px,13vw,95px);line-height:.98;width:auto}.hero-copy>p:last-of-type{margin-top:23px;max-width:39ch;font-size:15px}.hero-art{height:340px;margin-top:28px;clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}.hero-art::after{background:linear-gradient(0deg,var(--paper),transparent 35%),linear-gradient(145deg,#101a2d12,transparent 40%,#111b334a)}.hero-art>img{object-position:50% 55%}.studio-links{gap:18px;padding-block:20px}.studio-links>a{gap:9px;padding:0}.studio-links strong{font-size:32px}.studio-links>a+a{padding-top:20px}.studio-links strong>span{font-size:25px}#build .section-heading h2{font-size:clamp(48px,11.5vw,74px)}#build .section-heading p{font-size:14px;max-width:40ch}#build .builder{grid-template-columns:1fr}#build .preview{padding-inline:20px}#build .garment-stage>svg{width:240px}.craft-layout{padding-bottom:0}.craft-layout figure{width:100%;height:320px}.craft-layout>div{width:92%;margin:-50px 0 0 auto;padding:24px 0 0 22px}.craft-layout h2{font-size:clamp(44px,10.2vw,64px);max-width:15ch}.craft-layout p{font-size:13px;max-width:37ch;margin:20px 0}#repairs .section-heading h2{font-size:clamp(48px,12vw,74px)}#repairs .section-heading p{font-size:13px}}
 @media(max-width:359px){.hero h1{font-size:12.3vw}.hero-art{height:300px}.studio-links strong{font-size:29px}.craft-layout figure{height:280px}.craft-layout>div{padding-left:18px}.craft-layout h2{font-size:40px}}
+
+/* The original three-door introduction uses the current atelier typography. */
+.section-kicker{font:10px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.hero-layout{align-items:start}.hero-copy{padding-block:20px}
+.hero h1{font-size:clamp(78px,8.6vw,124px)}
+.hero-copy>p:last-of-type{max-width:42ch;margin-top:30px;font-size:15px}
+.doors-section{padding-block:20px 0}
+.doors-section h2{font:clamp(44px,5.3vw,72px)/1.05 var(--display);text-transform:uppercase;margin:8px 0 26px}
+.doors-section .studio-links{grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;padding-block:22px}
+.doors-section .studio-links>a{align-content:start;gap:13px;min-width:0}
+.doors-section .studio-links>a+a{padding-left:26px}
+.doors-section .studio-links strong{font-size:clamp(28px,2.75vw,39px);gap:12px}
+.doors-section .studio-links strong>span{font-size:26px}
+.doors-section .studio-links p{font-size:13px;line-height:1.65;max-width:32ch;color:var(--mute)}
+#build .section-heading>.section-kicker,#repairs .section-heading>.section-kicker{font:10px/1.5 var(--mono);letter-spacing:.1em;max-width:none;margin:0 0 16px}
+#build .section-heading h2{font-size:55px}
+.visit .section-kicker{font:10px/1.5 var(--mono);letter-spacing:.1em;margin:0 0 15px}
+.footer-slogan{font:11px/1.7 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:center;margin-top:16px}
+@media(max-width:1100px){.hero h1{font-size:8.6vw}#build .section-heading h2{font-size:41px}.doors-section .studio-links{gap:20px}.doors-section .studio-links>a+a{padding-left:20px}.doors-section .studio-links strong{font-size:30px}}
+@media(max-width:860px){#build .section-heading h2{font-size:clamp(48px,7.9vw,68px)}}
+@media(max-width:767px){.hero-copy{padding:5px 0 0}.hero h1{font-size:clamp(43px,13vw,95px)}.hero-copy>p:last-of-type{font-size:14px;max-width:42ch;margin-top:23px}.doors-section{padding-top:0}.doors-section h2{font-size:clamp(43px,11vw,68px);margin-bottom:22px}.doors-section .studio-links{grid-template-columns:1fr;gap:22px;padding-block:22px}.doors-section .studio-links>a+a{padding:22px 0 0}.doors-section .studio-links strong{font-size:32px}.doors-section .studio-links p{max-width:42ch;font-size:13px}.footer-slogan{font-size:9px;letter-spacing:.04em}}
+@media(max-width:359px){.hero h1{font-size:12.3vw}.doors-section .studio-links strong{font-size:29px}}

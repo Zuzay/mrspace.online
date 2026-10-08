@@ -104,7 +104,7 @@ const mobile=matchMedia("(max-width:767px)");
 function arrangeWorkbench(){const target=mobile.matches?document.querySelector(".preview-panel"):document.querySelector(".work-options"),before=mobile.matches?document.querySelector(".drawing-area"):$("selectionStatus");target.insertBefore($("stepTitle"),before);target.insertBefore($("jobsFieldset"),before)}
 mobile.addEventListener("change",arrangeWorkbench);
 function render(){
- document.documentElement.lang=state.lang;$("language").value=state.lang;$("language").setAttribute("aria-label",t("lang"));
+ document.documentElement.lang=state.lang;document.title=t("plan")+" | Rufcut";$("language").value=state.lang;$("language").setAttribute("aria-label",t("lang"));
  document.querySelectorAll("[data-word]").forEach(el=>el.textContent=t(el.dataset.word));
  $("garmentSelect").querySelectorAll("option").forEach(el=>el.textContent=t(el.value==="other"?"otherGarment":el.value));$("genderSelect").querySelectorAll("option").forEach(el=>el.textContent=t(el.value));
  $("garmentSelect").value=state.garment;$("genderSelect").value=state.gender;
@@ -138,7 +138,8 @@ $("review").onclick=handlePieceClick;$("savedGarments").onclick=handlePieceClick
 form.addEventListener("input",e=>{if(["inches","itemNote","customerName","customerEmail","customerPhone"].includes(e.target.id))readFields()});
 $("garmentSelect").onchange=e=>{readFields();state.garment=e.target.value;state.marks={};updateCamera();setError();render()};
 $("genderSelect").onchange=e=>{state.gender=e.target.value;render()};
-$("language").onchange=e=>{state.lang=e.target.value;try{localStorage.setItem("ms_lang",state.lang)}catch{}render()};
+if(document.documentElement.dataset.embed)$("language").querySelector('option[value="zh"]')?.remove();
+$("language").onchange=e=>{state.lang=e.target.value;try{localStorage.setItem("ms_lang",state.lang)}catch{}render();if(document.documentElement.dataset.embed){try{const selector=parent.document.getElementById("msLang");if(selector&&selector.value!==state.lang){selector.value=state.lang;selector.dispatchEvent(new parent.Event("change",{bubbles:true}))}}catch{}}};
 $("jobs").onchange=e=>{const input=e.target;if(!actionTypes.includes(input.value))return;readFields();const a=input.value;
  if(input.checked){const opposite={shorten:"lengthen",lengthen:"shorten",take_in:"let_out",let_out:"take_in"}[a];state.actions=state.actions.filter(v=>v!==opposite);if(opposite)delete state.marks[opposite];if(!state.actions.includes(a))state.actions.push(a);state.activeAction=a;state.marks[a]=state.marks[a]||defaultPoint(state,a)}
  else{state.actions=state.actions.filter(v=>v!==a);delete state.marks[a];if(state.activeAction===a)state.activeAction=state.actions.at(-1)||null}
