@@ -6,7 +6,7 @@ Mr. Space web stüdyosu sitesi. Ekim 2026 planına göre yeniden yazıldı.
 - `index.html` : Ana sayfa. Giriş + kontrol paneli, ne yapıyoruz (site / sistem / bakım), "Made to measure" (her şey sana özel yazılır), işler (canlı site iframe + "Your Brand" admin paneli + "Watch the tour" butonuyla açılan animasyon), süreç, paketler özeti, iletişim.
 - `packages/` : Paket 1-2-3, ilk müşteri indirimi, karşılaştırma tablosu, ekler, saatlik ücret, Custom çıkış bedeli, değişiklik kotası, kurallar, SSS.
 - `first-clients/` : İlk müşteri (launch offer) sayfası. Normal fiyatların üstü çizili, $300 kurulum, $50/ay, eklentiler dahil, değişiklik kotası iki katı. Ana sayfa ve paketler sayfasındaki siyah şerit buraya gider.
-- `start/` : Dallanan başvuru formu (8 adım). POS, scanner, printer, etiket, mevcut site, sosyal medya, örnek siteler. Sunucu yok: "Send by email" mail uygulamasını hazır metinle açar, "Copy answers" panoya kopyalar. Taslak sadece ziyaretçinin cihazında saklanır.
+- `start/` : Dallanan başvuru formu (8 adım). POS, scanner, printer, etiket, mevcut site, sosyal medya, örnek siteler. “Submit project” özel admin başvuru kuyruğuna kayıt yapar ve gerçek makbuz numarası bekler (`ms-intake` kurulum gerektirir). E-posta ve kopyalama seçenekleri korunur. Başarısız gönderimde taslak ziyaretçinin cihazında kalır.
 - `rufcut/` : Eski Rufcut konsept demosu, dokunulmadı.
 - `404.html`, `sitemap.xml`, `robots.txt`, `CNAME`, `og.png`
 
@@ -60,3 +60,7 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - Mr. Space `/admin/` içindeki **Site yönetimi** bölümünden Laloo ve Heron'un hızlı kontrolleri ve tam panelleri açılır.
 - Heron köprüsü için gereken secret, güvenlik sınırları ve yayın adımları: [`ms/SITE-CONTROL.md`](ms/SITE-CONTROL.md).
 - Başarılı Laloo/Heron yönetim değişiklikleri hassas içerik taşımayan kısa kayıt olarak `ms_activity` tablosuna yazılır.
+
+## Ortak hizmet platformu (inceleme dalı)
+
+Plan: [ms/PLATFORM-PLAN.md](ms/PLATFORM-PLAN.md). Kurulum, sınırlar ve testler: [ms/PLATFORM-DELIVERY.md](ms/PLATFORM-DELIVERY.md). `/studio/` izole inceleme ekranlarını açar. `/edit/` kolay talepler, `/admin/changes/` kırmızı insan incelemesi, `/library/` sektör başlangıçları, `/tools/denim/` deneysel ölçü aracı. `/admin/` ve `/panel/` ortak çalışma alanını kullanır. Kaynak SQL ve Functions bu dalda hazırlanmıştır; canlı kurulum kullanıcı onayından sonra yapılır.

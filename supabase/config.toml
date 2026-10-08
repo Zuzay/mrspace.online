@@ -1,2 +1,5 @@
 [functions.ms-repair]
 verify_jwt = false
+
+[functions.ms-intake]
+verify_jwt = false

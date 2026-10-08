@@ -7,9 +7,7 @@
 <title>Your panel | Mr. Space</title>
 <script src="../assets/i18n.js"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/home-fonts.css">
 <style>
 :root{
   --bg:#F2F3F1; --card:#FFFFFF; --ink:#121418; --mute:#5B606B; --line:#12141820;
@@ -168,7 +166,7 @@ dialog .wide{grid-column:1/-1}
  <header class="top">
   <div class="mark"><i></i><span id="siteName" data-noi18n></span></div>
   <nav id="nav">
-   <button data-v="home" class="on">Overview</button>
+   <button data-v="workspace">Workspace</button><button data-v="home" class="on">Overview</button>
    <button data-v="stock">Stock</button>
    <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
    <button data-v="repairs" hidden>Repairs <span class="mono" id="repairCount"></span></button>
@@ -184,6 +182,9 @@ dialog .wide{grid-column:1/-1}
 <div class="toast" id="toast" role="status"></div>
 <div id="print" aria-hidden="true"></div>
 
+<link rel="stylesheet" href="../assets/ms-platform.css">
+<script src="../assets/ms-catalog.js"></script>
+<script src="../assets/ms-platform.js"></script>
 <script>
 "use strict";
 const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
@@ -234,14 +235,15 @@ const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25,
 function render(){
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
   $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
-  $("#main").innerHTML = ({ home, stock, labels, repairs })[VIEW]();
+  $("#main").innerHTML = ({ home, stock, labels, repairs, workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
   bind();
+  if(VIEW === "workspace") MsPlatform.mount(document.getElementById("workspaceRoot"),{admin:false,demo:DEMO,site:SITE.slug,rpc});
   if (window.MSI18N) MSI18N.apply($("#main"));
 }
 function home(){
   const s = SQ || {}, units = ITEMS ? ITEMS.flatMap(i => i.variations).reduce((n, v) => n + Math.max(0, v.stock || 0), 0) : null;
   const low = ITEMS ? ITEMS.flatMap(i => i.variations).filter(v => v.stock === 0).length : null;
-  const reqUrl = `${location.origin}/request/?k=${SITE.site_key}`;
+  const reqUrl = `${location.origin}/edit/?site=${encodeURIComponent(SITE.slug)}`;
   return `<div class="head"><div><h1 data-noi18n>${esc(SITE.name)}</h1><p>Your site, your stock and your labels in one place.</p></div></div>
   <div class="grid">
    <div class="card"><h2>Square</h2>

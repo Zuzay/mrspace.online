@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Platform review | Mr. Space</title><link rel="stylesheet" href="../assets/home-fonts.css"><link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../edit/edit.css"><script src="../assets/i18n.js"></script></head>
+<body><header class="edit-top"><a href="../">MR. SPACE</a><span id="reviewLabel" data-noi18n></span><span data-lang-host></span></header><main class="ms-platform" id="studio" data-noi18n style="max-width:1150px;margin:50px auto;padding:0 24px"></main><script src="../assets/ms-platform.js"></script><script>
+MsPlatform.ready.then(()=>{
+ const {t,esc}=MsPlatform;document.title=t('platform_review')+' | Mr. Space';
+ document.getElementById('reviewLabel').textContent=t('platform_review');
+ const cards=[['workspaces','workspace_intro','../admin/?preview=1'],['review_changes','review_intro','../admin/changes/?preview=1'],['easy_edit','edit_intro','../edit/?preview=1'],['builder','guided_intro','../build/?preview=1'],['select_design','keep_content','../library/'],['denim_title','denim_scope','../tools/denim/']];
+ document.getElementById('studio').innerHTML=`<div class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / PLATFORM</span><h1>${esc(t('platform_review'))}</h1><p>${esc(t('platform_review_intro'))}</p></div></div><div class="ms-notice">${esc(t('platform_review_notice'))}</div><div class="ms-catalog">${cards.map(([title,description,url],i)=>`<a href="${url}"><span class="ms-eyebrow">0${i+1}</span><h2>${esc(t(title))}</h2><p>${esc(t(description))}</p><span>${esc(t('open'))} ↗</span></a>`).join('')}</div><p class="ms-muted" style="margin-top:28px">${esc(t('human_release'))}</p>`;
+}).catch(()=>MsPlatform.fail('studio'));
+</script></body></html>

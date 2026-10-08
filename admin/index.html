@@ -7,9 +7,7 @@
 <title>Mr. Space · Kontrol</title>
 <script src="../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/home-fonts.css">
 <style>
 /* Control room: dark rail on the left, light working surface, sun dot for anything that needs Uzay. */
 :root{
@@ -245,6 +243,7 @@ body.demo .real-only{display:none!important}
    <button data-v="sites" class="adm-only">Siteler</button>
    <button data-v="worker" class="adm-only">İşçi</button>
    <button data-v="control" class="adm-only">Site yönetimi</button>
+   <button data-v="workspaces" class="adm-only">Çalışma alanları</button>
    <button data-v="access" class="adm-only">Erişim</button>
       <button type="button" class="adm-only real-only" data-href="review/">Onay</button>
       <button type="button" class="adm-only real-only" data-href="ideas/">Fikirler</button>
@@ -257,6 +256,9 @@ body.demo .real-only{display:none!important}
 <dialog id="dlg"><div id="dlgBody"></div></dialog>
 <div class="toast" id="toast" role="status"></div>
 
+<link rel="stylesheet" href="../assets/ms-platform.css">
+<script src="../assets/ms-catalog.js"></script>
+<script src="../assets/ms-platform.js"></script>
 <script>
 "use strict";
 const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
@@ -406,10 +408,11 @@ function render(){
   const open = D.changes.filter(c => c.status === "new").length;
   $("#badge").hidden = !open; $("#badge").textContent = open;
   const m = $("#main");
-  if (VIEWER && ["billing","sites","control","access","versions"].includes(VIEW)) VIEW = "overview";
-  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, worker, control:siteControl, access, versions })[VIEW]();
+  if (VIEWER && ["billing","sites","control","access","versions","worker","workspaces"].includes(VIEW)) VIEW = "overview";
+  m.innerHTML = ({ overview, changes, log, billing, usage, sites:siteSettings, worker, control:siteControl, workspaces:()=>'<div id="workspaceRoot"></div>', access, versions })[VIEW]();
   if (VIEW === "versions" && VFOCUS) { const el = document.getElementById("sub-" + VFOCUS); VFOCUS = null; if (el) el.scrollIntoView({ block:"start" }); }
   bind();
+  if(VIEW === "workspaces") MsPlatform.mount(document.getElementById("workspaceRoot"), {admin:true,demo:DEMO,rpc,probe:site=>controlApi("check_connections",{site})});
   if (window.MSI18N) MSI18N.apply(document.body);
 }
 function overview(){
@@ -455,6 +458,7 @@ function siteCard(s){
 function controlTabs(items, value, attr){ return `<div class="control-tabs">${items.map(([k,l])=>`<button class="${value===k?"on":""}" ${attr}="${k}">${l}</button>`).join("")}</div>`; }
 function controlRow(title, detail, actions="") { return `<article class="control-row"><div><h3>${esc(title)}</h3><p>${detail||""}</p></div><div class="acts">${actions}</div></article>`; }
 function siteControl(){
+  if(DEMO) return `<div class="head"><div><h1>Site yönetimi</h1><p>Önizlemede canlı yönetim kontrolleri açılmaz. Gerçek veriler için giriş yap.</p></div></div>`;
   const header = `<div class="head"><div><h1>Site yönetimi</h1><p>Heron ve Laloo kontrolleri, kendi veritabanı ve izinleri üzerinden çalışır.</p></div><div class="control-tools"><select id="controlSite"><option value="laloo" ${CT_SITE==="laloo"?"selected":""}>Laloo</option><option value="heron" ${CT_SITE==="heron"?"selected":""}>Heron CA</option></select><a class="btn sm" href="${CT_SITE==="heron"?"https://heronca.com/admin.html":"https://www.laloo.org/admin.html"}" target="_blank" rel="noopener">Tam panel ↗</a><button class="btn sm" data-act="control-refresh">Yenile</button></div></div>`;
   const modes = controlTabs([["quick","Hızlı kontroller"],["native","Tam yönetim"]], CT_MODE, "data-ctmode");
   if (CT_MODE === "native") return `${header}${modes}<iframe class="control-frame" title="${CT_SITE==="heron"?"Heron":"Laloo"} tam yönetim" src="/admin/${CT_SITE}.html"></iframe>`;
@@ -496,8 +500,8 @@ function changes(){
    ${list.length ? list.map(c => `<div class="row"><div>
       <div class="t">${esc(c.request)}</div>
       <div class="m"><b>${esc(siteName(c.site))}</b><span>${c.kind === "big" ? T("Büyük") : T("Küçük")}${c.target ? " · " + esc(c.target) : ""}</span><span>${esc(c.requested_by || "")}</span><span>${dt(c.created_at)}</span>${c.counts === false && c.status !== "rejected" ? "<span>" + T("kotadan düşmedi") + "</span>" : ""}${c.minutes ? `<span>${c.minutes} ${T("dk")}</span>` : ""}</div></div>
-     <div class="r">${subTag(c)}<span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret", withdrawn:"Geri çekildi" })[c.status] || esc(c.status)}</span>
-      ${c.status === "new" ? `<button class="btn sm ok" data-act="decide" data-id="${c.id}" data-s="approved">Onayla</button><button class="btn sm bad" data-act="decide" data-id="${c.id}" data-s="rejected">Reddet</button>` : ""}
+     <div class="r">${!VIEWER ? `<a class="btn sm" href="changes/?${DEMO?'preview=1':'id='+c.id}">Kırmızı önizleme</a>` : ""}${subTag(c)}<span class="pill ${c.status}">${({ new:"Yeni", approved:"Onaylı", done:"Bitti", rejected:"Ret", withdrawn:"Geri çekildi" })[c.status] || esc(c.status)}</span>
+      ${c.status === "new" ? `<button class="btn sm bad" data-act="decide" data-id="${c.id}" data-s="rejected">Reddet</button>` : ""}
       ${c.status === "new" || c.status === "approved" ? `<button class="btn sm" data-act="done" data-id="${c.id}">Bitti</button>` : ""}
      </div></div>`).join("") : '<div class="empty">Bu filtrede talep yok.</div>'}
   </div>`;
@@ -856,5 +860,7 @@ async function start(){
 if (S) start();
 setInterval(() => { if (!DEMO && S && !document.hidden) refresh(); }, 120000);
 </script>
+
+<script>if(new URLSearchParams(location.search).get("preview")==="1"){document.getElementById("demoBtn").click();document.querySelector('[data-v="workspaces"]').click();}</script>
 </body>
 </html>
