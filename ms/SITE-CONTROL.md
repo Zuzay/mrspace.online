@@ -18,3 +18,7 @@ If the secret is missing, Heron controls show a setup message and the existing H
 No database migration is needed for the Laloo quick controls. The copied native panels continue to use their existing Supabase RLS and feature handlers. The Mr. Space project has one new server-side secret to configure for Heron before the embedded Heron panel can load.
 
 Successful Heron write actions and Laloo admin changes record a short summary in the Mr. Space activity log (`ms_activity`). The log omits product/place IDs, customer data, and submitted content; a log insert failure never blocks the underlying admin action.
+
+## Shared platform checks and previews
+
+The native quick-control setup above is unchanged. New connection status and review screens additionally require `ms/mrspace-platform.sql`. `check_connections` stores read-check results and timestamps; it does not prove write operations, mail or delivery. `preview_snapshot` reads only registered allowlisted HTTPS sites with bounded redirects, body size and time. The browser uses a script-free sandbox. Source is ready in the review branch; these additions have not been deployed.

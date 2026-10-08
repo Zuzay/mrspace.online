@@ -1,0 +1,26 @@
+name: Mr. Space taslak atolyesi
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '43 */6 * * *'
+concurrency:
+  group: ms-worker
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  prepare:
+    if: vars.MS_DRAFT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Inceleme icin taslak hazirla
+        run: node ms/worker/draft-worker.mjs
+        env:
+          MS_DRAFT_ENABLED: ${{ vars.MS_DRAFT_ENABLED }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

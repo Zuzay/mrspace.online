@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Mr. Space</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/home-fonts.css">
 <style>
 :root{
   --bg:#eef0f2; --paper:#fff; --ink:#1c2430; --mute:#5d6878; --line:#d5dae1; --denim:#2f4a6b; --soft:#dfe6ef; --thread:#b5502e; --ok:#2e6b4a;
@@ -15,7 +13,7 @@
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){:root{--bg:#141922;--paper:#1d2430;--ink:#e8ecf1;--mute:#9aa5b4;--line:#2e3746;--denim:#8fb0d6;--soft:#26344a;--thread:#e08a68;--ok:#7fc39c}}
-*,*::before,*::after{box-sizing:inherit}
+*,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans)}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -112,6 +110,7 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 .prog ul .btn{width:100%;text-align:left}
 .prog .ok{margin:10px 0 0;color:var(--ok);font-weight:700}
 </style>
+<link rel="stylesheet" href="../assets/ms-builder-guide.css">
 </head>
 <body>
 <div id="root"><div class="center" id="loading">…</div></div>
@@ -140,6 +139,8 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 <script src="../assets/ms-config.js"></script>
 <script src="../assets/ms-auth.js"></script>
 <script src="../assets/ms-render.js"></script>
+<script src="../assets/ms-catalog.js"></script>
+<script src="../assets/ms-platform.js"></script>
 <script>
 const LANGS = ["en", "tr", "es", "de", "fr"];
 const LANG = (() => {
@@ -263,7 +264,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":
 const root = document.getElementById("root");
 const FONT_SUGGEST = ["Bricolage Grotesque","Source Sans 3","Young Serif","Work Sans","Syne","Manrope","Fraunces","IBM Plex Sans","DM Serif Display","DM Sans","Playfair Display","Lora","Libre Baskerville","Archivo","Outfit","Space Grotesk","Cormorant Garamond","Josefin Sans","Rubik","Karla","Nunito Sans","Merriweather","Bebas Neue","Abril Fatface","Caveat"];
 
-const S = { admin: false, key: P.get("k") || "", site: null, build: null, data: { content: {}, theme: {} }, view: "edit", sector: "other", hint: null };
+const S = { admin: false, key: P.get("k") || "", site: null, build: null, data: { content: {}, theme: {} }, view: "edit", sector: "other", hint: null, guide: "business", device: "desktop", local: P.get("preview") === "1" };
 
 // ---------- Yardimci (yapay zeka yok; sabit ipuclari) ----------
 const HINT_SECTORS = ["cafe", "bakery", "bar", "tailor", "florist", "boutique", "other"];
@@ -412,6 +413,12 @@ function setP(path, val) {
 // ---------- yukleme ----------
 async function load() {
   try {
+    if(S.local){
+      S.site={name:"Mr. Space",slug:"preview",mode:"builder"}; S.build={id:0,status:"draft"};
+      try{const saved=JSON.parse(localStorage.getItem("ms-builder-local-preview")||"null");if(saved?.content?.business && Array.isArray(saved.content.sections)) S.data=saved;}catch{}
+      if(!S.data.content?.business)S.data={content:R.example(MsCatalog.entries.find(e=>e.id===P.get("design")&&e.kind==="design")?.preset||"commerce",LANG),theme:{preset:MsCatalog.entries.find(e=>e.id===P.get("design")&&e.kind==="design")?.preset||"commerce"}};
+      return draw();
+    }
     if (P.get("t") || P.get("ta") || P.has("try")) return await loadTrial();
     if (P.get("b")) {
       if (!(await window.msAdminGate(sb, { panel: "../admin/" }))) return;
@@ -468,8 +475,8 @@ function drawLocked() {
 
 // ---------- ust bar ----------
 function barHTML() {
-  return `<div class="bar"><h1>${esc(S.site.name)}</h1><span class="saved" id="saved">${T("saved")}</span>
-    ${S.trial && S.admin ? `<a class="btn" href="../admin/review/?trial=${S.trialId}">${T("admin_back")}</a>` : S.trial ? `<button class="btn" id="copyLink">${T("copy_link")}</button><button class="btn main" id="sendBtn">${T("finish")}</button>` : S.admin ? `<a class="btn" href="../admin/review/?b=${S.build.id}">${T("admin_back")}</a>` : `<button class="btn main" id="sendBtn">${T("send")}</button>`}</div>`;
+  return `<div class="bar"><h1>${esc(S.site.name)}</h1><span class="saved" id="saved">${T(saveState)}</span><select class="builder-language" data-interface-language aria-label="${esc(MsPlatform.t('interface_language'))}">${LANGS.map(l=>`<option value="${l}" ${l===LANG?'selected':''}>${l.toUpperCase()}</option>`).join('')}</select>
+    ${S.local ? `<span class="saved">${MsPlatform.t("local_only")}</span>` : S.trial && S.admin ? `<a class="btn" href="../admin/review/?trial=${S.trialId}">${T("admin_back")}</a>` : S.trial ? `<button class="btn" id="copyLink">${T("copy_link")}</button><button class="btn main" id="sendBtn">${T("finish")}</button>` : S.admin ? `<a class="btn" href="../admin/review/?b=${S.build.id}">${T("admin_back")}</a>` : `<button class="btn main" id="sendBtn">${T("send")}</button>`}</div>`;
 }
 function returnedHTML() {
   return S.build.status === "returned" && S.build.return_note
@@ -498,13 +505,16 @@ function drawBuilder() {
   if (!Array.isArray(c.business.hours)) c.business.hours = [];
   for (let i = 0; i < 7; i++) c.business.hours[i] = c.business.hours[i] || { open: "", close: "", closed: false };
 
+  root.dataset.guided=S.guide;
   root.innerHTML = barHTML() + `
+  <div class="builder-guide"><div><nav aria-label="${esc(MsPlatform.t('builder'))}">${[['business','identity'],['sections','content'],['look','appearance']].map(([key,label],i)=>`<button data-act="guide" data-step="${key}" ${S.guide===key?'aria-current="step"':''}>0${i+1} ${esc(MsPlatform.t(label))}</button>`).join('')}</nav><small>${esc(MsPlatform.t('guided_intro'))}</small></div><div class="builder-device">${['desktop','phone'].map(d=>`<button data-act="device" data-device="${d}" aria-pressed="${S.device===d}">${esc(MsPlatform.t(d))}</button>`).join('')}</div></div>
+  ${S.local?`<p class="guide-note">${esc(MsPlatform.t('preview_edit_notice'))}</p>`:''}
   <div class="switch"><button class="btn small" data-act="view" data-v="edit" aria-pressed="${S.view === "edit"}">${T("edit")}</button><button class="btn small" data-act="view" data-v="preview" aria-pressed="${S.view === "preview"}">${T("preview")}</button></div>
   <div class="layout" data-view="${S.view}">
     <div class="editor"><div class="note prog" id="prog">${progInner()}</div>${S.trial && !S.admin ? `<div class="note">${T("try_keep")}</div>` : ""}${returnedHTML()}
       <details class="panel" data-panel="look" open><summary>${T("look")}</summary><div class="pbody">
         <div class="presets">${presets}</div>
-        <div class="colors">${["bg", "ink", "accent", "soft"].map((x) => `<label>${T(x)}<input type="color" data-p="theme.colors.${x}" value="${esc(eff.colors[x])}"></label>`).join("")}</div>
+        <details class="builder-advanced"><summary>${esc(MsPlatform.t("advanced"))}</summary><div><div class="colors">${["bg", "ink", "accent", "soft"].map((x) => `<label>${T(x)}<input type="color" data-p="theme.colors.${x}" value="${esc(eff.colors[x])}"></label>`).join("")}</div>
         <div class="row2">
           <label class="f">${T("head_font")}<input list="fonts" data-p="theme.fonts.head" value="${esc(eff.fonts.head)}"></label>
           <label class="f">${T("body_font")}<input list="fonts" data-p="theme.fonts.body" value="${esc(eff.fonts.body)}"></label>
@@ -515,15 +525,15 @@ function drawBuilder() {
           <label class="f">${T("site_lang")}<select data-p="content.lang">${R.LANGS.map(([k, n]) => `<option value="${k}" ${(c.lang || "en") === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         </div>
         <label class="f">${T("corners")}<input type="range" min="0" max="30" data-p="theme.radius" data-num="1" value="${Math.min(30, Number(eff.radius) || 0)}"></label>
-      </div></details>
+      </div></details></div></details>
 
-      <details class="panel" data-panel="business"><summary>${T("business")}</summary><div class="pbody">
+      <details class="panel" data-panel="business" open><summary>${T("business")}</summary><div class="pbody">
         ${inp(T("name"), "content.business.name")}
         ${inp(T("tagline"), "content.business.tagline", "text", 'maxlength="140"')}
         ${imgField(T("logo"), "content.business.logo")}
         <div class="row2">${inp(T("phone"), "content.business.phone", "tel")}${inp(T("email"), "content.business.email", "email")}</div>
         ${area(T("address"), "content.business.address", 'style="min-height:60px"')}
-        <div><div style="font-size:.88rem;color:var(--mute);margin-bottom:6px">${T("hours")}</div><div class="hours">
+        <details class="builder-advanced"><summary>${T("hours")} · ${T("socials")}</summary><div><div><div style="font-size:.88rem;color:var(--mute);margin-bottom:6px">${T("hours")}</div><div class="hours">
           ${days.map((d, i) => `<div class="h"><span>${d}</span>
             <input type="time" data-p="content.business.hours.${i}.open" value="${esc(c.business.hours[i].open)}">
             <input type="time" data-p="content.business.hours.${i}.close" value="${esc(c.business.hours[i].close)}">
@@ -531,16 +541,16 @@ function drawBuilder() {
         </div></div>
         <div style="font-size:.88rem;color:var(--mute)">${T("socials")}</div>
         ${["instagram", "facebook", "tiktok", "google", "website"].map((k) => inp(k === "website" ? T("website") : k.charAt(0).toUpperCase() + k.slice(1), `content.business.socials.${k}`, "url", 'placeholder="https://"')).join("")}
-      </div></details>
+      </div></details></div></details>
 
       <details class="panel" data-panel="sections" open><summary>${T("sections")}</summary><div class="pbody">
         ${(c.sections || []).map(secHTML).join("")}
         <div class="addsec"><select id="newSec">${Object.keys(R.SECTION_TYPES).map((k) => `<option value="${k}">${esc(R.sectionName(k, LANG))}</option>`).join("")}</select>
         <button class="btn" data-act="addsec">${T("add_section")}</button></div>
       </div></details>
-      ${hintHTML()}
+      <div class="builder-next"><button class="btn main" data-act="guide" data-step="${S.guide==='business'?'sections':S.guide==='sections'?'look':'business'}">${esc(MsPlatform.t(S.guide==='look'?'back':'next'))}</button></div>${hintHTML()}
     </div>
-    <div class="preview"><iframe id="pv" title="${T("preview")}"></iframe></div>
+    <div class="preview" data-device="${S.device}"><iframe id="pv" sandbox="allow-same-origin" title="${T("preview")}"></iframe></div>
   </div>`;
   preview(true);
 }
@@ -613,28 +623,33 @@ function preview(now) {
     const f = document.getElementById("pv"); if (!f) return;
     let y = 0; try { y = f.contentWindow.scrollY; } catch {}
     f.onload = () => { try { f.contentWindow.scrollTo(0, y); } catch {} };
-    f.srcdoc = R.render(S.data.content, S.data.theme, { noindex: true, watermark: S.trial ? T("wm") : "" });
+    f.srcdoc = R.render(S.data.content, S.data.theme, { noindex: true, watermark: S.trial ? T("wm") : "",assetBase:new URL("../assets/",location.href).href });
   }, now ? 0 : 300);
 }
 
 // ---------- kayit ----------
-let svT, saving = Promise.resolve();
+let svT, saving = Promise.resolve(true), dirtyRevision = 0, saveState = "saved";
 function markSaved(state) {
+  saveState=state;
   const el = document.getElementById("saved"); if (!el) return;
   el.textContent = T(state); el.classList.toggle("err", state === "save_err");
 }
-function schedule() { markSaved("saving"); clearTimeout(svT); svT = setTimeout(save, 900); }
+function schedule() { dirtyRevision++; markSaved("saving"); clearTimeout(svT); svT = setTimeout(save, 900); }
 function save() {
   clearTimeout(svT);
+  const revision=dirtyRevision, content=structuredClone(S.data.content), theme=structuredClone(S.data.theme);
   saving = saving.then(async () => {
-    let error;
-    if (S.trial && S.admin) ({ error } = await sb.from("ms_trials").update({ content: S.data.content, theme: S.data.theme, updated_at: new Date().toISOString() }).eq("id", S.trialId));
-    else if (S.trial) ({ error } = await sb.rpc("ms_trial_save", { p_token: S.token, p_content: S.data.content, p_theme: S.data.theme }));
-    else if (S.admin) ({ error } = await sb.from("ms_builds").update({ content: S.data.content, theme: S.data.theme, updated_at: new Date().toISOString() }).eq("id", S.build.id));
-    else ({ error } = await sb.rpc("ms_builder_save", { p_key: S.key, p_build: S.build.id, p_content: S.data.content, p_theme: S.data.theme }));
-    if (error && /locked/.test(error.message)) { location.reload(); return; }
-    markSaved(error ? "save_err" : "saved");
-    refreshProg();
+    try {
+      let error;
+      if(S.local){localStorage.setItem("ms-builder-local-preview",JSON.stringify({content,theme}));}
+      else if (S.trial && S.admin) ({ error } = await sb.from("ms_trials").update({ content, theme, updated_at: new Date().toISOString() }).eq("id", S.trialId));
+      else if (S.trial) ({ error } = await sb.rpc("ms_trial_save", { p_token: S.token, p_content: content, p_theme: theme }));
+      else if (S.admin) ({ error } = await sb.from("ms_builds").update({ content, theme, updated_at: new Date().toISOString() }).eq("id", S.build.id));
+      else ({ error } = await sb.rpc("ms_builder_save", { p_key: S.key, p_build: S.build.id, p_content: content, p_theme: theme }));
+      if(error) { markSaved("save_err"); return false; }
+      markSaved(revision===dirtyRevision ? "saved" : "saving");refreshProg();
+      return revision===dirtyRevision;
+    } catch { markSaved("save_err"); return false; }
   });
   return saving;
 }
@@ -654,8 +669,10 @@ root.addEventListener("input", (e) => {
 });
 root.addEventListener("change", async (e) => {
   const el = e.target;
+  if(el.hasAttribute('data-interface-language')){el.disabled=true;if(await save()){try{localStorage.setItem('ms_lang',el.value);}catch{}location.reload();}else{el.disabled=false;el.value=LANG;alert(T('save_err'));}return;}
   if (el.dataset.up || el.dataset.upgal) {
     const files = [...el.files]; if (!files.length) return;
+    if(S.local){for(const file of files){if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024){alert(T("upload_err"));continue;}const url=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("image_read"));reader.readAsDataURL(file);});if(el.dataset.up)setP(el.dataset.up,url);else{const arr=getP(el.dataset.upgal)||[];arr.push({url,alt:"",caption:""});setP(el.dataset.upgal,arr);}}schedule();draw();return;}
     const holder = el.parentElement; const old = holder.firstChild.textContent;
     holder.firstChild.textContent = T("uploading") + "…";
     try {
@@ -674,6 +691,8 @@ root.addEventListener("change", async (e) => {
 root.addEventListener("click", (e) => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const c = S.data.content, a = b.dataset.act, i = Number(b.dataset.i), g = Number(b.dataset.g);
+  if (a === "guide") { S.guide=b.dataset.step;draw();return; }
+  if (a === "device") { S.device=b.dataset.device;draw();return; }
   if (a === "view") { S.view = b.dataset.v; draw(); return; }
   if (a === "preset") { S.data.theme = { preset: b.dataset.k }; }
   else if (a === "clear") setP(b.dataset.path, "");
@@ -710,7 +729,7 @@ function bindSend() {
 document.getElementById("sendCancel").onclick = () => document.getElementById("sendDlg").close();
 document.getElementById("sendGo").onclick = async (e) => {
   e.target.disabled = true;
-  await save();
+  if(!(await save())) { e.target.disabled=false;alert(T("save_err"));return; }
   const { error } = await sb.rpc("ms_builder_submit", { p_key: S.key, p_build: S.build.id, p_note: document.getElementById("sendNote").value || null });
   e.target.disabled = false;
   if (error) { alert(T("save_err")); return; }
@@ -719,7 +738,7 @@ document.getElementById("sendGo").onclick = async (e) => {
 };
 const _draw = draw;
 draw = function () { _draw(); bindSend(); };
-window.addEventListener("beforeunload", (e) => { if (document.getElementById("saved")?.textContent === T("saving")) { e.preventDefault(); e.returnValue = ""; } });
+window.addEventListener("beforeunload", (e) => { if (saveState !== "saved") { e.preventDefault(); e.returnValue = ""; } });
 
 // ---------- ucretsiz deneme (misafir) ----------
 const SECTORS = {
@@ -734,7 +753,8 @@ function trialStarter(sector, name, lang) {
   const item = (n) => ({ name: `[${L("Item", "Ürün", "Producto", "Artikel", "Article")} ${n}]`, price: L("[$]", "[₺]", "[€]", "[€]", "[€]"),
     desc: L("[Short description]", "[Kısa açıklama]", "[Descripción corta]", "[Kurze Beschreibung]", "[Courte description]") });
   const menu = (title, group) => ({ type: "menu", title, groups: [{ name: group, items: [item(1), item(2), item(3)] }] });
-  const preset = { cafe: "kiyi", bakery: "firin", bar: "gece", tailor: "atolye", florist: "kiyi", boutique: "liman" }[sector] || "liman";
+  const chosen=MsCatalog.entries.find(e=>e.id===P.get("design")&&e.kind==="design");
+  const preset = chosen?.preset || ({ cafe: "table", bakery: "table", bar: "table", tailor: "atelier", florist: "commerce", boutique: "commerce" }[sector] || "commerce");
   const sections = [
     { type: "hero", title: name || L("[Your business name]", "[İşletmenizin adı]", "[Nombre de tu negocio]", "[Name deines Unternehmens]", "[Nom de votre entreprise]"),
       text: L("[A short welcome. What makes you special?]", "[Kısa bir karşılama. Sizi özel yapan ne?]", "[Una bienvenida corta. ¿Qué te hace especial?]", "[Eine kurze Begrüßung. Was macht dich besonders?]", "[Un court mot d'accueil. Qu'est-ce qui vous rend unique ?]"),
@@ -812,7 +832,7 @@ document.getElementById("tGo2").onclick = async (e) => {
   const v = (id) => document.getElementById(id).value.trim();
   if (v("tN").length < 2 || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v("tE"))) { document.getElementById("tDErr").textContent = T("t_bad"); return; }
   e.target.disabled = true;
-  await save();
+  if(!(await save())) { e.target.disabled=false;document.getElementById("tDErr").textContent=T("save_err");return; }
   const { error } = await sb.rpc("ms_trial_submit", {
     p_token: S.token, p_path: document.querySelector('input[name="tPath"]:checked').value,
     p_name: v("tN"), p_email: v("tE"), p_phone: v("tP") || null,
@@ -825,7 +845,7 @@ document.getElementById("tGo2").onclick = async (e) => {
   S.build.status = "submitted"; draw();
 };
 
-load();
+MsPlatform.ready.then(load).catch(()=>MsPlatform.fail('root'));
 </script>
 </body>
 </html>

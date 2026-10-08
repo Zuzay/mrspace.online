@@ -29,4 +29,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GEMINI_PRICE: ${{ vars.GEMINI_PRICE }}
+          DEEPSEEK_PRICE: ${{ vars.DEEPSEEK_PRICE }}
+          ANTHROPIC_PRICE: ${{ vars.ANTHROPIC_PRICE }}
           GITHUB_TOKEN: ${{ github.token }}

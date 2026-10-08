@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Fikirler · Mr. Space</title>
+<link rel="stylesheet" href="../../assets/home-fonts.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
@@ -119,7 +120,9 @@ form.add input[name=ref]{flex:1; min-width:200px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="../../assets/ms-config.js"></script>
 <script src="../../assets/ms-auth.js"></script>
+<script src="../../assets/ms-api.js"></script>
 <script src="../../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
+<link rel="stylesheet" href="../../assets/ms-platform.css"><script src="../../assets/ms-platform.js"></script>
 <script>
 const C0 = 0;
 // Dil: ana panelle ayni secim (telefon dili ya da secilen dil). Ekrandaki metinler her degisimde cevrilir.
@@ -143,7 +146,7 @@ $("#fSector").innerHTML = `<option value="all">Tüm sektörler</option>` +
 async function boot() {
   if (!(await window.msAdminGate(sb))) return;
   $("#login").hidden = true; $("#app").hidden = false;
-  loadLast(); render();
+  try{await MsPlatform.ready;}catch{MsPlatform.fail('view');return;}loadLast(); render();
 }
 $("#go").onclick = async () => {
   let u = $("#u").value.trim();
@@ -213,7 +216,7 @@ function card(i) {
     body = `<h3><a href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener">${esc(i.title)}</a></h3>`;
   }
   if (i.kind === "theme") {
-    body += `<div class="swatches">${(s.colors || []).map((c) => `<span style="background:${esc(c)}" data-c="${esc(c)}"></span>`).join("")}</div>`;
+    body += `<div class="swatches">${(s.colors || []).filter(c=>/^#[0-9a-f]{6}$/i.test(c)).map((c) => `<span style="background:${esc(c)}" data-c="${esc(c)}"></span>`).join("")}</div>`;
     if (s.fonts?.length) body += `<div class="fonts"><span>Yazı:</span> ${s.fonts.map(esc).join(", ")}</div>`;
   }
   const chips = [...(s.libs || []), ...(s.phrases || []), ...(s.words || [])];
@@ -228,7 +231,7 @@ function card(i) {
       <button class="btn small" data-set="keep">Sakla</button>
       <button class="btn small" data-set="module">Modül adayı</button>
       <button class="btn small" data-set="dropped">At</button>
-      ${i.kind === "phrase" ? "" : `<a class="btn small" href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener" style="text-decoration:none">Aç</a>`}
+      ${["keep","module"].includes(i.status)?`<button class="btn small" data-prepare="${i.id}" data-sector="${esc(i.sector)}" data-kind="${i.kind==='tool'?'tool':'design'}" data-noi18n>${MsPlatform.t('queue_draft')}</button>`:""}${i.kind === "phrase" ? "" : `<a class="btn small" href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener" style="text-decoration:none">Aç</a>`}
     </div>
   </article>`;
 }
@@ -240,6 +243,16 @@ $("#view").addEventListener("click", async (e) => {
   if (error) { b.textContent = "Kaydedilemedi"; return; }
   if ($("#fStatus").value === "all") { c.className = "card " + b.dataset.set; }
   else c.remove();
+});
+
+// İnsan ihtiyaç tanımı yazmadan fikir kendiliğinden müşteri işine dönüşmez.
+$("#view").addEventListener("click",async e=>{
+ const button=e.target.closest('[data-prepare]');if(!button)return;
+ await MsPlatform.ready;const t=MsPlatform.t,sector={terzi:'fashion',pastane:'food',cicekci:'retail',kafe:'food',vintage:'retail',mobilya:'retail',genel:'general'}[button.dataset.sector]||'general';
+ const dialog=document.createElement('dialog');dialog.className='ms-platform ms-profile-dialog';dialog.setAttribute('data-noi18n','');
+ const token=crypto.randomUUID();dialog.innerHTML=`<form><h2>${esc(t('queue_draft'))}</h2><p>${esc(t('draft_intro'))}</p><label>${esc(t('sector'))}<select name="sector">${['general','retail','fashion','food','services','community'].map(k=>`<option value="${k}" ${k===sector?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label>${esc(t('kind'))}<select name="kind"><option value="design">${esc(t('design'))}</option><option value="tool" ${button.dataset.kind==='tool'?'selected':''}>${esc(t('tool'))}</option></select></label><label>${esc(t('brief'))}<textarea name="brief" minlength="10" maxlength="2000" rows="5" required></textarea></label><div><button class="btn main">${esc(t('queue_draft'))}</button><button class="btn" type="button" data-close>${esc(t('close'))}</button></div><p role="status"></p></form>`;
+ document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();dialog.querySelector('[data-close]').onclick=()=>dialog.close();
+ dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const data=new FormData(event.target),submit=dialog.querySelector('button');submit.disabled=true;try{const {error}=await sb.rpc('ms_queue_draft',{p_sector:data.get('sector'),p_kind:data.get('kind'),p_brief:data.get('brief'),p_token:token});if(error)throw error;try{await MsApi.create().control({action:'prepare_drafts'});dialog.querySelector('[role=status]').textContent=t('queued');}catch{dialog.querySelector('[role=status]').textContent=t('draft_processing_error');}}catch{dialog.querySelector('[role=status]').textContent=t('queue_error');submit.disabled=false;}};
 });
 
 // ---------- kaynaklar ----------

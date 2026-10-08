@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Start a project · Mr. Space</title>
 <script src="../assets/i18n.js"></script>
+<script src="../assets/ms-config.js"></script>
+<script src="../assets/ms-platform.js"></script>
 <meta name="description" content="Tell us about your business in a few minutes. The questions change with your answers.">
 <meta property="og:title" content="Start a project with Mr. Space">
 <meta property="og:description" content="A short form about your business, your shop setup and what you need online.">
@@ -208,14 +210,16 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
 
   <fieldset data-title="Send">
    <legend>Check and send</legend>
-   <p class="hint">This is what we will receive. Sending opens your email app with everything filled in.</p>
+   <p class="hint">Check your answers. Submit sends them to our private project queue for human review.</p>
    <div class="sum" id="sum" tabindex="0"></div>
    <div class="done-box">
     <div style="display:flex;flex-wrap:wrap;gap:10px">
-     <a class="btn solid" id="send" href="mailto:hello@mrspace.online">Send by email <span class="arr">→</span></a>
+     <button class="btn solid" id="submitProject" type="button">Submit project</button>
+     <a class="btn" id="send" href="mailto:hello@mrspace.online">Send by email <span class="arr">→</span></a>
      <button class="btn" type="button" id="copy">Copy answers</button>
     </div>
     <p style="font-size:14.5px;color:var(--mute)">If your email app does not open, copy the answers and send them to <span class="mailaddr">hello@mrspace.online</span>.</p>
+    <label style="position:absolute;left:-10000px" aria-hidden="true">Website<input id="projectTrap" type="text" tabindex="-1" autocomplete="off"></label><p id="projectStatus" role="status" data-noi18n></p>
     <p id="copied" style="font-size:14px" aria-live="polite"></p>
    </div>
   </fieldset>
@@ -243,7 +247,27 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
 (function(){
  var f = document.getElementById("f"), sets = f.querySelectorAll("fieldset"), nav = document.getElementById("stepnav");
  var back = document.getElementById("back"), next = document.getElementById("next"), err = document.getElementById("err");
- var cur = 0, KEY = "mrspace-start-v1";
+ var cur = 0, KEY = "mrspace-start-v1", sent=false, token;
+ try{token=localStorage.getItem(KEY+':token');}catch{}
+ if(!/^[0-9a-f-]{36}$/i.test(token||''))token=crypto.randomUUID();
+ function keepToken(){try{localStorage.setItem(KEY+':token',token);}catch{}}
+ keepToken();
+ f.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=url]').forEach(el=>el.maxLength=300);
+ f.querySelectorAll('textarea').forEach(el=>el.maxLength=2000);
+ document.getElementById('submitProject').onclick=async function(){
+  const button=this,status=document.getElementById('projectStatus');
+  try{await MsPlatform.ready;}catch{status.textContent=MSI18N.t('Could not save. Your draft is still on this device.');return;}
+  const t=MsPlatform.t,v=values(),email=v.Email||'',phone=v.Phone||'',submittedToken=token;
+  if((v.Name||'').length<2||(v['Business name']||'').length<2||(!email&&phone.length<5)||!document.getElementById('em').checkValidity()){status.textContent=t('application_validation');return;}
+  if(sent)return;button.disabled=true;status.textContent=t('loading');
+  const type=v['Business type'],sector=type==='Shop'?'retail':type==='Food and drink'?'food':type==='Workshop or service'?(/tailor|denim|jean/i.test(v.Trade||'')?'fashion':'services'):'general';
+  try{
+   const r=await fetch(MS_CONFIG.url+'/functions/v1/ms-intake',{method:'POST',signal:AbortSignal.timeout(20000),headers:{apikey:MS_CONFIG.anon,'Content-Type':'application/json'},body:JSON.stringify({token,name:v.Name,business:v['Business name'],email,phone,sector,answers:v,website:document.getElementById('projectTrap').value})});
+   const receipt=await r.json();if(!r.ok||!receipt.ok||!receipt.id)throw new Error('not_saved');
+   sent=token===submittedToken;status.textContent=t('application_received')+' #'+receipt.id;button.disabled=sent;if(sent)button.textContent=t('request_received');
+  }catch{status.textContent=t('application_error');button.disabled=false;}
+ };
+ f.addEventListener('input',()=>{token=crypto.randomUUID();keepToken();if(sent){sent=false;document.getElementById('submitProject').disabled=false;document.getElementById('submitProject').textContent=MSI18N.t('Submit project');document.getElementById('projectStatus').textContent='';}});
 
  sets.forEach(function(s, i){ var li = document.createElement("li"); li.textContent = s.getAttribute("data-title"); li.addEventListener("click", function(){ go(i); }); nav.appendChild(li); });
 

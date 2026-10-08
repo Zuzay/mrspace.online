@@ -1,7 +1,10 @@
 // Mr. Space · Paket 1 site cizici
 // Kurucu onizlemesi, onay ekrani ve yayin sayfasi ayni dosyayi kullanir.
-(function () {
+(function (host) {
   const PRESETS = {
+    commerce: { label: "Commerce", colors: { bg: "#f5f6f7", ink: "#181d24", accent: "#1e4fe0", soft: "#e8ecf3" }, fonts: { head: "Archivo", body: "Archivo" }, layout: "left", radius: 3 },
+    atelier: { label: "Atelier", colors: { bg: "#101820", ink: "#edf0f2", accent: "#d0e5a4", soft: "#1d2b37" }, fonts: { head: "Anton", body: "Archivo" }, layout: "left", radius: 0 },
+    table: { label: "Table", colors: { bg: "#f8faf8", ink: "#12382c", accent: "#236443", soft: "#e6eee8" }, fonts: { head: "Archivo", body: "Archivo" }, layout: "center", radius: 12 },
     liman:  { label: "Liman",  colors: { bg: "#f2f5f7", ink: "#15212b", accent: "#1d5c78", soft: "#dbe6ed" }, fonts: { head: "Bricolage Grotesque", body: "Source Sans 3" }, layout: "left",   radius: 6 },
     firin:  { label: "Fırın",  colors: { bg: "#fff9f2", ink: "#3b2618", accent: "#b8442b", soft: "#f2dfcc" }, fonts: { head: "Young Serif",         body: "Work Sans" },     layout: "center", radius: 14 },
     gece:   { label: "Gece",   colors: { bg: "#16171d", ink: "#f0ece3", accent: "#e2b34c", soft: "#24262f" }, fonts: { head: "Syne",                body: "Manrope" },       layout: "left",   radius: 2 },
@@ -42,6 +45,9 @@
     text: ["Free text", "Serbest metin", "Texto libre", "Freier Text", "Texte libre"],
   };
   const PRESET_NAMES = {
+    commerce: ["Independent shop", "Bağımsız mağaza", "Tienda independiente", "Unabhängiger Laden", "Boutique indépendante"],
+    atelier: ["Working atelier", "Üreten atölye", "Taller activo", "Aktives Atelier", "Atelier en action"],
+    table: ["Neighborhood table", "Mahalle sofrası", "Mesa del barrio", "Nachbarschaftstisch", "Table du quartier"],
     liman: ["Harbor", "Liman", "Puerto", "Hafen", "Port"], firin: ["Bakehouse", "Fırın", "Horno", "Backstube", "Fournil"],
     gece: ["Night", "Gece", "Noche", "Nacht", "Nuit"], atolye: ["Workshop", "Atölye", "Taller", "Werkstatt", "Atelier"],
     kiyi: ["Shore", "Kıyı", "Costa", "Küste", "Rivage"],
@@ -54,6 +60,7 @@
   const langOf = (c) => LCODES.includes(c?.lang) ? c.lang : "en";
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeImage = value => { const v=String(value||'').trim();if(v.length>7500000)return '';return /^https?:/i.test(v)||/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(v)?v:''; };
   const safeUrl = (u) => /^(https?:|mailto:|tel:)/i.test(String(u || "").trim()) ? String(u).trim() : "";
   const para = (t) => esc(t).split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
 
@@ -66,16 +73,21 @@
   const onColor = (h) => lum(h) > 0.4 ? "#111418" : "#ffffff";
 
   function themeOf(t) {
-    const p = PRESETS[t?.preset] || PRESETS.liman;
+    const p = Object.prototype.hasOwnProperty.call(PRESETS,t?.preset) ? PRESETS[t.preset] : PRESETS.liman;
+    const colors = { ...p.colors }, fonts = { ...p.fonts };
+    for (const k of Object.keys(colors)) if (/^#[a-f0-9]{6}$/i.test(t?.colors?.[k] || '')) colors[k] = t.colors[k];
+    for (const k of Object.keys(fonts)) if (/^[A-Za-z][A-Za-z0-9 -]{0,59}$/.test(t?.fonts?.[k] || '')) fonts[k] = t.fonts[k];
     return {
-      colors: { ...p.colors, ...(t?.colors || {}) },
-      fonts: { ...p.fonts, ...(t?.fonts || {}) },
-      layout: t?.layout || p.layout,
-      radius: t?.radius ?? p.radius,
+      colors, fonts,
+      layout: ['left','center'].includes(t?.layout) ? t.layout : p.layout,
+      radius: Number.isFinite(Number(t?.radius ?? p.radius)) ? Math.max(0,Math.min(40,Number(t?.radius ?? p.radius))) : p.radius,
     };
   }
 
-  function fontLink(f) {
+  function fontLink(f, assetBase) {
+    if ([f.head,f.body].every(n => ['Archivo','Anton','IBM Plex Mono'].includes(n))) {
+      return `<link rel="stylesheet" href="${esc(safeUrl(assetBase) || 'https://mrspace.online/assets/')}home-fonts.css">`;
+    }
     const fam = [...new Set([f.head, f.body])].filter(Boolean)
       .map((n) => "family=" + encodeURIComponent(n).replace(/%20/g, "+") + ":wght@400;600;700").join("&");
     return fam ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?${fam}&display=swap" rel="stylesheet">` : "";
@@ -145,6 +157,24 @@ footer .row{display:flex;flex-wrap:wrap;gap:12px 20px;justify-content:space-betw
 footer .soc{display:flex;gap:14px;flex-wrap:wrap}
 footer .made{opacity:.6;text-decoration:none}
 footer .made:hover{opacity:1}
+.preset-commerce .w,.preset-atelier .w,.preset-table .w{max-width:1200px;padding-inline:clamp(22px,5vw,64px)}
+.preset-commerce .top,.preset-atelier .top,.preset-table .top{padding-block:28px;border-bottom:1px solid color-mix(in srgb,var(--ink) 16%,transparent)}
+.preset-commerce .brand,.preset-table .brand{font-size:19px;letter-spacing:-.04em;font-weight:700}
+.preset-commerce .hero,.preset-atelier .hero,.preset-table .hero{padding-top:clamp(56px,9vw,128px);padding-bottom:clamp(48px,7vw,100px)}
+.preset-commerce h1{font-size:clamp(3.1rem,8vw,6.5rem);letter-spacing:-.07em;line-height:1.02;max-width:11ch}
+.preset-commerce .hero .lead{max-width:42ch;font-size:clamp(18px,2vw,23px);margin-block:25px 30px}
+.preset-commerce .hero .grid.has-img{grid-template-columns:1.05fr .95fr;gap:60px}
+.preset-commerce .hero img{aspect-ratio:4/5;border-radius:0}.preset-commerce .btn{border-radius:3px;padding:15px 22px}
+.preset-commerce section:not(.hero){padding-block:64px}.preset-commerce h2{font-size:clamp(28px,4vw,46px);letter-spacing:-.055em}
+.preset-atelier .brand{text-transform:uppercase;font-family:var(--head);font-weight:400;font-size:26px}
+.preset-atelier h1{font-size:clamp(3.6rem,10vw,8.5rem);line-height:.99;text-transform:uppercase;letter-spacing:.01em;font-weight:400;max-width:11ch}
+.preset-atelier .hero .lead{font-size:20px;max-width:35ch;margin-block:26px}.preset-atelier .btn{color:#101820;border-radius:0;padding:14px 22px}
+.preset-atelier h2{font-weight:400;text-transform:uppercase;font-size:clamp(34px,5vw,56px)}
+.preset-atelier .hero img{aspect-ratio:3/4}.preset-atelier section:not(.hero){padding-block:64px}.preset-atelier .menu h3{font-family:var(--body);text-transform:uppercase;font-size:13px;letter-spacing:.1em;padding-bottom:16px}
+.preset-table h1{font-size:clamp(3.2rem,8vw,6.7rem);letter-spacing:-.065em;line-height:1.07;max-width:12ch;margin-inline:auto}
+.preset-table .hero .lead{max-width:42ch;font-size:21px;margin-block:26px}.preset-table .hero .grid{gap:42px}.preset-table .hero img{aspect-ratio:16/9;border-radius:160px 160px 12px 12px}.preset-table .btn{border-radius:99px;padding:14px 24px}
+.preset-table .menu{text-align:left;gap:60px}.preset-table h2{font-size:clamp(32px,5vw,50px);letter-spacing:-.05em}.preset-table section:not(.hero){padding-block:64px}
+@media(max-width:819px){.preset-commerce .hero .grid.has-img{grid-template-columns:1fr;gap:32px}.preset-commerce .hero img{aspect-ratio:4/3}.preset-table .hero img{border-radius:60px 60px 8px 8px}.top nav{gap:10px;flex-wrap:wrap}.top{flex-wrap:wrap;gap:14px}.preset-atelier .hero img{aspect-ratio:4/3}}
 @media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 `;
   }
@@ -187,8 +217,8 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
     const alt = i % 2 === 1 ? " alt" : "";
     switch (s.type) {
       case "hero": {
-        const img = safeUrl(s.image);
-        const url = safeUrl(s.button?.url);
+        const img = safeImage(s.image);
+        const url = /^#[a-z0-9_-]+$/i.test(s.button?.url||'') ? s.button.url : safeUrl(s.button?.url);
         return `<section class="hero" id="${id}"><div class="w"><div class="grid${img ? " has-img" : ""}">
           <div><h1>${esc(s.title || biz.name)}</h1>${s.text ? `<p class="lead">${esc(s.text)}</p>` : ""}
           ${url && s.button?.label ? `<a class="btn" href="${esc(url)}">${esc(s.button.label)}</a>` : ""}</div>
@@ -197,7 +227,7 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
       }
       case "about":
       case "text": {
-        const img = safeUrl(s.image);
+        const img = safeImage(s.image);
         return `<section class="${alt.trim()}" id="${id}"><div class="w"><div class="split${img ? " has-img" : ""}">
           <div class="head">${s.title ? `<h2>${esc(s.title)}</h2>` : ""}${para(s.text)}</div>
           ${img ? `<img src="${esc(img)}" alt="${esc(s.image_alt || s.title || "")}">` : ""}
@@ -212,8 +242,8 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
       case "gallery":
         return `<section class="${alt.trim()}" id="${id}"><div class="w">
           ${s.title ? `<div class="head"><h2>${esc(s.title)}</h2></div>` : ""}
-          <div class="gal">${(s.images || []).filter((g) => safeUrl(g.url)).map((g) =>
-            `<figure><img loading="lazy" src="${esc(safeUrl(g.url))}" alt="${esc(g.alt || "")}">${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
+          <div class="gal">${(s.images || []).filter((g) => safeImage(g.url)).map((g) =>
+            `<figure><img loading="lazy" src="${esc(safeImage(g.url))}" alt="${esc(g.alt || "")}">${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
         </div></section>`;
       case "hours":
         return `<section class="${alt.trim()}" id="${id}"><div class="w"><div class="head"><h2>${esc(s.title || L.hours)}</h2>${s.text ? `<p>${esc(s.text)}</p>` : ""}</div>${hoursTable(biz, L, lang)}</div></section>`;
@@ -232,7 +262,7 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
     const secs = (c.sections || []).filter((s) => SECTION_TYPES[s.type]);
     const nav = secs.map((s, i) => s.type !== "hero" && s.nav !== false
       ? `<a href="#s${i}">${esc(s.nav_label || s.title || (s.type === "hours" ? L.hours : s.type === "contact" ? L.contact : sectionName(s.type, lang)))}</a>` : "").join("");
-    const logo = safeUrl(biz.logo);
+    const logo = safeImage(biz.logo);
     const soc = Object.entries(biz.socials || {}).filter(([, u]) => safeUrl(u))
       .map(([k, u]) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${esc(k.charAt(0).toUpperCase() + k.slice(1))}</a>`).join("");
     const title = esc(biz.name || "Site");
@@ -244,8 +274,8 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 ${desc ? `<meta name="description" content="${desc}">` : ""}
 ${logo ? `<link rel="icon" href="${esc(logo)}">` : ""}
 ${opts.noindex ? '<meta name="robots" content="noindex">' : ""}
-${fontLink(t.fonts)}<style>${css(t)}${opts.watermark ? wmCss(opts.watermark, t.colors.ink) : ""}</style></head>
-<body class="${t.layout === "center" ? "center" : "left"}${opts.watermark ? " wm" : ""}"${opts.watermark ? ' oncontextmenu="return false"' : ""}>
+${fontLink(t.fonts,opts.assetBase)}<style>${css(t)}${opts.watermark ? wmCss(opts.watermark, t.colors.ink) : ""}</style></head>
+<body class="${t.layout === "center" ? "center" : "left"} preset-${esc(Object.hasOwn(PRESETS,themeIn?.preset) ? themeIn.preset : 'liman')}${opts.watermark ? " wm" : ""}"${opts.watermark ? ' oncontextmenu="return false"' : ""}>
 ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div class="ms-wm" aria-hidden="true"></div>` : ""}
 <header class="w top"><a class="brand" href="#">${logo ? `<img src="${esc(logo)}" alt="">` : ""}<span>${title}</span></a><nav>${nav}</nav></header>
 <main>${secs.map((s, i) => section(s, i, biz, L, lang)).join("")}</main>
@@ -267,5 +297,18 @@ ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div clas
     };
   }
 
-  window.MsRender = { PRESETS, SECTION_TYPES, LANGS, render, starter, themeOf, sectionName, presetName, dayShort };
-})();
+  // Açıkça örnek içerik. Müşteri yorumu, satış rakamı veya sertifika uydurulmaz.
+  function example(preset,lang) {
+    const i=LIDX[lang]??0,word=(...values)=>values[i]??values[0];
+    const name=word('Your business','İşletmen','Tu negocio','Dein Unternehmen','Ton entreprise');
+    const data=starter(name,lang),food=preset==='table',fashion=preset==='atelier';
+    data.business.tagline=word('Sample content for your own story','Kendi hikâyen için örnek içerik','Contenido de ejemplo para tu historia','Beispielinhalt für deine Geschichte','Exemple de contenu pour ton histoire');
+    data.sections[0]={type:'hero',title:food?word('A place at the table.','Sofrada bir yer.','Un lugar en la mesa.','Ein Platz am Tisch.','Une place à table.'):fashion?word('Made with care.','Özenle üretilen.','Hecho con cuidado.','Mit Sorgfalt gefertigt.','Fabriqué avec soin.'):word('Good things, chosen well.','İyi şeyler, özenli seçimler.','Buenas cosas, bien elegidas.','Gute Dinge, sorgfältig gewählt.','De belles choses, bien choisies.'),text:data.business.tagline,button:{label:word('Explore the collection','Koleksiyonu keşfet','Explorar la colección','Kollektion entdecken','Découvrir la collection'),url:'#s2'}};
+    // Dahili çapa bağlantıları renderer'da ayrı doğrulanır.
+    data.sections[1]={type:'about',title:word('A story of your own','Sana ait bir hikâye','Tu propia historia','Deine eigene Geschichte','Ta propre histoire'),text:word('Replace this sample with the people, craft and everyday details behind your business.','Bu örneği işletmenin insanları, üretimi ve günlük ayrıntılarıyla değiştir.','Sustituye este ejemplo por las personas, el oficio y los detalles de tu negocio.','Ersetze dieses Beispiel durch Menschen, Handwerk und Alltag deines Unternehmens.','Remplace cet exemple par les personnes, le savoir-faire et le quotidien de ton entreprise.')};
+    const items=food?[word('Seasonal plate','Mevsim tabağı','Plato de temporada','Saisonteller','Assiette de saison'),word('Freshly baked','Fırından taze','Recién horneado','Frisch gebacken','Tout juste sorti du four'),word('Coffee & conversation','Kahve ve sohbet','Café y conversación','Kaffee und Gespräche','Café et conversation')]:fashion?[word('Alterations','Tadilat','Arreglos','Änderungen','Retouches'),word('Custom pieces','Özel üretim','Piezas a medida','Maßanfertigungen','Pièces sur mesure'),word('Care & repair','Bakım ve tamir','Cuidado y reparación','Pflege und Reparatur','Entretien et réparation')]:[word('Everyday essentials','Günlük parçalar','Básicos cotidianos','Alltagsstücke','Essentiels du quotidien'),word('Selected objects','Seçilmiş objeler','Objetos seleccionados','Ausgewählte Objekte','Objets choisis'),word('New arrivals','Yeni gelenler','Novedades','Neu eingetroffen','Nouveautés')];
+    data.sections.splice(2,0,{type:'menu',title:food?word('On the menu','Menüde','En la carta','Auf der Karte','À la carte'):fashion?word('What we make','Neler üretiyoruz','Lo que hacemos','Was wir herstellen','Ce que nous créons'):word('The collection','Koleksiyon','La colección','Die Kollektion','La collection'),groups:[{items:items.map(name=>({name,price:'',desc:word('Sample item. Add your own details.','Örnek parça. Kendi ayrıntılarını ekle.','Ejemplo. Añade tus detalles.','Beispiel. Ergänze deine Angaben.','Exemple. Ajoute tes détails.')}))}]});
+    return data;
+  }
+  host.MsRender = { PRESETS, SECTION_TYPES, LANGS, render, starter, example, themeOf, sectionName, presetName, dayShort };
+})(typeof window === "undefined" ? globalThis : window);
