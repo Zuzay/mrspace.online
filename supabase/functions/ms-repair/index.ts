@@ -11,7 +11,7 @@ const svgAttrs=new Set(['xmlns','viewBox','role','aria-label','x','y','x1','x2',
 export function safePreview(value:unknown){
  const input=String(value??'');if(input.length>160000)return '';const raw=input.trim();
  // Interaction hooks are not part of the stored drawing. Numbered SVG text is.
- const svg=raw.replace(/\s(?:data-[\w-]+|class|pointer-events)="[^"]*"/g,'');
+ const svg=raw.replace(/\s(?:data-[\w-]+|class|pointer-events)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?=\s|\/?>)/g,'');
  if(!/^<svg\b[^>]*\bxmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(svg)||!svg.endsWith('</svg>')||/\b(?:on[a-z]+|href|src|style)\s*=|javascript:|url\(\s*(?!#)|<!--|<!/i.test(svg))return '';
  const tags=Array.from(svg.matchAll(/<\/?([A-Za-z]+)/g),m=>m[1].toLowerCase()),attrs=Array.from(svg.matchAll(/\s([A-Za-z_:][\w:.-]*)\s*=/g),m=>m[1]);
  return tags.length&&tags.every(t=>svgTags.has(t))&&attrs.every(a=>svgAttrs.has(a))?svg:'';
@@ -64,7 +64,7 @@ Deno.serve(async(req:Request)=>{
   }
   if(!await staffUser(db,req,'rufcut'))return reply({error:'unauthorized'},401);
   if(body.action==='list'){
-   const {data,error}=await db.from('ms_repair_jobs').select('id,ticket,kind,design,customer_name,customer_email,customer_phone,items,preview_svg,status,staff_notes,measurements,email_sent,created_at,updated_at').eq('site','rufcut').order('created_at',{ascending:false}).limit(200);if(error)throw error;return reply({jobs:data||[]});
+   const {data,error}=await db.from('ms_repair_jobs').select('id,ticket,kind,design,customer_name,customer_email,customer_phone,items,preview_svg,status,staff_notes,measurements,email_sent,created_at,updated_at').eq('site','rufcut').order('created_at',{ascending:false}).limit(200);if(error)throw error;return reply({jobs:(data||[]).map(job=>({...job,preview_svg:safePreview(job.preview_svg),items:(job.items||[]).map((item:any)=>({...item,preview_svg:safePreview(item.preview_svg)}))}))});
   }
   if(body.action==='update'){
    const id=clean(body.id,40),status=clean(body.status,20);if(!uuid(id)||!['received','in_progress','finishing','ready','completed'].includes(status))return reply({error:'invalid_update'},400);
