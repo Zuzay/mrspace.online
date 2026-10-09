@@ -1,25 +1,30 @@
 (function(){
 'use strict';
-var $=id=>document.getElementById(id),items=[],visibleLimit=12,pageSize=12,selected={waist:'all',size:'all',model:'all',era:'all'};
+var $=id=>document.getElementById(id),items=[],visibleLimit=12,pageSize=12,selected={category:'all',waist:'all',size:'all',model:'all',era:'all'};
 var text=it=>[it.name,it.description,...it.variations.map(v=>v.name)].join(' '),waist=v=>(v.name||'').match(/W\s*(\d+)\b/i)?.[1]||'',size=v=>(v.name||'').match(/\b(XXL|XL|L|M|S)\b/i)?.[1]?.toUpperCase()||'';
 function models(it){return [...new Set((text(it).match(/\b\d{3,4}[A-Z]{0,2}\b/gi)||[]).filter(v=>!/^(?:19|20)\d{2}$/.test(v)))];}
 function eras(it){return [...new Set(text(it).match(/\b((?:19|20)\d{2}s?|[5-9]0s)\b/gi)||[])];}
+var categoryLabels={jeans:'Jeans & overalls',outerwear:'Jackets & coats',shirts:'Shirts & tops',accessories:'Accessories',other:'Other pieces'};
 function filters(){
+ const groups=MsSiteCatalog.categories.filter(c=>items.some(i=>(i.category||'other')===c));if(!groups.includes(selected.category))selected.category='all';
+ $('cf').hidden=!groups.length;$('cf').innerHTML=['all',...groups].map(c=>'<button type="button" class="chip" data-category="'+c+'" aria-pressed="'+(c===selected.category)+'">'+(c==='all'?'All pieces':categoryLabels[c])+'</button>').join('');
+ $('cf').onclick=e=>{const b=e.target.closest('button');if(!b)return;selected.category=b.dataset.category;selected.waist=selected.size=selected.model=selected.era='all';visibleLimit=pageSize;filters();list();};
+ const filterItems=items.filter(i=>selected.category==='all'||(i.category||'other')===selected.category);
  [['wf','waist',it=>it.variations.map(waist),'Waist'],['sf','size',it=>it.variations.map(size),'Clothing size'],['mf','model',models,'Model'],['ef','era',eras,'Era']].forEach(([id,key,read,label])=>{
- const values=[...new Set(items.flatMap(read).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})),el=$(id);el.hidden=!values.length;if(!values.includes(selected[key]))selected[key]='all';
+ const values=[...new Set(filterItems.flatMap(read).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})),el=$(id);el.hidden=!values.length;if(!values.includes(selected[key]))selected[key]='all';
  el.innerHTML='<span>'+label+'</span>'+['all',...values].map(v=>'<button class="chip" data-value="'+v+'" aria-pressed="'+(v===selected[key])+'">'+(v==='all'?'All':v)+'</button>').join('');
  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;selected[key]=b.dataset.value;visibleLimit=pageSize;filters();list();};
  });
 }
 function list(){
- const matches=items.filter(it=>(selected.model==='all'||models(it).includes(selected.model))&&(selected.era==='all'||eras(it).includes(selected.era))).map(it=>({...it,variations:it.variations.filter(v=>(selected.waist==='all'||waist(v)===selected.waist)&&(selected.size==='all'||size(v)===selected.size))})).filter(it=>it.variations.length),shown=matches.slice(0,visibleLimit);
+ const matches=items.filter(it=>(selected.category==='all'||(it.category||'other')===selected.category)&&(selected.model==='all'||models(it).includes(selected.model))&&(selected.era==='all'||eras(it).includes(selected.era))).map(it=>({...it,variations:it.variations.filter(v=>(selected.waist==='all'||waist(v)===selected.waist)&&(selected.size==='all'||size(v)===selected.size))})).filter(it=>it.variations.length),shown=matches.slice(0,visibleLimit);
  $('morePieces').hidden=matches.length<=visibleLimit;
- $('items').innerHTML=shown.map(MsStorefront.card).join('')||'<div class="empty"><div><strong>'+(items.length?'No pieces match these filters.':'The next good find will show up here.')+'</strong><p>'+(items.length?'Try another size or clear a filter to see the full collection.':'New finds are being added. Call the shop for available pieces and sizes.')+'</p></div><span class="empty-mark" aria-hidden="true">R</span></div>';
+ $('items').innerHTML=shown.map((it,index)=>{const group=it.category||'other',start=index===0||(shown[index-1].category||'other')!==group;return (start?'<h3 class="shop-group-title">'+categoryLabels[group]+'</h3>':'')+MsStorefront.card(it,index);}).join('')||'<div class="empty"><div><strong>'+(items.length?'No pieces match these filters.':'The next good find will show up here.')+'</strong><p>'+(items.length?'Try another size or clear a filter to see the full collection.':'New finds are being added. Call the shop for available pieces and sizes.')+'</p></div><span class="empty-mark" aria-hidden="true">R</span></div>';
  MsStorefront.bind($('items'),shown);if(window.MSI18N)MSI18N.apply($('vintage'));
 }
 $('morePieces').onclick=()=>{visibleLimit+=pageSize;list();};filters();list();
 fetch('https://tizfdnsjhhepxnqqrzuk.supabase.co/functions/v1/ms-square/public?site=rufcut').then(r=>{if(!r.ok)throw Error('catalog');return r.json();}).then(d=>{
- items=(d.items||[]).filter(it=>it.section==='shop');filters();list();
+ items=MsSiteCatalog.sort((d.items||[]).filter(it=>it.section==='shop'));filters();list();
  [['workshop','workshopOffers'],['repair','repairServices']].forEach(([section,id])=>{const el=$(id),offers=(d.items||[]).filter(it=>it.section===section);el.hidden=!offers.length;el.innerHTML=offers.map(MsStorefront.card).join('');MsStorefront.bind(el,offers);});
  if(window.MSI18N){MSI18N.apply($('workshopOffers'));MSI18N.apply($('repairServices'));}
 }).catch(()=>{$('items').innerHTML='<div class="empty"><p>We could not load the collection. Please refresh or call the shop.</p><a href="tel:+13104735384">Call the shop ↗</a></div>';if(window.MSI18N)MSI18N.apply($('items'));});

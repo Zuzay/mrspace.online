@@ -66,7 +66,7 @@
   "help_pdf": "Englische PDF-Anleitung öffnen ↗",
   "help_orders": "Neue Anfragen und druckbare Aufträge",
   "help_orders_text": "Auftrag öffnen, Zeichnung und Kontakt prüfen, Notizen ergänzen, Status speichern und gespeicherten Auftrag drucken.",
-  "help_catalog_text": "Shop, Workshop, Reparatur oder nur Square wählen. Karten prüfen, Varianten bestätigen und speichern.",
+  "help_catalog_text": "Wähle Bereich, Shop-Kategorie und Reihenfolge. Prüfe gruppierte oder einzelne Karten und bestätige die Varianten vor dem Speichern.",
   "help_stock": "Bestand und Barcode-Etiketten",
   "help_stock_text": "Bestand ändern oder Artikel hinzufügen. Für andere Größen Variante hinzufügen wählen. Etikett erstellt ein Barcode-Etikett.",
   "help_editor": "Website-Texte und Fotos",
@@ -83,5 +83,13 @@
   "help_skip": "Ich kenne mich aus. Auf diesem Gerät nächstes Mal direkt das Panel öffnen.",
   "help_continue": "Einstellung speichern und Panel öffnen",
   "help_return": "Diese Seite bleibt über Brauchst du Hilfe? erreichbar.",
-  "track_inventory": "Physischen Bestand in Square erfassen (für Leistungen ausschalten)"
+  "track_inventory": "Physischen Bestand in Square erfassen (für Leistungen ausschalten)",
+  "category": "Shop-Kategorie",
+  "display_order": "Reihenfolge in der Kategorie",
+  "category_jeans": "Jeans und Latzhosen",
+  "category_outerwear": "Jacken und Mäntel",
+  "category_shirts": "Hemden und Oberteile",
+  "category_accessories": "Accessoires",
+  "category_other": "Weitere Stücke",
+  "category_help": "Wähle für Shop-Artikel die Produktgruppe. Kleinere Zahlen erscheinen innerhalb der Gruppe zuerst. Dienstleistungen gehören zu Reparaturen oder Workshops; ihre Shop-Kategorie wird nicht verwendet."
 }

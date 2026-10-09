@@ -21,3 +21,5 @@ The builder uses ReportLab and macOS Arial/Impact font files. Set `MS_GUIDE_OUTP
 For updates, match button names to the live interface and refresh screenshots after layout changes. Keep the guide focused on the shop's daily tasks, not implementation details. The PDF is intentionally English for Rufcut.
 
 Revision 02 adds Site catalog, grouped/separate choices, new-item review, the first-entry shortcut guide and its bottom opt-out control. The permanent Need help? tab reopens the guide.
+
+Revision 03 adds website categories and order within each category. Jeans lead the storefront; belts belong in Accessories. These controls do not change Square categories or accounting records.

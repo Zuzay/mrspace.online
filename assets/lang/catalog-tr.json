@@ -66,7 +66,7 @@
   "help_pdf": "İngilizce PDF kılavuzunu aç ↗",
   "help_orders": "Yeni talepler ve yazdırılabilir fişler",
   "help_orders_text": "İş emrini aç, çizimi ve iletişim bilgilerini kontrol et, not ekle, durumunu kaydet ve kayıtlı fişi yazdır.",
-  "help_catalog_text": "Mağaza, Workshop, Repair veya yalnızca Square seç. Tek veya ayrı kartları önizle, varyasyonları onayla ve kaydet.",
+  "help_catalog_text": "Bölümü, mağaza kategorisini ve sırasını seç. Birleşik veya ayrı kartları önizle; kaydetmeden önce dahil edilen varyasyonları onayla.",
   "help_stock": "Stok ve barkod etiketleri",
   "help_stock_text": "Stoktan adet güncelle veya ürün ekle. Aynı ürünün başka bedeni için Varyasyon ekle kullan. Barkod için Etiket düğmesine bas.",
   "help_editor": "Site metinleri ve fotoğrafları",
@@ -83,5 +83,13 @@
   "help_skip": "Kullanıma alıştım. Bu cihazda sonraki girişte doğrudan panelimi aç.",
   "help_continue": "Tercihi kaydet ve panelimi aç",
   "help_return": "Bu sayfaya her zaman Yardıma mı ihtiyacın var? bağlantısından dönebilirsin.",
-  "track_inventory": "Square’de fiziksel stok takip et (hizmetlerde kapat)"
+  "track_inventory": "Square’de fiziksel stok takip et (hizmetlerde kapat)",
+  "category": "Mağaza kategorisi",
+  "display_order": "Kategori içi sıra",
+  "category_jeans": "Kotlar ve tulumlar",
+  "category_outerwear": "Ceketler ve montlar",
+  "category_shirts": "Gömlekler ve üst giyim",
+  "category_accessories": "Aksesuarlar",
+  "category_other": "Diğer parçalar",
+  "category_help": "Mağaza ürünlerinde ürün grubunu seç. Küçük numaralar o grupta önce görünür. Hizmetler Repair veya Workshop bölümüne aittir; mağaza kategorisi onlar için kullanılmaz."
 }
