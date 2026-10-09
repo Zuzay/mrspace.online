@@ -2,6 +2,8 @@
  'use strict';
  const $=id=>document.getElementById(id),tr=s=>window.MSI18N?MSI18N.t(s):s;
  const root=document.documentElement,themeKey='rufcut-theme',draftKey='rufcut-jean-maker-v1';
+ const shopMap=document.querySelector('[data-ms-field="visit.a.4"]');
+ if(shopMap)shopMap.href='https://www.google.com/maps?cid=9639345455576202975';
  try{const theme=localStorage.getItem(themeKey);if(['light','dark'].includes(theme))root.dataset.theme=theme}catch{}
  const currentTheme=()=>root.dataset.theme||'dark';
  const frame=$('repairFrame');
