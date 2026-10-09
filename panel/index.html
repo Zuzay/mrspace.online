@@ -168,7 +168,7 @@ dialog .wide{grid-column:1/-1}
   <div class="mark"><i></i><span id="siteName" data-noi18n></span></div>
   <nav id="nav">
    <button data-v="workspace">Workspace</button><button data-v="home" class="on">Overview</button>
-   <button data-v="stock">Stock</button><button data-v="catalog" data-noi18n>Site catalog</button><button data-v="help" data-noi18n>Need help?</button>
+   <button data-v="stock">Stock</button><button data-v="catalog" data-noi18n>Site catalog</button><button data-v="commerce" data-noi18n>Sales & shipping</button><button data-v="help" data-noi18n>Need help?</button>
    <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
    <button data-v="repairs" hidden>Work orders <span class="mono" id="repairCount"></span></button>
   </nav>
@@ -185,7 +185,7 @@ dialog .wide{grid-column:1/-1}
 <div id="print" aria-hidden="true"></div>
 
 <link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../assets/ms-catalog-panel.css?v=20261011">
-<script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261011"></script><script src="../assets/ms-catalog-panel.js?v=20261011"></script>
+<link rel="stylesheet" href="../assets/ms-commerce-panel.css?v=20261012"><script src="../assets/ms-commerce.js?v=20261012"></script><script src="../assets/ms-commerce-panel.js?v=20261012"></script><script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261011"></script><script src="../assets/ms-catalog-panel.js?v=20261011"></script>
 <script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261009-orders"></script><script src="../assets/ms-panel-app.js?v=20261009-orders"></script>
 <script>
 "use strict";
@@ -209,7 +209,7 @@ async function auth(grant, body){
   saveSession(d);
 }
 async function fresh(){ if (SS && Date.now()/1000 > SS.expires_at - 60) { try { await auth("refresh_token", { refresh_token:SS.refresh_token }); } catch (e) { logout(); throw new Error("Session ended, sign in again"); } } }
-function logout(){ if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave")))return;MsCatalogPanel.clear();void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+function logout(){ if(MsCommercePanel.hasDraft()&&!confirm(MsCommercePanel.t("leave")))return;MsCommercePanel.clear();if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave")))return;MsCatalogPanel.clear();void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
 async function rpc(fn, body = {}){
   await fresh();
   const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify(body) });
@@ -238,8 +238,9 @@ const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25,
 function render(){
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
   $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
-  $("#main").innerHTML = ({ home, stock, labels, repairs, catalog, help:()=>MsCatalogPanel.help(SITE), workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
+  $("#main").innerHTML = ({ home, stock, labels, repairs, catalog, commerce:()=>'<div data-commerce-root></div>', help:()=>MsCatalogPanel.help(SITE), workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
   bind();
+  if(VIEW==="commerce")void MsCommercePanel.mount($("#main"),{site:SITE,call:sq,demo:DEMO,notify:toast});
   if(VIEW==="help")MsCatalogPanel.bindHelp($("#main"),SITE,()=>{VIEW=SITE.slug==="rufcut"?"repairs":"home";render();});
   if(VIEW==="catalog"&&SQ?.connected)MsCatalogPanel.bind($("#main"),{items:ITEMS||[],site:SITE,save:(item,publication)=>sq("save_publication",{item,publication}),render,refresh:loadItems,addVariant,demo:DEMO,notify:toast});
   if(VIEW==="repairs")MsOrders.bind($("#main"),{jobs:REPAIRS||[],render});
@@ -510,7 +511,7 @@ function demoSq(action, x){
 /* ---------- start ---------- */
 document.querySelectorAll("#nav button").forEach(b => b.onclick = async () => { VIEW = b.dataset.v; if(VIEW==="repairs"&&REPAIRS===null)await loadRepairs(); render(); });
 $("#out").onclick = logout;
-$("#sitePick").onchange = async () => { if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCatalogPanel.clear();SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
+$("#sitePick").onchange = async () => { if(MsCommercePanel.hasDraft()&&!confirm(MsCommercePanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCommercePanel.clear();if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCatalogPanel.clear();SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
 $("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", site_key:"demo" }]; await enter(); };
 $("#loginForm").onsubmit = async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
@@ -534,11 +535,13 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
-  await Promise.all([MsPlatform.ready,MsCatalogPanel.ready]);
+  await Promise.all([MsPlatform.ready,MsCatalogPanel.ready,MsCommercePanel.ready]);
+  $("[data-v=commerce]").textContent=MsCommercePanel.t("title");
   $("[data-v=catalog]").textContent=MsCatalogPanel.t("catalog");
   $("[data-v=help]").textContent=MsCatalogPanel.t("help_nav");
   $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null;REPAIR_ERROR=false; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut";
-  if(new URLSearchParams(location.search).get("view")==="catalog")VIEW="catalog";
+  if(new URLSearchParams(location.search).get("view")==="commerce")VIEW="commerce";
+  else if(new URLSearchParams(location.search).get("view")==="catalog")VIEW="catalog";
   else if(SITE.slug==="rufcut"&&(VIEW==="home"||new URLSearchParams(location.search).get("view")==="orders"))VIEW="repairs";
   else if(SITE.slug!=="rufcut"&&VIEW==="repairs")VIEW="home";
   if(!DEMO&&(new URLSearchParams(location.search).get("view")==="help"||(!new URLSearchParams(location.search).get("view")&&!MsCatalogPanel.skipHelp(SITE))))VIEW="help";
