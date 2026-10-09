@@ -2,7 +2,7 @@
 'use strict';
 var $=id=>document.getElementById(id),items=[],visibleLimit=12,pageSize=12,selected={category:'all',waist:'all',size:'all',model:'all',era:'all'};
 var text=it=>[it.name,it.description,...it.variations.map(v=>v.name)].join(' '),waist=v=>(v.name||'').match(/W\s*(\d+)\b/i)?.[1]||'',size=v=>(v.name||'').match(/\b(XXL|XL|L|M|S)\b/i)?.[1]?.toUpperCase()||'';
-function models(it){return [...new Set((text(it).match(/\b\d{3,4}[A-Z]{0,2}\b/gi)||[]).filter(v=>!/^(?:19|20)\d{2}$/.test(v)))];}
+function models(it){return [...new Set(([it.name,...it.variations.map(v=>v.name)].join(' ').match(/\b\d{3,4}[A-Z]{0,2}\b/gi)||[]).filter(v=>!/^(?:19|20)\d{2}$/.test(v)))];}
 function eras(it){return [...new Set(text(it).match(/\b((?:19|20)\d{2}s?|[5-9]0s)\b/gi)||[])];}
 var categoryLabels={jeans:'Jeans & overalls',outerwear:'Jackets & coats',shirts:'Shirts & tops',accessories:'Accessories',other:'Other pieces'};
 function filters(){
