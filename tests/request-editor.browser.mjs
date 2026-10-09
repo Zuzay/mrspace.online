@@ -32,10 +32,10 @@ async function fixture(lang='tr',width=1440,mode='key'){
  return{context,page,calls,errors,state,choose};
 }
 try{
- await test('five languages, both themes and mobile/desktop show named photo areas without overflow',async()=>{
-  const labels={en:['Opening photo','Workshop photo'],tr:['Açılış fotoğrafı','Atölye fotoğrafı'],es:['Foto de presentación','Foto del taller'],de:['Einstiegsfoto','Werkstattfoto'],fr:['Photo de présentation','Photo de l’atelier']};
+ await test('five browser languages keep Rufcut editor English with named photos and no overflow',async()=>{
+  const labels=Object.fromEntries(['en','tr','es','de','fr'].map(lang=>[lang,['Opening photo','Workshop photo']]));
   for(const lang of Object.keys(labels))for(const width of [320,390,1440]){
-   const f=await fixture(lang,width);await f.page.emulateMedia({colorScheme:'dark'});
+   const f=await fixture(lang,width);assert.equal(await f.page.locator('html').getAttribute('lang'),'en');await f.page.emulateMedia({colorScheme:'dark'});
    for(const label of labels[lang]){await f.choose(label);assert.equal(await f.page.locator('#sidebarTitle').innerText(),label);assert.match(await f.page.locator('#contextBar').innerText(),new RegExp(label));assert.equal(await f.page.locator('#photoFile').count(),1);await f.page.locator('#backAreas').click();}
    for(const colorScheme of ['light','dark']){await f.page.emulateMedia({colorScheme});assert.equal(await f.page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,lang+' '+width+' '+colorScheme);}
    assert.deepEqual(f.errors,[]);if(lang==='tr')await f.page.screenshot({path:artifacts+'/areas-'+width+'.png'});await f.context.close();
@@ -45,17 +45,17 @@ try{
   const f=await fixture();await f.page.locator('[data-filter=photos]').click();assert.equal(await f.page.locator('.area-button').count(),2);assert.equal(await f.page.locator('.area-button img').count(),2);await f.page.locator('.area-button').first().click();assert.equal(await f.page.frameLocator('#site').locator('.hero-art.ms-editor-selected').count(),1);assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('text draft shows location on site, feedback, review, confirmation and receipt',async()=>{
-  const f=await fixture();await f.choose('Cut & Denim');const before=await f.page.locator('#content').inputValue();await f.page.locator('#content').fill('Denimini seç');await f.page.locator('#saveField').click();
+  const f=await fixture();await f.choose('Cut & Denim');const before=await f.page.locator('#content').inputValue();await f.page.locator('#content').fill('Choose your denim');await f.page.locator('#saveField').click();
   assert.match(await f.page.locator('#fieldStatus').innerText(),/Jean Maker[\s\S]*Cut & Denim/);assert.match(await f.page.locator('#notice').innerText(),/Jean Maker[\s\S]*Cut & Denim/);
-  assert.equal(await f.page.frameLocator('#site').locator('#maker-tab-0').innerText(),'Denimini seç');assert.match(await f.page.frameLocator('#site').locator('#maker-tab-0').getAttribute('data-ms-change-location'),/Jean Maker/);
-  await f.page.locator('#reviewBtn').click();assert.match(await f.page.locator('#changesList').innerText(),new RegExp(before));assert.match(await f.page.locator('#changesList').innerText(),/Denimini seç/);
+  assert.equal(await f.page.frameLocator('#site').locator('#maker-tab-0').innerText(),'Choose your denim');assert.match(await f.page.frameLocator('#site').locator('#maker-tab-0').getAttribute('data-ms-change-location'),/Jean Maker/);
+  await f.page.locator('#reviewBtn').click();assert.match(await f.page.locator('#changesList').innerText(),new RegExp(before));assert.match(await f.page.locator('#changesList').innerText(),/Choose your denim/);
   await f.page.locator('#fEmail').fill('test@example.com');await f.page.locator('#sendReview').click();assert.match(await f.page.locator('#confirmBody').innerText(),/Jean Maker[\s\S]*Cut & Denim/);
-  assert.equal(f.calls.filter(c=>c.path.endsWith('ms_submit')).length,0);await f.page.locator('#confirmActions .btn').click();await f.page.locator('#done[open]').waitFor();assert.match(await f.page.locator('#doneList').innerText(),/Denimini seç/);
-  const sent=JSON.parse(f.calls.find(c=>c.path.endsWith('ms_submit')).body);assert.match(sent.p_items[0].anchor,/data-ms-field="maker-tab-0"/);assert.match(sent.p_items[0].target,/Jean Maker/);assert.equal(sent.p_items[0].request,'Denimini seç');assert.deepEqual(f.errors,[]);await f.context.close();
+  assert.equal(f.calls.filter(c=>c.path.endsWith('ms_submit')).length,0);await f.page.locator('#confirmActions .btn').click();await f.page.locator('#done[open]').waitFor();assert.match(await f.page.locator('#doneList').innerText(),/Choose your denim/);
+  const sent=JSON.parse(f.calls.find(c=>c.path.endsWith('ms_submit')).body);assert.match(sent.p_items[0].anchor,/data-ms-field="maker-tab-0"/);assert.match(sent.p_items[0].target,/Jean Maker/);assert.equal(sent.p_items[0].request,'Choose your denim');assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('both photos upload, preview replaces responsive srcset, and undo restores it',async()=>{
   const f=await fixture();
-  for(const label of ['Açılış fotoğrafı','Atölye fotoğrafı']){
+  for(const label of ['Opening photo','Workshop photo']){
    await f.choose(label);await f.page.locator('#photoFile').setInputFiles({name:'workshop.webp',mimeType:'image/webp',buffer:photo});await f.page.waitForFunction(()=>document.querySelector('#content').value.includes('/ms-media/'));await f.page.locator('#saveField').click();await f.page.locator('#backAreas').click();
   }
   const src=await f.page.frameLocator('#site').locator('#openingPhoto').getAttribute('src');assert.match(src,/ms-media/);assert.equal(await f.page.frameLocator('#site').locator('#openingPhoto').getAttribute('srcset'),null);
@@ -64,8 +64,8 @@ try{
   assert.equal(f.calls.filter(c=>c.path.endsWith('ms-builder')).length,2);assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('invalid and failed uploads retain existing changes and allow retry',async()=>{
-  const f=await fixture();await f.choose('Açılış fotoğrafı');await f.page.locator('#photoFile').setInputFiles({name:'bad.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg/>')});assert.equal(f.calls.filter(c=>c.path.endsWith('ms-builder')).length,0);assert.match(await f.page.locator('#uploadStatus').innerText(),/5 MB/);
-  f.state.uploadFails=true;await f.page.locator('#photoFile').setInputFiles({name:'photo.webp',mimeType:'image/webp',buffer:photo});await f.page.getByText('Fotoğraf yüklenemedi.',{exact:false}).waitFor();assert.equal(await f.page.locator('#content').inputValue(),'');
+  const f=await fixture();await f.choose('Opening photo');await f.page.locator('#photoFile').setInputFiles({name:'bad.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg/>')});assert.equal(f.calls.filter(c=>c.path.endsWith('ms-builder')).length,0);assert.match(await f.page.locator('#uploadStatus').innerText(),/5 MB/);
+  f.state.uploadFails=true;await f.page.locator('#photoFile').setInputFiles({name:'photo.webp',mimeType:'image/webp',buffer:photo});await f.page.getByText('Photo could not upload.',{exact:false}).waitFor();assert.equal(await f.page.locator('#content').inputValue(),'');
   f.state.uploadFails=false;await f.page.locator('#photoFile').setInputFiles({name:'photo.webp',mimeType:'image/webp',buffer:photo});await f.page.waitForFunction(()=>document.querySelector('#content').value.includes('ms-media'));assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('unsaved selection changes ask with exact location and can keep, discard or save',async()=>{
@@ -77,17 +77,17 @@ try{
   await f.page.locator('#content').fill('Pending text');await f.page.reload();await f.page.locator('#content').waitFor();assert.equal(await f.page.locator('#content').inputValue(),'Pending text');assert.equal(f.calls.filter(c=>c.path.endsWith('ms_submit')).length,0);assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('failed send retains exact before/after and location for retry',async()=>{
-  const f=await fixture();await f.choose('Cut & Denim');await f.page.locator('#content').fill('Changed denim');await f.page.locator('#saveField').click();await f.page.locator('#reviewBtn').click();await f.page.locator('#fEmail').fill('test@example.com');f.state.sendFails=true;await f.page.locator('#sendReview').click();await f.page.locator('#confirmActions .btn').click();await f.page.getByText('Gönderilemedi.',{exact:false}).waitFor();assert.match(await f.page.locator('#changesList').innerText(),/Changed denim/);
+  const f=await fixture();await f.choose('Cut & Denim');await f.page.locator('#content').fill('Changed denim');await f.page.locator('#saveField').click();await f.page.locator('#reviewBtn').click();await f.page.locator('#fEmail').fill('test@example.com');f.state.sendFails=true;await f.page.locator('#sendReview').click();await f.page.locator('#confirmActions .btn').click();await f.page.getByText('Could not send.',{exact:false}).waitFor();assert.match(await f.page.locator('#changesList').innerText(),/Changed denim/);
   f.state.sendFails=false;await f.page.locator('#sendReview').click();await f.page.locator('#confirmActions .btn').click();await f.page.locator('#done[open]').waitFor();assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('revision links upload with edit capability and existing locked requests cannot change',async()=>{
-  const f=await fixture('tr',1440,'edit');await f.choose('Atölye fotoğrafı');await f.page.locator('#photoFile').setInputFiles({name:'photo.webp',mimeType:'image/webp',buffer:photo});await f.page.waitForFunction(()=>document.querySelector('#content').value.includes('ms-media'));const body=f.calls.find(c=>c.path.endsWith('ms-builder')).body;assert.match(body,/name="edit"/);assert.ok(body.includes(edit));assert.ok(!body.includes(key));await f.context.close();
+  const f=await fixture('tr',1440,'edit');await f.choose('Workshop photo');await f.page.locator('#photoFile').setInputFiles({name:'photo.webp',mimeType:'image/webp',buffer:photo});await f.page.waitForFunction(()=>document.querySelector('#content').value.includes('ms-media'));const body=f.calls.find(c=>c.path.endsWith('ms-builder')).body;assert.match(body,/name="edit"/);assert.ok(body.includes(edit));assert.ok(!body.includes(key));await f.context.close();
  });
  await test('locked requests remain visible but have no editable input',async()=>{
-  const f=await fixture('tr',1440,'edit');f.state.submission.items=[{id:12,anchor:'/rufcut/::#maker-tab-0',kind:'small',target:'Jean Maker / first button',original:'Kesim ve denim',request:'Previous proposal',status:'working'}];await f.page.reload();await f.page.locator('#search').waitFor();await f.page.locator('#search').fill('Cut & Denim');await f.page.locator('.area-button').click();assert.equal(await f.page.locator('#content').count(),0);assert.match(await f.page.locator('#sideBody').innerText(),/çalışmaya başladık/);assert.deepEqual(f.errors,[]);await f.context.close();
+  const f=await fixture('tr',1440,'edit');f.state.submission.items=[{id:12,anchor:'/rufcut/::#maker-tab-0',kind:'small',target:'Jean Maker / first button',original:'Cut & Denim',request:'Previous proposal',status:'working'}];await f.page.reload();await f.page.locator('#search').waitFor();await f.page.locator('#search').fill('Cut & Denim');await f.page.locator('.area-button').click();assert.equal(await f.page.locator('#content').count(),0);assert.match(await f.page.locator('#sideBody').innerText(),/already started/);assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('a newer server revision asks before restoring an older device draft',async()=>{
-  const f=await fixture('tr',1440,'edit');await f.choose('Cut & Denim');await f.page.locator('#content').fill('Device draft');await f.page.locator('#saveField').click();f.state.submission.version=2;await f.page.reload();await f.page.locator('#confirm[open]').waitFor();assert.match(await f.page.locator('#confirmBody').innerText(),/daha yeni/);await f.page.locator('#confirmActions button').first().click();await f.page.locator('#search').waitFor();await f.choose('Cut & Denim');assert.notEqual(await f.page.locator('#content').inputValue(),'Device draft');assert.deepEqual(f.errors,[]);await f.context.close();
+  const f=await fixture('tr',1440,'edit');await f.choose('Cut & Denim');await f.page.locator('#content').fill('Device draft');await f.page.locator('#saveField').click();f.state.submission.version=2;await f.page.reload();await f.page.locator('#confirm[open]').waitFor();assert.match(await f.page.locator('#confirmBody').innerText(),/newer/);await f.page.locator('#confirmActions button').first().click();await f.page.locator('#search').waitFor();await f.choose('Cut & Denim');assert.notEqual(await f.page.locator('#content').inputValue(),'Device draft');assert.deepEqual(f.errors,[]);await f.context.close();
  });
  console.log(JSON.stringify({passed,failures:0}));
 }finally{await browser.close();}

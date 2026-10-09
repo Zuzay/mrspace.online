@@ -5,7 +5,7 @@ const L = {
     imgQ:'What should go here?',imgPh:'Paste a link to a photo, or describe it. You can also email photos to hello@mrspace.online.',
     locked:'We already started on this one. Message us if it needs to change.',sheet:'Your changes',empty:'Nothing yet. Tap a part of your site to change it.',
     other:'Anything else?',otherPh:'Ideas, missing pieces, things you want us to add.',name:'Your name',email:'Email (we send your edit link here)',
-    sent:'Sent. We will take it from here.',updated:'Saved.',mailed:'We emailed you a link. Use it any time to come back and change anything.',
+    sent:'Sent. We will take it from here.',updated:'Saved.',mailed:'Keep your private link below to return and update your request. Email delivery depends on the mail setup.',
     savedV:v=>'Your changes are updated. This is version '+v+'.',noChange:'Nothing changed since last time.',
     revise:'Change my answers',copy:'Copy link',copied:'Link copied',needOne:'Make at least one change first.',needEmail:'Enter an email so we can send your link.',
     err:'Could not send. Check your connection and try again.',bad:'This link is not valid. Ask us for a new one.',
@@ -16,7 +16,7 @@ const L = {
     imgQ:'Buraya ne gelsin?',imgPh:'Fotoğraf linki yapıştır ya da anlat. Fotoğrafları hello@mrspace.online adresine de atabilirsin.',
     locked:'Bunun üzerinde çalışmaya başladık. Değişmesi gerekiyorsa bize yaz.',sheet:'Değişikliklerin',empty:'Henüz yok. Değiştirmek için sitende bir yere dokun.',
     other:'Eklemek istediğin başka bir şey?',otherPh:'Fikirler, eksikler, eklenmesini istediğin şeyler.',name:'Adın',email:'E-posta (düzenleme linkini buraya yollarız)',
-    sent:'Gönderildi. Gerisi bizde.',updated:'Kaydedildi.',mailed:'Sana bir link yolladık. İstediğin zaman geri dönüp değiştirebilirsin.',
+    sent:'Gönderildi. Gerisi bizde.',updated:'Kaydedildi.',mailed:'Talebine dönmek için aşağıdaki özel bağlantıyı sakla. E-posta teslimatı posta kurulumuna bağlıdır.',
     savedV:v=>'Değişikliklerin güncellendi. Bu '+v+'. sürüm.',noChange:'Son seferden beri bir şey değişmedi.',
     revise:'Cevaplarımı değiştir',copy:'Linki kopyala',copied:'Link kopyalandı',needOne:'Önce en az bir değişiklik yap.',needEmail:'Linki yollayabilmemiz için e-posta yaz.',
     err:'Gönderilemedi. Bağlantını kontrol edip tekrar dene.',bad:'Bu link geçerli değil. Bizden yenisini iste.',
@@ -27,7 +27,7 @@ const L = {
     imgQ:'¿Qué debería ir aquí?',imgPh:'Pega un enlace a una foto o descríbela. También puedes enviar fotos a hello@mrspace.online.',
     locked:'Ya empezamos con esto. Escríbenos si hay que cambiarlo.',sheet:'Tus cambios',empty:'Nada aún. Toca una parte de tu sitio para cambiarla.',
     other:'¿Algo más?',otherPh:'Ideas, cosas que faltan, lo que quieras añadir.',name:'Tu nombre',email:'Email (aquí enviamos tu enlace)',
-    sent:'Enviado. Nosotros nos encargamos.',updated:'Guardado.',mailed:'Te enviamos un enlace por email para volver y cambiar lo que quieras.',
+    sent:'Enviado. Nosotros nos encargamos.',updated:'Guardado.',mailed:'Guarda el enlace privado de abajo para volver a tu solicitud. El envío por email depende de la configuración.',
     savedV:v=>'Tus cambios están actualizados. Versión '+v+'.',noChange:'No cambió nada desde la última vez.',
     revise:'Cambiar mis respuestas',copy:'Copiar enlace',copied:'Enlace copiado',needOne:'Haz al menos un cambio primero.',needEmail:'Escribe un email para enviarte tu enlace.',
     err:'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.',bad:'Este enlace no es válido. Pídenos uno nuevo.',
@@ -38,7 +38,7 @@ const L = {
     imgQ:'Was soll hier hin?',imgPh:'Link zu einem Foto einfügen oder beschreiben. Fotos auch an hello@mrspace.online.',
     locked:'Daran arbeiten wir schon. Schreib uns, wenn es sich ändern soll.',sheet:'Deine Änderungen',empty:'Noch nichts. Tippe auf einen Teil deiner Seite.',
     other:'Sonst noch etwas?',otherPh:'Ideen, Fehlendes, Wünsche.',name:'Dein Name',email:'E-Mail (hierhin senden wir deinen Link)',
-    sent:'Gesendet. Ab hier übernehmen wir.',updated:'Gespeichert.',mailed:'Wir haben dir einen Link geschickt. Damit kannst du jederzeit etwas ändern.',
+    sent:'Gesendet. Ab hier übernehmen wir.',updated:'Gespeichert.',mailed:'Bewahre den privaten Link unten für deine Anfrage auf. E-Mail-Versand hängt von der Einrichtung ab.',
     savedV:v=>'Deine Änderungen sind aktualisiert. Version '+v+'.',noChange:'Seit dem letzten Mal hat sich nichts geändert.',
     revise:'Antworten ändern',copy:'Link kopieren',copied:'Link kopiert',needOne:'Mach zuerst mindestens eine Änderung.',needEmail:'Gib eine E-Mail an, damit wir dir den Link senden.',
     err:'Senden fehlgeschlagen. Prüfe deine Verbindung und versuch es erneut.',bad:'Dieser Link ist ungültig. Frag uns nach einem neuen.',
@@ -49,13 +49,14 @@ const L = {
     imgQ:'Que mettre ici ?',imgPh:'Collez un lien vers une photo ou décrivez-la. Vous pouvez aussi envoyer des photos à hello@mrspace.online.',
     locked:'Nous avons déjà commencé. Écrivez-nous s\'il faut le changer.',sheet:'Vos modifications',empty:'Rien pour l\'instant. Touchez une partie de votre site.',
     other:'Autre chose ?',otherPh:'Idées, éléments manquants, ajouts souhaités.',name:'Votre nom',email:'Email (nous y envoyons votre lien)',
-    sent:'Envoyé. On s\'occupe du reste.',updated:'Enregistré.',mailed:'Nous vous avons envoyé un lien pour revenir et tout modifier quand vous voulez.',
+    sent:'Envoyé. On s\'occupe du reste.',updated:'Enregistré.',mailed:'Conservez le lien privé ci-dessous pour retrouver votre demande. L’envoi par e-mail dépend de la configuration.',
     savedV:v=>'Vos modifications sont à jour. Version '+v+'.',noChange:'Rien n\'a changé depuis la dernière fois.',
     revise:'Modifier mes réponses',copy:'Copier le lien',copied:'Lien copié',needOne:'Faites d\'abord au moins une modification.',needEmail:'Indiquez un email pour recevoir votre lien.',
     err:'Envoi impossible. Vérifiez la connexion et réessayez.',bad:'Ce lien n\'est pas valide. Demandez-nous en un nouveau.',
     elsewhere:'Sur une autre page',general:'Note générale',inProgress:'En cours',quota:q=>q.small_quota?('Ce mois-ci : '+q.small_used+' sur '+q.small_quota+' petites modifications.'):''}
 };
-const lang = (()=>{ let p=null; try{p=localStorage.getItem('ms_lang')}catch(e){}
+const rufcutEnglish = new URLSearchParams(location.search).get('site')==='rufcut'||new URLSearchParams(location.search).get('preview')==='rufcut';
+const lang = (()=>{ if(rufcutEnglish)return 'en'; let p=null; try{p=localStorage.getItem('ms_lang')}catch(e){}
   const c=(p||navigator.language||'en').slice(0,2).toLowerCase(); return L[c]?c:'en'; })();
 const t = L[lang]; document.documentElement.lang = lang;
 const G = {
@@ -143,6 +144,7 @@ Object.assign(editorWords,{
   removeText:['Remove this text','Bu metni kaldır','Quitar este texto','Diesen Text entfernen','Supprimer ce texte'],
   recoverConflict:['The server has a newer request. Choose which version to continue editing.','Sunucuda daha yeni bir talep var. Düzenlemeye hangi sürümle devam edeceğini seç.','Hay una solicitud más reciente en el servidor. Elige qué versión seguir editando.','Auf dem Server liegt eine neuere Anfrage. Wähle die Version für die weitere Bearbeitung.','Une demande plus récente existe sur le serveur. Choisissez la version à modifier.'],
   useServer:['Use server version','Sunucudaki sürümü kullan','Usar versión del servidor','Serverversion verwenden','Utiliser la version du serveur'],
+  snapshotNote:['Page snapshot. Catalog and map changes use their native panels.','Sayfa görüntüsü. Katalog ve harita değişiklikleri kendi panellerinden yapılır.','Vista de la página. El catálogo y el mapa se editan en sus propios paneles.','Seitenansicht. Katalog und Karte werden in ihren eigenen Panels bearbeitet.','Aperçu de la page. Le catalogue et la carte se modifient dans leurs propres panneaux.'],
   restoreDraft:['Restore my device draft','Cihazdaki taslağımı geri yükle','Restaurar borrador del dispositivo','Geräteentwurf wiederherstellen','Restaurer le brouillon local']
 });
 const editorLangs=['en','tr','es','de','fr'];

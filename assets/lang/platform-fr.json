@@ -314,5 +314,6 @@
   "order_cuffed": "À revers",
   "order_raw_edge": "Bord brut",
   "order_garment_jeans": "Jean",
-  "order_save_error": "Impossible d’enregistrer le bon. Vos modifications sont conservées. Réessayez."
+  "order_save_error": "Impossible d’enregistrer le bon. Vos modifications sont conservées. Réessayez.",
+  "heron_bridge_update_required": "La connexion Heron doit être mise à jour"
 }

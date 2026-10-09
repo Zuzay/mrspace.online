@@ -12,9 +12,9 @@ const isImage=el=>el.tagName==='IMG'||(/url\(/i.test(el.style?.backgroundImage||
 const bgURL=el=>(el.style?.backgroundImage||'').match(/url\(["']?(.*?)["']?\)/)?.[1]||'';
 const outline=it=>it.type==='image'?(it.el?.closest('figure,.hero-art')||it.el):it.el;
 const schema=window.MsEditorSchema;
-const sitePath=()=>S.previewPath||S.win?.location.pathname||'';
+const sitePath=()=>S.previewPath||(S.snapshotURL?new URL(S.snapshotURL).pathname:'')||S.win?.location.pathname||'';
 const langName={en:'English',tr:'Türkçe',es:'Español',de:'Deutsch',fr:'Français'};
-function imageURL(value,base=S.win?.location.href||location.href){
+function imageURL(value,base=S.snapshotURL||S.win?.location.href||location.href){
   try{const u=new URL(String(value).trim(),base);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch{return '';}
 }
 function photoValue(value){return /^https?:\/\/\S+$/i.test(value.trim())?imageURL(value):'';}
@@ -62,8 +62,8 @@ function header(){
   document.title=t.editor+' | '+(S.siteName||'Mr. Space');$('#siteName').textContent=S.siteName;frame.title=t.editor;
   $('#mEdit').textContent=t.edit;$('#mBrowse').textContent=t.browse;$('#mode').setAttribute('aria-label',t.editor);
   $('#reviewBtn').textContent=t.review+([...S.items.values()].length?' ('+S.items.size+')':'');$('#areasToggle').textContent='☰';$('#areasToggle').setAttribute('aria-label',t.areas);$('#areasToggle').title=t.areas;
-  $('#editorLang').setAttribute('aria-label',t.language);$('#editorLang').innerHTML=editorLangs.map(l=>`<option value="${l}" ${l===lang?'selected':''}>${langName[l]}</option>`).join('');
-  $('#contextBar').textContent=S.selected?locationOf(S.selected):t.previewOnly;
+  $('#editorLang').setAttribute('aria-label',t.language);$('#editorLang').innerHTML=(rufcutEnglish?['en']:editorLangs).map(l=>`<option value="${l}" ${l===lang?'selected':''}>${langName[l]}</option>`).join('');
+  $('#contextBar').textContent=(S.selected?locationOf(S.selected):t.previewOnly)+(S.snapshotURL?' · '+t.snapshotNote:'');
 }
 const CAND='[data-ms-field],[data-ms-edit],h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,button,a,label,td,th,dt,dd,small,img,[style*="background-image"]';
 function eligible(el){
@@ -81,8 +81,29 @@ function resolveSelection(el){
   let node=el.closest(CAND);while(node){const p=partOf(node);if(p)return p;node=node.parentElement?.closest(CAND);}
   return null;
 }
+async function externalSnapshot(){
+ let target;try{target=new URL(S.snapshotURL||frame.src);}catch{return;}
+ if(target.protocol!=='https:'||!['heronca.com','www.heronca.com','laloo.org','www.laloo.org'].includes(target.hostname))return;
+ S.snapshotPending=true;const nonce=crypto.randomUUID();
+ await new Promise(resolve=>{
+  let timer;
+  const finish=()=>{clearTimeout(timer);window.removeEventListener('message',receive);S.snapshotPending=false;resolve();};
+  const receive=event=>{
+   if(event.source!==frame.contentWindow||event.origin!==target.origin||event.data?.type!=='ms:editor:snapshot:result'||event.data.nonce!==nonce||typeof event.data.html!=='string'||event.data.html.length>1000000)return;
+   let url;try{url=new URL(event.data.url);if(url.origin!==target.origin||!['/','/index.html','/about.html'].includes(url.pathname))return;}catch{return;}
+   // Treat even an allowlisted partner's HTML as data. The sandbox never runs it.
+   const doc=new DOMParser().parseFromString(event.data.html,'text/html');
+   doc.querySelectorAll('script,iframe,object,embed,form,input,textarea,select,base,meta[http-equiv]').forEach(el=>el.remove());
+   doc.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name)||a.name==='srcdoc')el.removeAttribute(a.name);}));
+   const base=doc.createElement('base');base.href=url.href;doc.head.prepend(base);
+   S.snapshotURL=url.href;S.previewPath=url.pathname;frame.setAttribute('sandbox','allow-same-origin');frame.srcdoc='<!doctype html>'+doc.documentElement.outerHTML;finish();
+  };
+  window.addEventListener('message',receive);timer=setTimeout(finish,6000);
+  frame.contentWindow.postMessage({type:'ms:editor:snapshot',nonce},target.origin);
+ });
+}
 async function wire(){
-  try{S.win=frame.contentWindow;S.doc=frame.contentDocument;if(!S.doc?.body)throw 0;}catch{S.doc=null;return renderAreas();}
+  try{S.win=frame.contentWindow;S.doc=frame.contentDocument;if(!S.doc?.body)throw 0;}catch{S.doc=null;if(!S.snapshotPending)await externalSnapshot();return renderAreas();}
   await S.win.MSI18N?.ready;
   await Promise.race([S.doc.fonts.ready,new Promise(resolve=>setTimeout(resolve,2500))]);
   S.schema=schema.config(S.doc);S.selected=null;S.dirty=false;buildParts();
@@ -92,6 +113,7 @@ async function wire(){
   S.doc.addEventListener('pointerout',()=>hovered?.classList.remove('ms-editor-hover'));
   S.doc.addEventListener('click',e=>{if(!S.editing)return;e.preventDefault();e.stopImmediatePropagation();const p=resolveSelection(e.target);if(p)guard(()=>select(p));},true);
   S.doc.addEventListener('submit',e=>{if(S.editing)e.preventDefault();},true);
+  if(S.snapshotURL)S.doc.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();},true);
   // Restore each known request by its full page + selector. Never guess another location.
   for(const it of S.items.values()){
     it.el=null;if(it.anchor?.split('::')[0]!==sitePath())continue;
@@ -280,6 +302,7 @@ function fromServer(c){
   try{
     let d;if(EDIT){d=await rpc('ms_get_submission',{p_edit:EDIT});if(!d)throw new Error('badlink');S.sub=d;(d.items||[]).forEach(fromServer);S.name=d.name||'';S.email=d.email||'';S.siteName=d.site||'';}
     else{d=await rpc('ms_client_view',{p_key:KEY});if(!d)throw new Error('badlink');S.siteName=d.name||d.site||'';}
+    if((String(d.site||d.name||'').toLowerCase()==='rufcut'||/\/rufcut(?:\/|$)/.test(new URL(d.url||'/',location.href).pathname))&&!rufcutEnglish){const next=new URL(location.href);next.searchParams.set('site','rufcut');location.replace(next.href);return;}
     S.quota=d.quota;
     // Keep capability URLs out of browser storage keys. Only content drafts are kept on this device, never access keys or contact details.
     const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(EDIT||KEY));S.storage='ms-request-draft:'+Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
@@ -297,7 +320,8 @@ function fromServer(c){
     }catch{}
     header();
     if(!d.url){renderReview();return;}
-    const u=new URL(d.url,location.href);if(u.origin!==location.origin){renderReview();return;}
+    const u=new URL(d.url,location.href);
+    if(u.origin!==location.origin&&(u.protocol!=='https:'||!['heronca.com','www.heronca.com','laloo.org','www.laloo.org'].includes(u.hostname)||!['/','/index.html','/about.html'].includes(u.pathname))){renderReview();return;}
     frame.addEventListener('load',()=>wire().catch(()=>fatal(t.err)));frame.src=u.href;
   }catch(error){fatal(error?.message==='badlink'?t.bad:t.err);}
 })();

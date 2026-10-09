@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Mr. Space · Kontrol</title>
-<script src="../assets/i18n.js" data-source="tr" data-dict="admin-"></script>
+<script src="../assets/i18n.js" data-source="tr" data-dict="admin-" data-dict-version="20261009-mail-control"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="stylesheet" href="../assets/home-fonts.css">
 <style>
@@ -214,6 +214,7 @@ dialog .panel-h{border-bottom:1px solid var(--line)}
 body.viewer [data-act],body.viewer .adm-only{display:none!important}
 body.demo .real-only{display:none!important}
 </style>
+<script src="../assets/ms-mail-events.js" defer></script>
 </head>
 <body>
 
@@ -245,6 +246,7 @@ body.demo .real-only{display:none!important}
    <button data-v="control" class="adm-only">Site yönetimi</button>
    <button data-v="workspaces" class="adm-only">Çalışma alanları</button>
    <button data-v="access" class="adm-only">Erişim</button>
+   <button type="button" class="adm-only real-only" data-href="mail/">E-posta</button>
       <button type="button" class="adm-only real-only" data-href="review/">Onay</button>
       <button type="button" class="adm-only real-only" data-href="ideas/">Fikirler</button>
   </nav>
@@ -847,7 +849,7 @@ $("#demoBtn").onclick = () => { DEMO = true; demoData(); enter("Demo"); };
 $("#loginForm").onsubmit = async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
   try { let u = $("#em").value.trim().toLowerCase(); if (u && u.indexOf("@") < 0) u += "@mrspace.online";
-    await auth("password", { email:u, password:$("#pw").value }); await start(); }
+    await auth("password", { email:u, password:$("#pw").value }); window.MsMailEvents?.login(S); await start(); }
   catch (err) { $("#loginErr").textContent = T(err.message); }
 };
 function enter(who){ $("#login").hidden = true; $("#app").hidden = false; $("#who").textContent = who; $("#demoTag").hidden = !DEMO; document.body.classList.toggle("demo", DEMO); render(); }

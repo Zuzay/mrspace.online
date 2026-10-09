@@ -80,6 +80,7 @@
       const data=await rpc('ms_workspace_snapshot',{p_site:slug});site=data?.sites?.find(s=>s.slug===slug);
     }
     if(!site)throw new Error('site');
+    if(site.slug==='rufcut'&&params.get('site')!=='rufcut'){const next=new URL(location.href);next.searchParams.set('site','rufcut');location.replace(next.href);return;}
     if(!preview&&key&&validKey(key)&&site.url)visualKey=key;
     else if(!preview&&session&&site.url){try{const sites=await rpc('ms_my_sites',{});visualKey=sites?.find(s=>s.slug===site.slug)?.site_key||null;}catch{}}
     document.getElementById('siteName').textContent=site.name;

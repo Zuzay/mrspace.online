@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Your panel | Mr. Space</title>
-<script src="../assets/i18n.js" data-dict-version="20261009-orders"></script><script src="../assets/ms-config.js"></script>
+<script src="../assets/i18n.js?v=20261009-rufcut-en" data-dict-version="20261009-mail-control"></script><script src="../assets/ms-config.js"></script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#101318"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mr. Space"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="../assets/ms-orders.css?v=20261009-orders"><link rel="stylesheet" href="../assets/ms-panel-app.css?v=20261009-orders">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="stylesheet" href="../assets/home-fonts.css">
@@ -147,6 +147,7 @@ dialog .wide{grid-column:1/-1}
 }
 </style>
 <style id="pageSize"></style>
+<script src="../assets/ms-mail-events.js" defer></script>
 </head>
 <body>
 
@@ -516,7 +517,7 @@ $("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", nam
 $("#loginForm").onsubmit = async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
   try { let u = $("#em").value.trim().toLowerCase(); if (u && u.indexOf("@") < 0) u += "@mrspace.online";
-    await auth("password", { email:u, password:$("#pw").value }); await start(); }
+    await auth("password", { email:u, password:$("#pw").value }); window.MsMailEvents?.login(SS); await start(); }
   catch (err) { $("#loginErr").textContent = T(err.message); }
 };
 async function start(){
@@ -535,6 +536,7 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
+  if(SITE.slug==="rufcut"&&window.MSI18N?.lang!=="en"){const next=new URL(location.href);next.searchParams.set("site","rufcut");if(DEMO)next.searchParams.set("demo","1");location.replace(next.href);return;}
   await Promise.all([MsPlatform.ready,MsCatalogPanel.ready,MsCommercePanel.ready]);
   $("[data-v=commerce]").textContent=MsCommercePanel.t("title");
   $("[data-v=catalog]").textContent=MsCatalogPanel.t("catalog");
@@ -554,7 +556,7 @@ async function enterSite(){
 MsPanelApp.init({getSite:()=>SITE,getSession:()=>SS,fresh});
 setInterval(()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});},60000);
 document.addEventListener('visibilitychange',()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});});
-if (SS) start();
+if(new URLSearchParams(location.search).get("demo")==="1")$("#demoBtn").click();else if (SS) start();
 </script>
 </body>
 </html>

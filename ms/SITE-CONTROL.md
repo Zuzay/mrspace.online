@@ -4,18 +4,26 @@
 
 Quick controls can edit Laloo map places and businesses, moderate suggestions, and enable or disable cities. Place search is performed against the live table and returns at most 100 matches. The complete Laloo source panel is embedded too: stats, starred locations, business signup, municipalities, suggestions, Reddit moderation, stories, reviews, members and settings. Heron's embedded panel includes item creation, inventory, eBay import, publishing, offers, catalog and receipts. Heron's Google Aerial video test stays in the original admin because its existing Google key is restricted to Heron's domains.
 
-Heron remains in its own Supabase project and Square integration. `supabase/functions/ms-site-control/index.ts` is a narrow authenticated proxy: it verifies the Mr. Space admin JWT, accepts only existing Heron admin actions, and keeps Heron's admin password in a Supabase Function secret. The password is never sent to the browser. The Heron admin page hosted in Mr. Space uses the same proxy, so every existing Heron action is covered.
+Heron remains in its own Supabase project and Square integration. `supabase/functions/ms-site-control/index.ts` is a narrow authenticated proxy: it verifies the Mr. Space admin JWT, accepts only existing Heron admin actions, and forwards a verified super-admin session (or uses an existing legacy server password secret). The password is never sent to the browser. The Heron admin page hosted in Mr. Space uses the same proxy, so every existing Heron action is covered.
 
 ## One-time Heron bridge setup
 
-1. In the `tizfdnsjhhepxnqqrzuk` Supabase project, add the existing Heron admin password as the Edge Function secret `HERON_ADMIN_PASSWORD`.
-2. Deploy `supabase/functions/ms-site-control/index.ts` to that same project with JWT verification **enabled**.
-3. Publish the Mr. Space static-site changes in this branch.
-4. Sign in to `/admin/` with an account whose email is in `ms_admins`. Open **Site yönetimi**, choose a site, then **Tam yönetim**. Check with a disposable product/offer before operational use.
+The new bridge accepts the existing Mr. Space super-admin session. It does not require copying Heron's password. These changes are prepared for review and have not been deployed.
 
-If the secret is missing, Heron controls show a setup message and the existing Heron admin link remains available. No database migration is required. Keep the secret only in Supabase Function secrets; do not add it to GitHub, HTML, or local config files.
+1. Apply `ms/mrspace-control-access.sql` in `tizfdnsjhhepxnqqrzuk`. The RPC checks current admin membership, confirmed user identity and an active matching Auth session. Normal members/viewers get no Heron access.
+2. Deploy the companion Heron `heron-shop` change in `wvvizyrroqejwrfadbpx`, including `mrspace-auth.ts`. Its source was taken from live version 18; only the admin authorization gate changes. Heron's existing password login remains available. The bridge calls a fixed Mr. Space RPC with the forwarded JWT; its publishable API key is public, not a server secret.
+3. Deploy `ms-site-control` in the Mr. Space project with JWT verification **enabled**. If an existing `HERON_ADMIN_PASSWORD` secret is configured, that legacy route still works. Otherwise the verified current user JWT is forwarded server-to-server. Missing Heron support shows a setup message.
+4. Publish both static site changes after approval. Test read access, then a disposable product/offer and the activity log before operational use. A successful read alone does not prove write access.
 
-No database migration is needed for the Laloo quick controls. The copied native panels continue to use their existing Supabase RLS and feature handlers. The Mr. Space project has one new server-side secret to configure for Heron before the embedded Heron panel can load.
+Laloo controls continue to use the current Mr. Space admin identity and existing RLS. No password/key enters the browser. The proxy retains its action allowlist. Removing an admin or revoking the Auth session stops new Heron bridge requests.
+
+## Shared visual editor
+
+Heron and Laloo public home pages load `assets/ms-editor-bridge.js` from Mr. Space only when embedded. Only the actual parent on the exact Mr. Space origin can request an export; response origin, frame and nonce are checked. Both ends remove executable/form content. The editor renders the DOM snapshot in a sandbox without script permission. Public paths are allowlisted; private admin pages are excluded.
+
+`/edit/` and `/request/` remain the single editor for all sites. Text/photo proposals become normal review requests; they do not mutate production. Dynamic Heron catalogs and Laloo maps are excluded from snapshot editing and use native admin tools. A static snapshot does not demonstrate live checkout, map or stock interaction. Mr. Space and both companion site releases are required before the cross-domain editor can work.
+
+Rufcut customer pages, easy editor, visual editor and panel use English without changing the studio's saved language preference.
 
 Successful Heron write actions and Laloo admin changes record a short summary in the Mr. Space activity log (`ms_activity`). The log omits product/place IDs, customer data, and submitted content; a log insert failure never blocks the underlying admin action.
 
