@@ -8,7 +8,7 @@
   const lang = langs.includes(window.MSI18N?.lang) ? MSI18N.lang : (() => { try { if(langs.includes(localStorage.ms_lang))return localStorage.ms_lang;const chosen=(navigator.languages||[navigator.language]).map(l=>String(l).slice(0,2).toLowerCase()).find(l=>langs.includes(l));return chosen||'en'; } catch { return 'en'; } })();
   if(!window.MSI18N)document.documentElement.lang=lang;
   let dict = {}, generation = 0;
-  const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261008-editor`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
+  const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261009-shared`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
   ready.catch(()=>{});
   function fail(target){
     const node=typeof target==='string'?document.getElementById(target):target;if(!node)return;
@@ -64,7 +64,7 @@
       const intakes=admin&&!options.demo?await options.rpc('ms_intake_list',{}):[];
       if(!el.isConnected||seq!==generation)return;
       el.innerHTML = `<div class="ms-platform">
-        <header class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('service_platform'))}</span><h1>${esc(t('workspaces'))}</h1><p>${esc(t(admin ? 'workspace_intro' : 'client_intro'))}</p></div><button class="btn sm" data-platform-refresh>${esc(t('refresh'))}</button></header>
+        <header class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('service_platform'))}</span><h1>${esc(t('workspaces'))}</h1><p>${esc(t(admin ? 'workspace_intro' : 'client_intro'))}</p></div><a class="btn sm" href="${esc(new URL('../edit/',base).href)}">${esc(t('shared_editor_title'))}</a><button class="btn sm" data-platform-refresh>${esc(t('refresh'))}</button></header>
         ${options.demo ? `<div class="ms-notice">${esc(t('preview_notice'))}</div>` : ''}
         <div class="ms-workspaces">${snapshot.sites.map(s => `<article class="ms-workspace"><div class="ms-workspace-top"><div><span class="ms-eyebrow">${esc(packageName(s.service_package))} · ${esc(t(s.relationship))}</span><h2>${esc(s.name)}</h2><p>${esc(t(s.sector))}</p></div><span class="ms-state">${esc(t(s.status))}</span></div>
           ${connectionHTML(s)}${quotaHTML(s)}<div class="ms-workspace-actions">${admin ? `<button class="btn sm" data-profile="${esc(s.slug)}">${esc(t('service_profile'))}</button><button class="btn sm" data-probe="${esc(s.slug)}" ${options.demo ? 'disabled' : ''}>${esc(t('check_connections'))}</button>` : ''}

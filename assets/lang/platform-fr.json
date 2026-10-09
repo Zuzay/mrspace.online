@@ -208,5 +208,11 @@
   "edit_location_hint": "Par exemple : Accueil → Jean Maker → premier bouton.",
   "edit_location_required": "Indiquez la page et la zone pour retrouver la modification.",
   "edit_affected_location": "Zone concernée",
-  "edit_requested_content": "Modification demandée"
+  "edit_requested_content": "Modification demandée",
+  "shared_editor_title": "Éditeur de sites",
+  "shared_editor_intro": "Choisissez votre site. Un même éditeur rassemble textes, photos, brouillons et demandes de vérification.",
+  "shared_editor_site_note": "Choisissez une zone, comparez les modifications et envoyez-les pour approbation.",
+  "shared_editor_signin": "Connectez-vous pour voir les sites que vous pouvez modifier.",
+  "shared_editor_examples": "Essayer l’éditeur",
+  "shared_editor_demo_note": "Essayez le même éditeur sur Mr. Space et Rufcut. Ces aperçus n’envoient ni demandes ni fichiers."
 }

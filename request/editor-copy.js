@@ -96,17 +96,6 @@ const editorWords = {
   previewOnly:['Your preview. Changes go for review before publication.','Bu senin önizlemen. Değişiklikler yayından önce incelemeye gider.','Tu vista previa. Los cambios se revisan antes de publicarse.','Deine Vorschau. Änderungen werden vor der Veröffentlichung geprüft.','Votre aperçu. Les modifications sont vérifiées avant publication.'],
   where:['Location','Konum','Ubicación','Position','Emplacement'],
   home:['Home','Ana sayfa','Inicio','Startseite','Accueil'],
-  opening:['Opening','Açılış','Presentación','Einstieg','Présentation'],
-  doors:['Three doors','Üç kapı','Tres puertas','Drei Türen','Trois portes'],
-  maker:['Jean Maker','Jean Maker','Jean Maker','Jean Maker','Jean Maker'],
-  workshop:['Workshop story','Atölye hikâyesi','Historia del taller','Werkstattgeschichte','Histoire de l’atelier'],
-  repairs:['Repairs','Tamir','Reparaciones','Reparaturen','Retouches'],
-  tracking:['Repair tracking','Tamir takibi','Seguimiento de reparación','Reparaturverfolgung','Suivi des retouches'],
-  vintage:['Vintage shop','Vintage mağazası','Tienda vintage','Vintage-Shop','Boutique vintage'],
-  visit:['Shop and contact','Mağaza ve iletişim','Tienda y contacto','Laden und Kontakt','Boutique et contact'],
-  openingPhoto:['Opening photo','Açılış fotoğrafı','Foto de presentación','Einstiegsfoto','Photo de présentation'],
-  workshopPhoto:['Workshop photo','Atölye fotoğrafı','Foto del taller','Werkstattfoto','Photo de l’atelier'],
-  cutDenim:['Cut & Denim button','Cut & Denim düğmesi','Botón Corte y denim','Schaltfläche Schnitt und Denim','Bouton Coupe et denim'],
   heading:['Heading','Başlık','Título','Überschrift','Titre'],
   text:['Text','Metin','Texto','Text','Texte'],
   button:['Button','Düğme','Botón','Schaltfläche','Bouton'],
@@ -150,6 +139,7 @@ const editorWords = {
   sending:['Sending for review…','İncelemeye gönderiliyor…','Enviando para revisión…','Wird zur Prüfung gesendet…','Envoi pour vérification…']
 };
 Object.assign(editorWords,{
+  demoNote:['Preview only. Nothing is sent or published. File uploads require site access.','Önizleme. Hiçbir şey gönderilmez veya yayınlanmaz. Dosya yüklemek için site erişimi gerekir.','Vista previa. No se envía ni publica nada. Subir archivos requiere acceso al sitio.','Vorschau. Nichts wird gesendet oder veröffentlicht. Datei-Uploads erfordern Website-Zugriff.','Aperçu. Rien n’est envoyé ni publié. L’envoi de fichiers nécessite un accès au site.'],
   removeText:['Remove this text','Bu metni kaldır','Quitar este texto','Diesen Text entfernen','Supprimer ce texte'],
   recoverConflict:['The server has a newer request. Choose which version to continue editing.','Sunucuda daha yeni bir talep var. Düzenlemeye hangi sürümle devam edeceğini seç.','Hay una solicitud más reciente en el servidor. Elige qué versión seguir editando.','Auf dem Server liegt eine neuere Anfrage. Wähle die Version für die weitere Bearbeitung.','Une demande plus récente existe sur le serveur. Choisissez la version à modifier.'],
   useServer:['Use server version','Sunucudaki sürümü kullan','Usar versión del servidor','Serverversion verwenden','Utiliser la version du serveur'],
