@@ -258,15 +258,24 @@ async function upload(req: Request) {
   const form = await req.formData();
   const key = String(form.get("key") || "");
   const trial = String(form.get("trial") || "");
+  const edit = String(form.get("edit") || "");
   const file = form.get("file");
-  const uuid = /^[0-9a-f-]{36}$/i;
-  if (!(file instanceof File) || (!uuid.test(key) && !uuid.test(trial))) return json({ error: "bad_request" }, 400);
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!(file instanceof File) || (!uuid.test(key) && !uuid.test(trial) && !uuid.test(edit))) return json({ error: "bad_request" }, 400);
   const types: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
   if (!types[file.type]) return json({ error: "type" }, 400);
 
   let folder = "", site: string | null = null;
-  if (uuid.test(key)) {
-    const { data: s } = await db.from("ms_sites").select("slug").eq("site_key", key).maybeSingle();
+  if (uuid.test(key) || uuid.test(edit)) {
+    // Revision links resolve only their own submission's site. Never disclose site_key.
+    let slug: string | null = null;
+    if (uuid.test(edit) && !uuid.test(key)) {
+      const { data: submission } = await db.from("ms_submissions").select("site").eq("edit_key", edit).maybeSingle();
+      if (!submission) return json({ error: "unknown_submission" }, 403);
+      slug = submission.site;
+    }
+    const lookup = db.from("ms_sites").select("slug");
+    const { data: s } = await (slug ? lookup.eq("slug", slug) : lookup.eq("site_key", key)).maybeSingle();
     if (!s) return json({ error: "unknown_site" }, 403);
     if (file.size > 5 * 1024 * 1024) return json({ error: "size" }, 400);
     const since = new Date(Date.now() - 3600e3).toISOString();

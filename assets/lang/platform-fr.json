@@ -199,5 +199,14 @@
   "invalid_kind": "Type de brouillon non valide",
   "interface_language": "Langue de l’interface",
   "prepare_queue": "Préparer les brouillons en attente",
-  "draft_processing_error": "La demande a été enregistrée. La préparation a échoué ; prépare à nouveau les brouillons en attente."
+  "draft_processing_error": "La demande a été enregistrée. La préparation a échoué ; prépare à nouveau les brouillons en attente.",
+  "visual_edit_title": "Modifiez directement sur votre site",
+  "visual_edit_note": "Choisissez une zone par son nom, modifiez le texte ou la photo et comparez les zones avant l’envoi.",
+  "visual_edit_open": "Ouvrir l’éditeur du site",
+  "manual_edit_title": "Décrire une modification",
+  "edit_location_label": "Où sur votre site ?",
+  "edit_location_hint": "Par exemple : Accueil → Jean Maker → premier bouton.",
+  "edit_location_required": "Indiquez la page et la zone pour retrouver la modification.",
+  "edit_affected_location": "Zone concernée",
+  "edit_requested_content": "Modification demandée"
 }

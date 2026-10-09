@@ -199,5 +199,14 @@
   "invalid_kind": "Geçersiz taslak türü",
   "interface_language": "Panel dili",
   "prepare_queue": "Sıradaki taslakları hazırla",
-  "draft_processing_error": "Talep kaydedildi. Hazırlama başarısız oldu; Sıradaki taslakları hazırla ile tekrar dene."
+  "draft_processing_error": "Talep kaydedildi. Hazırlama başarısız oldu; Sıradaki taslakları hazırla ile tekrar dene.",
+  "visual_edit_title": "Sitenin üzerinde düzenle",
+  "visual_edit_note": "Adıyla listelenen bir alan seç, metnini veya fotoğrafını değiştir ve göndermeden önce değişecek alanları karşılaştır.",
+  "visual_edit_open": "Site editörünü aç",
+  "manual_edit_title": "Değişikliği tarif et",
+  "edit_location_label": "Sitenin hangi alanında?",
+  "edit_location_hint": "Örnek: Ana sayfa → Jean Maker → ilk düğme.",
+  "edit_location_required": "Değişikliği bulabilmemiz için sayfa ve alan adını yaz.",
+  "edit_affected_location": "Değişecek alan",
+  "edit_requested_content": "İstenen değişiklik"
 }

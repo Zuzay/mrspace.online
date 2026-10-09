@@ -199,5 +199,14 @@
   "invalid_kind": "Ungültiger Entwurfstyp",
   "interface_language": "Oberflächensprache",
   "prepare_queue": "Entwürfe vorbereiten",
-  "draft_processing_error": "Die Anfrage wurde gespeichert. Die Vorbereitung ist fehlgeschlagen; bereite die Entwürfe erneut vor."
+  "draft_processing_error": "Die Anfrage wurde gespeichert. Die Vorbereitung ist fehlgeschlagen; bereite die Entwürfe erneut vor.",
+  "visual_edit_title": "Direkt auf deiner Website bearbeiten",
+  "visual_edit_note": "Wähle einen benannten Bereich, ändere Text oder Foto und vergleiche die betroffenen Bereiche vor dem Senden.",
+  "visual_edit_open": "Website-Editor öffnen",
+  "manual_edit_title": "Änderung beschreiben",
+  "edit_location_label": "Wo auf deiner Website?",
+  "edit_location_hint": "Zum Beispiel: Startseite → Jean Maker → erste Schaltfläche.",
+  "edit_location_required": "Nenne Seite und Bereich, damit wir die Änderung finden.",
+  "edit_affected_location": "Betroffener Bereich",
+  "edit_requested_content": "Gewünschte Änderung"
 }

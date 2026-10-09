@@ -199,5 +199,14 @@
   "invalid_kind": "Invalid draft type",
   "interface_language": "Interface language",
   "prepare_queue": "Prepare queued drafts",
-  "draft_processing_error": "The request was saved. Preparation failed; use Prepare queued drafts to retry."
+  "draft_processing_error": "The request was saved. Preparation failed; use Prepare queued drafts to retry.",
+  "visual_edit_title": "Edit directly on your site",
+  "visual_edit_note": "Choose a named page area, change its text or photo, then compare the affected areas before sending.",
+  "visual_edit_open": "Open site editor",
+  "manual_edit_title": "Describe a change",
+  "edit_location_label": "Where on your site?",
+  "edit_location_hint": "For example: Home → Jean Maker → first button.",
+  "edit_location_required": "Name the page and area so we can find your change.",
+  "edit_affected_location": "Affected area",
+  "edit_requested_content": "Requested change"
 }
