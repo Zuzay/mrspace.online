@@ -3,3 +3,7 @@ verify_jwt = false
 
 [functions.ms-intake]
 verify_jwt = false
+
+[functions.ms-notifications]
+# The handler validates the user token and site membership itself.
+verify_jwt = false

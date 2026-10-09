@@ -46,9 +46,9 @@ function cleanPiece(v={}){
  const marks={};actions.forEach(a=>{const p=cleanPoint(v.marks?.[a]);if(p)marks[a]=p});
  return {garment:garmentTypes.includes(v.garment)?v.garment:"jeans",gender:genders.includes(v.gender)?v.gender:"unisex",actions,marks,inches:String(v.inches||"").slice(0,12),note:String(v.note||"").slice(0,600)};
 }
-const state={lang:(navigator.language||"en").slice(0,2),stage:"edit",items:[],...cleanPiece(),editing:null,activeAction:null,name:"",email:"",phone:""};
+const state={token:crypto.randomUUID(),draftSignature:"",lang:(navigator.language||"en").slice(0,2),stage:"edit",items:[],...cleanPiece(),editing:null,activeAction:null,name:"",email:"",phone:""};
 try{
- const stored=JSON.parse(localStorage.getItem(draftKey)||"{}");Object.assign(state,cleanPiece(stored));
+ const stored=JSON.parse(localStorage.getItem(draftKey)||"{}");Object.assign(state,cleanPiece(stored));if(/^[a-f0-9-]{36}$/i.test(stored.token||"")){state.token=stored.token;state.draftSignature=stored.draftSignature||"";}
  state.items=Array.isArray(stored.items)?stored.items.slice(0,8).map(cleanPiece).filter(i=>i.actions.length):[];
  ["name","email","phone"].forEach(k=>state[k]=String(stored[k]||"").slice(0,k==="email"?160:k==="phone"?40:100));
  state.editing=Number.isInteger(stored.editing)&&stored.editing>=0&&stored.editing<state.items.length?stored.editing:null;
@@ -85,7 +85,7 @@ function garmentSvg(item,{active=null,box="65 35 230 430"}={}){
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box}" role="img" aria-label="${esc(t(item.garment))}"><g data-cloth fill="#233b5c" stroke="#aebbd0" stroke-width="2.5" stroke-linejoin="round">${path}</g><g fill="none" stroke="#d5a16d" stroke-width="1.5" stroke-dasharray="3 3">${seams}</g>${marks}</svg>`;
 }
 function current(){return cleanPiece(state)}
-function persist(){if(submitted)return;try{localStorage.setItem(draftKey,JSON.stringify(state))}catch{}}
+function persist(){if(submitted)return;const signature=JSON.stringify({items:state.items,lang:state.lang,name:state.name,email:state.email,phone:state.phone});if(signature!==state.draftSignature){state.token=crypto.randomUUID();state.draftSignature=signature;}try{localStorage.setItem(draftKey,JSON.stringify(state))}catch{}}
 function readFields(){state.inches=$("inches").value;state.note=$("itemNote").value;state.name=$("customerName").value;state.email=$("customerEmail").value;state.phone=$("customerPhone").value;persist()}
 function setError(key=""){const el=$("error");el.textContent=key?t(key):"";if(key)el.scrollIntoView({block:"nearest"})}
 function updateCamera(){if(!zoomed){zoomBox=null;return}const p=state.activeAction?(state.marks[state.activeAction]||defaultPoint(state,state.activeAction)):[180,245];zoomBox=`${clamp(p[0]-86,35,153)} ${clamp(p[1]-105,35,235)} 172 230`}
@@ -163,8 +163,8 @@ form.onsubmit=async e=>{
  if(!state.items.length){state.stage="edit";setError("noActions");render();return}
  submitting=true;render();const items=state.items.map(i=>({...cleanPiece(i),preview_svg:garmentSvg(i)}));
  try{
-  const response=await fetch(API,{method:"POST",headers:{apikey:PUB,Authorization:`Bearer ${PUB}`,"Content-Type":"application/json"},body:JSON.stringify({action:"submit",name:state.name.trim(),email:state.email.trim(),phone:state.phone.trim(),items,preview_svg:garmentSvg(items.at(-1)),website:$("website").value})});
-  const data=await response.json();if(!response.ok||typeof data.ticket!=="string")throw Error("submit_failed");submitted=true;$("ticketCode").textContent=data.ticket;$("successLink").href="../?ticket="+encodeURIComponent(data.ticket)+"#order";if(document.documentElement.dataset.embed)$("successLink").target="_top";
+  const response=await fetch(API,{method:"POST",headers:{apikey:PUB,Authorization:`Bearer ${PUB}`,"Content-Type":"application/json"},body:JSON.stringify({action:"submit",token:state.token,name:state.name.trim(),email:state.email.trim(),phone:state.phone.trim(),items,preview_svg:garmentSvg(items.at(-1)),website:$("website").value}),signal:AbortSignal.timeout(30000)});
+  const data=await response.json();if(!response.ok||!/^RC-[A-Z2-9]{7}$/.test(data.ticket||"")){if(data.error==="token_conflict"){state.token=crypto.randomUUID();try{localStorage.setItem(draftKey,JSON.stringify(state))}catch{}}throw Error("submit_failed");}submitted=true;$("ticketCode").textContent=data.ticket;$("successLink").href="../?ticket="+encodeURIComponent(data.ticket)+"#order";if(document.documentElement.dataset.embed)$("successLink").target="_top";
   document.querySelector(".workbench").hidden=true;$("success").hidden=false;document.querySelector("#success h2").textContent=t("success");document.querySelector("#success>p:not(.kicker)").textContent=t("successNote");try{localStorage.removeItem(draftKey)}catch{}
   focusWorkbench("ticketCode");
  }catch{setError("failed")}finally{submitting=false;if(!submitted)render()}
