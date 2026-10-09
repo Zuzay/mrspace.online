@@ -208,5 +208,11 @@
   "edit_location_hint": "Zum Beispiel: Startseite → Jean Maker → erste Schaltfläche.",
   "edit_location_required": "Nenne Seite und Bereich, damit wir die Änderung finden.",
   "edit_affected_location": "Betroffener Bereich",
-  "edit_requested_content": "Gewünschte Änderung"
+  "edit_requested_content": "Gewünschte Änderung",
+  "shared_editor_title": "Website-Editor",
+  "shared_editor_intro": "Wähle deine Website. Ein Editor vereint Texte, Fotos, Entwürfe und Prüfanfragen.",
+  "shared_editor_site_note": "Bereich wählen, Änderungen vergleichen und zur Freigabe senden.",
+  "shared_editor_signin": "Melde dich an, um deine bearbeitbaren Websites zu sehen.",
+  "shared_editor_examples": "Editor ausprobieren",
+  "shared_editor_demo_note": "Teste denselben Editor auf Mr. Space und Rufcut. Die Vorschauen senden keine Anfragen und laden keine Dateien hoch."
 }

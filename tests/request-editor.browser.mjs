@@ -51,7 +51,7 @@ try{
   await f.page.locator('#reviewBtn').click();assert.match(await f.page.locator('#changesList').innerText(),new RegExp(before));assert.match(await f.page.locator('#changesList').innerText(),/Denimini seç/);
   await f.page.locator('#fEmail').fill('test@example.com');await f.page.locator('#sendReview').click();assert.match(await f.page.locator('#confirmBody').innerText(),/Jean Maker[\s\S]*Cut & Denim/);
   assert.equal(f.calls.filter(c=>c.path.endsWith('ms_submit')).length,0);await f.page.locator('#confirmActions .btn').click();await f.page.locator('#done[open]').waitFor();assert.match(await f.page.locator('#doneList').innerText(),/Denimini seç/);
-  const sent=JSON.parse(f.calls.find(c=>c.path.endsWith('ms_submit')).body);assert.match(sent.p_items[0].anchor,/#maker-tab-0/);assert.match(sent.p_items[0].target,/Jean Maker/);assert.equal(sent.p_items[0].request,'Denimini seç');assert.deepEqual(f.errors,[]);await f.context.close();
+  const sent=JSON.parse(f.calls.find(c=>c.path.endsWith('ms_submit')).body);assert.match(sent.p_items[0].anchor,/data-ms-field="maker-tab-0"/);assert.match(sent.p_items[0].target,/Jean Maker/);assert.equal(sent.p_items[0].request,'Denimini seç');assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('both photos upload, preview replaces responsive srcset, and undo restores it',async()=>{
   const f=await fixture();

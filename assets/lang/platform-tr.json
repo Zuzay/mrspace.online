@@ -208,5 +208,11 @@
   "edit_location_hint": "Örnek: Ana sayfa → Jean Maker → ilk düğme.",
   "edit_location_required": "Değişikliği bulabilmemiz için sayfa ve alan adını yaz.",
   "edit_affected_location": "Değişecek alan",
-  "edit_requested_content": "İstenen değişiklik"
+  "edit_requested_content": "İstenen değişiklik",
+  "shared_editor_title": "Site editörü",
+  "shared_editor_intro": "Siteni seç. Metin, fotoğraf, taslak ve inceleme taleplerin aynı editörde bir arada.",
+  "shared_editor_site_note": "Sitende bir alan seç, değişikliklerini karşılaştır ve onaya gönder.",
+  "shared_editor_signin": "Düzenleyebildiğin siteleri görmek için giriş yap.",
+  "shared_editor_examples": "Editörü dene",
+  "shared_editor_demo_note": "Aynı editörü Mr. Space ve Rufcut üzerinde dene. Bu önizlemeler talep göndermez veya dosya yüklemez."
 }

@@ -208,5 +208,11 @@
   "edit_location_hint": "For example: Home → Jean Maker → first button.",
   "edit_location_required": "Name the page and area so we can find your change.",
   "edit_affected_location": "Affected area",
-  "edit_requested_content": "Requested change"
+  "edit_requested_content": "Requested change",
+  "shared_editor_title": "Site editor",
+  "shared_editor_intro": "Choose your site. The same editor keeps your text, photos, drafts and review requests together.",
+  "shared_editor_site_note": "Choose an area on your site, compare your changes and send them for approval.",
+  "shared_editor_signin": "Sign in to see the sites you can edit.",
+  "shared_editor_examples": "Try the editor",
+  "shared_editor_demo_note": "Explore the same editor on Mr. Space and Rufcut. These previews cannot send requests or upload files."
 }

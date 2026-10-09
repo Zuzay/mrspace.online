@@ -253,6 +253,18 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
     }
   }
 
+  // Stable field keys survive unrelated section insertion and reordering.
+  // Repeated sections can supply a persistent `id`; legacy s0 navigation stays intact.
+  function editorSection(html, key, type, lang) {
+    const count = {};
+    return html.replace(/<(section|h[1-6]|p|a|img|figcaption|td|span)\b([^>]*)>/g, (tag, name, attrs) => {
+      if (name === 'section') return `<section${attrs} data-ms-section="${esc(key)}" data-ms-section-label="${esc(sectionName(type,lang))}">`;
+      const kind = name === 'img' ? 'image' : /^h[1-6]$/.test(name) ? 'heading' : name === 'a' ? 'button' : 'text';
+      count[kind] = (count[kind] || 0) + 1;
+      return `<${name}${attrs} data-ms-field="${esc(key)}.${kind}.${count[kind]}">`;
+    });
+  }
+
   function render(content, themeIn, opts = {}) {
     const c = content || {};
     const biz = c.business || {};
@@ -260,6 +272,13 @@ body.wm img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
     const L = WORDS[lang];
     const t = themeOf(themeIn);
     const secs = (c.sections || []).filter((s) => SECTION_TYPES[s.type]);
+    const counts = {}, used = new Set();
+    const keys = secs.map(s => {
+      counts[s.type] = (counts[s.type] || 0) + 1;
+      const base = /^[a-zA-Z0-9_-]{1,60}$/.test(s.id || '') ? s.id : s.type + '-' + counts[s.type];
+      let key = base, n = 1; while (used.has(key)) key = base + '-' + (++n);
+      used.add(key); return key;
+    });
     const nav = secs.map((s, i) => s.type !== "hero" && s.nav !== false
       ? `<a href="#s${i}">${esc(s.nav_label || s.title || (s.type === "hours" ? L.hours : s.type === "contact" ? L.contact : sectionName(s.type, lang)))}</a>` : "").join("");
     const logo = safeImage(biz.logo);
@@ -276,10 +295,10 @@ ${logo ? `<link rel="icon" href="${esc(logo)}">` : ""}
 ${opts.noindex ? '<meta name="robots" content="noindex">' : ""}
 ${fontLink(t.fonts,opts.assetBase)}<style>${css(t)}${opts.watermark ? wmCss(opts.watermark, t.colors.ink) : ""}</style></head>
 <body class="${t.layout === "center" ? "center" : "left"} preset-${esc(Object.hasOwn(PRESETS,themeIn?.preset) ? themeIn.preset : 'liman')}${opts.watermark ? " wm" : ""}"${opts.watermark ? ' oncontextmenu="return false"' : ""}>
-${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div class="ms-wm" aria-hidden="true"></div>` : ""}
-<header class="w top"><a class="brand" href="#">${logo ? `<img src="${esc(logo)}" alt="">` : ""}<span>${title}</span></a><nav>${nav}</nav></header>
-<main>${secs.map((s, i) => section(s, i, biz, L, lang)).join("")}</main>
-<footer><div class="w row"><span>© ${new Date().getFullYear()} ${title}</span><span class="soc">${soc}</span>
+${opts.watermark ? `<div class="ms-wm-bar" data-ms-skip>${esc(opts.watermark)}</div><div class="ms-wm" aria-hidden="true"></div>` : ""}
+<header class="w top" data-ms-skip><a class="brand" href="#">${logo ? `<img src="${esc(logo)}" alt="">` : ""}<span>${title}</span></a><nav>${nav}</nav></header>
+<main>${secs.map((s, i) => editorSection(section(s, i, biz, L, lang), keys[i], s.type, lang)).join("")}</main>
+<footer data-ms-skip><div class="w row"><span>© ${new Date().getFullYear()} ${title}</span><span class="soc">${soc}</span>
 <a class="made" href="https://mrspace.online/" target="_blank" rel="noopener">${L.made}</a></div></footer>
 </body></html>`;
   }
@@ -289,10 +308,10 @@ ${opts.watermark ? `<div class="ms-wm-bar">${esc(opts.watermark)}</div><div clas
       lang: LCODES.includes(lang) ? lang : "en",
       business: { name: name || "", tagline: "", phone: "", email: "", address: "", logo: "", hours: Array.from({ length: 7 }, () => ({ open: "", close: "", closed: false })), socials: {} },
       sections: [
-        { type: "hero", title: name || "", text: "", image: "", button: { label: "", url: "" } },
-        { type: "about", title: "", text: "", image: "" },
-        { type: "hours", title: "" },
-        { type: "contact", title: "" },
+        { id: "intro", type: "hero", title: name || "", text: "", image: "", button: { label: "", url: "" } },
+        { id: "about", type: "about", title: "", text: "", image: "" },
+        { id: "hours", type: "hours", title: "" },
+        { id: "contact", type: "contact", title: "" },
       ],
     };
   }

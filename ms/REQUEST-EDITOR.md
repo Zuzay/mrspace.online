@@ -1,6 +1,6 @@
-# Müşteri site editörü
+# Mr. Space ortak site editörü
 
-`/request/?k=SITE_KEY` sitenin üzerinde talep hazırlar. Gönderilen paketin `/request/?e=EDIT_KEY` bağlantısı aynı alanları revize eder. `/edit/` içindeki görsel editör kartı bu akışa gider; elle tarif edilen taleplerde de sayfa ve alan adı gerekir.
+`/edit/` ortak girişidir: oturum açan kişi yalnızca yetkili olduğu siteleri görür. Mr. Space’in kendi sitesi ve Rufcut aynı motoru kullanır. `/edit/?site=SLUG` mevcut panel oturumundan siteyi açar; `/request/?k=SITE_KEY` sitenin üzerinde talep hazırlar. Gönderilen paketin `/request/?e=EDIT_KEY` bağlantısı aynı alanları revize eder. `/edit/` içindeki görsel editör kartı bu akışa gider; elle tarif edilen taleplerde de sayfa ve alan adı gerekir.
 
 Sol panel bölüm listesi, arama, seçilen alanın düzenleyicisi veya değişiklik listesini gösterir. Üst konum satırı seçilen sayfa, bölüm ve alanı belirtir. Kaydetme alanı taslağa ekler; aynı alan açık kalır. Yeşil çerçeve ve alandaki konum etiketi kaydedilen talebi gösterir. Sarı çerçeve seçili alandır. Alan değiştirmeden önce kaydedilmemiş içerik için saklama, bırakma veya devam etme seçimi gösterilir.
 
@@ -21,3 +21,31 @@ Mevcut `ms-builder` Edge Function dosya yükler. `key` sitenin kendi anahtarıd�
 `tests/request-editor.browser.mjs` ve `tests/platform.browser.mjs` mevcut Playwright ortamını kullanır. Yeni bağımlılık eklenmez. `MS_PLAYWRIGHT_MODULE`, `MS_CHROME_PATH`, `MS_PREVIEW_ORIGIN` ayarlanır; platform testi ayrıca `MS_SUPABASE_UMD` ister. Tüm canlı API çağrıları engellenir. Fotoğraflar gerçek Rufcut dosyasından alınan test verisidir; hiçbir gerçek talep veya yükleme gönderilmez.
 
 Yeni tarayıcı kontrolleri beş dil, mobil/masaüstü, açık/koyu tema, iki fotoğraf, konum bilgisi, önce/sonra karşılaştırması, gönderim onayı, hata sonrası tekrar deneme, yenilemeden sonra taslak ve revizyon bağlantısını kapsar.
+
+## Tek motor, farklı tasarımlar
+
+- `/request/editor.js`, `editor.css`, `editor-copy.js`: bütün müşterilerin ortak görsel editörü. Müşteri klasörüne kopyalanmaz.
+- `assets/ms-editor-schema.js`: v1 veri sözleşmesi, çok dilli alan adları, kalıcı alan seçicisi ve tekil eşleşme kontrolü.
+- `/edit/`: ortak site seçici; `ms_my_sites` sunucuda rol ve site yetkisini sınırlar. İzleyiciye düzenleme anahtarı verilmez. Müşteri anahtarları site seçicinin HTML bağlantılarına veya yeni bir yerel depoya yazılmaz.
+- `/request/?preview=mrspace` ve `?preview=rufcut`: aynı editörü kayıt göndermeden denetleyen açık örnekler. Dosya yükleme ve gönderim hem arayüzde hem işlevde kapalıdır; örnek taslakları depolanmaz. Gerçek site linkleri mevcut yetki/onay akışını korur.
+- `assets/ms-render.js`: kurucu, tasarım kütüphanesi ve ücretsiz taslak üreticisi için yedi bölüm türünde kimlikleri otomatik üretir. Müşteriye ait ayrı editör kodu gerekmez. Sunucudaki ücretsiz taslak üreticisinin yeni renderer’ı alması için `ms-site-control` aynı sürümle yeniden yayınlanır.
+
+Yeni statik tasarım sözleşmesi:
+
+```html
+<section data-ms-section="opening">
+  <h1 data-ms-field="opening.title">Your headline</h1>
+  <img data-ms-field="opening.photo" src="real-photo.webp" alt="Workshop">
+</section>
+<script type="application/json" id="ms-editor-config">
+{"version":1,"page":{"en":"Home","tr":"Ana sayfa","es":"Inicio","de":"Startseite","fr":"Accueil"},"sections":{"opening":{"en":"Opening","tr":"Açılış","es":"Presentación","de":"Einstieg","fr":"Présentation"}},"fields":{"opening.photo":{"en":"Opening photo","tr":"Açılış fotoğrafı","es":"Foto de presentación","de":"Einstiegsfoto","fr":"Photo de présentation"}}}
+</script>
+```
+
+`data-ms-field` en fazla 100 ASCII harf, sayı, nokta, alt çizgi, iki nokta veya kısa tiredir; sayfada tekil olmalıdır. Yinelenmiş/geçersiz kimlikli alan düzenlemeye açılmaz. `data-ms-skip` kontrolleri, yasal alanları ve platform atfını korur. Alan adı tanımlanmazsa içerikten ve alan türünden anlaşılır etiket üretilir. JSON yalnızca veridir; çalıştırılmaz. Metinlerde `<` JSON için `\u003c` olarak kaçırılır.
+
+Yeni talepler `sayfa::[data-ms-field="kalici.kimlik"]` yolunu saklar. Eski ID/CSS yolları desteklenir; birden fazla eşleşme varsa başka alana uygulanmaz. Eski kilitli talepler yeni kimlikler eklendikten sonra da kilitli kalır. Bölüm sırasını değiştirmek alan kimliğini değiştirmez. Üretilen içerikte aynı türden birden çok bölüm varsa kalıcı `section.id` ver; kimliksiz eski içerik tür + tekrar sırası ile uyumludur.
+
+Harici alan adlarındaki sitelerde tarayıcının aynı kaynak kısıtı sürer; ortak not/talep akışı kullanılabilir. Bu sürüm dış siteler için görsel önizleme proxy’si veya yetkisiz sayfa erişimi açmaz.
+
+`tests/shared-editor.browser.mjs`: Mr. Space, Rufcut ve üretilmiş farklı sektör sitelerinin tek motoru kullanması; kalıcı alan yolu, bölüm sırası, eski/kilitli yol uyumu, yinelenen kimlik, beş dil, mobil tema, site seçici yetkisi ve örneklerde sıfır yazma doğrulaması.

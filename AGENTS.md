@@ -27,3 +27,6 @@ Bu repo mrspace.online: Mr. Space web stüdyosunun sitesi, süper admin paneli v
 7. **Mevcut tasarımı koru.** `assets/site.css` değişkenlerini kullan, açık/koyu tema ikisi de çalışsın, mobil genişlikte taşma olmasın.
 8. **Yazı kuralı.** Kullanıcıya görünen Türkçe metinlerde uzun tire (—) kullanma.
 9. **Silme yok.** Dosya veya tablo silmen gerekiyorsa PR açıklamasında sor, kendin silme.
+
+## Ortak site editörü
+Yeni müşteri tasarımına ayrı editör yazma veya `request/editor.*` dosyalarını müşteri klasörüne kopyalama. Bütün siteler `/edit/` girişini ve `/request/` motorunu kullanır. Yeni statik tasarımlarda kalıcı `data-ms-field` ve `data-ms-section` kimlikleri tanımla; müşteriye özgü alan adlarını sayfanın `ms-editor-config` JSON verisinde tut. Üretilen tasarımlar `assets/ms-render.js` üzerinden aynı sözleşmeyi otomatik alır. Kimlikleri içerik veya bölüm sırası değişince yeniden üretme. Sözleşme ve testler: `ms/REQUEST-EDITOR.md`.
