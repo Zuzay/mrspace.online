@@ -72,3 +72,6 @@ Repair ve Jean Maker aynı Rufcut gelen işler ekranına kaydeder. Fişler çizi
 
 ## Ortak site kataloğu ve başlangıç rehberi
 Square ürünlerinin site yerleşimi, varyasyon kartları ve yeni kayıt incelemesi ortak paneldeki **Site kataloğu** bölümünden yönetilir. İlk normal girişte kısayol rehberi açılır; sayfanın altındaki tercihle kapatılır ve **Yardıma mı ihtiyacın var?** bağlantısından yeniden açılır. Kurulum, kullanım ve testler: [ms/SITE-CATALOG.md](ms/SITE-CATALOG.md).
+
+## Ortak satış ve kargo hazırlığı
+Rufcut, Heron ve sonraki siteler `/panel/?site=SITE&view=commerce` üzerinden aynı **Satış ve kargo** modülünü kullanır. Bölgeler, tarife, paket/ürün hazırlığı ve iç satın alma önizlemesi siteye göre ayrı saklanır. Bu aşama canlı müşteri ödemesi açmaz; ödeme, doğrulama, satış siparişleri ve kargo etiketi için aşamalı plan ve testler: [ms/COMMERCE-PLAN.md](ms/COMMERCE-PLAN.md).

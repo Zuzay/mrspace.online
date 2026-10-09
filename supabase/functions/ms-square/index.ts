@@ -8,6 +8,9 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import "../../../assets/ms-site-catalog.js";
+import "../../../assets/ms-commerce.js";
+// @ts-ignore Shared pre-launch commerce contract.
+const Commerce = globalThis.MsCommerce;
 // @ts-ignore Shared browser/server publication contract.
 const SiteCatalog = globalThis.MsSiteCatalog;
 
@@ -223,7 +226,7 @@ Deno.serve(async (req) => {
       if (!APP_ID || !APP_SECRET) return json({ error: "square_not_configured" }, 500);
       const payload = b64url(te.encode(JSON.stringify({ site, role: r, exp: Date.now() + 15 * 60e3 })));
       const state = `${payload}.${await sign(payload)}`;
-      const auth = `${API}/oauth2/authorize?client_id=${encodeURIComponent(APP_ID)}&scope=${SCOPES.join("+")}` +
+      const auth = `${API}/oauth2/authorize?client_id=${encodeURIComponent(APP_ID)}&scope=${[...new Set([...SCOPES,...(body.commerce===true?Commerce.permissions:[])])].join("+")}` +
         `${SANDBOX ? "" : "&session=false"}&redirect_uri=${encodeURIComponent(CALLBACK)}&state=${encodeURIComponent(state)}`;
       return json({ url: auth });
     }
@@ -232,6 +235,21 @@ Deno.serve(async (req) => {
     if (action === "status") {
       return json(acc ? { connected: true, location: acc.location_name, currency: acc.currency, public: acc.public_catalog, sandbox: SANDBOX }
                       : { connected: false, configured: !!APP_ID, sandbox: SANDBOX });
+    }
+    if (["commerce_status","commerce_save","commerce_quote"].includes(action)) {
+      const {data,error}=await db.from("ms_commerce_setups").select("setup").eq("site",site).maybeSingle();
+      if(error)throw new Error("commerce_load_failed");
+      const setup=data?.setup||Commerce.blank(),rules=acc?await publications(site):new Map();
+      const all=acc?await catalog(acc):[],items=all.filter(i=>rules.get(i.id)?.section==="shop"&&!acc?.hidden_catalog_items?.includes(i.id)).map(i=>({...i,variations:i.variations.filter(v=>rules.get(i.id)?.variations?.[v.id]?.visible===true)}));
+      if(action==="commerce_save") {
+        const clean=Commerce.validate(body.setup,new Set(all.map(i=>i.id)));
+        const {error}=await db.from("ms_commerce_setups").upsert({site,setup:clean,updated_at:new Date().toISOString(),updated_by:email},{onConflict:"site"});
+        if(error)throw new Error("commerce_save_failed");
+        return json({setup:clean,checkout_live:false});
+      }
+      if(action==="commerce_quote")return json(Commerce.quote(setup,items,body.quote,acc?.currency));
+      let scopes=null; if(acc)try{scopes=(await sq(acc.access_token,"/oauth2/token/status",{method:"POST"})).scopes||[];}catch{/* Unknown permissions are never treated as granted. */}
+      return json({setup,currency:acc?.currency||null,connected:!!acc,items,readiness:Commerce.readiness(setup,acc,scopes,items)});
     }
     if (!acc) return json({ error: "not_connected" }, 400);
 
@@ -336,6 +354,6 @@ Deno.serve(async (req) => {
 
     return json({ error: "unknown_action" }, 400);
   } catch (e) {
-    return json({ error: String((e as Error).message || e) }, /^(catalog_invalid|catalog_no_variations)$/.test(String((e as Error).message||e))?400:500);
+    return json({ error: String((e as Error).message || e) }, /^(catalog_invalid|catalog_no_variations|commerce_invalid|commerce_unavailable|commerce_delivery|commerce_shipping_pending)$/.test(String((e as Error).message||e))?400:500);
   }
 });
