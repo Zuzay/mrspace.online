@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Your panel | Mr. Space</title>
-<script src="../assets/i18n.js"></script>
+<script src="../assets/i18n.js" data-dict-version="20261009-orders"></script><script src="../assets/ms-config.js"></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#101318"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mr. Space"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="../assets/ms-orders.css?v=20261009-orders"><link rel="stylesheet" href="../assets/ms-panel-app.css?v=20261009-orders">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="stylesheet" href="../assets/home-fonts.css">
 <style>
@@ -153,7 +154,7 @@ dialog .wide{grid-column:1/-1}
  <form id="loginForm" novalidate>
   <div class="mark"><i></i>Mr. Space</div>
   <h1>Your panel</h1>
-  <p>Stock, labels and change requests for your site.</p>
+  <p>Work orders, stock, labels and your site in one panel.</p>
   <input id="em" type="text" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
   <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
   <p class="err" id="loginErr" aria-live="polite"></p>
@@ -169,12 +170,13 @@ dialog .wide{grid-column:1/-1}
    <button data-v="workspace">Workspace</button><button data-v="home" class="on">Overview</button>
    <button data-v="stock">Stock</button>
    <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
-   <button data-v="repairs" hidden>Repairs <span class="mono" id="repairCount"></span></button>
+   <button data-v="repairs" hidden>Work orders <span class="mono" id="repairCount"></span></button>
   </nav>
   <select id="sitePick" hidden aria-label="Site"></select>
   <span class="demo-tag" id="demoTag" hidden>DEMO</span>
   <button class="out" id="out">Sign out</button>
  </header>
+ <section id="panelAppTools" class="panel-app-tools" data-noi18n></section>
  <main id="main"></main>
 </div>
 
@@ -184,7 +186,7 @@ dialog .wide{grid-column:1/-1}
 
 <link rel="stylesheet" href="../assets/ms-platform.css">
 <script src="../assets/ms-catalog.js"></script>
-<script src="../assets/ms-platform.js?v=20261009-shared"></script>
+<script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261009-orders"></script><script src="../assets/ms-panel-app.js?v=20261009-orders"></script>
 <script>
 "use strict";
 const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
@@ -207,7 +209,7 @@ async function auth(grant, body){
   saveSession(d);
 }
 async function fresh(){ if (SS && Date.now()/1000 > SS.expires_at - 60) { try { await auth("refresh_token", { refresh_token:SS.refresh_token }); } catch (e) { logout(); throw new Error("Session ended, sign in again"); } } }
-function logout(){ SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+function logout(){ void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
 async function rpc(fn, body = {}){
   await fresh();
   const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify(body) });
@@ -224,7 +226,7 @@ async function sq(action, extra = {}){
 }
 
 /* ---------- state ---------- */
-let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, REPAIRS = null, FILTER = "all", QUERY = "";
+let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, REPAIRS = null, REPAIR_ERROR = false, FILTER = "all", QUERY = "";
 let QUEUE = []; // {key,name,variant,price,currency,sku,qty}
 const OPT = { size:"2.25x1.25", shop:true, price:true, variant:true };
 try { Object.assign(OPT, JSON.parse(localStorage.getItem("ms_label_opts") || "{}")); QUEUE = JSON.parse(localStorage.getItem("ms_label_queue") || "[]"); } catch (e) {}
@@ -237,6 +239,7 @@ function render(){
   $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
   $("#main").innerHTML = ({ home, stock, labels, repairs, workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
   bind();
+  if(VIEW==="repairs")MsOrders.bind($("#main"),{jobs:REPAIRS||[],render});
   if(VIEW === "workspace") MsPlatform.mount(document.getElementById("workspaceRoot"),{admin:false,demo:DEMO,site:SITE.slug,rpc});
   if (window.MSI18N) MSI18N.apply($("#main"));
 }
@@ -264,23 +267,18 @@ function home(){
 async function repairCall(action, extra = {}){
   if(DEMO) return { jobs:[] };
   await fresh();
-  const r=await fetch(`${SB_URL}/functions/v1/ms-repair`,{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+SS.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});
+  const r=await fetch(`${SB_URL}/functions/v1/ms-repair`,{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+SS.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,...extra}),signal:AbortSignal.timeout(20000)});
   const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Repair request failed");return d;
 }
 function repairs(){
-  if(SITE.slug!=="rufcut")return `<div class="head"><div><h1>Repairs</h1><p>Repair work orders are available for Rufcut.</p></div></div>`;
-  if(DEMO)return `<div class="head"><div><h1>Repairs</h1><p>Sign in to Rufcut to view customer work orders.</p></div></div>`;
-  if(REPAIRS===null)return `<div class="head"><div><h1>Repairs</h1><p>Loading work orders…</p></div></div>`;
-  if(!REPAIRS.length)return `<div class="head"><div><h1>Repairs</h1><p>Customer work orders and their garment markups appear here.</p></div></div><div class="list"><div class="empty">No repair work orders yet.</div></div>`;
-  const label=v=>({received:"Received",in_progress:"In progress",ready:"Ready",completed:"Complete"}[v]||v);
-  return `<div class="head"><div><h1>Repairs</h1><p>Work orders, garment markups, measurements and your fitting notes.</p></div><button class="btn ghost" data-repair-refresh>Refresh</button></div><div class="repair-orders">${REPAIRS.map(j=>{
-    const items=Array.isArray(j.items)?j.items:[];
-  const desc=items.map((it,i)=>`${i+1}. ${esc(it.gender||"")} ${esc(it.garment||"garment")} · ${(it.actions||[]).map(esc).join(", ")}${it.inches?` · ${esc(it.inches)} in`:""}${it.note?` · ${esc(it.note)}`:""}`).join("<br>");
-    const visuals=items.map(it=>it.preview_svg?`<img alt="${esc(it.garment||"Garment")} repair markup" loading="lazy" src="data:image/svg+xml,${encodeURIComponent(it.preview_svg)}">`:"").join("");
-    return `<article class="repair-order card"><div class="repair-order-top"><div><span class="mono">${esc(j.ticket)}</span><h2 data-noi18n>${esc(j.customer_name)}</h2><p>${esc(j.customer_email)}${j.customer_phone?` · ${esc(j.customer_phone)}`:""}</p><small>${new Date(j.created_at).toLocaleString()}</small></div><label class="repair-status">Status<select data-repair-status="${esc(j.id)}"><option value="received" ${j.status==="received"?"selected":""}>Received</option><option value="in_progress" ${j.status==="in_progress"?"selected":""}>In progress</option><option value="finishing" ${j.status==="finishing"?"selected":""}>Finishing · ready tomorrow</option><option value="ready" ${j.status==="ready"?"selected":""}>Ready</option><option value="completed" ${j.status==="completed"?"selected":""}>Complete</option></select></label></div><div class="repair-order-body"><div class="repair-order-visuals">${visuals}</div><div><h3>Requested work</h3><p>${desc}</p><label>Measurements from fitting<textarea data-repair-measure="${esc(j.id)}" maxlength="2000">${esc(j.measurements||"")}</textarea></label><label>Staff notes<textarea data-repair-notes="${esc(j.id)}" maxlength="3000">${esc(j.staff_notes||"")}</textarea></label><button class="btn sun" data-repair-save="${esc(j.id)}">Save work order</button></div></div></article>`;
-  }).join("")}</div>`;
+ return MsOrders.render(REPAIRS,{site:SITE,demo:DEMO,error:REPAIR_ERROR});
 }
-async function loadRepairs(){try{const d=await repairCall("list");REPAIRS=d.jobs||[]}catch(e){REPAIRS=[];toast(e.message)}$("#repairCount").textContent=REPAIRS.length?`(${REPAIRS.length})`:"";}
+async function loadRepairs(){
+ const selected=SITE.slug;
+ try{const d=await repairCall("list");if(SITE.slug!==selected)return;REPAIRS=d.jobs||[];REPAIR_ERROR=false;}
+ catch(e){if(SITE.slug!==selected)return;REPAIR_ERROR=true;}
+ $("#repairCount").textContent=REPAIRS?.length?`(${REPAIRS.filter(j=>j.status!=="completed").length})`:"";
+}
 function rows(){
   const q = QUERY.toLowerCase();
   const out = [];
@@ -444,7 +442,7 @@ function bind(){
   document.querySelectorAll("[data-repair-save]").forEach(el => el.onclick = async () => {
     const id=el.dataset.repairSave,status=document.querySelector(`[data-repair-status="${CSS.escape(id)}"]`).value;
     const staff_notes=document.querySelector(`[data-repair-notes="${CSS.escape(id)}"]`).value,measurements=document.querySelector(`[data-repair-measure="${CSS.escape(id)}"]`).value;
-    el.disabled=true;try{await repairCall("update",{id,status,staff_notes,measurements});toast("Work order saved");await loadRepairs();render()}catch(e){toast(e.message);el.disabled=false}
+    el.disabled=true;try{await repairCall("update",{id,status,staff_notes,measurements});MsOrders.accept(id);toast("Work order saved");await loadRepairs();render()}catch(e){toast(MsPlatform.t("order_save_error"));el.disabled=false}
   });
   document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
   const q = $("#q"); if (q) q.oninput = () => { QUERY = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
@@ -525,11 +523,19 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
-  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut"; render();
+  await MsPlatform.ready;
+  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null;REPAIR_ERROR=false; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut";
+  if(SITE.slug==="rufcut"&&(VIEW==="home"||new URLSearchParams(location.search).get("view")==="orders"))VIEW="repairs";
+  else if(SITE.slug!=="rufcut"&&VIEW==="repairs")VIEW="home";
+  render();void MsPanelApp.mount(SITE,!DEMO&&!!SS);
+  if(SITE.slug==="rufcut")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});
   try { SQ = await sq("status"); } catch (e) { SQ = { connected:false }; }
   render();
   if (SQ.connected) loadItems();
 }
+MsPanelApp.init({getSite:()=>SITE,getSession:()=>SS,fresh});
+setInterval(()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});},60000);
+document.addEventListener('visibilitychange',()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});});
 if (SS) start();
 </script>
 </body>

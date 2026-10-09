@@ -35,8 +35,7 @@
   document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===view));
   const summary=$('summary');summary.replaceChildren();
   Object.keys(defaults).forEach(key=>{const name=key[0].toUpperCase()+key.slice(1);$('v'+name).textContent=tr(s[key]);const chip=document.createElement('span');chip.className='summary-chip';const label=document.createElement('span');label.className='summary-key';label.textContent=tr(name)+':';const value=document.createElement('strong');value.className='summary-value';value.textContent=tr(s[key]);chip.append(label,value);summary.append(chip)});
-  const lines=Object.keys(defaults).map(k=>`${tr(k[0].toUpperCase()+k.slice(1))}: ${tr(s[k])}`);
-  $('requestPair').href='mailto:shop@rufcut.com?subject='+encodeURIComponent(tr('My custom Rufcut pair'))+'&body='+encodeURIComponent(tr('I would like a fitting for this pair:')+'\n\n'+lines.join('\n'));
+  $('requestPair').onclick=()=>window.MsPairOrder.open({...s},$('jeansPreview'));
   try{localStorage.setItem(draftKey,JSON.stringify(s))}catch{}
  }
  document.querySelectorAll('[data-k] button').forEach(b=>b.addEventListener('click',()=>{s[b.parentElement.dataset.k]=b.dataset.v;render()}));

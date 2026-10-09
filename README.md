@@ -39,7 +39,7 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - Alan listesi sayfanın bölümlerine göre düzenlenir; arama metin ve fotoğraf alanlarını bulur. `data-ms-section` bölüm, `data-ms-label` alan adını belirtir. Rufcut açılış ve atölye fotoğrafları sabit kimliklerle bulunur. Eski kontrol listesi onayları veritabanında korunur; yeni editör alan seçimi, değişiklik karşılaştırması ve gönderim onayını kullanır.
 
 ## Müşteri paneli + Square (Ekim 2026)
-- `panel/` : Müşterinin kendi paneli (mrspace.online/panel). Giriş kullanıcı adıyla (`rufcut` → `rufcut@mrspace.online`). Sekmeler: Genel bakış, Stok, Etiketler. Girişsiz "Örnek verilerle bak" demo modu var.
+- `panel/` : Müşterinin kendi paneli (mrspace.online/panel). Giriş kullanıcı adıyla (`rufcut` → `rufcut@mrspace.online`). Sekmeler: Çalışma alanı, Genel bakış, Stok, Etiketler ve Rufcut için İş emirleri. Girişsiz "Örnek verilerle bak" demo modu var.
 - Square: müşteri panelde "Connect Square" der, kendi hesabıyla onay verir. Stok ve fiyatlar Square'den canlı gelir, sayı değiştirince Square'de de değişir, "Add item" yeni ürünü Square'e ekler. İstenirse stok sitede de gösterilir (`ms-square/public?site=...`).
 - Etiket: Code 128 barkod (SKU), fiyat, beden, dükkan adı. 2.25×1.25 in (Rollo/Zebra/Dymo 30334), 2×1, 1.5×1, 3×2 in ve Brother 62×29 mm. Barkod Square kasasında okutulunca ürün bulunur.
 - Kurulum:
@@ -51,7 +51,7 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 
 ## Rufcut tamir iş emirleri
 - `rufcut/repair/`: ayrı tamir başvuru sayfası. Giysi ve kadın/erkek kalıbı seçilir, kırmızı sis işaretleri doğrudan giysi çizimi üstünde taşınır, birden çok parça ve ölçü/not girilebilir.
-- `panel/` içindeki **Repairs** sekmesi yalnızca Rufcut hesabına görünür; görsel, müşteri bilgileri, fiş numarası, iş durumu, prova ölçüleri ve atölye notları tek iş emrinde tutulur.
+- `panel/` içindeki **İş emirleri** sekmesi yalnızca Rufcut hesabına görünür; görsel, müşteri bilgileri, fiş numarası, iş durumu, prova ölçüleri ve atölye notları tek iş emrinde tutulur.
 - Rufcut ana sayfasındaki takip alanı aynı fiş numarasından gerçek durumu sorgular. Durumlar: received, in progress, finishing (yarına hazır), ready, completed.
 - Kurulum: `ms/mrspace-repair.sql` çalıştır, `supabase/functions/ms-repair/index.ts` fonksiyonunu deploy et ve `verify_jwt=false` ayarıyla yayınla. İsteğe bağlı e-posta bildirimi için `RESEND_API_KEY` ve `RESEND_FROM_EMAIL` secrets ekle. Kod e-posta göndermeden de iş emrini ve takibi kaydeder.
 - `ms_repair_jobs` tablosunda RLS açık ve doğrudan istemci erişimi kapalıdır. Tarayıcı yalnızca Edge Function'ı çağırır; Rufcut çalışanı panel oturumuyla yetkilendirilir.
@@ -66,3 +66,6 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 Plan: [ms/PLATFORM-PLAN.md](ms/PLATFORM-PLAN.md). Kurulum, sınırlar ve testler: [ms/PLATFORM-DELIVERY.md](ms/PLATFORM-DELIVERY.md). `/studio/` izole inceleme ekranlarını açar. `/edit/` bütün sitelerin ortak editör girişi ve kolay talepler, `/admin/changes/` kırmızı insan incelemesi, `/library/` sektör başlangıçları, `/tools/denim/` deneysel ölçü aracı. `/admin/` ve `/panel/` ortak çalışma alanını kullanır. Platform SQL’i ve Functions kullanıcı onayıyla canlıya kuruldu. Ücretsiz taslak hazırlama yönetici oturumuyla çalışır; ücretli model işçisi kapalıdır. Native bağlantıların eksik kurulumları açıkça gösterilir.
 
 Yeni tasarımlar için tek site editörü kullanılır: [ortak editör sözleşmesi](ms/REQUEST-EDITOR.md). Mr. Space ve Rufcut bu sözleşmeye bağlıdır; `assets/ms-render.js` ile üretilen sonraki tasarımlar alan kimliklerini otomatik alır. Deneme: `/request/?preview=mrspace` veya `/request/?preview=rufcut`.
+
+## Ortak iş emirleri ve telefon uygulaması
+Repair ve Jean Maker aynı Rufcut gelen işler ekranına kaydeder. Fişler çizim ve müşteri bilgileriyle açılır, filtrelenir ve A4 yazdırılır. Panel ana ekrana eklenebilir; izinle Web Push, gönderici kurulumuyla e-posta bildirimi kullanır. Tek platform modülleri, kurulum ve sınırlar: [ms/WORK-ORDERS-APP.md](ms/WORK-ORDERS-APP.md).
