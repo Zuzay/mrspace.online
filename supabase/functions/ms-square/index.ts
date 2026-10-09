@@ -7,6 +7,9 @@
 // Ortam degiskenleri: SQUARE_APP_ID, SQUARE_APP_SECRET, SQUARE_ENV (production | sandbox)
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import "../../../assets/ms-site-catalog.js";
+// @ts-ignore Shared browser/server publication contract.
+const SiteCatalog = globalThis.MsSiteCatalog;
 
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
 const db = createClient(SB_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -67,7 +70,7 @@ async function account(site: string): Promise<Acc | null> {
   return data as Acc;
 }
 
-type Variation = { id: string; name: string; sku: string; upc: string; price: number | null; currency: string; track: boolean; stock: number | null };
+type Variation = { id: string; name: string; sku: string; upc: string; price: number | null; currency: string; track: boolean; stock: number | null; image?: string | null };
 type Item = { id: string; name: string; description: string; image: string | null; variations: Variation[] };
 async function uploadSquareImage(acc: Acc, itemId: string, dataUrl: string, name: string, primary: boolean) {
   const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
@@ -102,6 +105,7 @@ async function catalog(acc: Acc): Promise<Item[]> {
       id: v.id, name: v.item_variation_data?.name || "", sku: v.item_variation_data?.sku || "", upc: v.item_variation_data?.upc || "",
       price: v.item_variation_data?.price_money?.amount ?? null, currency: v.item_variation_data?.price_money?.currency || acc.currency,
       track: !!v.item_variation_data?.track_inventory, stock: null,
+      image: images.get((v.item_variation_data?.image_ids || [])[0]) || null,
     })),
   }));
   const ids = items.flatMap((i) => i.variations.map((v) => v.id));
@@ -134,6 +138,18 @@ async function setCount(acc: Acc, variationId: string, qty: number) {
     changes: [{ type: "PHYSICAL_COUNT", physical_count: { catalog_object_id: variationId, state: "IN_STOCK", location_id: acc.location_id,
       quantity: String(Math.max(0, Math.floor(qty))), occurred_at: new Date().toISOString() } }] }) });
 }
+async function publications(site: string) {
+  const {data,error}=await db.from("ms_catalog_publications").select("*").eq("site",site);
+  if(error)throw new Error("catalog_settings_unavailable");
+  return new Map((data||[]).map((rule: any)=>[rule.item_id,rule]));
+}
+async function savePublication(site: string,item: Item,input: any,email: string) {
+  const clean=SiteCatalog.validate(item,input,site);
+  const {error}=await db.from("ms_catalog_publications").upsert({site,item_id:item.id,...clean,updated_by:email,updated_at:new Date().toISOString()},{onConflict:"site,item_id"});
+  if(error)throw new Error("catalog_save_failed");
+  return clean;
+}
+const uuid=(value: unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)?value:crypto.randomUUID();
 const log = (site: string, action: string, who = "client") => db.from("ms_activity").insert({ site, who, action });
 
 // ---------- kim cagiriyor ----------
@@ -146,8 +162,13 @@ async function who(req: Request) {
 async function role(email: string | null, site: string): Promise<"admin" | "client" | null> {
   if (!email || !site) return null;
   const a = await db.from("ms_admins").select("email").eq("email", email).maybeSingle();
+  if (a.error) throw new Error("access_check_failed");
   if (a.data) return "admin";
+  const viewer=await db.from("ms_viewers").select("until").eq("email",email).maybeSingle();
+  if(viewer.error)throw new Error("access_check_failed");
+  if(viewer.data&&(!viewer.data.until||viewer.data.until>=new Date().toISOString().slice(0,10)))return null;
   const m = await db.from("ms_site_users").select("email").eq("email", email).eq("site", site).maybeSingle();
+  if(m.error)throw new Error("access_check_failed");
   return m.data ? "client" : null;
 }
 
@@ -182,12 +203,9 @@ Deno.serve(async (req) => {
       const site = url.searchParams.get("site") || "";
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
-      const hidden = new Set(acc.hidden_catalog_items || []);
-      const items = (await catalog(acc)).filter((i) => !hidden.has(i.id)).map((i) => ({
-        name: i.name, description: i.description, image: i.image,
-        variations: i.variations.filter((v) => v.stock == null || v.stock > 0).map((v) => ({ name: v.name, price: v.price, currency: v.currency, stock: v.stock })),
-      })).filter((i) => i.variations.length);
-      return json({ items }, 200, { "Cache-Control": "public, max-age=30" });
+      const rules=await publications(site),hidden=new Set(acc.hidden_catalog_items||[]);
+      const items=(await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id)));
+      return json({items},200,{"Cache-Control":"public, max-age=30"});
     }
 
     // ----- panel islemleri -----
@@ -216,11 +234,14 @@ Deno.serve(async (req) => {
     if (!acc) return json({ error: "not_connected" }, 400);
 
     if (action === "catalog") {
-      const hidden = new Set(acc.hidden_catalog_items || []);
-      return json({ items: (await catalog(acc)).map((i) => ({ ...i, visible: !hidden.has(i.id) })), location: acc.location_name, currency: acc.currency });
+      const rules=await publications(site);
+      return json({items:(await catalog(acc)).map(i=>({...i,publication:SiteCatalog.settings(i,rules.get(i.id)),needs_review:SiteCatalog.pending(i,rules.get(i.id))})),sections:SiteCatalog.sections(site),public:acc.public_catalog,location:acc.location_name,currency:acc.currency});
     }
 
     if (action === "set_count") {
+      const owner=(await catalog(acc)).find(i=>i.variations.some(v=>v.id===body.variation));
+      if(!owner)return json({error:"item_not_found"},404);
+      if(!Number.isSafeInteger(body.qty)||body.qty<0||body.qty>1000000)return json({error:"bad_quantity"},400);
       await setCount(acc, String(body.variation), Number(body.qty));
       await log(site, `Stock set: ${String(body.label || body.variation).slice(0, 80)} = ${Math.max(0, Math.floor(Number(body.qty)))}`, r === "admin" ? "uzay" : "client");
       return json({ ok: true });
@@ -254,29 +275,34 @@ Deno.serve(async (req) => {
       return json({ ok: true, updated: updates.length });
     }
 
-    if (action === "add_item") {
-      const name = String(body.name || "").trim().slice(0, 255);
-      const cents = Math.round(Number(body.price || 0) * 100);
-      if (!name || !(cents >= 0)) return json({ error: "bad_item" }, 400);
-      const sku = String(body.sku || "").trim().slice(0, 40) || `${acc.sku_prefix || site.slice(0, 2).toUpperCase()}-${Date.now().toString(36).toUpperCase().slice(-6)}`;
-      const d = await sq(acc.access_token, "/v2/catalog/object", { method: "POST", body: JSON.stringify({
-        idempotency_key: crypto.randomUUID(),
-        object: { type: "ITEM", id: "#item", present_at_all_locations: true, item_data: {
-          name, description: body.description ? String(body.description).slice(0, 4000) : undefined,
-          variations: [{ type: "ITEM_VARIATION", id: "#var", present_at_all_locations: true, item_variation_data: {
-            item_id: "#item", name: String(body.variant || "Regular").slice(0, 255), sku, pricing_type: "FIXED_PRICING",
-            price_money: { amount: cents, currency: acc.currency || "USD" }, track_inventory: true } }] } } }) });
-      const variation = d.catalog_object?.item_data?.variations?.[0]?.id;
-      const qty = Math.max(0, Math.floor(Number(body.qty || 0)));
-      if (variation && qty) await setCount(acc, variation, qty);
-      const images = Array.isArray(body.images) ? body.images.slice(0, 6) : [];
-      let image_error: string | null = null, photos_uploaded = 0;
-      for (let i = 0; i < images.length; i++) {
-        try { await uploadSquareImage(acc, d.catalog_object?.id, String(images[i]), `${sku}-${i + 1}`, i === 0); photos_uploaded++; }
-        catch (e) { image_error = String(e.message || e).slice(0, 200); break; }
-      }
-      await log(site, `Item added to Square: ${name}${body.variant ? " " + body.variant : ""} (${sku})`, r === "admin" ? "uzay" : "client");
-      return json({ ok: true, item: d.catalog_object?.id, variation, sku, photos_uploaded, image_error });
+    if (action === "save_publication") {
+      const item=(await catalog(acc)).find(i=>i.id===body.item);
+      if(!item)return json({error:"item_not_found"},404);
+      const publication=await savePublication(site,item,body.publication,email!);
+      await log(site,`Website placement: ${item.name} -> ${publication.section} / ${publication.layout}`,r==="admin"?"uzay":"client");
+      return json({ok:true,publication});
+    }
+
+    if (action === "add_item" || action === "add_variation") {
+      const isVariant=action==="add_variation",name=String(body.name||"").trim().slice(0,255),cents=Math.round(Number(body.price)*100),qty=Number(body.qty||0);
+      const parent=isVariant?(await catalog(acc)).find(i=>i.id===body.item):null;
+      if(isVariant&&!parent)return json({error:"item_not_found"},404);
+      if((!isVariant&&!name)||!String(body.variant||"").trim()&&isVariant||typeof body.price!=="number"||!Number.isSafeInteger(cents)||cents<0||!Number.isSafeInteger(qty)||qty<0||qty>1000000)return json({error:"bad_item"},400);
+      // Validate placement before any Square write. Variant IDs are assigned by Square below.
+      if(!isVariant)SiteCatalog.validate({variations:[{id:"new"}]},{section:body.section||"review",layout:"grouped",title:"",variations:{new:{visible:true,title:""}}},site);
+      const sku=String(body.sku||"").trim().slice(0,40)||`${acc.sku_prefix||site.slice(0,2).toUpperCase()}-${uuid(body.submission_token).replace(/-/g,"").slice(0,12).toUpperCase()}`;
+      const variationData={item_id:parent?.id||"#item",name:String(body.variant||"Regular").trim().slice(0,255),sku,pricing_type:"FIXED_PRICING",price_money:{amount:cents,currency:acc.currency||"USD"},track_inventory:body.track!==false};
+      const variantObject={type:"ITEM_VARIATION",id:"#var",present_at_all_locations:true,item_variation_data:variationData};
+      const d=await sq(acc.access_token,"/v2/catalog/object",{method:"POST",body:JSON.stringify({idempotency_key:uuid(body.submission_token),object:isVariant?variantObject:{type:"ITEM",id:"#item",present_at_all_locations:true,item_data:{name,description:body.description?String(body.description).slice(0,4000):undefined,variations:[variantObject]}}})});
+      const itemId=parent?.id||d.catalog_object?.id,variation=isVariant?d.catalog_object?.id:d.catalog_object?.item_data?.variations?.[0]?.id;
+      if(!itemId||!variation)throw new Error("square_item_not_confirmed");
+      let stock_error: string|null=null,image_error: string|null=null,publication_error: string|null=null,photos_uploaded=0;
+      if(variationData.track_inventory&&qty)try{await setCount(acc,variation,qty);}catch(e){stock_error=String(e.message||e).slice(0,200);}
+      const images=Array.isArray(body.images)?body.images.slice(0,6):[];
+      for(let i=0;i<images.length;i++)try{await uploadSquareImage(acc,itemId,String(images[i]),`${sku}-${i+1}`,i===0);photos_uploaded++;}catch(e){image_error=String(e.message||e).slice(0,200);break;}
+      if(!isVariant)try{await savePublication(site,{id:itemId,name,description:"",image:null,variations:[{id:variation,name:variationData.name,sku,upc:"",price:cents,currency:acc.currency,track:variationData.track_inventory,stock:qty}]},{section:body.section||"review",layout:"grouped",title:"",variations:{[variation]:{visible:true,title:""}}},email!);}catch(e){publication_error=String(e.message||e).slice(0,200);}
+      await log(site,`Square ${isVariant?"variation":"item"} added: ${name||parent?.name} (${sku})`,r==="admin"?"uzay":"client");
+      return json({ok:true,item:itemId,variation,sku,photos_uploaded,image_error,stock_error,publication_error});
     }
 
     if (action === "add_photos") {
@@ -290,22 +316,12 @@ Deno.serve(async (req) => {
     }
 
     if (action === "set_public") {
-      await db.from("ms_square").update({ public_catalog: !!body.value, updated_at: new Date().toISOString() }).eq("site", site);
+      const {error}=await db.from("ms_square").update({ public_catalog: !!body.value, updated_at: new Date().toISOString() }).eq("site", site);
+      if(error)throw new Error("catalog_save_failed");
       await log(site, body.value ? "Stock shown on the site" : "Stock hidden from the site", r === "admin" ? "uzay" : "client");
       return json({ ok: true });
     }
 
-    if (action === "set_item_public") {
-      const item = String(body.item || "");
-      const visible = !!body.value;
-      if (!item || !(await catalog(acc)).some((i) => i.id === item)) return json({ error: "item_not_found" }, 404);
-      const hidden = new Set(acc.hidden_catalog_items || []);
-      if (visible) hidden.delete(item); else hidden.add(item);
-      const { error } = await db.from("ms_square").update({ hidden_catalog_items: [...hidden], updated_at: new Date().toISOString() }).eq("site", site);
-      if (error) throw error;
-      await log(site, `${visible ? "Item shown on site" : "Item hidden from site"}: ${item}`, r === "admin" ? "uzay" : "client");
-      return json({ ok: true, visible });
-    }
 
     if (action === "disconnect") {
       await fetch(API + "/oauth2/revoke", { method: "POST",
@@ -318,6 +334,6 @@ Deno.serve(async (req) => {
 
     return json({ error: "unknown_action" }, 400);
   } catch (e) {
-    return json({ error: String((e as Error).message || e) }, 500);
+    return json({ error: String((e as Error).message || e) }, /^(catalog_invalid|catalog_no_variations)$/.test(String((e as Error).message||e))?400:500);
   }
 });

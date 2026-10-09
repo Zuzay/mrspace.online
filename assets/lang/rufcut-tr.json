@@ -16,5 +16,13 @@
   "Track my work order": "İş emrimi takip et",
   "Too many requests. Please try again later.": "Çok fazla talep var. Lütfen daha sonra tekrar dene.",
   "We couldn’t send your design. Your draft is still here. Please try again.": "Tasarımın gönderilemedi. Taslağın burada duruyor. Lütfen tekrar dene.",
-  "Close": "Kapat"
+  "Close": "Kapat",
+  "From the shop": "Mağazadan",
+  "Good denim, vintage finds and pieces made at the bench. Choose a size or style to see its price.": "İyi denim, vintage parçalar ve atölyede yapılanlar. Fiyatı görmek için beden veya model seç.",
+  "Choose a size or style": "Beden veya model seç",
+  "Ask the shop for pricing": "Fiyatı mağazaya sor",
+  "Contact the shop to confirm availability.": "Mevcut durumu öğrenmek için mağazayla görüş.",
+  "Ask about this workshop": "Bu workshop hakkında bilgi al",
+  "Ask the shop": "Mağazaya sor",
+  "We could not load the collection. Please refresh or call the shop.": "Koleksiyon yüklenemedi. Sayfayı yenile veya mağazayı ara."
 }

@@ -3,7 +3,7 @@
 English customer handover guide: `rufcut/docs/rufcut-system-guide.pdf`.
 Public copy: https://mrspace.online/rufcut/docs/rufcut-system-guide.pdf
 
-The nine-page PDF uses screenshots from the actual UI, sample customer records, external link annotations, internal contents navigation and PDF bookmarks. It contains no passwords, site keys or customer records. It distinguishes a workshop request from a payment receipt and clearly states that Rufcut email delivery is awaiting handover setup.
+The 11-page PDF uses screenshots from the actual UI, sample customer records, external link annotations, internal contents navigation and PDF bookmarks. It contains no passwords, site keys or customer records. It distinguishes a workshop request from a payment receipt and clearly states that Rufcut email delivery is awaiting handover setup.
 
 ## Rebuild
 
@@ -19,3 +19,5 @@ python3 ms/guides/build-rufcut-guide.py
 The builder uses ReportLab and macOS Arial/Impact font files. Set `MS_GUIDE_OUTPUT` to change its default `output/pdf/rufcut-system-guide.pdf` output. Render all pages with Poppler, inspect every page and check link annotations with pypdf before copying the approved result to `rufcut/docs/rufcut-system-guide.pdf`. Intermediate captures and rendered pages stay outside Git.
 
 For updates, match button names to the live interface and refresh screenshots after layout changes. Keep the guide focused on the shop's daily tasks, not implementation details. The PDF is intentionally English for Rufcut.
+
+Revision 02 adds Site catalog, grouped/separate choices, new-item review, the first-entry shortcut guide and its bottom opt-out control. The permanent Need help? tab reopens the guide.
