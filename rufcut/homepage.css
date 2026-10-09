@@ -122,3 +122,88 @@ footer{padding:35px 0 24px;border-top:1px solid var(--rule)}.footer-wordmark{fon
 .store-choice{display:grid;gap:7px;margin:12px 0;font-size:12px}.store-choice select{width:100%;min-height:44px;padding:10px;background:var(--paper,var(--bg));color:var(--ink);border:1px solid currentColor;border-radius:4px;font:inherit}.item .in>small{display:block;line-height:1.5;opacity:.75;margin-bottom:12px}.item .in>.text-link{margin-top:12px;display:inline-block}.store-offers{padding-top:24px}.repair-footer{display:block}.repair-footer>.text-link{display:inline-block;margin-top:20px}.repair-footer .store-offers .ph{display:none}.repair-footer .store-offers{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.repair-footer .store-offers h3{font-size:20px}.store-offers .item{min-width:0}
 
 .category-filters{gap:8px;margin-bottom:22px}.category-filters .chip{min-height:44px}.shop-group-title{grid-column:1 / -1;font:500 clamp(24px,3vw,36px) var(--display);letter-spacing:-.02em;padding:26px 0 12px;border-top:1px solid var(--rule);margin:12px 0 0}.shop-group-title:first-child{margin-top:0;padding-top:10px;border-top:0}
+
+/* Material tones: copper for cut, sage for color/repair, ochre for finishing/shop.
+   Scope stays on Rufcut; editor fields, garment colors and shared flows are unchanged. */
+:root{
+ --tone-cut:#934a25;--tone-color:#346b55;--tone-finish:#806016;--tone-on:#fff;
+ --tint-cut:#f2e6df;--tint-color:#e5eee8;--tint-finish:#f1ecda;
+ --bench:#faf8f3;--maker-ground:#e9e7e0;--repair-ground:#e5ebe5;--shop-ground:#eae8e2;
+ --drawing-ground:#e4ddce;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --tone-cut:#e4a177;--tone-color:#a6c9b3;--tone-finish:#e1c473;--tone-on:#171e27;
+ --tint-cut:#302720;--tint-color:#21312c;--tint-finish:#322e21;
+ --bench:#19212b;--maker-ground:#141d28;--repair-ground:#142321;--shop-ground:#1c2027;
+ --drawing-ground:#c8bfac;
+}}
+:root[data-theme="dark"]{
+ --tone-cut:#e4a177;--tone-color:#a6c9b3;--tone-finish:#e1c473;--tone-on:#171e27;
+ --tint-cut:#302720;--tint-color:#21312c;--tint-finish:#322e21;
+ --bench:#19212b;--maker-ground:#141d28;--repair-ground:#142321;--shop-ground:#1c2027;
+ --drawing-ground:#c8bfac;
+}
+.doors-section .studio-links{border-top:0;padding-top:0}
+.doors-section .studio-links>a{--door-tone:var(--tone-cut);border-top:3px solid var(--door-tone);padding-top:20px}
+.doors-section .studio-links>a[href="#vintage"]{--door-tone:var(--tone-finish)}
+.doors-section .studio-links>a[href="#repairs"]{--door-tone:var(--tone-color)}
+.doors-section .studio-links strong>span{color:var(--door-tone)}
+#build{background:var(--maker-ground);border-block:1px solid var(--rule);margin-top:60px}
+#build .section-kicker{color:var(--tone-cut)}
+#build .builder{background:var(--bench);border-color:var(--rule)}
+#build .preview{
+ --paper:#e8e1d4;--ink:#1c2c3d;--mute:#48545c;--rule:#1c2c3d3d;
+ background:var(--drawing-ground);color:var(--ink);border-top:3px solid var(--tone-cut);
+}
+.preview-top>span{color:var(--ink)}
+.view-switch{border-color:var(--mute)}
+.summary-chip{border-bottom:2px solid var(--summary-tone,#934a25)}
+.summary-chip:nth-child(3),.summary-chip:nth-child(4){--summary-tone:#346b55}
+.summary-chip:nth-child(5),.summary-chip:nth-child(6){--summary-tone:#806016}
+.opts{--maker-accent:var(--tone-cut);--maker-tint:var(--tint-cut)}
+.opts:has(#maker-tab-1[aria-selected="true"]){--maker-accent:var(--tone-color);--maker-tint:var(--tint-color)}
+.opts:has(#maker-tab-2[aria-selected="true"]){--maker-accent:var(--tone-finish);--maker-tint:var(--tint-finish)}
+#maker-tab-0,#maker-panel-0{--maker-accent:var(--tone-cut);--maker-tint:var(--tint-cut)}
+#maker-tab-1,#maker-panel-1{--maker-accent:var(--tone-color);--maker-tint:var(--tint-color)}
+#maker-tab-2,#maker-panel-2{--maker-accent:var(--tone-finish);--maker-tint:var(--tint-finish)}
+.maker-tabs button{
+ background:var(--maker-tint);color:var(--maker-accent);border-top:3px solid var(--maker-accent);
+ border-bottom:2px solid transparent;line-height:1.5;
+}
+.maker-tabs button+button{border-left:1px solid var(--rule)}
+.maker-tabs button[aria-selected="true"]{
+ color:var(--tone-on);background:var(--maker-accent);border-bottom-color:var(--tone-on);font-weight:700;
+}
+.maker-panel{background:var(--maker-tint)}
+.maker-panel .step{padding:18px;border:1px solid var(--rule);border-left:3px solid var(--maker-accent);background:var(--bench)}
+.maker-panel .step+.step{margin-top:16px}
+.maker-panel .step h3{color:var(--maker-accent)}
+.maker-panel .chip{background:var(--bench)}
+.maker-panel .chip[aria-pressed="true"]{background:var(--maker-accent);color:var(--tone-on);border-color:var(--maker-accent);font-weight:700}
+.maker-panel .sw{border-color:var(--bench);outline-color:var(--mute)}
+.maker-panel .sw[aria-pressed="true"]{outline:3px solid var(--maker-accent);outline-offset:3px;box-shadow:0 0 0 2px var(--bench)}
+.maker-navigation{background:var(--maker-tint)}
+.maker-navigation .btn.secondary{color:var(--maker-accent);border-color:var(--maker-accent)}
+.ready{background:var(--bench);border-top:1px solid var(--rule)}
+.craft-story{padding-top:75px}
+#repairs{background:var(--repair-ground);border-top:1px solid var(--tone-color)}
+#repairs .section-kicker,#repairs .repair-footer>.text-link{color:var(--tone-color)}
+.repair-shell{border-top-color:var(--tone-color)}
+#order{background:var(--repair-ground)}
+#vintage{background:var(--shop-ground);border-top:1px solid var(--tone-finish);padding-top:65px}
+#vintage .sh{border-left:3px solid var(--tone-finish);padding-left:20px}
+#vintage .category-filters .chip[aria-pressed="true"]{background:var(--tone-finish);border-color:var(--tone-finish);color:var(--tone-on)}
+#vintage .shop-group-title{border-color:var(--tone-finish)}
+#visit .section-kicker{color:var(--tone-finish)}
+@media(hover:hover) and (pointer:fine){
+ .maker-tabs button:hover{box-shadow:inset 0 -3px var(--maker-accent)}
+ .maker-panel .chip:hover{border-color:var(--maker-accent)}
+ .maker-navigation .btn.secondary:hover{background:var(--maker-accent);color:var(--tone-on)}
+}
+@media(max-width:767px){
+ #build{margin-top:40px}.craft-story{padding-top:50px}
+ .doors-section .studio-links>a+a{padding-top:20px}
+ .maker-panel{padding-inline:16px}.maker-panel .step{padding:16px 14px}
+ .maker-panel .chip{padding-inline:12px}
+ #vintage{padding-top:50px}
+}
