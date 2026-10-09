@@ -69,3 +69,6 @@ Yeni tasarımlar için tek site editörü kullanılır: [ortak editör sözleşm
 
 ## Ortak iş emirleri ve telefon uygulaması
 Repair ve Jean Maker aynı Rufcut gelen işler ekranına kaydeder. Fişler çizim ve müşteri bilgileriyle açılır, filtrelenir ve A4 yazdırılır. Panel ana ekrana eklenebilir; izinle Web Push, gönderici kurulumuyla e-posta bildirimi kullanır. Tek platform modülleri, kurulum ve sınırlar: [ms/WORK-ORDERS-APP.md](ms/WORK-ORDERS-APP.md).
+
+## Ortak site kataloğu ve başlangıç rehberi
+Square ürünlerinin site yerleşimi, varyasyon kartları ve yeni kayıt incelemesi ortak paneldeki **Site kataloğu** bölümünden yönetilir. İlk normal girişte kısayol rehberi açılır; sayfanın altındaki tercihle kapatılır ve **Yardıma mı ihtiyacın var?** bağlantısından yeniden açılır. Kurulum, kullanım ve testler: [ms/SITE-CATALOG.md](ms/SITE-CATALOG.md).

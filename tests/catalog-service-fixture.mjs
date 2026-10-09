@@ -1,0 +1,23 @@
+import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
+export function catalogService(){
+ let handler;
+ const variation=(id,name,price=49900)=>({type:'ITEM_VARIATION',id,item_variation_data:{item_id:'coat',name,sku:'KEEP-'+id,price_money:{amount:price,currency:'USD'},track_inventory:true}});
+ const state={admin:true,viewer:false,member:false,failSave:false,stockFail:false,public:true,rules:[],objects:[{type:'IMAGE',id:'photo',image_data:{url:'https://example.test/coat.jpg'}},{type:'ITEM',id:'coat',item_data:{name:'Bespoke Chore Coat',image_ids:['photo'],variations:[variation('s','S'),variation('m','M')]}},{type:'ITEM',id:'course',item_data:{name:'Jean Workshop',variations:[{...variation('course-v','5 days',224900),item_variation_data:{...variation('course-v','5 days',224900).item_variation_data,item_id:'course',track_inventory:false}}]}}],counts:[{catalog_object_id:'s',quantity:'1'},{catalog_object_id:'m',quantity:'2'}]};
+ const calls={writes:[],square:[]},created=new Map();
+ const db={auth:{getUser:async token=>({data:{user:token==='test-session'?{email:'owner@example.test'}:null}})},from(table){let filters=[],operation=null;const data=()=>table==='ms_square'?[{site:'rufcut',access_token:'server-secret',currency:'USD',location_id:'shop',public_catalog:state.public,hidden_catalog_items:[]}]:table==='ms_admins'?(state.admin?[{email:'owner@example.test'}]:[]):table==='ms_viewers'?(state.viewer?[{email:'owner@example.test',until:null}]:[]):table==='ms_site_users'?(state.member?[{email:'owner@example.test',site:'rufcut'}]:[]):table==='ms_catalog_publications'?state.rules:[];
+ const run=()=>{if(operation){calls.writes.push({table,...operation});if(state.failSave&&table==='ms_catalog_publications')return {error:{message:'failed'}};if(table==='ms_catalog_publications'){const row=state.rules.find(r=>r.site===operation.value.site&&r.item_id===operation.value.item_id);if(row)Object.assign(row,operation.value);else state.rules.push(operation.value);}if(table==='ms_square'&&operation.value.public_catalog!==undefined)state.public=operation.value.public_catalog;return {data:null,error:null};}return {data:data().filter(row=>filters.every(([k,v])=>row[k]===v)),error:null};};const q={select(){return q;},eq(k,v){filters.push([k,v]);return q;},upsert(value){operation={type:'upsert',value};return q;},update(value){operation={type:'update',value};return q;},insert(value){operation={type:'insert',value};return q;},maybeSingle:async()=>{const r=run();return {...r,data:r.data?.[0]||null};},then(resolve,reject){return Promise.resolve(run()).then(resolve,reject);}};return q;}};
+ const fetcher=async(url,options={})=>{const u=new URL(url),body=options.body?JSON.parse(options.body):null;calls.square.push({path:u.pathname,body});let out={};
+ if(u.pathname==='/v2/catalog/list')out={objects:state.objects};
+ else if(u.pathname==='/v2/inventory/counts/batch-retrieve')out={counts:state.counts};
+ else if(u.pathname==='/v2/inventory/changes/batch-create'){if(state.stockFail)return Response.json({errors:[{detail:'stock_failed'}]},{status:503});}
+ else if(u.pathname==='/v2/catalog/object'){
+  if(created.has(body.idempotency_key))return Response.json(created.get(body.idempotency_key));
+  const obj=structuredClone(body.object);obj.id='new-'+created.size;if(obj.type==='ITEM'){obj.item_data.variations[0].id=obj.id+'-v';obj.item_data.variations[0].item_variation_data.item_id=obj.id;state.objects.push(obj);}else{state.objects.find(i=>i.id===obj.item_variation_data.item_id).item_data.variations.push(obj);}
+  out={catalog_object:obj};created.set(body.idempotency_key,out);
+ }else throw Error('Unexpected Square API '+u.pathname);return Response.json(out);};
+ const shared=fs.readFileSync(new URL('../assets/ms-site-catalog.js',import.meta.url),'utf8'),source=fs.readFileSync(new URL('../supabase/functions/ms-square/index.ts',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'');
+ vm.runInNewContext(shared+'\n'+stripTypeScriptTypes(source,{mode:'strip'}),{Deno:{env:{get:k=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only'}[k])},serve:fn=>handler=fn},createClient:()=>db,Request,Response,Headers,URL,TextEncoder,TextDecoder,Uint8Array,crypto,atob,btoa,FormData,Blob,fetch:fetcher,console});
+ const post=(body,auth=true)=>handler(new Request('https://test.supabase.co/functions/v1/ms-square',{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer test-session'}:{})},body:JSON.stringify({site:'rufcut',...body})}));
+ const publicCatalog=()=>handler(new Request('https://test.supabase.co/functions/v1/ms-square/public?site=rufcut'));
+ return {state,calls,post,publicCatalog};
+}

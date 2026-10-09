@@ -168,7 +168,7 @@ dialog .wide{grid-column:1/-1}
   <div class="mark"><i></i><span id="siteName" data-noi18n></span></div>
   <nav id="nav">
    <button data-v="workspace">Workspace</button><button data-v="home" class="on">Overview</button>
-   <button data-v="stock">Stock</button>
+   <button data-v="stock">Stock</button><button data-v="catalog" data-noi18n>Site catalog</button><button data-v="help" data-noi18n>Need help?</button>
    <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
    <button data-v="repairs" hidden>Work orders <span class="mono" id="repairCount"></span></button>
   </nav>
@@ -184,8 +184,8 @@ dialog .wide{grid-column:1/-1}
 <div class="toast" id="toast" role="status"></div>
 <div id="print" aria-hidden="true"></div>
 
-<link rel="stylesheet" href="../assets/ms-platform.css">
-<script src="../assets/ms-catalog.js"></script>
+<link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../assets/ms-catalog-panel.css?v=20261010">
+<script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261010"></script><script src="../assets/ms-catalog-panel.js?v=20261010"></script>
 <script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261009-orders"></script><script src="../assets/ms-panel-app.js?v=20261009-orders"></script>
 <script>
 "use strict";
@@ -209,7 +209,7 @@ async function auth(grant, body){
   saveSession(d);
 }
 async function fresh(){ if (SS && Date.now()/1000 > SS.expires_at - 60) { try { await auth("refresh_token", { refresh_token:SS.refresh_token }); } catch (e) { logout(); throw new Error("Session ended, sign in again"); } } }
-function logout(){ void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
+function logout(){ if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave")))return;MsCatalogPanel.clear();void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
 async function rpc(fn, body = {}){
   await fresh();
   const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify(body) });
@@ -227,6 +227,7 @@ async function sq(action, extra = {}){
 
 /* ---------- state ---------- */
 let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, REPAIRS = null, REPAIR_ERROR = false, FILTER = "all", QUERY = "";
+let CATALOG_ERROR=false;
 let QUEUE = []; // {key,name,variant,price,currency,sku,qty}
 const OPT = { size:"2.25x1.25", shop:true, price:true, variant:true };
 try { Object.assign(OPT, JSON.parse(localStorage.getItem("ms_label_opts") || "{}")); QUEUE = JSON.parse(localStorage.getItem("ms_label_queue") || "[]"); } catch (e) {}
@@ -237,8 +238,10 @@ const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25,
 function render(){
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
   $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
-  $("#main").innerHTML = ({ home, stock, labels, repairs, workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
+  $("#main").innerHTML = ({ home, stock, labels, repairs, catalog, help:()=>MsCatalogPanel.help(SITE), workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
   bind();
+  if(VIEW==="help")MsCatalogPanel.bindHelp($("#main"),SITE,()=>{VIEW=SITE.slug==="rufcut"?"repairs":"home";render();});
+  if(VIEW==="catalog"&&SQ?.connected)MsCatalogPanel.bind($("#main"),{items:ITEMS||[],site:SITE,save:(item,publication)=>sq("save_publication",{item,publication}),render,refresh:loadItems,addVariant,demo:DEMO,notify:toast});
   if(VIEW==="repairs")MsOrders.bind($("#main"),{jobs:REPAIRS||[],render});
   if(VIEW === "workspace") MsPlatform.mount(document.getElementById("workspaceRoot"),{admin:false,demo:DEMO,site:SITE.slug,rpc});
   if (window.MSI18N) MSI18N.apply($("#main"));
@@ -304,9 +307,13 @@ function stock(){
      <div class="acts">
       ${v.stock == null ? '<span class="m">Not tracked</span>' : `<div class="qty"><button data-step="-1" data-v="${esc(v.id)}" aria-label="One less">−</button><input inputmode="numeric" data-count="${esc(v.id)}" data-was="${v.stock}" value="${v.stock}" class="${v.stock === 0 ? "out0" : ""}" aria-label="Stock"><button data-step="1" data-v="${esc(v.id)}" aria-label="One more">+</button></div>
       <button class="btn sm solid" data-save="${esc(v.id)}" hidden>Save</button>`}
-      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-publish="${esc(i.id)}">${esc(T(i.visible === false ? "Show online" : "Hide online"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
+      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-go="catalog">${esc(MsCatalogPanel.t("catalog"))}</button><button class="btn sm ghost" data-add-variant="${esc(i.id)}">${esc(MsCatalogPanel.t("add_variant"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
       <button class="btn sm ghost" data-label="${esc(v.id)}">Label</button>
      </div></div>`).join("") : '<div class="empty">Nothing matches.</div>'}</div>`;
+}
+function catalog(){
+ if(!SQ?.connected)return `<div class="head" data-noi18n><div><h1>${esc(MsCatalogPanel.t("catalog"))}</h1><p>${esc(MsCatalogPanel.t("not_connected"))}</p></div></div><button class="btn sun" data-go="home">${esc(T("Overview"))}</button>`;
+ return MsCatalogPanel.render(ITEMS,{site:SITE,public:SQ.public,error:CATALOG_ERROR,demo:DEMO});
 }
 function labelHTML(q){
   const [, w, h] = SIZES[OPT.size] || SIZES["2.25x1.25"];
@@ -361,8 +368,9 @@ function addToQueue(i, v, qty){
 }
 async function loadItems(){
   if (!SQ || !SQ.connected) return;
+  const selected=SITE.slug;CATALOG_ERROR=false;
   ITEMS = null; if (VIEW !== "labels") render();
-  try { const d = await sq("catalog"); ITEMS = d.items || []; } catch (e) { ITEMS = []; toast(e.message); }
+  try { const d = await sq("catalog");if(SITE.slug!==selected)return; ITEMS = d.items || []; } catch (e) {if(SITE.slug!==selected)return; ITEMS = [];CATALOG_ERROR=true; toast(e.message); }
   render();
 }
 function dialog(title, fields, onSave, label = "Save"){
@@ -370,6 +378,8 @@ function dialog(title, fields, onSave, label = "Save"){
    <form id="dlgForm">${fields}<div class="wide" style="display:flex;justify-content:flex-end"><button class="btn sun" type="submit">${esc(T(label))}</button></div></form>`;
   const d = $("#dlg"); if (window.MSI18N) MSI18N.apply(d); d.showModal();
   d.querySelector("[data-close]").onclick = () => d.close();
+  const itemName=d.querySelector("[name=name]");if(itemName)itemName.required=true;
+  const price=d.querySelector("[name=price]");if(price){price.required=true;price.step="0.01";}
   $("#dlgForm").onsubmit = async e => {
     e.preventDefault(); const btn = e.target.querySelector("[type=submit]"); btn.disabled = true;
     try { await onSave(Object.fromEntries(new FormData(e.target).entries())); d.close(); } catch (err) { toast(err.message); }
@@ -396,6 +406,15 @@ async function photoData(input){
   return out;
 }
 
+function addVariant(item){
+ const token=crypto.randomUUID(),ct=MsCatalogPanel.t;
+ dialog("Size or variant",`<div class="wide cat-add-explain" data-noi18n>${esc(ct("variant_context"))}: <b>${esc(item.name)}</b><p>${esc(ct("variant_help"))}</p></div>`+fld("Size or variant","variant","text",' class="wide"')+fld("Price","price","number")+fld("How many","qty","number","","1")+fld("SKU (empty = automatic)","sku"),async v=>{
+ if(DEMO)throw Error(ct("demo"));
+ const d=await sq("add_variation",{item:item.id,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,track:item.variations.some(v=>v.track),submission_token:token});
+ toast(ct(d.stock_error?"partial":"after_add"));VIEW="catalog";await loadItems();
+ },"Add to Square");
+ document.querySelector('#dlgForm [name=variant]').required=true;
+}
 async function act(a, el){
   if (a === "connect") { if (DEMO) return toast("Demo: this opens Square to sign in"); const d = await sq("connect"); location.href = d.url; return; }
   if (a === "disconnect") { if (!confirm(T("Disconnect Square from your panel and site?"))) return; await sq("disconnect"); SQ = { connected:false }; ITEMS = null; toast("Square disconnected"); return render(); }
@@ -408,19 +427,22 @@ async function act(a, el){
     return toast(T("SKUs assigned") + `: ${d.updated}`);
   }
   if (a === "reload") return loadItems();
-  if (a === "add") return dialog("Add item", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") +
-      fld("How many", "qty", "number", "", "1") + fld("SKU (empty = automatic)", "sku") +
-      `<label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple capture="environment"></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
-    async v => {
-      if (!v.name) throw new Error(T("Enter a name"));
-      const images=await photoData(document.querySelector('#dlgForm [name="photos"]'));
-      const d = await sq("add_item", { name:v.name, variant:v.variant, price:Number(v.price || 0), qty:Number(v.qty || 0), sku:v.sku, description:v.description, images });
-      toast("Added to Square");
-      if(DEMO&&images.length)toast(T("Demo photos cannot be saved"));
-      if(d.image_error)toast(T("Photo upload failed")+": "+d.image_error);
-      if (v.labels && Number(v.qty) > 0) addToQueue({ name:v.name }, { id:d.variation, name:v.variant || "", price:Math.round(Number(v.price || 0) * 100), currency:SQ.currency || "USD", sku:d.sku }, Number(v.qty));
-      await loadItems();
-    }, "Add to Square");
+  if (a === "add") {
+    const token=crypto.randomUUID(),ct=MsCatalogPanel.t;
+    dialog("Add item",`<div class="wide cat-add-explain" data-noi18n>${esc(ct("create_help"))}<p>${esc(ct("help1"))}</p></div>`+fld("Name", "name", "text", ' class="wide"')+fld("Size or variant", "variant")+fld("Price", "price", "number")+
+      fld("How many", "qty", "number", "", "1")+fld("SKU (empty = automatic)", "sku")+
+      `<label class="switch wide" data-noi18n><input type="checkbox" name="track" checked><span>${esc(ct("track_inventory"))}</span></label><div class="wide" data-noi18n>${MsCatalogPanel.sectionSelect(SITE)}<p class="cat-add-explain" data-add-placement>${esc(ct("review_help"))}</p></div><label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
+      async v=>{
+        if(DEMO)throw new Error(ct("demo"));
+        const images=await photoData(document.querySelector('#dlgForm [name="photos"]'));
+        const d=await sq("add_item",{name:v.name,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,description:v.description,images,section:v.section,track:!!v.track,submission_token:token});
+        toast(ct(d.image_error||d.stock_error||d.publication_error?"partial":"after_add"));
+        if(v.labels&&Number(v.qty)>0)addToQueue({name:v.name},{id:d.variation,name:v.variant||"",price:Math.round(Number(v.price)*100),currency:SQ.currency||"USD",sku:d.sku},Number(v.qty));
+        VIEW="catalog";await loadItems();
+      },"Add to Square");
+    const dest=document.querySelector('#dlgForm [name=section]');dest.onchange=()=>{if(["workshop","repair"].includes(dest.value))document.querySelector('#dlgForm [name=track]').checked=false;document.querySelector('[data-add-placement]').textContent=ct(dest.value==='review'?'review_help':dest.value==='hidden'?'hidden_help':'destination')+(dest.value==='review'||dest.value==='hidden'?'':' '+MsCatalogPanel.section(dest.value));};
+    return;
+  }
   if (a === "manual") return dialog("Add a label by hand", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") + fld("SKU or code", "sku") + fld("Copies", "qty", "number", "", "1"),
     async v => { if (!v.name) throw new Error(T("Enter a name")); addToQueue({ name:v.name }, { id:null, name:v.variant, price:v.price === "" ? null : Math.round(Number(v.price) * 100), currency:"USD", sku:v.sku }, Math.max(1, Number(v.qty || 1))); render(); }, "Add");
   if (a === "clearq") { QUEUE = []; saveQ(); return render(); }
@@ -454,18 +476,7 @@ function bind(){
     b.disabled = true;
     try { await sq("set_count", { variation:id, qty, label:f ? f.i.name + " " + f.v.name : id }); f.v.stock = qty; toast("Saved in Square"); render(); } catch (e) { toast(e.message); b.disabled = false; }
   });
-  document.querySelectorAll("[data-publish]").forEach(b => b.onclick = async () => {
-    const item = ITEMS.find(i => i.id === b.dataset.publish);
-    if (!item) return;
-    b.disabled = true;
-    try {
-      const visible = item.visible === false;
-      await sq("set_item_public", { item:item.id, value:visible });
-      item.visible = visible;
-      toast(T(visible ? "Item shown on site" : "Item hidden from site"));
-      render();
-    } catch (e) { toast(e.message); b.disabled = false; }
-  });
+  document.querySelectorAll("[data-add-variant]").forEach(b=>b.onclick=()=>addVariant(ITEMS.find(i=>i.id===b.dataset.addVariant)));
   document.querySelectorAll("[data-label]").forEach(b => b.onclick = () => { const f = findVar(b.dataset.label); if (!f) return; addToQueue(f.i, f.v, Math.max(1, f.v.stock || 1)); toast(T("Added to labels") + ": " + f.i.name); });
   document.querySelectorAll("[data-qstep]").forEach(b => b.onclick = () => { const q = QUEUE[b.dataset.k]; q.qty = Math.max(1, q.qty + Number(b.dataset.qstep)); saveQ(); render(); });
   document.querySelectorAll("[data-qn]").forEach(i => i.onchange = () => { QUEUE[i.dataset.qn].qty = Math.max(1, Number(i.value.replace(/\D/g, "") || 1)); saveQ(); render(); });
@@ -499,7 +510,7 @@ function demoSq(action, x){
 /* ---------- start ---------- */
 document.querySelectorAll("#nav button").forEach(b => b.onclick = async () => { VIEW = b.dataset.v; if(VIEW==="repairs"&&REPAIRS===null)await loadRepairs(); render(); });
 $("#out").onclick = logout;
-$("#sitePick").onchange = async () => { SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
+$("#sitePick").onchange = async () => { if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCatalogPanel.clear();SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
 $("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", site_key:"demo" }]; await enter(); };
 $("#loginForm").onsubmit = async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
@@ -523,10 +534,14 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
-  await MsPlatform.ready;
+  await Promise.all([MsPlatform.ready,MsCatalogPanel.ready]);
+  $("[data-v=catalog]").textContent=MsCatalogPanel.t("catalog");
+  $("[data-v=help]").textContent=MsCatalogPanel.t("help_nav");
   $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null;REPAIR_ERROR=false; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut";
-  if(SITE.slug==="rufcut"&&(VIEW==="home"||new URLSearchParams(location.search).get("view")==="orders"))VIEW="repairs";
+  if(new URLSearchParams(location.search).get("view")==="catalog")VIEW="catalog";
+  else if(SITE.slug==="rufcut"&&(VIEW==="home"||new URLSearchParams(location.search).get("view")==="orders"))VIEW="repairs";
   else if(SITE.slug!=="rufcut"&&VIEW==="repairs")VIEW="home";
+  if(!DEMO&&(new URLSearchParams(location.search).get("view")==="help"||(!new URLSearchParams(location.search).get("view")&&!MsCatalogPanel.skipHelp(SITE))))VIEW="help";
   render();void MsPanelApp.mount(SITE,!DEMO&&!!SS);
   if(SITE.slug==="rufcut")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});
   try { SQ = await sq("status"); } catch (e) { SQ = { connected:false }; }

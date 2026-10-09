@@ -22,8 +22,10 @@ W, H = A4
 M, CW = 42, W - 84
 INK, PAPER, GOLD, MUTED, LINE = [colors.HexColor(v) for v in ['#111c2e', '#f5f2eb', '#f6b93b', '#56616e', '#c9cdd0']]
 URL = {
-    'panel':'https://mrspace.online/panel/?site=rufcut',
-    'orders':'https://mrspace.online/panel/?site=rufcut&view=orders',
+    'panel':'https://mrspace.online/panel/?site=rufcut&lang=en',
+    'catalog':'https://mrspace.online/panel/?site=rufcut&view=catalog&lang=en',
+    'welcome':'https://mrspace.online/panel/?site=rufcut&view=help&lang=en',
+    'orders':'https://mrspace.online/panel/?site=rufcut&view=orders&lang=en',
     'shop':'https://mrspace.online/rufcut/',
     'repair':'https://mrspace.online/rufcut/repair/',
     'jeans':'https://mrspace.online/rufcut/#build',
@@ -105,32 +107,32 @@ def start(number,section,title,subtitle,dest):
     text('MR. SPACE / OCTOBER 2026',M,H-32,'Body',8,MUTED)
     text('CONTENTS',W-151,H-32,'Bold',8,INK)
     c.linkRect('Back to contents','start',(W-153,16,W-92,34),relative=0,thickness=0)
-    text(f'{number:02} / 09',W-77,H-32,'Body',8,MUTED)
+    text(f'{number:02} / 11',W-77,H-32,'Body',8,MUTED)
 
 def end():c.showPage()
 
 # 1 - A short starting point with links, rather than an account/password handoff.
 rect(0,0,W,H,INK);c.bookmarkPage('start');c.addOutlineEntry('Start here','start',0,False)
 text('RUFCUT',M,31,'Display',35,PAPER)
-text('THE SHOP SYSTEM / FIELD GUIDE 01',M,89,'Body',9,GOLD)
+text('THE SHOP SYSTEM / FIELD GUIDE 02',M,89,'Body',9,GOLD)
 text('YOUR SHOP.',M,127,'Display',57,PAPER)
 text('ONE PLACE.',M,193,'Display',57,PAPER)
 para('Open the panel. See what arrived. Keep the work moving.',M,279,CW,15,PAPER,21)
 button('OPEN YOUR PANEL',M,337,246,URL['panel'],dark=False)
 button('OPEN YOUR WEBSITE',M+263,337,248,URL['shop'])
 para('<b>First visit?</b> Sign in with the Rufcut username and password supplied by Mr. Space. You can enter <b>rufcut</b> in the Username field. For a safe first look, choose <b>Look with sample data</b> on the sign-in screen.',M,400,CW,11,PAPER)
-text('JUMP TO A TASK',M,494,'Body',9,GOLD)
-chapters=[('02 / Find new work','inbox'),('03 / Save & print a ticket','ticket'),('04 / Plan a repair','repair'),('05 / Send a jeans design','jeans'),('06 / Edit text & photos','editor'),('07 / Stock & labels','stock'),('08 / Set up your phone','phone'),('09 / Help & useful links','help')]
+text('JUMP TO A TASK',M,478,'Body',9,GOLD)
+chapters=[('02 / Find new work','inbox'),('03 / Save & print a ticket','ticket'),('04 / Plan a repair','repair'),('05 / Send a jeans design','jeans'),('06 / Edit text & photos','editor'),('07 / Stock & labels','stock'),('08 / Organize the site catalog','catalog'),('09 / Your shortcut guide','welcome'),('10 / Set up your phone','phone'),('11 / Help & useful links','help')]
 for i,(label,dest) in enumerate(chapters):
-    x=M+(i%2)*263;y=520+(i//2)*43
+    x=M+(i%2)*263;y=504+(i//2)*41
     text(label,x,y,'Bold',11,PAPER);c.linkRect(label,dest,(x,H-y-25,x+246,H-y+4),relative=0,thickness=0)
-para('Buttons, underlined links and the task list are clickable. Screens show the real interface with sample customer data. The live website creates real work orders when you press Send.',M,716,CW,9.2,colors.HexColor('#c4ccd5'))
+para('Buttons, underlined links and the task list are clickable. Screens show the real interface with sample customer data. The live website creates real work orders when you press Send.',M,734,CW,9.2,colors.HexColor('#c4ccd5'))
 text('POWERED BY MR. SPACE',M,798,'Body',8,GOLD);text('ENGLISH / OCTOBER 2026',W-195,798,'Body',8,PAPER);end()
 
 # 2 - Inbox.
 start(2,'Work orders','Everything arrives here.','Repairs and jeans designs share one inbox. No separate email thread is needed to find a request.','inbox')
 y=image('inbox',M,176,CW,359);para('Work orders / sample tickets shown',M,y+8,CW,8.5,MUTED)
-y=step(1,'Open Work orders','Sign in to your Rufcut panel. This is the default view for your shop.',M,565)
+y=step(1,'Open Work orders','Sign in to your Rufcut panel. From the start guide, choose <b>New requests and printable tickets</b>, or open <b>Work orders</b>.',M,565)
 y=step(2,'Find the right job','Choose <b>Repairs</b> or <b>Jean Maker</b>. Search a ticket, customer name, email or phone; use <b>Status</b> to narrow the list.',M,y)
 y=step(3,'Open ticket','Click the customer card. Inside are the contact details, selections, drawing and workshop fields.',M,y)
 link('OPEN THE WORK-ORDER INBOX',URL['orders'],M,770);end()
@@ -184,13 +186,29 @@ start(7,'Stock & labels','Keep the shelves in sync.','Square supplies the stock 
 y=image('stock',M,176,CW,326);para('Stock / sample data; demo prices are examples',M,y+8,CW,8.5,MUTED)
 yy=535
 yy=step(1,'Connect your own Square','In <b>Overview</b>, press <b>Connect Square</b> and authorize your shop account. Stock tools become available once connected.',M,yy,245)
-yy=step(2,'Update a product','In <b>Stock</b>, search the item, change the quantity and press <b>Save</b>. <b>Add photos</b> attaches product photos; <b>Show online / Hide online</b> controls its listing.',M,yy,245)
+yy=step(2,'Update a product','In <b>Stock</b>, search the item, change the quantity and press <b>Save</b>. Use <b>Add photos</b> for product images. Website placement is managed in <b>Site catalog</b>.',M,yy,245)
 image('labels',M+270,535,241,170)
 para('<b>Print product labels</b><br/>In Stock, press <b>Label</b> on an item. Open <b>Labels</b>, choose copies and label size, then <b>Print labels</b>. Match paper size and use 100% scale.',M+270,712,241,10.3,MUTED)
 link('OPEN THE PANEL',URL['panel'],M,772);end()
 
+# 8 - Shared catalog publication workspace.
+start(8,'Site catalog','Choose what goes where.','Square holds prices, stock and SKUs. Site catalog controls website placement and how choices are displayed.','catalog')
+y=image('catalog',M,176,CW,308);para('Same product, two sizes: one card with choices. Preview before saving.',M,y+8,CW,8.5,MUTED)
+yy=515
+for n,title,body in [(1,'Choose the destination','Open <b>Site catalog</b>, expand the product and choose <b>Shop</b>, <b>Workshop</b>, <b>Repair</b> or <b>Square only</b>. Fees, shipping and deposits normally stay Square only.'),(2,'Group the right choices','Use <b>One card</b> for sizes or fabrics of the same product. Use <b>Separate card for each choice</b> for different models. Select the included variations and optional website titles.'),(3,'Check, confirm and save','Review <b>Saved placement</b>, the proposed destination and <b>Website preview</b>. Tick the confirmation and press <b>Save website placement</b>. Sold-out tracked choices do not appear.')]:
+    yy=step(n,title,body,M,yy)
+link('OPEN SITE CATALOG',URL['catalog'],M,772);end()
+
+# 9 - Repeatable onboarding, shortcuts and user-controlled dismissal.
+start(9,'Start guide','Your shortcuts stay close.','The start guide opens on your first normal panel entry and remains available from Need help?','welcome')
+y=image('welcome',M,176,CW,295);para('The panel guide links directly to each daily task and to this PDF.',M,y+8,CW,8.5,MUTED)
+yy=505
+for n,title,body in [(1,'Use the shortcut for your task','Open work orders, Site catalog, Stock or the website editor directly. Read the troubleshooting answers before asking for support.'),(2,'Keep new products organized','For a new product, use <b>+ Add product or service</b> and choose its website destination. For another size or fabric, use <b>+ Add variation to this product</b>. New Square items and variations stay unpublished until reviewed.'),(3,'Skip the guide when you are ready','At the very bottom of the guide, tick <b>I know my way around</b>, then press <b>Save preference and open my panel</b>. This preference applies on this device. Reopen <b>Need help?</b> any time; untick and save to restore the guide at entry.')]:
+    yy=step(n,title,body,M,yy)
+link('OPEN THE SHORTCUT GUIDE',URL['welcome'],M,772);end()
+
 # 8 - Installable panel and honest email setup state.
-start(8,'Your phone','Open the shop like an app.','Add the panel to your home screen, then enable notifications on the device you use at the shop.','phone')
+start(10,'Your phone','Open the shop like an app.','Add the panel to your home screen, then enable notifications on the device you use at the shop.','phone')
 image('phone',M+295,178,216,451)
 yy=178
 text('IPHONE / IPAD',M,yy,'Bold',11)
@@ -205,18 +223,18 @@ link('APPLE INSTALLATION HELP',URL['apple'],M,772,9)
 link('CHROME INSTALLATION HELP',URL['chrome'],M+278,772,9);end()
 
 # 9 - Quick reference / recover without losing work.
-start(9,'Help & links','If something needs a second try.','Keep this PDF on your phone. Its buttons open the live pages or the safe editor preview.','help')
+start(11,'Help & links','If something needs a second try.','Keep this PDF on your phone. Its buttons open the live pages or the safe editor preview.','help')
 yy=178
 for n,title,body in [(1,'A customer cannot send','Check the internet connection and required contact fields, then retry. Failed requests keep their draft on that device. A successful submission shows a ticket number; a repeated retry returns the same saved ticket.'),(2,'An order looks missing','Open <b>Work orders</b>, select <b>All</b>, clear search and status filters, and press <b>Refresh</b>. Check that you are signed into the Rufcut account. The list shows the newest 200 orders.'),(3,'A phone alert does not arrive','Open Notifications and check the device is enabled. Check the browser/phone notification permission. On iPhone/iPad, open from the home-screen app. You can always inspect Work orders directly.'),(4,'Your edit is not on the live website','Saving in the editor prepares a draft. Review and send the request; Mr. Space checks it before publishing. Keep the request receipt or edit link for follow-up.')]:
     yy=step(n,title,body,M,yy)
 text('YOUR CLICKABLE SHORTCUTS',M,yy+6,'Bold',11)
-rows=[('Shop panel / sign in','panel'),('Work orders / find a ticket','orders'),('Repair Atelier / customer request','repair'),('Jean Maker / build a pair','jeans'),('Ticket tracker / customer status','track'),('Website editor / requires site access','edit'),('Safe editor preview / no live sending','preview')]
+rows=[('Shop panel / sign in','panel'),('Work orders / find a ticket','orders'),('Site catalog / website placement','catalog'),('Start guide / Need help?','welcome'),('Repair Atelier / customer request','repair'),('Jean Maker / build a pair','jeans'),('Ticket tracker / customer status','track'),('Website editor / requires site access','edit'),('Safe editor preview / no live sending','preview')]
 top=yy+34
 for i,(label,key) in enumerate(rows):
-    ty=top+i*27
-    if i%2==0:rect(M,ty-3,CW,26,colors.HexColor('#eae7df'))
+    ty=top+i*23
+    if i%2==0:rect(M,ty-3,CW,22,colors.HexColor('#eae7df'))
     link(label,URL[key],M+10,ty,9.8)
-para('<b>Try safely first:</b> open the panel sign-in screen and choose <b>Look with sample data</b> for Stock and Labels. The safe editor preview cannot send or upload. For a live end-to-end trial, submit one clearly named test request and confirm its ticket in your panel.',M,top+len(rows)*27+17,CW,10.2,MUTED)
+para('<b>Try safely first:</b> open the panel sign-in screen and choose <b>Look with sample data</b> for Stock and Labels. The safe editor preview cannot send or upload. For a live end-to-end trial, submit one clearly named test request and confirm its ticket in your panel.',M,top+len(rows)*23+10,CW,10.2,MUTED)
 link('LATEST GUIDE',URL['pdf'],W-267,H-32,8)
 end()
 c.save()
