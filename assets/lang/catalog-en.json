@@ -66,7 +66,7 @@
   "help_pdf": "Open the English PDF guide ↗",
   "help_orders": "New requests and printable tickets",
   "help_orders_text": "Open a work order, check the drawing and contact details, add notes, save its status, then print the saved ticket.",
-  "help_catalog_text": "Choose Shop, Workshop, Repair or Square only. Preview grouped or separate cards and confirm the included variations before saving.",
+  "help_catalog_text": "Choose the destination, shop category and order. Preview grouped or separate cards and confirm included variations before saving.",
   "help_stock": "Stock and barcode labels",
   "help_stock_text": "Use Stock to update counts or add an item. For another size of the same item, choose Add variation. Use Label to prepare a barcode label.",
   "help_editor": "Website text and photos",
@@ -83,5 +83,13 @@
   "help_skip": "I know my way around. Open my panel directly next time on this device.",
   "help_continue": "Save preference and open my panel",
   "help_return": "You can always reopen this page with Need help?",
-  "track_inventory": "Track physical stock in Square (turn off for services)"
+  "track_inventory": "Track physical stock in Square (turn off for services)",
+  "category": "Shop category",
+  "display_order": "Order within category",
+  "category_jeans": "Jeans & overalls",
+  "category_outerwear": "Jackets & coats",
+  "category_shirts": "Shirts & tops",
+  "category_accessories": "Accessories",
+  "category_other": "Other pieces",
+  "category_help": "For Shop items, choose the product group. Lower numbers appear first within that group. Services belong in Repair or Workshop; their shop category is ignored."
 }

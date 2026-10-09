@@ -144,7 +144,9 @@ async function publications(site: string) {
   return new Map((data||[]).map((rule: any)=>[rule.item_id,rule]));
 }
 async function savePublication(site: string,item: Item,input: any,email: string) {
-  const clean=SiteCatalog.validate(item,input,site);
+  // Older open panel tabs do not send these fields; retain the curated placement.
+  const previous=input&&(input.category===undefined||input.display_order===undefined)?(await publications(site)).get(item.id):null;
+  const clean=SiteCatalog.validate(item,input?{...input,category:input.category===undefined?previous?.category:input.category,display_order:input.display_order===undefined?previous?.display_order:input.display_order}:input,site);
   const {error}=await db.from("ms_catalog_publications").upsert({site,item_id:item.id,...clean,updated_by:email,updated_at:new Date().toISOString()},{onConflict:"site,item_id"});
   if(error)throw new Error("catalog_save_failed");
   return clean;
@@ -204,7 +206,7 @@ Deno.serve(async (req) => {
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
       const rules=await publications(site),hidden=new Set(acc.hidden_catalog_items||[]);
-      const items=(await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id)));
+      const items=SiteCatalog.sort((await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id))));
       return json({items},200,{"Cache-Control":"public, max-age=30"});
     }
 
@@ -289,7 +291,7 @@ Deno.serve(async (req) => {
       if(isVariant&&!parent)return json({error:"item_not_found"},404);
       if((!isVariant&&!name)||!String(body.variant||"").trim()&&isVariant||typeof body.price!=="number"||!Number.isSafeInteger(cents)||cents<0||!Number.isSafeInteger(qty)||qty<0||qty>1000000)return json({error:"bad_item"},400);
       // Validate placement before any Square write. Variant IDs are assigned by Square below.
-      if(!isVariant)SiteCatalog.validate({variations:[{id:"new"}]},{section:body.section||"review",layout:"grouped",title:"",variations:{new:{visible:true,title:""}}},site);
+      if(!isVariant)SiteCatalog.validate({variations:[{id:"new"}]},{section:body.section||"review",category:body.category??"other",display_order:body.display_order??100,layout:"grouped",title:"",variations:{new:{visible:true,title:""}}},site);
       const sku=String(body.sku||"").trim().slice(0,40)||`${acc.sku_prefix||site.slice(0,2).toUpperCase()}-${uuid(body.submission_token).replace(/-/g,"").slice(0,12).toUpperCase()}`;
       const variationData={item_id:parent?.id||"#item",name:String(body.variant||"Regular").trim().slice(0,255),sku,pricing_type:"FIXED_PRICING",price_money:{amount:cents,currency:acc.currency||"USD"},track_inventory:body.track!==false};
       const variantObject={type:"ITEM_VARIATION",id:"#var",present_at_all_locations:true,item_variation_data:variationData};
@@ -300,7 +302,7 @@ Deno.serve(async (req) => {
       if(variationData.track_inventory&&qty)try{await setCount(acc,variation,qty);}catch(e){stock_error=String(e.message||e).slice(0,200);}
       const images=Array.isArray(body.images)?body.images.slice(0,6):[];
       for(let i=0;i<images.length;i++)try{await uploadSquareImage(acc,itemId,String(images[i]),`${sku}-${i+1}`,i===0);photos_uploaded++;}catch(e){image_error=String(e.message||e).slice(0,200);break;}
-      if(!isVariant)try{await savePublication(site,{id:itemId,name,description:"",image:null,variations:[{id:variation,name:variationData.name,sku,upc:"",price:cents,currency:acc.currency,track:variationData.track_inventory,stock:qty}]},{section:body.section||"review",layout:"grouped",title:"",variations:{[variation]:{visible:true,title:""}}},email!);}catch(e){publication_error=String(e.message||e).slice(0,200);}
+      if(!isVariant)try{await savePublication(site,{id:itemId,name,description:"",image:null,variations:[{id:variation,name:variationData.name,sku,upc:"",price:cents,currency:acc.currency,track:variationData.track_inventory,stock:qty}]},{section:body.section||"review",category:body.category??"other",display_order:body.display_order??100,layout:"grouped",title:"",variations:{[variation]:{visible:true,title:""}}},email!);}catch(e){publication_error=String(e.message||e).slice(0,200);}
       await log(site,`Square ${isVariant?"variation":"item"} added: ${name||parent?.name} (${sku})`,r==="admin"?"uzay":"client");
       return json({ok:true,item:itemId,variation,sku,photos_uploaded,image_error,stock_error,publication_error});
     }

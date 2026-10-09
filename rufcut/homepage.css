@@ -120,3 +120,5 @@ footer{padding:35px 0 24px;border-top:1px solid var(--rule)}.footer-wordmark{fon
 
 /* Square publication cards */
 .store-choice{display:grid;gap:7px;margin:12px 0;font-size:12px}.store-choice select{width:100%;min-height:44px;padding:10px;background:var(--paper,var(--bg));color:var(--ink);border:1px solid currentColor;border-radius:4px;font:inherit}.item .in>small{display:block;line-height:1.5;opacity:.75;margin-bottom:12px}.item .in>.text-link{margin-top:12px;display:inline-block}.store-offers{padding-top:24px}.repair-footer{display:block}.repair-footer>.text-link{display:inline-block;margin-top:20px}.repair-footer .store-offers .ph{display:none}.repair-footer .store-offers{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.repair-footer .store-offers h3{font-size:20px}.store-offers .item{min-width:0}
+
+.category-filters{gap:8px;margin-bottom:22px}.category-filters .chip{min-height:44px}.shop-group-title{grid-column:1 / -1;font:500 clamp(24px,3vw,36px) var(--display);letter-spacing:-.02em;padding:26px 0 12px;border-top:1px solid var(--rule);margin:12px 0 0}.shop-group-title:first-child{margin-top:0;padding-top:10px;border-top:0}

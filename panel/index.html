@@ -184,8 +184,8 @@ dialog .wide{grid-column:1/-1}
 <div class="toast" id="toast" role="status"></div>
 <div id="print" aria-hidden="true"></div>
 
-<link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../assets/ms-catalog-panel.css?v=20261010">
-<script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261010"></script><script src="../assets/ms-catalog-panel.js?v=20261010"></script>
+<link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../assets/ms-catalog-panel.css?v=20261011">
+<script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261011"></script><script src="../assets/ms-catalog-panel.js?v=20261011"></script>
 <script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261009-orders"></script><script src="../assets/ms-panel-app.js?v=20261009-orders"></script>
 <script>
 "use strict";
@@ -431,11 +431,11 @@ async function act(a, el){
     const token=crypto.randomUUID(),ct=MsCatalogPanel.t;
     dialog("Add item",`<div class="wide cat-add-explain" data-noi18n>${esc(ct("create_help"))}<p>${esc(ct("help1"))}</p></div>`+fld("Name", "name", "text", ' class="wide"')+fld("Size or variant", "variant")+fld("Price", "price", "number")+
       fld("How many", "qty", "number", "", "1")+fld("SKU (empty = automatic)", "sku")+
-      `<label class="switch wide" data-noi18n><input type="checkbox" name="track" checked><span>${esc(ct("track_inventory"))}</span></label><div class="wide" data-noi18n>${MsCatalogPanel.sectionSelect(SITE)}<p class="cat-add-explain" data-add-placement>${esc(ct("review_help"))}</p></div><label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
+      `<label class="switch wide" data-noi18n><input type="checkbox" name="track" checked><span>${esc(ct("track_inventory"))}</span></label><div class="wide" data-noi18n>${MsCatalogPanel.sectionSelect(SITE)}${MsCatalogPanel.placementFields()}<p class="cat-add-explain" data-add-placement>${esc(ct("review_help"))}</p></div><label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
       async v=>{
         if(DEMO)throw new Error(ct("demo"));
         const images=await photoData(document.querySelector('#dlgForm [name="photos"]'));
-        const d=await sq("add_item",{name:v.name,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,description:v.description,images,section:v.section,track:!!v.track,submission_token:token});
+        const d=await sq("add_item",{name:v.name,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,description:v.description,images,section:v.section,category:v.category,display_order:Number(v.display_order),track:!!v.track,submission_token:token});
         toast(ct(d.image_error||d.stock_error||d.publication_error?"partial":"after_add"));
         if(v.labels&&Number(v.qty)>0)addToQueue({name:v.name},{id:d.variation,name:v.variant||"",price:Math.round(Number(v.price)*100),currency:SQ.currency||"USD",sku:d.sku},Number(v.qty));
         VIEW="catalog";await loadItems();

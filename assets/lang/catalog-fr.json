@@ -66,7 +66,7 @@
   "help_pdf": "Ouvrir le guide PDF en anglais ↗",
   "help_orders": "Demandes et fiches imprimables",
   "help_orders_text": "Ouvrez la demande, vérifiez dessin et coordonnées, ajoutez des notes, sauvegardez le statut puis imprimez la fiche.",
-  "help_catalog_text": "Choisissez Boutique, Atelier, Réparation ou Square uniquement. Vérifiez les fiches, confirmez les variantes et sauvegardez.",
+  "help_catalog_text": "Choisissez la destination, la catégorie et l’ordre. Vérifiez les fiches regroupées ou séparées et confirmez les variantes avant d’enregistrer.",
   "help_stock": "Stock et étiquettes à code-barres",
   "help_stock_text": "Modifiez les quantités ou ajoutez un article dans Stock. Pour une autre taille, ajoutez une variante. Étiquette prépare le code-barres.",
   "help_editor": "Textes et photos du site",
@@ -83,5 +83,13 @@
   "help_skip": "Je connais le fonctionnement. Ouvrir directement mon panneau la prochaine fois sur cet appareil.",
   "help_continue": "Enregistrer et ouvrir mon panneau",
   "help_return": "Cette page reste accessible via Besoin d’aide ?",
-  "track_inventory": "Suivre le stock physique dans Square (désactiver pour les services)"
+  "track_inventory": "Suivre le stock physique dans Square (désactiver pour les services)",
+  "category": "Catégorie boutique",
+  "display_order": "Ordre dans la catégorie",
+  "category_jeans": "Jeans et salopettes",
+  "category_outerwear": "Vestes et manteaux",
+  "category_shirts": "Chemises et hauts",
+  "category_accessories": "Accessoires",
+  "category_other": "Autres pièces",
+  "category_help": "Pour les articles de la boutique, choisissez le groupe. Les petits nombres apparaissent en premier dans le groupe. Les services vont dans Réparations ou Ateliers ; leur catégorie boutique est ignorée."
 }

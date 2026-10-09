@@ -66,7 +66,7 @@
   "help_pdf": "Abrir la guía PDF en inglés ↗",
   "help_orders": "Solicitudes y fichas imprimibles",
   "help_orders_text": "Abre la solicitud, revisa dibujo y contacto, añade notas, guarda el estado e imprime la ficha guardada.",
-  "help_catalog_text": "Elige Tienda, Taller, Reparación o solo Square. Revisa las tarjetas, confirma variantes y guarda.",
+  "help_catalog_text": "Elige el destino, la categoría y el orden. Revisa las tarjetas agrupadas o separadas y confirma las variantes antes de guardar.",
   "help_stock": "Stock y etiquetas de códigos",
   "help_stock_text": "Actualiza cantidades o añade artículos en Stock. Para otra talla usa Añadir variante. Etiqueta prepara el código de barras.",
   "help_editor": "Textos y fotos del sitio",
@@ -83,5 +83,13 @@
   "help_skip": "Ya sé usarlo. Abrir directamente el panel la próxima vez en este dispositivo.",
   "help_continue": "Guardar preferencia y abrir mi panel",
   "help_return": "Siempre puedes volver con ¿Necesitas ayuda?",
-  "track_inventory": "Controlar stock físico en Square (desactivar para servicios)"
+  "track_inventory": "Controlar stock físico en Square (desactivar para servicios)",
+  "category": "Categoría de tienda",
+  "display_order": "Orden dentro de la categoría",
+  "category_jeans": "Jeans y petos",
+  "category_outerwear": "Chaquetas y abrigos",
+  "category_shirts": "Camisas y tops",
+  "category_accessories": "Accesorios",
+  "category_other": "Otras prendas",
+  "category_help": "Para artículos de tienda, elige el grupo. Los números menores aparecen primero dentro del grupo. Los servicios van en Reparaciones o Talleres; su categoría de tienda no se utiliza."
 }
