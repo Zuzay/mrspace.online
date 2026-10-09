@@ -53,7 +53,7 @@ try{
   await f.page.screenshot({path:artifacts+'/red-review.png',fullPage:true});assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('dictionary failure stays readable and does not issue a live API request',async()=>{
-  const f=await fixture();await f.context.route('**/assets/lang/platform-*.json',route=>route.fulfill({status:503,body:''}));await f.page.goto(origin+'/edit/?preview=1');await f.page.getByText('Metinler yüklenemedi.',{exact:false}).waitFor();assert.equal(f.calls.length,0);assert.deepEqual(f.errors,[]);await f.context.close();
+  const f=await fixture();await f.context.route('**/assets/lang/platform-*.json*',route=>route.fulfill({status:503,body:''}));await f.page.goto(origin+'/edit/?preview=1');await f.page.getByText('Metinler yüklenemedi.',{exact:false}).waitFor();assert.equal(f.calls.length,0);assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('easy editor retains a failed request and retry uses the same receipt token',async()=>{
   let submissions=0;
@@ -61,13 +61,21 @@ try{
    if(url.pathname.endsWith('ms_workspace_link'))return {data:{slug:'heron',name:'Heron CA'}};
    if(url.pathname.endsWith('ms_workspace_request'))return ++submissions===1?{status:503,data:{error:'offline'}}:{data:{ok:true,id:42,duplicate:true}};
   });
-  await f.page.goto(origin+'/edit/?k='+key);await f.page.locator('[data-next]').click();await f.page.locator('#requestText').fill('Saat 10:00 olarak değişsin.');
+  await f.page.goto(origin+'/edit/?k='+key);await f.page.locator('[data-next]').click();await f.page.locator('#requestLocation').fill('Ana sayfa → Açılış saatleri');await f.page.locator('#requestText').fill('Saat 10:00 olarak değişsin.');
   await f.page.locator('[data-next]').click();await f.page.locator('[data-next]').click();await f.page.locator('[data-next]:not(:disabled)').waitFor();
   const tokens=f.calls.filter(c=>c.path.endsWith('ms_workspace_request')).map(c=>c.body.p_token);assert.equal(tokens.length,1);
   assert.ok(await f.page.evaluate(()=>Object.keys(localStorage).some(k=>k.startsWith('ms-easy-draft'))));
   await f.page.locator('[data-next]').click();await f.page.locator('.edit-success').waitFor();assert.match(await f.page.locator('.edit-success').innerText(),/#42/);
   const retry=f.calls.filter(c=>c.path.endsWith('ms_workspace_request'));assert.equal(retry[0].body.p_token,retry[1].body.p_token);
   assert.equal(await f.page.evaluate(()=>Object.keys(localStorage).some(k=>k.startsWith('ms-easy-draft'))),false);assert.deepEqual(f.errors,[]);await f.context.close();
+ });
+ await test('signed-in customer can open the named site editor without pasting an access link',async()=>{
+  const f=await fixture('tr',undefined,(url)=>{
+   if(url.pathname.endsWith('ms_workspace_snapshot'))return {data:{sites:[{slug:'rufcut',name:'Rufcut',url:origin+'/rufcut/'}]}};
+   if(url.pathname.endsWith('ms_my_sites'))return {data:[{slug:'rufcut',name:'Rufcut',site_key:key}]};
+  });
+  await f.context.addInitScript(()=>localStorage.setItem('ms_panel',JSON.stringify({access_token:'test-session',expires_at:Date.now()/1000+3600,email:'test@example.com'})));
+  await f.page.goto(origin+'/edit/?site=rufcut');await f.page.locator('.visual-entry a').waitFor();assert.match(await f.page.locator('.visual-entry a').getAttribute('href'),/request\/\?k=/);assert.equal(await f.page.locator('.visual-entry .ms-eyebrow').textContent(),'Sitenin üzerinde düzenle');assert.deepEqual(f.errors,[]);await f.context.close();
  });
  await test('malformed editor capability does not make an API request',async()=>{
   const f=await fixture();await f.page.goto(origin+'/edit/?k=bad&site=heron');await f.page.locator('.edit-card').waitFor();assert.equal(f.calls.length,0);assert.equal(await f.page.locator('[data-next]').count(),0);await f.context.close();

@@ -199,5 +199,14 @@
   "invalid_kind": "Tipo de borrador no válido",
   "interface_language": "Idioma del panel",
   "prepare_queue": "Preparar borradores pendientes",
-  "draft_processing_error": "La solicitud se guardó. La preparación falló; vuelve a preparar los borradores pendientes."
+  "draft_processing_error": "La solicitud se guardó. La preparación falló; vuelve a preparar los borradores pendientes.",
+  "visual_edit_title": "Edita directamente en tu sitio",
+  "visual_edit_note": "Elige un área por su nombre, cambia el texto o la foto y compara las áreas afectadas antes de enviar.",
+  "visual_edit_open": "Abrir editor del sitio",
+  "manual_edit_title": "Describe un cambio",
+  "edit_location_label": "¿En qué parte del sitio?",
+  "edit_location_hint": "Por ejemplo: Inicio → Jean Maker → primer botón.",
+  "edit_location_required": "Indica la página y el área para localizar el cambio.",
+  "edit_affected_location": "Área afectada",
+  "edit_requested_content": "Cambio solicitado"
 }

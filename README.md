@@ -30,13 +30,13 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - `open/...` : "Open site" linkleri
 
 ## Talepler v2: sitenin üstünde düzenleme ve sürümler (Ekim 2026)
-- `request/?k=ANAHTAR` artık müşterinin kendi tasarımını açar. Parçanın üstüne gelince "Edit me", tıklayınca sisli kutu açılır; yazdıkça sitede canlı görünür. Fotoğraf yerine resim linki yapıştırılırsa anında yerine oturur.
+- `request/?k=ANAHTAR` müşterinin sitesini bölüm listesiyle açar. Bölümden veya doğrudan sayfadan alan seçilir; konum, mevcut içerik ve önerilen değişiklik aynı yerde görünür. Fotoğraf dosyası yüklenebilir veya link verilebilir. Kaydetme taslağa ekler; gönderimden önce alanlar tek tek karşılaştırılır. Ayrıntılar: [ms/REQUEST-EDITOR.md](ms/REQUEST-EDITOR.md).
 - Gönderince bitiş ekranında ve mailde `request/?e=DÜZELTME_ANAHTARI` linki çıkar. Müşteri geri dönüp ekler, değiştirir, kaldırır. Onaylanmış/bitmiş işler kilitlidir.
 - Her gönderim bir sürüm (v1, v2...). Panelde **Sürümler**: iki sürüm yan yana, kelime kelime fark, "A sürümüne dön". Taleplerde revize edilmiş olanların yanında `v2` etiketi var.
 - Kurulum: `ms/mrspace-requests-v2.sql` (sistem SQL'inden sonra). Mail için Resend anahtarı: `select vault.create_secret('re_XXXX', 'resend_key');` (anahtar yoksa mail gitmez, gerisi çalışır).
 - Tasarımlarda düzenlenmesin istenen parçaya `data-ms-skip`, özellikle düzenlenebilir olsun istenen bloğa `data-ms-edit`.
 - Yerinde düzenleme tasarım mrspace.online altında durduğu sürece çalışır; başka alan adındaki sitelerde sayfa düz not formuna düşer.
-- Kontrol listesi: talep sayfası müşteriyi tasarımın başından sonuna adım adım götürür. Her adımda bir yönlendirme ("Enter your real opening hours" gibi) ve "Looks good / Change it" var. Adımlar tasarımda `data-ms-step="ipucu"` ile yazılır, birden çok parçayı kapsayan bloklara `data-ms-group` eklenir. Etiket yoksa sayfadaki başlık ve metinlerden otomatik liste çıkar. Onaylananlar `ms/mrspace-requests-v2b.sql` ile saklanır, panelde Sürümler kartında sayısı görünür.
+- Alan listesi sayfanın bölümlerine göre düzenlenir; arama metin ve fotoğraf alanlarını bulur. `data-ms-section` bölüm, `data-ms-label` alan adını belirtir. Rufcut açılış ve atölye fotoğrafları sabit kimliklerle bulunur. Eski kontrol listesi onayları veritabanında korunur; yeni editör alan seçimi, değişiklik karşılaştırması ve gönderim onayını kullanır.
 
 ## Müşteri paneli + Square (Ekim 2026)
 - `panel/` : Müşterinin kendi paneli (mrspace.online/panel). Giriş kullanıcı adıyla (`rufcut` → `rufcut@mrspace.online`). Sekmeler: Genel bakış, Stok, Etiketler. Girişsiz "Örnek verilerle bak" demo modu var.

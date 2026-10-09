@@ -3,7 +3,7 @@
   try{await MsPlatform.ready;}catch{MsPlatform.fail('editor');return;}document.title=MsPlatform.t('easy_edit')+' | Mr. Space';
   const {t,esc}=MsPlatform,params=new URLSearchParams(location.search),preview=params.get('preview')==='1';
   const key=params.get('k'),root=document.getElementById('editor');
-  let site=null,step=0,session=null,storageKey='',draft={target:'text',request:'',token:crypto.randomUUID()},pending=false,sent=false;
+  let site=null,step=0,session=null,storageKey='',visualKey=null,draft={target:'text',location:'',request:'',token:crypto.randomUUID()},pending=false,sent=false;
   const validKey=value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value||'');
   let sessionStore='ms_panel';
   async function rpc(name,body){
@@ -26,27 +26,30 @@
   function render(){
     const steps=['choose_change','new_content','confirm_request'];
     root.innerHTML=`<div class="edit-intro"><span class="ms-eyebrow">MR. SPACE / ${esc(t('easy_edit'))}</span><h1>${esc(t(sent?'request_received':steps[step]))}</h1><p>${esc(t(sent?'received_note':'edit_intro'))}</p></div>
+    ${visualKey&&!sent?`<section class="visual-entry"><span class="ms-eyebrow">${esc(t('visual_edit_title'))}</span><p>${esc(t('visual_edit_note'))}</p><a class="btn sun" href="../request/?k=${encodeURIComponent(visualKey)}">${esc(t('visual_edit_open'))} ↗</a></section><h2 class="manual-title">${esc(t('manual_edit_title'))}</h2>`:''}
     ${preview?`<div class="ms-notice">${esc(t('preview_edit_notice'))}</div>`:''}
     ${sent?'':`<ol class="edit-steps">${steps.map((s,i)=>`<li ${i===step?'aria-current="step"':''}><b>0${i+1}</b>${esc(t(s))}</li>`).join('')}</ol>`}
-    <section class="edit-card">${sent?`<div class="edit-success"><small>${esc(t('requests'))}</small>#${esc(draft.receipt)}</div><a class="btn" href="../panel/">${esc(t('workspaces'))}</a><button class="btn sun" data-new>${esc(t('new_request'))}</button>`:
+    <section class="edit-card">${sent?`<div class="edit-success"><small>${esc(t('requests'))}</small>#${esc(draft.receipt)}</div><p class="edit-hint">${esc(t('edit_affected_location'))}</p><div class="edit-summary">${esc(draft.location||'')}</div><p class="edit-hint">${esc(t('edit_requested_content'))}</p><div class="edit-summary">${esc(draft.request)}</div><div class="edit-actions"><a class="btn" href="../panel/">${esc(t('workspaces'))}</a><button class="btn sun" data-new>${esc(t('new_request'))}</button></div>`:
       step===0?`<div class="edit-targets">${['hours','contact','text','photo','design','general'].map(k=>`<button type="button" data-target="${k}" aria-pressed="${draft.target===k}">${esc(t(k))}</button>`).join('')}</div>`:
-      step===1?`<label>${esc(t('new_content'))}<textarea id="requestText" maxlength="2000" minlength="3" rows="7">${esc(draft.request)}</textarea></label><p class="edit-hint">${esc(t('content_hint'))}</p><p class="edit-draft" role="status"></p>`:
-      `<span class="ms-eyebrow">${esc(t(draft.target))}</span><div class="edit-summary">${esc(draft.request)}</div><p class="edit-hint">${esc(t('not_published'))}</p>`}
+      step===1?`<label>${esc(t('edit_location_label'))}<input id="requestLocation" maxlength="120" value="${esc(draft.location||'')}"></label><p class="edit-hint">${esc(t('edit_location_hint'))}</p><label>${esc(t('new_content'))}<textarea id="requestText" maxlength="1800" minlength="3" rows="7">${esc(draft.request)}</textarea></label><p class="edit-hint">${esc(t('content_hint'))}</p><p class="edit-draft" role="status"></p>`:
+      `<span class="ms-eyebrow">${esc(t(draft.target))}</span><p class="edit-hint">${esc(t('edit_affected_location'))}</p><div class="edit-summary">${esc(draft.location||'')}</div><p class="edit-hint">${esc(t('edit_requested_content'))}</p><div class="edit-summary">${esc(draft.request)}</div><p class="edit-hint">${esc(t('not_published'))}</p>`}
       ${sent?'':`<div class="edit-actions"><button type="button" class="btn" data-back ${step===0?'hidden':''}>${esc(t('back'))}</button><button type="button" class="btn sun" data-next ${step===2&&preview?'disabled':''}>${esc(t(step===2?'send_request':'next'))}</button></div><p class="edit-status" role="status"></p>`}</section>
       ${key&&validKey(key)&&!preview?`<p class="edit-secondary"><a href="../request/?k=${encodeURIComponent(key)}">${esc(t('advanced_editor'))}</a></p>`:''}`;
     root.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{draft.target=b.dataset.target;draft.token=crypto.randomUUID();persist();render();root.querySelector(`[data-target="${draft.target}"]`)?.focus();});
     root.querySelector('[data-back]')?.addEventListener('click',()=>{step--;render();focusStep();});
-    root.querySelector('[data-new]')?.addEventListener('click',()=>{sent=false;step=0;draft={target:'text',request:'',token:crypto.randomUUID()};render();});
+    root.querySelector('[data-new]')?.addEventListener('click',()=>{sent=false;step=0;draft={target:'text',location:'',request:'',token:crypto.randomUUID()};render();});
+    const area=root.querySelector('#requestLocation');if(area)area.oninput=()=>{draft.location=area.value;draft.token=crypto.randomUUID();persist();};
     const input=root.querySelector('#requestText');
     if(input){persist();input.addEventListener('input',()=>{draft.request=input.value;draft.token=crypto.randomUUID();persist();});}
     root.querySelector('[data-next]')?.addEventListener('click',async e=>{
       if(pending)return;
+      if(step===1&&(draft.location||'').trim().length<2){root.querySelector('.edit-status').textContent=t('edit_location_required');area.focus();return;}
       if(step===1&&draft.request.trim().length<3){root.querySelector('.edit-status').textContent=t('validation_required');input.focus();return;}
       if(step<2){step++;render();focusStep();return;}
       if(preview)return;
       pending=true;e.target.disabled=true;
       try{
-        const result=await rpc('ms_workspace_request',{p_site:site.slug,p_target:draft.target,p_request:draft.request,p_token:draft.token,p_key:key||null});
+        const result=await rpc('ms_workspace_request',{p_site:site.slug,p_target:draft.target,p_request:`${t('edit_affected_location')}: ${draft.location}\n\n${draft.request}`,p_token:draft.token,p_key:key||null});
         if(!result?.ok||!result.id)throw new Error('unconfirmed');
         sent=true;draft.receipt=result.id;
         try{localStorage.removeItem(storageKey);}catch{}
@@ -66,6 +69,8 @@
       const data=await rpc('ms_workspace_snapshot',{p_site:slug});site=data?.sites?.find(s=>s.slug===slug);
     }
     if(!site)throw new Error('site');
+    if(!preview&&key&&validKey(key)&&site.url)visualKey=key;
+    else if(!preview&&session&&site.url){try{const sites=await rpc('ms_my_sites',{});visualKey=sites?.find(s=>s.slug===site.slug)?.site_key||null;}catch{}}
     document.getElementById('siteName').textContent=site.name;
     storageKey=`ms-easy-draft:${site.slug}:${preview?'preview':key||session?.email||'member'}`;
     try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&validKey(saved.token)&&typeof saved.request==='string'&&saved.request.length<=2000&&['hours','contact','text','photo','design','general'].includes(saved.target))draft=saved;}catch{}

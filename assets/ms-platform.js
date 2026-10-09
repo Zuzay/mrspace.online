@@ -8,7 +8,7 @@
   const lang = langs.includes(window.MSI18N?.lang) ? MSI18N.lang : (() => { try { if(langs.includes(localStorage.ms_lang))return localStorage.ms_lang;const chosen=(navigator.languages||[navigator.language]).map(l=>String(l).slice(0,2).toLowerCase()).find(l=>langs.includes(l));return chosen||'en'; } catch { return 'en'; } })();
   if(!window.MSI18N)document.documentElement.lang=lang;
   let dict = {}, generation = 0;
-  const ready = fetch(new URL(`lang/platform-${lang}.json`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
+  const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261008-editor`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
   ready.catch(()=>{});
   function fail(target){
     const node=typeof target==='string'?document.getElementById(target):target;if(!node)return;
