@@ -16,9 +16,9 @@
     }
     async function call(path,body,edge=false){
       await fresh();const r=await fetch(`${MS_CONFIG.url}/${edge?'functions/v1/':'rest/v1/'}${path}`,{method:body===undefined?'GET':'POST',headers:{apikey:MS_CONFIG.anon,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(30000)});
-      if(!r.ok)throw new Error('request_failed');return r.status===204?null:r.json();
+      if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(/^[a-z_]{1,60}$/.test(d.error||'')?d.error:'request_failed');}return r.status===204?null:r.json();
     }
-    return {get:path=>call(path),rpc:(name,body={})=>call(`rpc/${name}`,body),control:body=>call('ms-site-control',body,true)};
+    return {get:path=>call(path),rpc:(name,body={})=>call(`rpc/${name}`,body),control:body=>call('ms-site-control',body,true),mail:body=>call('ms-mail',body,true)};
   }
   window.MsApi={create};
 })();

@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
-import { staffUser, notificationConfig, notifyOrder, mail } from '../_shared/notifications.ts';
+import { staffUser, notifyOrder } from '../_shared/notifications.ts';
 const url=Deno.env.get('SUPABASE_URL')!,key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,db=createClient(url,key);
 const cors={'Access-Control-Allow-Origin':'https://mrspace.online','Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'};
 const reply=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -70,7 +70,6 @@ Deno.serve(async(req:Request)=>{
    const id=clean(body.id,40),status=clean(body.status,20);if(!uuid(id)||!['received','in_progress','finishing','ready','completed'].includes(status))return reply({error:'invalid_update'},400);
    const {data:job,error:readError}=await db.from('ms_repair_jobs').select('ticket,kind,customer_name,customer_email,status').eq('id',id).eq('site','rufcut').maybeSingle();if(readError)throw readError;if(!job)return reply({error:'not_found'},404);
    const {error}=await db.from('ms_repair_jobs').update({status,staff_notes:clean(body.staff_notes,3000),measurements:clean(body.measurements,2000),updated_at:new Date().toISOString()}).eq('id',id).eq('site','rufcut');if(error)throw error;
-   if(status!==job.status){try{const config=await notificationConfig(db);const messages:Record<string,string>={received:'Your request reached the shop.',in_progress:'Work has started on your order.',finishing:'Your order is in its finishing stage. Check with the shop before pickup.',ready:'Your order is ready for pickup at Rufcut.',completed:'Your work order is complete.'};await mail(config,job.customer_email,`Rufcut work order update ${job.ticket}`,`Hi ${job.customer_name},\n\n${messages[status]}\nTicket: ${job.ticket}\nTrack it at https://mrspace.online/rufcut/?ticket=${encodeURIComponent(job.ticket)}#order`);}catch{console.error('Status saved; email delivery needs attention');}}
    return reply({ok:true});
   }
   return reply({error:'unknown_action'},400);

@@ -11,12 +11,12 @@ Deno.serve(async(req:Request)=>{
  if(req.method!=='POST')return reply({error:'method_not_allowed'},405);
  try{
   const raw=await req.text();if(raw.length>10000)return reply({error:'request_too_large'},413);const body=JSON.parse(raw);
-  if(body.action==='capabilities'){const config=await notificationConfig(db);return reply({emailReady:!!(config.emailKey&&config.emailFrom),pushReady:!!config.vapid});}
+  if(body.action==='capabilities'){const config=await notificationConfig(db);return reply({emailReady:config.emailReady,pushReady:!!config.vapid});}
   const site=String(body.site||'');if(!/^[a-z0-9_-]{1,80}$/.test(site))return reply({error:'invalid_site'},400);
   const email=await staffUser(db,req,site);if(!email)return reply({error:'not_allowed'},403);
   if(body.action==='settings'){
    const config=await notificationConfig(db,true),prefs=await db.from('ms_notification_preferences').select('delivery_email,email_enabled,lang').eq('site',site).eq('owner_email',email).maybeSingle();if(prefs.error)throw new Error('settings_unavailable');
-   return reply({publicKey:config.vapid.publicKey,emailReady:!!(config.emailKey&&config.emailFrom),email:prefs.data?.delivery_email||(site==='rufcut'?'shop@rufcut.com':email),emailEnabled:prefs.data?.email_enabled??true});
+   return reply({publicKey:config.vapid.publicKey,emailReady:config.emailReady,email:prefs.data?.delivery_email||(site==='rufcut'?'shop@rufcut.com':email),emailEnabled:prefs.data?.email_enabled??true});
   }
   if(body.action==='preferences'){
    const delivery=String(body.email||'').trim().toLowerCase();if(delivery.length>160||!/^\S+@\S+\.\S+$/.test(delivery)||typeof body.enabled!=='boolean')return reply({error:'invalid_preferences'},400);

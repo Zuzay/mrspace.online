@@ -1,5 +1,5 @@
 // Secure server-side bridge from the Mr. Space admin panel to Heron's existing admin API.
-// Set HERON_ADMIN_PASSWORD as a Supabase Function secret. Never expose it to the browser.
+// Uses a verified current admin JWT, or an existing legacy HERON_ADMIN_PASSWORD server secret.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import "../../../assets/ms-render.js";
 import { createDraft } from "../../../ms/draft-render.mjs";
@@ -55,15 +55,14 @@ async function checkConnections(jwt: string, site: string, email: string) {
   const { error: requestError } = await client.rpc("ms_workspace_snapshot", { p_site: site });
   record("requests", requestError ? "error" : "connected", requestError ? "workspace_rpc_unavailable" : null);
   if (site === "heron") {
-    if (!HERON_PASSWORD) record("heron", "setup", "heron_secret_missing");
-    else {
+    {
       try {
         const r = await fetch("https://wvvizyrroqejwrfadbpx.supabase.co/functions/v1/heron-shop", {
-          method: "POST", headers: { "Content-Type": "application/json", "x-admin-password": HERON_PASSWORD },
+          method: "POST", headers: { "Content-Type": "application/json", ...(HERON_PASSWORD?{"x-admin-password":HERON_PASSWORD}:{"x-mrspace-token":jwt}) },
           body: JSON.stringify({ action: "admin_list" }), signal: AbortSignal.timeout(8000),
         });
         const data = await r.json();
-        record("heron", r.ok && !data.error ? "connected" : "error", r.ok && !data.error ? null : "heron_read_failed");
+        record("heron", r.ok && !data.error ? "connected" : r.status===401&&!HERON_PASSWORD?"setup":"error", r.ok && !data.error ? null : r.status===401&&!HERON_PASSWORD?"heron_bridge_update_required":"heron_read_failed");
       } catch { record("heron", "error", "heron_unreachable"); }
     }
   } else if (site === "laloo") {
@@ -127,18 +126,17 @@ Deno.serve(async (req) => {
     if (action === "prepare_drafts") return await prepareDrafts();
     if (action === "check_connections") return await checkConnections(jwt, String(body.site || ""), user.email);
     if (action === "preview_snapshot") return await previewSnapshot(String(body.site || ""));
-    if (!HERON_PASSWORD) return json({ error: "heron_bridge_not_configured" }, 503);
     if (!HERON_ACTIONS.has(action)) return json({ error: "action_not_allowed" }, 400);
     const response = await fetch("https://wvvizyrroqejwrfadbpx.supabase.co/functions/v1/heron-shop", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-password": HERON_PASSWORD },
+      headers: { "Content-Type": "application/json", ...(HERON_PASSWORD?{"x-admin-password":HERON_PASSWORD}:{"x-mrspace-token":jwt}) },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(15000),
     });
     const text = await response.text();
     let result: unknown;
     try { result = text ? JSON.parse(text) : {}; } catch { result = { error: "invalid_heron_response" }; }
-    if (!response.ok) return json({ error: "heron_action_failed" }, response.status);
+    if (!response.ok) return json({ error: response.status===401&&!HERON_PASSWORD?"heron_bridge_update_required":"heron_action_failed" }, response.status===401&&!HERON_PASSWORD?503:response.status);
     if (response.ok && HERON_WRITES.has(action)) {
       try { await db.from("ms_activity").insert({ site: "heron", who: "uzay", action: `Site control: ${action}` }); } catch {}
     }
