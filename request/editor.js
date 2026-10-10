@@ -7,7 +7,10 @@ const EMPTY='[Remove the text in this area]',NOTE='\n\nNote: ',GENERAL='__genera
 const S={items:new Map(),doc:null,win:null,parts:[],selected:null,view:'areas',editing:true,sub:null,quota:null,siteName:'',other:'',name:'',email:'',dirty:false,busy:false,storage:'',storageOK:true,restored:false,search:'',filter:'all',pending:null,approved:[]};
 let noticeTimer;
 const textOf=el=>(el.innerText||el.textContent||'').trim();
-const valueOf=el=>isImage(el)?(el.getAttribute('src')||bgURL(el)):textOf(el);
+const isColor=el=>el.hasAttribute('data-ms-color');
+const isChoice=el=>el.hasAttribute('data-ms-choice');
+const hexColor=value=>{const v=String(value||'').trim();if(/^#[0-9a-f]{6}$/i.test(v))return v.toLowerCase();const rgb=v.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);return rgb?'#'+rgb.slice(1).map(n=>Number(n).toString(16).padStart(2,'0')).join(''):'';};
+const valueOf=el=>isColor(el)?hexColor(el.style.backgroundColor):isChoice(el)?el.getAttribute('aria-label')||el.dataset.v||textOf(el):isImage(el)?(el.getAttribute('src')||bgURL(el)):textOf(el);
 const isImage=el=>el.tagName==='IMG'||(/url\(/i.test(el.style?.backgroundImage||'')&&!textOf(el));
 const bgURL=el=>(el.style?.backgroundImage||'').match(/url\(["']?(.*?)["']?\)/)?.[1]||'';
 const outline=it=>it.type==='image'?(it.el?.closest('figure,.hero-art')||it.el):it.el;
@@ -26,6 +29,7 @@ function notify(message){clearTimeout(noticeTimer);$('#notice').textContent=mess
 function pathOf(el){return schema.selector(el,S.doc);}
 function sectionOf(el){return schema.section(el,S.schema,lang,t.home);}
 function labelOf(el,original=valueOf(el)){
+  if(isColor(el)||isChoice(el))return [S.win.MSI18N?.t(el.dataset.msColorGroup)||el.dataset.msColorGroup,el.getAttribute('aria-label')||el.dataset.v].filter(Boolean).join(': ');
   const type=isImage(el)?t.photo:/^H\d$/.test(el.tagName)?t.heading:['A','BUTTON'].includes(el.tagName)?t.button:t.text;
   const fallback=isImage(el)?type:type+': '+original.replace(/\s+/g,' ').slice(0,65);
   return schema.label(el,S.schema,lang,fallback);
@@ -34,18 +38,23 @@ function locationOf(it){return [it.page||it.anchor?.split('::')[0]||t.home,it.se
 function crumb(it){return `<div class="crumb"><span>${esc(it.page||t.home)}</span>${it.section?`<span>${esc(it.section)}</span>`:''}<span>${esc(it.label||it.target)}</span></div>`;}
 function partOf(el){return S.parts.find(p=>p.el===el);}
 function capture(el){
-  const original=valueOf(el);return {anchor:sitePath()+'::'+pathOf(el),el,type:isImage(el)?'image':'text',original,originalURL:isImage(el)?imageURL(original):'',origHTML:el.innerHTML,origSrcset:el.getAttribute('srcset'),origSizes:el.getAttribute('sizes'),origBg:el.style.backgroundImage,page:schema.page(S.doc,S.schema,lang,t.home),section:sectionOf(el),label:labelOf(el,original)};
+  const original=valueOf(el);return {anchor:sitePath()+'::'+pathOf(el),el,type:isColor(el)?'color':isChoice(el)?'choice':isImage(el)?'image':'text',original,originalURL:isImage(el)?imageURL(original):'',origHTML:el.innerHTML,origStyle:el.getAttribute('style'),origSrcset:el.getAttribute('srcset'),origSizes:el.getAttribute('sizes'),origBg:el.style.backgroundImage,page:schema.page(S.doc,S.schema,lang,t.home),section:sectionOf(el),label:labelOf(el,original)};
 }
+function colorChanged(it){it.el.dispatchEvent(new S.win.CustomEvent('ms:editor-color-preview',{bubbles:true}));}
 function restore(it){
   if(!it.el)return;
-  if(it.type==='image'){
+  if(it.type==='color'){if(it.origStyle==null)it.el.removeAttribute('style');else it.el.setAttribute('style',it.origStyle);colorChanged(it);}
+  else if(it.type==='choice')return;
+  else if(it.type==='image'){
     if(it.el.tagName==='IMG'){it.el.src=it.originalURL||it.original;if(it.origSrcset)it.el.setAttribute('srcset',it.origSrcset);else it.el.removeAttribute('srcset');if(it.origSizes)it.el.setAttribute('sizes',it.origSizes);}
     else it.el.style.backgroundImage=it.origBg||'';
   }else if(it.origHTML!=null)it.el.innerHTML=it.origHTML;
 }
 function preview(it,value){
   if(!it.el)return;
-  if(it.type==='image'){
+  if(it.type==='color'){const color=hexColor(value);if(!color||color===hexColor(it.original)){restore(it);return;}it.el.style.background=color;colorChanged(it);}
+  else if(it.type==='choice')return;
+  else if(it.type==='image'){
     const url=photoValue(value);if(!url){restore(it);return;}
     if(it.el.tagName==='IMG'){it.el.removeAttribute('srcset');it.el.removeAttribute('sizes');it.el.src=url;}
     else it.el.style.backgroundImage='url("'+url+'")';
@@ -67,8 +76,8 @@ function header(){
 }
 const CAND='[data-ms-field],[data-ms-edit],h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,button,a,label,td,th,dt,dd,small,img,[style*="background-image"]';
 function eligible(el){
-  if(el.closest('[data-ms-skip],[data-lang-host],#themeToggle,.skip-link,[aria-hidden=true],[data-ms-editor-ui]')||el.closest('svg'))return false;
-  if(!isImage(el)&&!textOf(el))return false;
+  if(el.closest('[data-ms-skip],[data-ms-runtime],[data-lang-host],#themeToggle,.skip-link,[aria-hidden=true],[data-ms-editor-ui]')||el.closest('svg'))return false;
+  if(!isImage(el)&&!isColor(el)&&!isChoice(el)&&!textOf(el))return false;
   if(el.tagName==='P'&&el.closest('a,button'))return false;
   if(el.matches('label')&&el.querySelector('input,textarea,select'))return false;
   const ancestor=el.parentElement?.closest('[data-ms-field],[data-ms-edit],h1,h2,h3,h4,h5,h6,p,li,blockquote,button,a');
@@ -90,14 +99,15 @@ async function wire(){
   let hovered=null;
   S.doc.addEventListener('pointerover',e=>{if(!S.editing||e.pointerType!=='mouse')return;hovered?.classList.remove('ms-editor-hover');hovered=resolveSelection(e.target)?.el;hovered?.classList.add('ms-editor-hover');});
   S.doc.addEventListener('pointerout',()=>hovered?.classList.remove('ms-editor-hover'));
-  S.doc.addEventListener('click',e=>{if(!S.editing)return;e.preventDefault();e.stopImmediatePropagation();const p=resolveSelection(e.target);if(p)guard(()=>select(p));},true);
+  S.doc.addEventListener('click',e=>{if(!S.editing)return;e.preventDefault();e.stopImmediatePropagation();const control=e.target.closest('button[role=tab][aria-controls],button[data-ms-editor-nav]');if(control){guard(()=>{interact(control);clearSelection();document.body.classList.remove('sidebar-open');});return;}const p=resolveSelection(e.target);if(p)guard(()=>select(p));},true);
+  S.doc.addEventListener('keydown',e=>{if(!S.editing||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const tab=e.target.closest('button[role=tab][aria-controls]');if(!tab)return;e.preventDefault();e.stopImmediatePropagation();guard(()=>{const editing=S.editing;S.editing=false;try{tab.dispatchEvent(new S.win.KeyboardEvent('keydown',{key:e.key,bubbles:true,cancelable:true}));}finally{S.editing=editing;}clearSelection();document.body.classList.remove('sidebar-open');});},true);
   S.doc.addEventListener('submit',e=>{if(S.editing)e.preventDefault();},true);
   // Restore each known request by its full page + selector. Never guess another location.
   for(const it of S.items.values()){
     it.el=null;if(it.anchor?.split('::')[0]!==sitePath())continue;
     const el=schema.resolve(S.doc,it.anchor.split('::')[1]);if(!el||!eligible(el))continue;
     const live=capture(el);it.conflict=live.original!==it.original;
-    Object.assign(it,{el,type:live.type,origHTML:live.origHTML,origSrcset:live.origSrcset,origSizes:live.origSizes,origBg:live.origBg,originalURL:it.originalURL||imageURL(it.original),page:live.page,section:live.section,label:live.label});
+    Object.assign(it,{el,type:live.type,origHTML:live.origHTML,origStyle:live.origStyle,origSrcset:live.origSrcset,origSizes:live.origSizes,origBg:live.origBg,originalURL:it.originalURL||imageURL(it.original),page:live.page,section:live.section,label:live.label});
     preview(it,it.text);mark(it);
   }
   canvasMode();header();renderAreas();
@@ -108,16 +118,20 @@ async function wire(){
   if(S.restored){notify(t.recovered);S.restored=false;}
 }
 function mark(it){outline(it)?.classList.add('ms-editor-changed');if(it.el){it.el.setAttribute('data-ms-change-location',locationOf(it));it.el.setAttribute('title',t.saved+' · '+locationOf(it));}}
+// Run only page-declared local controls, bypassing the editor's capture handler.
+function interact(control){const editing=S.editing;S.editing=false;try{control.click();}finally{S.editing=editing;}}
 function reveal(el){
-  const hidden=el.closest('[role=tabpanel][hidden]');if(hidden){const tab=S.doc.querySelector('[aria-controls="'+CSS.escape(hidden.id)+'"]');tab?.click();hidden.hidden=false;}
+  if(el.matches('button[role=tab][aria-controls]'))interact(el);
+  const panels=[];for(let p=el.closest('[role=tabpanel]');p;p=p.parentElement?.closest('[role=tabpanel]'))panels.unshift(p);
+  for(const panel of panels)if(panel.hidden){const tab=S.doc.querySelector('button[role=tab][aria-controls="'+CSS.escape(panel.id)+'"]');if(tab)interact(tab);}
   el.scrollIntoView({block:matchMedia('(max-width:640px)').matches?'start':'center',behavior:'auto'});
   if(matchMedia('(max-width:640px)').matches)S.win.scrollBy(0,-70);
 }
 function select(part){
   outline(S.selected||{})?.classList.remove('ms-editor-selected');
-  const it=S.items.get(part.anchor)||[...S.items.values()].find(it=>it.el===part.el)||{...part,id:null,kind:'small',text:part.type==='image'?'':part.original,note:'',status:'new'};
+  const it=S.items.get(part.anchor)||[...S.items.values()].find(it=>it.el===part.el)||{...part,id:null,kind:['color','choice'].includes(part.type)?'big':'small',text:part.type==='image'?'':part.original,note:'',status:'new'};
   S.selected=it;S.dirty=false;S.view='field';S.editing=true;canvasMode();$('#mEdit').setAttribute('aria-pressed','true');$('#mBrowse').setAttribute('aria-pressed','false');
-  outline(it)?.classList.add('ms-editor-selected');if(it.el)reveal(it.el);document.body.classList.add('sidebar-open');header();renderField();
+  outline(it)?.classList.add('ms-editor-selected');if(it.el){reveal(it.el);if(it.type==='color')interact(it.el);}document.body.classList.add('sidebar-open');header();renderField();
   $('#sidebar').scrollTop=0;$('#sidebarTitle').tabIndex=-1;$('#sidebarTitle').focus({preventScroll:true});
 }
 function guard(action){
@@ -153,25 +167,28 @@ function renderAreaList(){
   if(!groups.size){list.innerHTML=`<p class="empty">${esc(t.noResults)}</p>`;}
 }
 function compareHTML(it){
+  if(it.type==='color')return `<div class="color-compare">${[['before',it.original],['after',it.text]].map(([key,value])=>`<figure><figcaption>${esc(t[key])}</figcaption><span class="color-sample" style="background:${hexColor(value)||'transparent'}"></span><code>${esc(value)}</code></figure>`).join('')}</div>${it.note?`<p class="help">${esc(t.note)}: ${esc(it.note)}</p>`:''}`;
   const img=it.type==='image',url=img?photoValue(it.text||''):'';
   if(img)return `<div class="image-compare"><figure><figcaption>${esc(t.before)}</figcaption><img src="${esc(it.originalURL||imageURL(it.original))}" alt="${esc(t.before)}"></figure><figure><figcaption>${esc(t.after)}</figcaption><img src="${esc(url||it.originalURL||imageURL(it.original))}" alt="${esc(t.after)}"></figure></div>${!url&&(it.text||it.note)?`<p class="help">${esc(it.text||t.photoNote)}</p>`:''}${it.note?`<p class="help">${esc(t.note)}: ${esc(it.note)}</p>`:''}`;
   return `<dl><dt>${esc(t.before)}</dt><dd>${esc(it.original)}</dd><dt>${esc(t.after)}</dt><dd class="after">${esc(it.text||t.removeText)}</dd>${it.note?`<dt>${esc(t.note)}</dt><dd>${esc(it.note)}</dd>`:''}</dl>`;
 }
 function renderField(){
-  const it=S.selected;if(!it)return renderAreas();const img=it.type==='image',saved=S.items.has(it.anchor),locked=it.status!=='new';
+  const it=S.selected;if(!it)return renderAreas();const img=it.type==='image',color=it.type==='color',choice=it.type==='choice',saved=S.items.has(it.anchor),locked=it.status!=='new';
   sidebarTitle(it.label||it.target,t.previewOnly);
   $('#sideBody').innerHTML=`<button class="ghost" id="backAreas">← ${esc(t.backAreas)}</button>${crumb(it)}${it.conflict?`<p class="restore-note">${esc(t.currentChanged)}</p>`:''}
   ${locked?`<p class="help">${esc(t.locked)}</p><article class="change-card">${compareHTML(it)}</article>`:
-  `${img?`<div id="photoCompare">${compareHTML(it)}</div><label class="file-label">${esc(t.upload)}<input id="photoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="${esc(t.upload)}"></label><p class="help">${esc(t.uploadHint)}</p><p id="uploadStatus" class="status" role="status"></p>`:`<label class="field-label">${esc(t.before)}</label><div class="before-value">${esc(it.original)}</div>`}
-  <label class="field-label" for="content">${esc(img?t.imageLink:t.content)}</label><textarea class="content-input" id="content" maxlength="1800" rows="4">${esc(it.text??(img?'':it.original))}</textarea>
+  `${img?`<div id="photoCompare">${compareHTML(it)}</div><label class="file-label">${esc(t.upload)}<input id="photoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="${esc(t.upload)}"></label><p class="help">${esc(t.uploadHint)}</p><p id="uploadStatus" class="status" role="status"></p>`:color?'':`<label class="field-label">${esc(t.before)}</label><div class="before-value">${esc(it.original)}</div>`}
+  ${color?`<div id="colorCompare">${compareHTML(it)}</div><label class="field-label" for="colorPicker">${esc(t.colorPicker)}</label><input type="color" id="colorPicker" value="${hexColor(it.text)||hexColor(it.original)||'#000000'}"><p class="help">${esc(t.colorHint)}</p>`:choice?`<p class="help">${esc(t.choiceHint)}</p>`:''}
+  <label class="field-label" for="content">${esc(color?t.colorHex:choice?t.choiceRequest:img?t.imageLink:t.content)}</label><textarea class="content-input" id="content" maxlength="${color?'7':'1800'}" rows="${color?'1':'4'}">${esc(it.text??(img?'':it.original))}</textarea>
   <label class="field-label" for="editNote">${esc(t.note)}</label><textarea id="editNote" class="note-input" maxlength="180" rows="2" placeholder="${esc(t.notePh)}">${esc(it.note||'')}</textarea>
-  <label class="check"><input type="checkbox" id="big" ${it.kind==='big'?'checked':''}><span>${esc(t.big)}</span></label>
+  <label class="check"><input type="checkbox" id="big" ${color||choice?'checked disabled':it.kind==='big'?'checked':''}><span>${esc(color||choice?t.designReview:t.big)}</span></label>
   <p id="fieldStatus" class="status" role="status">${saved?esc(t.saved+' · '+locationOf(it)):''}</p>
-  <div class="actions"><button class="ghost" id="cancelField">${esc(t.cancel)}</button><button class="btn" id="saveField">${esc(t.addDraft)}</button></div>${saved?`<button class="ghost" id="undoField" style="width:100%;margin-top:10px">${esc(t.undo)}</button>`:''}`}`;
+  <div class="actions field-actions"><button class="ghost" id="cancelField">${esc(t.cancel)}</button><button class="btn" id="saveField">${esc(t.addDraft)}</button></div>${saved?`<button class="ghost" id="undoField" style="width:100%;margin-top:10px">${esc(t.undo)}</button>`:''}`}`;
   $('#backAreas').onclick=()=>guard(clearSelection);
   if(locked)return;
   if(S.demo&&img){$('#photoFile').disabled=true;$('#uploadStatus').textContent=t.demoNote;}
   $('#content').oninput=editInput;$('#editNote').oninput=editInput;$('#big').onchange=editInput;
+  if(color)$('#colorPicker').oninput=e=>{$('#content').value=e.target.value;editInput();};
   $('#saveField').onclick=commit;$('#cancelField').onclick=()=>{if(S.busy)return;S.dirty=false;preview(it,saved?it.text:it.original);persist();clearSelection();};
   if(saved)$('#undoField').onclick=()=>guard(()=>removeChange(it));
   if(img)$('#photoFile').onchange=uploadPhoto;
@@ -184,14 +201,16 @@ function editInput(){
     $('#photoCompare').innerHTML=compareHTML({...it,text,note});const im=$('#photoCompare figure:last-child img');
     if(photoValue(text))im.onerror=()=>{if(S.selected===it)$('#uploadStatus').textContent=t.imageFailed;};
   }
+  if(it.type==='color'){const hex=hexColor(text);if(hex)$('#colorPicker').value=hex;$('#colorCompare').innerHTML=compareHTML({...it,text,note});}
   $('#fieldStatus').textContent=S.dirty?t.unsaved:S.items.has(it.anchor)?t.saved+' · '+locationOf(it):'';persist();
 }
 function commit(){
   if(S.busy||!S.selected)return false;const it=S.selected,text=$('#content').value.trim(),note=$('#editNote').value.trim();
+  if(it.type==='color'&&!hexColor(text)){$('#fieldStatus').textContent=t.colorInvalid;return false;}
   if((!S.items.has(it.anchor)&&S.items.size>=40)||text.length+note.length+NOTE.length>2000){$('#fieldStatus').textContent=t.limit;return false;}
   const unchanged=it.type==='image'?!text||text===it.original||photoValue(text)===it.originalURL:text===it.original;
   if(unchanged&&!note){removeChange(it);return true;}
-  it.text=text;it.note=note;it.kind=$('#big').checked?'big':'small';
+  it.text=it.type==='color'?hexColor(text):text;it.note=note;it.kind=['color','choice'].includes(it.type)?'big':$('#big').checked?'big':'small';
   // The existing API keeps target (60 chars) and a stable full selector separately.
   it.target=[it.section,it.label].filter(Boolean).join(' / ').slice(0,60);
   S.items.set(it.anchor,it);S.dirty=false;preview(it,text);mark(it);persist();header();renderField();notify(t.saved+'\n'+locationOf(it));return true;
