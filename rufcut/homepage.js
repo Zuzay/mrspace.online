@@ -12,9 +12,9 @@
  const defaults={fit:'Straight',denim:'Raw',wash:'Dark indigo',thread:'Pig-skin',fly:'Button fly',hem:'Chain stitch'};
  const s={...defaults};
  try{const stored=JSON.parse(localStorage.getItem(draftKey)||'{}');Object.keys(defaults).forEach(k=>{const allowed=[...document.querySelectorAll(`[data-k="${k}"] button`)].map(b=>b.dataset.v);if(allowed.includes(stored[k]))s[k]=stored[k]})}catch{}
- const washC={'Dark indigo':'#1E3466','Wide blue/white stripe':'url(#stripeWide)','Narrow blue/white stripe':'url(#stripeNarrow)',Black:'#232427',White:'#F6F3EC'};
- const thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C',White:'#F6F3EC',Tonal:'#3B4F77'};
- const tonalC={'Dark indigo':'#3B4F77','Wide blue/white stripe':'#52648D','Narrow blue/white stripe':'#52648D',Black:'#414141',White:'#D3CEC5'};
+ const washC={'Dark indigo':'#111B2E','Wide blue/white stripe':'url(#stripeWide)','Narrow blue/white stripe':'url(#stripeNarrow)',Black:'#232427',White:'#F6F3EC'};
+ const thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C',White:'#F6F3EC',Tonal:'#283750'};
+ const tonalC={'Dark indigo':'#283750','Wide blue/white stripe':'#52648D','Narrow blue/white stripe':'#52648D',Black:'#414141',White:'#D3CEC5'};
  const legs={Slim:'M12 24 L14 200 H54 L65 86 L76 200 H116 L118 24 Z',Straight:'M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z',Relaxed:'M12 24 L2 200 H58 L65 90 L72 200 H128 L118 24 Z',Wide:'M12 24 L-4 200 H60 L65 94 L70 200 H134 L118 24 Z'};
  let view='front',activeTab=0;
  ['vFit','vDenim','vWash','vThread','vFly','vHem','summary'].forEach(id=>$(id).setAttribute('data-noi18n',''));
