@@ -2,6 +2,8 @@
  'use strict';
  const $=id=>document.getElementById(id),tr=s=>window.MSI18N?MSI18N.t(s):s;
  const root=document.documentElement,themeKey='rufcut-theme',draftKey='rufcut-jean-maker-v1';
+ const shopMap=document.querySelector('[data-ms-field="visit.a.4"]');
+ if(shopMap)shopMap.href='https://www.google.com/maps?cid=9639345455576202975';
  try{const theme=localStorage.getItem(themeKey);if(['light','dark'].includes(theme))root.dataset.theme=theme}catch{}
  const currentTheme=()=>root.dataset.theme||'dark';
  const frame=$('repairFrame');
@@ -39,6 +41,12 @@
   try{localStorage.setItem(draftKey,JSON.stringify(s))}catch{}
  }
  document.querySelectorAll('[data-k] button').forEach(b=>b.addEventListener('click',()=>{s[b.parentElement.dataset.k]=b.dataset.v;render()}));
+ // The shared editor previews a swatch without replacing its label or choice ID.
+ document.addEventListener('ms:editor-color-preview',e=>{
+  const swatch=e.target;if(!swatch.matches('[data-ms-color]'))return;
+  const colors=swatch.parentElement.dataset.k==='wash'?washC:thrC;
+  if(Object.hasOwn(colors,swatch.dataset.v)){colors[swatch.dataset.v]=swatch.style.backgroundColor;render();}
+ });
  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;render()}));
  const tabs=[...document.querySelectorAll('.maker-tabs [role="tab"]')];
  function setTab(index,focus=false){activeTab=index;tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',i===index);tab.tabIndex=i===index?0:-1;$('maker-panel-'+i).hidden=i!==index});$('makerPrevious').hidden=index===0;$('makerNext').hidden=index===2;if(focus)tabs[index].focus()}

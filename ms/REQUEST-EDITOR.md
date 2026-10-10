@@ -8,7 +8,17 @@ Gözden geçirme, gönderim onayı ve gönderim sonucu aynı konumları ve önce
 
 İçerik taslağı localStorage'da SHA-256 ile türetilmiş bir anahtarla tutulur; ham site/revizyon anahtarı, oturum veya iletişim bilgisi taslağa yazılmaz. En fazla 40 alan, 7 gün, alan başına 2.000 karakter API sınırı korunur. Sunucuda yeni revizyon varsa cihaz taslağı veya sunucu sürümü seçilir. Depolama hatası açıkça belirtilir. Gönderim ancak API başarı yanıtını doğrulayınca tamamlanmış sayılır. Gönderilmemiş düzenlemeler varken sayfadan çıkış tarayıcı uyarısı verir.
 
-## Fotoğraflar
+## Etkileşimli alanlar ve renkler
+
+Editör, yerel `button[role=tab][aria-controls]` sekmelerini ve açıkça `data-ms-editor-nav` ile işaretlenen düğmeleri çalıştırabilir. Başlık metni alan listesinden ayrıca düzenlenir. Gizli bir paneldeki alan seçildiğinde sayfanın gerçek sekme işleyicisi çalışır; `hidden`, `aria-selected` ve ileri/geri durumu birlikte güncellenir. Kaydedilmemiş düzenleme varsa tıklama ve klavye geçişi aynı taslak uyarısını kullanır. Diğer bağlantılar ve gönderim düğmeleri düzenleme modunda çalıştırılmaz.
+
+`data-ms-color` altı haneli HEX değeri bulunan düz renk alanıdır. `data-ms-color-group` renk kutusunu, örneğin Wash ve Thread grubunu, konum bilgisinde ayırır. Renk seçici ve HEX girişi aynı taslağı düzenler. Önce/sonra renkleri, alanın kalıcı kimliği ve notu gözden geçirme, onay ve sonuç ekranlarında korunur. Geçersiz renk kaydedilmez. Geri alma özgün stil niteliğini geri yükler. Sayfa `ms:editor-color-preview` olayını dinleyerek çizimini güncelleyebilir; Rufcut bunu denim ve dikiş renkleri için kullanır.
+
+`data-ms-choice` desen veya otomatik renk için açıklama alanıdır. Düz renkmiş gibi HEX seçici açmaz, düğmenin içine metin yazmaz ve mevcut çizimi değiştirmez. Renk/desen talepleri insan tasarım incelemesine gider; taslak kaydetmek canlı yayına çıkarmak değildir. `data-ms-runtime` içindeki canlı özetler ve seçim değerleri düzenlenebilir metin listesine alınmaz; çizimin kullandığı alt öğeler korunur.
+
+`tests/editor-controls.browser.mjs` sekmeler, gizli alanlar, düz renk/desen ayrımı, çizim, doğru gönderim kimliği, taslak geri yükleme, iptal/geri alma, hatalı HEX, mobil/tema ve klavye kontrollerini gerçek Chrome ile sahte API üzerinde doğrular. Gerçek müşteri kaydı oluşturmaz.
+
+## Fotoğraf işlemleri
 
 Rufcut açılış ve atölye fotoğrafları `openingPhoto` ve `workshopPhoto` kimliklerine sahiptir. İkisi de dosya seçme, link, önce/sonra önizlemesi ve geri alma destekler. Fotoğraf değiştirilince eski `srcset` kaldırılır; geri alırken özgün `src`, `srcset`, `sizes` geri gelir. Sayfanın mevcut CSS fotoğraf filtreleri korunur. Yapay zekâ ile fotoğraf üretilmez.
 
