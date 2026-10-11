@@ -22,4 +22,19 @@ await test('category and rank persist, reject invalid input before writes, and s
  for(const [name,section,category,display_order] of [['Belt','shop','accessories',0],['Jeans second','shop','jeans',20],['Jeans first','shop','jeans',10],['AAA repair','repair','accessories',0]])assert.equal((await f.post({action:'add_item',name,price:79,qty:1,track:false,section,category,display_order,submission_token:crypto.randomUUID()})).status,200);
  const cards=(await(await f.publicCatalog()).json()).items;assert.deepEqual(cards.map(i=>i.name),['Jeans first','Jeans second','Bespoke Chore Coat','Belt','AAA repair']);assert.equal(cards.find(i=>i.name==='Belt').category,'accessories');
 });
+await test('Square sales links survive publication, variation filtering and older panel saves',async()=>{
+ const f=catalogService(),r=rule();r.variations.s.purchase_url='https://square.link/u/small';r.variations.m.purchase_url='https://owner.square.site/product/coat/2';
+ assert.equal((await f.post({action:'save_publication',item:'coat',publication:r})).status,200);
+ let d=await(await f.publicCatalog()).json();assert.equal(d.items[0].variations[0].purchase_url,'https://square.link/u/small');
+ assert.equal((await f.post({action:'save_publication',item:'coat',publication:rule()})).status,200);d=await(await f.publicCatalog()).json();assert.equal(d.items[0].variations[0].purchase_url,'https://square.link/u/small');
+ const clear=rule();clear.variations.s.purchase_url='';clear.variations.m.purchase_url='';await f.post({action:'save_publication',item:'coat',publication:clear});d=await(await f.publicCatalog()).json();assert.ok(!d.items[0].variations[0].purchase_url);
+});
+await test('unsafe, foreign-host and mismatched Rufcut product links reject before writes',async()=>{
+ for(const purchase_url of ['javascript:alert(1)','http://square.link/u/test','https://square.link.evil.test/u/test','https://user:pass@square.link/u/test','https://evil.test/product/coat','https://www.rufcut.com/product/other/foreign']){
+ const f=catalogService(),r=rule();r.variations.s.purchase_url=purchase_url;assert.equal((await f.post({action:'save_publication',item:'coat',publication:r})).status,400);assert.equal(f.calls.writes.length,0);
+ }
+ const f=catalogService(),r=rule();r.variations.s.purchase_url='https://www.rufcut.com/product/coat/coat';assert.equal((await f.post({action:'save_publication',item:'coat',publication:r})).status,200);
+ assert.equal((await(await f.publicCatalog()).json()).items[0].variations[0].purchase_url,r.variations.s.purchase_url);
+ assert.equal(C.purchaseURL(r.variations.s.purchase_url,'heron'),'');
+});
 console.log(`${count} site catalog checks passed; no live Square writes`);

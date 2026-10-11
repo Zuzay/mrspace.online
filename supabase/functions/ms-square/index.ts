@@ -147,9 +147,10 @@ async function publications(site: string) {
   return new Map((data||[]).map((rule: any)=>[rule.item_id,rule]));
 }
 async function savePublication(site: string,item: Item,input: any,email: string) {
-  // Older open panel tabs do not send these fields; retain the curated placement.
-  const previous=input&&(input.category===undefined||input.display_order===undefined)?(await publications(site)).get(item.id):null;
-  const clean=SiteCatalog.validate(item,input?{...input,category:input.category===undefined?previous?.category:input.category,display_order:input.display_order===undefined?previous?.display_order:input.display_order}:input,site);
+  // Older open panel tabs omit new fields; retain links unless explicitly cleared.
+  const previous=input?(await publications(site)).get(item.id):null;
+  const variations=input?.variations&&typeof input.variations==='object'&&!Array.isArray(input.variations)?Object.fromEntries(Object.entries(input.variations).map(([id,value]: [string,any])=>[id,value&&typeof value==='object'&&!Object.hasOwn(value,'purchase_url')?{...value,...(previous?.variations?.[id]?.purchase_url?{purchase_url:previous.variations[id].purchase_url}:{})}:value])):input?.variations;
+  const clean=SiteCatalog.validate(item,input?{...input,variations,category:input.category===undefined?previous?.category:input.category,display_order:input.display_order===undefined?previous?.display_order:input.display_order}:input,site);
   const {error}=await db.from("ms_catalog_publications").upsert({site,item_id:item.id,...clean,updated_by:email,updated_at:new Date().toISOString()},{onConflict:"site,item_id"});
   if(error)throw new Error("catalog_save_failed");
   return clean;
@@ -209,7 +210,7 @@ Deno.serve(async (req) => {
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
       const rules=await publications(site),hidden=new Set(acc.hidden_catalog_items||[]);
-      const items=SiteCatalog.sort((await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id))));
+      const items=SiteCatalog.sort((await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id),site)));
       return json({items},200,{"Cache-Control":"public, max-age=30"});
     }
 
@@ -354,6 +355,6 @@ Deno.serve(async (req) => {
 
     return json({ error: "unknown_action" }, 400);
   } catch (e) {
-    return json({ error: String((e as Error).message || e) }, /^(catalog_invalid|catalog_no_variations|commerce_invalid|commerce_unavailable|commerce_delivery|commerce_shipping_pending)$/.test(String((e as Error).message||e))?400:500);
+    return json({ error: String((e as Error).message || e) }, /^(catalog_invalid|catalog_no_variations|catalog_invalid_link|commerce_invalid|commerce_unavailable|commerce_delivery|commerce_shipping_pending)$/.test(String((e as Error).message||e))?400:500);
   }
 });

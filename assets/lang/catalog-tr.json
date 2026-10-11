@@ -91,5 +91,10 @@
   "category_shirts": "Gömlekler ve üst giyim",
   "category_accessories": "Aksesuarlar",
   "category_other": "Diğer parçalar",
-  "category_help": "Mağaza ürünlerinde ürün grubunu seç. Küçük numaralar o grupta önce görünür. Hizmetler Repair veya Workshop bölümüne aittir; mağaza kategorisi onlar için kullanılmaz."
+  "category_help": "Mağaza ürünlerinde ürün grubunu seç. Küçük numaralar o grupta önce görünür. Hizmetler Repair veya Workshop bölümüne aittir; mağaza kategorisi onlar için kullanılmaz.",
+  "square_link": "Square ürün / ödeme bağlantısı",
+  "square_links": "seçenekte Square bağlantısı",
+  "no_square_link": "Çevrimiçi satış bağlantısı yok",
+  "square_link_help": "Bu seçeneğin mevcut Square bağlantısını ekleyin. Yayınlamadan önce stok, vergi, kargo ücretleri ve mağazadan teslimi Square üzerinde ayarlayın. Rufcut için mevcut rufcut.com ürün bağlantıları da kullanılabilir. Bağlantıyı silerek bu seçeneğin çevrimiçi satışını kapatabilirsiniz.",
+  "invalid_square_link": "HTTPS square.link/u/… veya magaza.square.site/product/… bağlantısı kullanın. Rufcut için rufcut.com/product/… bağlantısı da kullanılabilir."
 }

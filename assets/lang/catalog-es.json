@@ -91,5 +91,10 @@
   "category_shirts": "Camisas y tops",
   "category_accessories": "Accesorios",
   "category_other": "Otras prendas",
-  "category_help": "Para artículos de tienda, elige el grupo. Los números menores aparecen primero dentro del grupo. Los servicios van en Reparaciones o Talleres; su categoría de tienda no se utiliza."
+  "category_help": "Para artículos de tienda, elige el grupo. Los números menores aparecen primero dentro del grupo. Los servicios van en Reparaciones o Talleres; su categoría de tienda no se utiliza.",
+  "square_link": "Enlace de producto / pago de Square",
+  "square_links": "opciones con enlace Square",
+  "no_square_link": "Sin enlace de venta online",
+  "square_link_help": "Pega el enlace Square existente para esta opción exacta. Configura existencias, impuestos, envío y recogida en Square antes de publicar. Rufcut también admite sus enlaces de producto de rufcut.com. Borra el enlace para desactivar la venta online de esta opción.",
+  "invalid_square_link": "Usa un enlace HTTPS square.link/u/… o tu-tienda.square.site/product/…. Rufcut también puede usar rufcut.com/product/…."
 }
