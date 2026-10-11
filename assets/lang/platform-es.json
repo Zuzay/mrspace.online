@@ -314,5 +314,6 @@
   "order_cuffed": "Con vuelta",
   "order_raw_edge": "Borde sin rematar",
   "order_garment_jeans": "Jeans",
-  "order_save_error": "No se pudo guardar la orden. Tus cambios siguen aquí. Inténtalo de nuevo."
+  "order_save_error": "No se pudo guardar la orden. Tus cambios siguen aquí. Inténtalo de nuevo.",
+  "heron_bridge_update_required": "Hay que actualizar la conexión de Heron"
 }

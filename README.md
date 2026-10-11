@@ -7,7 +7,7 @@ Mr. Space web stüdyosu sitesi. Ekim 2026 planına göre yeniden yazıldı.
 - `packages/` : Paket 1-2-3, ilk müşteri indirimi, karşılaştırma tablosu, ekler, saatlik ücret, Custom çıkış bedeli, değişiklik kotası, kurallar, SSS.
 - `first-clients/` : İlk müşteri (launch offer) sayfası. Normal fiyatların üstü çizili, $300 kurulum, $50/ay, eklentiler dahil, değişiklik kotası iki katı. Ana sayfa ve paketler sayfasındaki siyah şerit buraya gider.
 - `start/` : Dallanan başvuru formu (8 adım). POS, scanner, printer, etiket, mevcut site, sosyal medya, örnek siteler. “Submit project” özel admin başvuru kuyruğuna kayıt yapar ve gerçek makbuz numarası bekler (`ms-intake` kurulum gerektirir). E-posta ve kopyalama seçenekleri korunur. Başarısız gönderimde taslak ziyaretçinin cihazında kalır.
-- `rufcut/` : Eski Rufcut konsept demosu, dokunulmadı.
+- `rufcut/` : İngilizce Rufcut konsepti, Jean Maker, tamir başvurusu ve gerçek iş emri takibi.
 - `404.html`, `sitemap.xml`, `robots.txt`, `CNAME`, `og.png`
 
 ## Ortak dosyalar
@@ -33,9 +33,9 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - `request/?k=ANAHTAR` müşterinin sitesini bölüm listesiyle açar. Bölümden veya doğrudan sayfadan alan seçilir; konum, mevcut içerik ve önerilen değişiklik aynı yerde görünür. Fotoğraf dosyası yüklenebilir veya link verilebilir. Kaydetme taslağa ekler; gönderimden önce alanlar tek tek karşılaştırılır. Ayrıntılar: [ms/REQUEST-EDITOR.md](ms/REQUEST-EDITOR.md).
 - Gönderince bitiş ekranında ve mailde `request/?e=DÜZELTME_ANAHTARI` linki çıkar. Müşteri geri dönüp ekler, değiştirir, kaldırır. Onaylanmış/bitmiş işler kilitlidir.
 - Her gönderim bir sürüm (v1, v2...). Panelde **Sürümler**: iki sürüm yan yana, kelime kelime fark, "A sürümüne dön". Taleplerde revize edilmiş olanların yanında `v2` etiketi var.
-- Kurulum: `ms/mrspace-requests-v2.sql` (sistem SQL'inden sonra). Mail için Resend anahtarı: `select vault.create_secret('re_XXXX', 'resend_key');` (anahtar yoksa mail gitmez, gerisi çalışır).
+- Kurulum: `ms/mrspace-requests-v2.sql` (sistem SQL'inden sonra), ardından yeni [kalıcı e-posta kuyruğu](ms/MAIL.md). Sadece Resend anahtarı eklemek yeni kuyruğu çalıştırmaya yetmez.
 - Tasarımlarda düzenlenmesin istenen parçaya `data-ms-skip`, özellikle düzenlenebilir olsun istenen bloğa `data-ms-edit`.
-- Yerinde düzenleme tasarım mrspace.online altında durduğu sürece çalışır; başka alan adındaki sitelerde sayfa düz not formuna düşer.
+- Yerinde düzenleme mrspace.online altında çalışır. Heron/Laloo için onaylanan köprü kurulduğunda ortak editör betiksiz sayfa görüntüsü açar; katalog/harita değişiklikleri kendi panellerindedir. Diğer dış siteler düz not formuna düşer.
 - Alan listesi sayfanın bölümlerine göre düzenlenir; arama metin ve fotoğraf alanlarını bulur. `data-ms-section` bölüm, `data-ms-label` alan adını belirtir. Rufcut açılış ve atölye fotoğrafları sabit kimliklerle bulunur. Eski kontrol listesi onayları veritabanında korunur; yeni editör alan seçimi, değişiklik karşılaştırması ve gönderim onayını kullanır.
 
 ## Müşteri paneli + Square (Ekim 2026)
@@ -53,7 +53,7 @@ GoatCounter kullanılıyor (ücretsiz, çerezsiz). goatcounter.com'da "mrspace" 
 - `rufcut/repair/`: ayrı tamir başvuru sayfası. Giysi ve kadın/erkek kalıbı seçilir, kırmızı sis işaretleri doğrudan giysi çizimi üstünde taşınır, birden çok parça ve ölçü/not girilebilir.
 - `panel/` içindeki **İş emirleri** sekmesi yalnızca Rufcut hesabına görünür; görsel, müşteri bilgileri, fiş numarası, iş durumu, prova ölçüleri ve atölye notları tek iş emrinde tutulur.
 - Rufcut ana sayfasındaki takip alanı aynı fiş numarasından gerçek durumu sorgular. Durumlar: received, in progress, finishing (yarına hazır), ready, completed.
-- Kurulum: `ms/mrspace-repair.sql` çalıştır, `supabase/functions/ms-repair/index.ts` fonksiyonunu deploy et ve `verify_jwt=false` ayarıyla yayınla. İsteğe bağlı e-posta bildirimi için `RESEND_API_KEY` ve `RESEND_FROM_EMAIL` secrets ekle. Kod e-posta göndermeden de iş emrini ve takibi kaydeder.
+- Kurulum: `ms/mrspace-repair.sql` çalıştır, `supabase/functions/ms-repair/index.ts` fonksiyonunu deploy et ve `verify_jwt=false` ayarıyla yayınla. E-posta için yeni [kuyruk kurulumu](ms/MAIL.md) gerekir; SQL yeni Edge kaynaklarından önce kurulur. Kod e-posta göndermeden de iş emrini ve takibi kaydeder.
 - `ms_repair_jobs` tablosunda RLS açık ve doğrudan istemci erişimi kapalıdır. Tarayıcı yalnızca Edge Function'ı çağırır; Rufcut çalışanı panel oturumuyla yetkilendirilir.
 
 ## Birleşik site yönetimi (Ekim 2026)
@@ -72,6 +72,9 @@ Repair ve Jean Maker aynı Rufcut gelen işler ekranına kaydeder. Fişler çizi
 
 ## Ortak site kataloğu ve başlangıç rehberi
 Square ürünlerinin site yerleşimi, varyasyon kartları ve yeni kayıt incelemesi ortak paneldeki **Site kataloğu** bölümünden yönetilir. İlk normal girişte kısayol rehberi açılır; sayfanın altındaki tercihle kapatılır ve **Yardıma mı ihtiyacın var?** bağlantısından yeniden açılır. Kurulum, kullanım ve testler: [ms/SITE-CATALOG.md](ms/SITE-CATALOG.md).
+
+## E-posta yönetimi (inceleme dalı)
+`/admin/mail/`: gerçek kuyruk, imzalı teslimat durumu, gelen posta ve yanıtlar. Genel gönderici `hello@mrspace.online`, Rufcut göndericisi `rufcut@mrspace.online`; Rufcut müşteri tarafı İngilizcedir. [Kurulum ve sınırlar](ms/MAIL.md), [GoDaddy DNS kayıtları](ms/MAIL-DNS.md). Yeni kaynaklar henüz canlıya kurulmadı; gönderim varsayılan kapalı.
 
 ## Ortak satış ve kargo hazırlığı
 Rufcut, Heron ve sonraki siteler `/panel/?site=SITE&view=commerce` üzerinden aynı **Satış ve kargo** modülünü kullanır. Bölgeler, tarife, paket/ürün hazırlığı ve iç satın alma önizlemesi siteye göre ayrı saklanır. Bu aşama canlı müşteri ödemesi açmaz; ödeme, doğrulama, satış siparişleri ve kargo etiketi için aşamalı plan ve testler: [ms/COMMERCE-PLAN.md](ms/COMMERCE-PLAN.md).

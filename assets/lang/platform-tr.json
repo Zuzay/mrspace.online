@@ -314,5 +314,6 @@
   "order_cuffed": "Kıvrık",
   "order_raw_edge": "Ham kenar",
   "order_garment_jeans": "Kot pantolon",
-  "order_save_error": "İş emri kaydedilemedi. Değişikliklerin hâlâ burada. Tekrar dene."
+  "order_save_error": "İş emri kaydedilemedi. Değişikliklerin hâlâ burada. Tekrar dene.",
+  "heron_bridge_update_required": "Heron bağlantısı güncellenmeli"
 }

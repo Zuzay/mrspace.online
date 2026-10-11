@@ -57,7 +57,7 @@ try{
  if(state.stage==="review"&&state.editing===null&&!state.actions.length){state.editing=state.items.length-1;Object.assign(state,cleanPiece(state.items.at(-1)))}
  state.activeAction=state.actions.includes(stored.activeAction)?stored.activeAction:state.actions[0]||null;
 }catch{}
-const urlLang=new URLSearchParams(location.search).get("lang");if(words[urlLang])state.lang=urlLang;if(!words[state.lang])state.lang="en";
+state.lang="en"; // Rufcut always opens and submits in English, including old saved drafts.
 const t=k=>words[state.lang][k]||words.en[k]||k;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let submitting=false,submitted=false,zoomed=false,zoomBox=null,drag=null,suppressClick=false;
@@ -138,8 +138,8 @@ $("review").onclick=handlePieceClick;$("savedGarments").onclick=handlePieceClick
 form.addEventListener("input",e=>{if(["inches","itemNote","customerName","customerEmail","customerPhone"].includes(e.target.id))readFields()});
 $("garmentSelect").onchange=e=>{readFields();state.garment=e.target.value;state.marks={};updateCamera();setError();render()};
 $("genderSelect").onchange=e=>{state.gender=e.target.value;render()};
-if(document.documentElement.dataset.embed)$("language").querySelector('option[value="zh"]')?.remove();
-$("language").onchange=e=>{state.lang=e.target.value;try{localStorage.setItem("ms_lang",state.lang)}catch{}render();if(document.documentElement.dataset.embed){try{const selector=parent.document.getElementById("msLang");if(selector&&selector.value!==state.lang){selector.value=state.lang;selector.dispatchEvent(new parent.Event("change",{bubbles:true}))}}catch{}}};
+$("language").replaceChildren(new Option("English","en"));
+$("language").closest("label").hidden=true;
 $("jobs").onchange=e=>{const input=e.target;if(!actionTypes.includes(input.value))return;readFields();const a=input.value;
  if(input.checked){const opposite={shorten:"lengthen",lengthen:"shorten",take_in:"let_out",let_out:"take_in"}[a];state.actions=state.actions.filter(v=>v!==opposite);if(opposite)delete state.marks[opposite];if(!state.actions.includes(a))state.actions.push(a);state.activeAction=a;state.marks[a]=state.marks[a]||defaultPoint(state,a)}
  else{state.actions=state.actions.filter(v=>v!==a);delete state.marks[a];if(state.activeAction===a)state.activeAction=state.actions.at(-1)||null}

@@ -8,7 +8,7 @@ export function service(kind='repair'){
  let handler;const state={jobs:[],tokens:new Map(),preferences:[],subscriptions:[],admin:true,viewer:false,member:false,user:'owner@example.test',saveFail:false,emailFail:false,mailReady:false,pushExpire:false,secrets:{vapid:null}};
  const calls={writes:[],fetches:[],reads:[],rpc:[]};
  const db={auth:{getUser:async token=>({data:{user:token&&state.user?{email:state.user}:null}})},
- async rpc(name,args){calls.rpc.push({name,args});if(name==='ms_notification_secrets'){if(!state.secrets.vapid&&args.p_vapid)state.secrets.vapid=args.p_vapid;return {data:state.secrets};}
+ async rpc(name,args){calls.rpc.push({name,args});if(name==='ms_mail_transport_ready')return {data:state.mailReady===true,error:null};if(name==='ms_notification_secrets'){if(!state.secrets.vapid&&args.p_vapid)state.secrets.vapid=args.p_vapid;return {data:state.secrets};}
  if(name==='ms_create_work_order'){
   if(state.saveFail)return {error:{message:'storage_failed'}};
   const prior=state.tokens.get(args.p_token);if(prior)return {data:prior.fingerprint===args.p_fingerprint?{ticket:prior.ticket,duplicate:true}:{error:'token_conflict'}};

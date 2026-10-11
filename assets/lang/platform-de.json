@@ -314,5 +314,6 @@
   "order_cuffed": "Mit Umschlag",
   "order_raw_edge": "Offene Kante",
   "order_garment_jeans": "Jeans",
-  "order_save_error": "Der Auftrag konnte nicht gespeichert werden. Deine Änderungen sind noch da. Versuche es erneut."
+  "order_save_error": "Der Auftrag konnte nicht gespeichert werden. Deine Änderungen sind noch da. Versuche es erneut.",
+  "heron_bridge_update_required": "Heron-Verbindung muss aktualisiert werden"
 }

@@ -32,11 +32,11 @@
     fr: ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
   };
   const WORDS = {
-    en: { closed: "Closed", call: "Call", email: "Email", directions: "Directions", hours: "Hours", contact: "Contact", made: "Made by Mr. Space" },
-    tr: { closed: "Kapalı", call: "Ara", email: "E-posta", directions: "Yol tarifi", hours: "Çalışma saatleri", contact: "İletişim", made: "Mr. Space yaptı" },
-    es: { closed: "Cerrado", call: "Llamar", email: "Correo", directions: "Cómo llegar", hours: "Horario", contact: "Contacto", made: "Hecho por Mr. Space" },
-    de: { closed: "Geschlossen", call: "Anrufen", email: "E-Mail", directions: "Route", hours: "Öffnungszeiten", contact: "Kontakt", made: "Gemacht von Mr. Space" },
-    fr: { closed: "Fermé", call: "Appeler", email: "E-mail", directions: "Itinéraire", hours: "Horaires", contact: "Contact", made: "Réalisé par Mr. Space" },
+    en: { closed: "Closed", call: "Call", email: "Email", directions: "Directions", hours: "Hours", contact: "Contact", made: "This website is a Mr. Space product" },
+    tr: { closed: "Kapalı", call: "Ara", email: "E-posta", directions: "Yol tarifi", hours: "Çalışma saatleri", contact: "İletişim", made: "Bu site bir Mr. Space ürünüdür" },
+    es: { closed: "Cerrado", call: "Llamar", email: "Correo", directions: "Cómo llegar", hours: "Horario", contact: "Contacto", made: "Este sitio web es un producto de Mr. Space" },
+    de: { closed: "Geschlossen", call: "Anrufen", email: "E-Mail", directions: "Route", hours: "Öffnungszeiten", contact: "Kontakt", made: "Diese Website ist ein Produkt von Mr. Space" },
+    fr: { closed: "Fermé", call: "Appeler", email: "E-mail", directions: "Itinéraire", hours: "Horaires", contact: "Contact", made: "Ce site est un produit Mr. Space" },
   };
   const SECTION_NAMES = {
     hero: ["Intro", "Giriş", "Inicio", "Einstieg", "Accueil"], about: ["About", "Hakkımızda", "Sobre nosotros", "Über uns", "À propos"],

@@ -24,9 +24,10 @@ await test('unauthenticated and viewer users cannot proxy or snapshot sites',asy
  const anonymous=load('../supabase/functions/ms-site-control/index.ts',{});assert.equal((await anonymous.handler(post({action:'preview_snapshot',site:'heron'},false))).status,401);assert.equal(anonymous.fetches.length,0);
  const viewer=load('../supabase/functions/ms-site-control/index.ts',{admin:false});assert.equal((await viewer.handler(post({action:'preview_snapshot',site:'heron'}))).status,403);assert.equal(viewer.fetches.length,0);
 });
-await test('missing Heron secret remains setup while request reads are checked separately',async()=>{
- const f=load('../supabase/functions/ms-site-control/index.ts',{});const response=await f.handler(post({action:'check_connections',site:'heron'}));assert.equal(response.status,200);
- const data=await response.json();assert.equal(data.checks.find(x=>x.service==='heron').state,'setup');assert.equal(data.checks.find(x=>x.service==='requests').state,'connected');assert.equal(f.fetches.length,0);assert.equal(f.writes[0].table,'ms_service_connections');
+await test('old Heron backend remains setup; the active admin token is forwarded without a shared password',async()=>{
+ const f=load('../supabase/functions/ms-site-control/index.ts',{fetch:()=>Response.json({error:'Wrong password'},{status:401})});const response=await f.handler(post({action:'check_connections',site:'heron'}));assert.equal(response.status,200);
+ const data=await response.json();assert.equal(data.checks.find(x=>x.service==='heron').state,'setup');assert.equal(data.checks.find(x=>x.service==='requests').state,'connected');assert.equal(f.fetches.length,1);assert.equal(f.fetches[0].options.headers['x-mrspace-token'],'test-token');assert.equal(f.writes[0].table,'ms_service_connections');
+ const current=load('../supabase/functions/ms-site-control/index.ts',{fetch:()=>Response.json({items:[]})});assert.equal((await current.handler(post({action:'admin_list'}))).status,200);assert.equal(current.fetches[0].options.headers['x-mrspace-token'],'test-token');
 });
 await test('snapshot fetch refuses foreign hosts, credentials and redirect escapes',async()=>{
  for(const siteURL of ['https://private.test/','http://heronca.com/','https://user:password@heronca.com/','https://heronca.com:8443/']){
