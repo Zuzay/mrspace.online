@@ -11,7 +11,7 @@ function purchase(v,site){return window.MsSiteCatalog?.purchaseURL(v.purchase_ur
 function action(item,v,site){
  if(item.section==='repair')return `<a class="text-link" href="repair/">${esc(tr('Plan the repair'))} ↗</a>`;
  const url=purchase(v,site);
- if(url)return `<a class="text-link store-buy" data-store-link href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(tr(item.section==='workshop'?'View & book on Square':'View & buy on Square'))} ↗</a><small class="store-sale-note">${esc(tr('Choose your options on Square. Its current offers, availability, shipping and tax determine the final total.'))}</small>`;
+ if(url)return `<a class="text-link store-buy" data-store-link href="${esc(url)}" rel="noreferrer">${esc(tr(item.section==='workshop'?'View & book on Square':'View & buy on Square'))} ↗</a><small class="store-sale-note">${esc(tr('Choose your options on Square. Its current offers, availability, shipping and tax determine the final total.'))}</small>`;
  return `<button type="button" class="text-link" data-store-details>${esc(tr('Details & availability'))} ↗</button><small class="store-sale-note">${esc(tr('Online checkout is not available for this piece yet.'))}</small>`;
 }
 function photo(item,v){const image=safeImage(v.image||item.image);return image?`<img src="${esc(image)}" alt="${esc(item.name)}" loading="lazy">`:`<span class="photo-missing"><b>${esc(tr('Photo coming soon'))}</b></span>`;}
