@@ -1,22 +1,25 @@
 /* Shared publication workspace for every Square-connected Mr. Space site. */
 (function(){
 'use strict';
-const base=new URL('.',document.currentScript.src),lang=['en','tr','es','de','fr'].includes(window.MSI18N?.lang)?MSI18N.lang:'en',C=MsSiteCatalog;
+const base=new URL('.',document.currentScript.src),lang=['en','tr','es','de','fr'].includes(window.MSI18N?.lang)?MSI18N.lang:'en';
+let C=MsSiteCatalog;
 let dict={},drafts=new Map();
-const ready=fetch(new URL('lang/catalog-'+lang+'.json?v=20261011',base)).then(r=>{if(!r.ok)throw Error('catalog_dictionary');return r.json();}).then(d=>dict=d);
+const contractReady=C.purchaseURL?Promise.resolve():new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL('ms-site-catalog.js?v=20261011-shop',base);script.onload=()=>{C=MsSiteCatalog;resolve();};script.onerror=reject;document.head.append(script);});
+const dictionary=fetch(new URL('lang/catalog-'+lang+'.json?v=20261011-shop',base)).then(r=>{if(!r.ok)throw Error('catalog_dictionary');return r.json();}).then(d=>dict=d);
+const ready=Promise.all([contractReady,dictionary]);
 const t=k=>dict[k]||k,esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const section=k=>t('section_'+k),key=(site,item)=>site.slug+':'+item.id;
 function sectionSelect(site,value='review'){return `<label>${esc(t('destination'))}<select name="section">${C.sections(site.slug).map(s=>`<option value="${s}" ${s===value?'selected':''}>${esc(section(s))}</option>`).join('')}</select></label>`;}
 const category=k=>t('category_'+k);
 function placementFields(s=C.blank()){return `<div class="cat-group-fields"><label>${esc(t('category'))}<select name="category">${C.categories.map(c=>`<option value="${c}" ${c===(s.category||'other')?'selected':''}>${esc(category(c))}</option>`).join('')}</select></label><label>${esc(t('display_order'))}<input name="display_order" type="number" min="0" max="9999" step="1" required value="${s.display_order??100}"></label></div><p>${esc(t('category_help'))}</p>`;}
 const place=s=>section(s.section)+(s.section==='shop'?' / '+category(s.category||'other')+' · '+t('display_order')+': '+(s.display_order??100):'');
-function read(form){const values=new FormData(form),variations={};form.querySelectorAll('[data-variant-row]').forEach(row=>variations[row.dataset.variantRow]={visible:row.querySelector('[type=checkbox]').checked,title:row.querySelector('[type=text]').value});return {section:values.get('section'),category:values.get('category'),display_order:Number(values.get('display_order')),layout:values.get('layout'),title:values.get('title')||'',variations};}
+function read(form){const values=new FormData(form),variations={};form.querySelectorAll('[data-variant-row]').forEach(row=>variations[row.dataset.variantRow]={visible:row.querySelector('[type=checkbox]').checked,title:row.querySelector('[type=text]').value,purchase_url:row.querySelector('[type=url]').value.trim()});return {section:values.get('section'),category:values.get('category'),display_order:Number(values.get('display_order')),layout:values.get('layout'),title:values.get('title')||'',variations};}
 const money=v=>v.price==null?t('ask_price'):new Intl.NumberFormat(lang,{style:'currency',currency:v.currency||'USD'}).format(v.price/100);
-function preview(item,s){
- const cards=C.cards(item,s);
+function preview(item,s,site){
+ const cards=C.cards(item,s,site.slug);
  if(['review','hidden'].includes(s.section))return `<p>${esc(t(s.section==='review'?'review_help':'hidden_help'))}</p>`;
  if(!cards.length)return `<p>${esc(t('no_live_variations'))}</p>`;
- return `<p><b>${esc(place(s))}</b> · ${cards.length} ${esc(t('cards'))}</p>`+cards.map(c=>`<article class="cat-preview-card">${c.image?`<img src="${esc(c.image)}" alt="" loading="lazy">`:''}<div><b data-noi18n>${esc(c.name)}</b><p data-noi18n>${c.variations.map(v=>esc(v.name)+' · '+esc(money(v))).join('<br>')}</p></div></article>`).join('');
+ return `<p><b>${esc(place(s))}</b> · ${cards.length} ${esc(t('cards'))}</p>`+cards.map(c=>`<article class="cat-preview-card">${c.image?`<img src="${esc(c.image)}" alt="" loading="lazy">`:''}<div><b data-noi18n>${esc(c.name)}</b><p data-noi18n>${c.variations.map(v=>esc(v.name)+' · '+esc(money(v))+(v.purchase_url?' · <a href="'+esc(v.purchase_url)+'" target="_blank" rel="noopener noreferrer">'+esc(t('square_link'))+' ↗</a>':' · '+esc(t('no_square_link')))).join('<br>')}</p></div></article>`).join('');
 }
 function render(items,options){
  const {site,public:enabled,error,demo}=options;
@@ -32,9 +35,9 @@ function render(items,options){
  <p class="cat-current">${esc(t('current'))}: <b>${esc(place(saved))}</b> · ${esc(t(saved.layout==='separate'?'separate':'grouped'))}</p>
  ${sectionSelect(site,s.section)}${placementFields(s)}<label>${esc(t('site_title'))}<input name="title" maxlength="255" value="${esc(s.title)}" placeholder="${esc(item.name)}"></label>
  <label>${esc(t('layout'))}<select name="layout"><option value="grouped" ${s.layout==='grouped'?'selected':''}>${esc(t('grouped'))}</option><option value="separate" ${s.layout==='separate'?'selected':''}>${esc(t('separate'))}</option></select></label><p>${esc(t('layout_help'))}</p>
- <fieldset><legend>${esc(t('included'))}</legend>${item.variations.map(v=>`<div class="cat-variant" data-variant-row="${esc(v.id)}"><label class="cat-check"><input type="checkbox" ${s.variations[v.id]?.visible?'checked':''}><span data-noi18n>${esc(v.name||item.name)}<small>${esc(v.sku||t('no_sku'))} · ${esc(money(v))}${v.stock===0?' · '+esc(t('sold_out')):v.stock==null?' · '+esc(t('untracked')):''}</small></span></label><label>${esc(t('variant_title'))}<input type="text" maxlength="255" value="${esc(s.variations[v.id]?.title||'')}"></label></div>`).join('')}</fieldset>
+ <fieldset><legend>${esc(t('included'))}</legend><p>${esc(t('square_link_help'))}</p>${item.variations.map(v=>`<div class="cat-variant" data-variant-row="${esc(v.id)}"><label class="cat-check"><input type="checkbox" ${s.variations[v.id]?.visible?'checked':''}><span data-noi18n>${esc(v.name||item.name)}<small>${esc(v.sku||t('no_sku'))} · ${esc(money(v))}${v.stock===0?' · '+esc(t('sold_out')):v.stock==null?' · '+esc(t('untracked')):''}</small></span></label><label>${esc(t('variant_title'))}<input type="text" maxlength="255" value="${esc(s.variations[v.id]?.title||'')}"></label><label>${esc(t('square_link'))}<input type="url" maxlength="1000" value="${esc(s.variations[v.id]?.purchase_url||'')}" placeholder="https://square.link/u/…"></label></div>`).join('')}</fieldset>
  <button type="button" class="btn ghost sm" data-cat-add-variant="${esc(item.id)}">${esc(t('add_variant'))}</button><p>${esc(t('variant_help'))}</p>
- </div><aside class="cat-preview"><h3>${esc(t('preview'))}</h3><div data-cat-preview>${preview(item,s)}</div><p>${esc(t('preview_help'))}</p></aside></div>
+ </div><aside class="cat-preview"><h3>${esc(t('preview'))}</h3><div data-cat-preview>${preview(item,s,site)}</div><p>${esc(t('preview_help'))}</p></aside></div>
  <div class="cat-save"><p data-cat-change>${esc(t('current'))}: ${esc(place(saved))} → ${esc(place(s))} · ${esc(t(s.layout==='separate'?'separate':'grouped'))}</p><label class="cat-check"><input name="confirm" type="checkbox" required><span>${esc(t('confirm'))}</span></label><div class="row"><button type="submit" class="btn sun">${esc(t('save'))}</button><button type="button" class="btn ghost" data-cat-discard>${esc(t('discard'))}</button></div><p data-cat-error role="alert"></p></div></form></details>`;
  }).join('')}</div><p data-cat-empty hidden data-noi18n>${esc(t('no_match'))}</p>`}`;
 }
@@ -43,13 +46,13 @@ function bind(root,{items,site,save,render:rerender,refresh,addVariant,demo,noti
  root.querySelector('[data-cat-search]').oninput=filter;root.querySelector('[data-cat-filter]').onchange=filter;root.querySelector('[data-cat-refresh]').onclick=refresh;
  root.querySelectorAll('[data-cat-form]').forEach(form=>{
  const item=items.find(i=>i.id===form.dataset.catForm),saved=item.publication||C.blank(),draftKey=key(site,item);
- const change=()=>{const s=read(form);if(JSON.stringify(s)===JSON.stringify(saved))drafts.delete(draftKey);else drafts.set(draftKey,s);form.querySelector('[name=confirm]').checked=false;form.querySelector('[data-cat-preview]').innerHTML=preview(item,s);form.querySelector('[data-cat-change]').textContent=t('current')+': '+place(saved)+' → '+place(s)+' · '+t(s.layout==='separate'?'separate':'grouped')+' · '+Object.values(s.variations).filter(v=>v.visible).length+' '+t('included');};
+ const change=()=>{const s=read(form),links=item.variations.filter(v=>(saved.variations[v.id]?.purchase_url||'')!==(s.variations[v.id]?.purchase_url||'')).map(v=>(v.name||item.name)+': '+(saved.variations[v.id]?.purchase_url||t('no_square_link'))+' → '+(s.variations[v.id]?.purchase_url||t('no_square_link'))).join(' · ');if(JSON.stringify(s)===JSON.stringify(saved))drafts.delete(draftKey);else drafts.set(draftKey,s);form.querySelector('[name=confirm]').checked=false;form.querySelector('[data-cat-preview]').innerHTML=preview(item,s,site);form.querySelector('[data-cat-change]').textContent=t('current')+': '+place(saved)+' → '+place(s)+' · '+t(s.layout==='separate'?'separate':'grouped')+' · '+Object.values(s.variations).filter(v=>v.visible).length+' '+t('included')+' · '+Object.values(s.variations).filter(v=>v.visible&&v.purchase_url).length+' '+t('square_links')+(links?' · '+t('square_link')+' · '+links:'');};
  form.oninput=e=>{if(e.target.name!=='confirm')change();};form.onchange=e=>{if(e.target.name!=='confirm')change();};
  form.querySelector('[data-cat-discard]').onclick=()=>{drafts.delete(draftKey);rerender();};
  form.querySelector('[data-cat-add-variant]').onclick=()=>addVariant(item);
  form.onsubmit=async e=>{e.preventDefault();const error=form.querySelector('[data-cat-error]'),button=form.querySelector('[type=submit]');error.textContent='';if(demo){error.textContent=t('demo');return;}
  try{const s=C.validate(item,read(form),site.slug);button.disabled=true;await save(item.id,s);drafts.delete(draftKey);notify(t('saved')+' · '+item.name+' → '+place(s));await refresh();}
- catch(e){error.textContent=t(e.message==='catalog_no_variations'?'select_variation':'save_error');}finally{button.disabled=false;}};
+ catch(e){error.textContent=t(e.message==='catalog_no_variations'?'select_variation':e.message==='catalog_invalid_link'?'invalid_square_link':'save_error');}finally{button.disabled=false;}};
  });
 }
 function skipKey(site){return 'ms_help_skip_v1:'+site.slug;}

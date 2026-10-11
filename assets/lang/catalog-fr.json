@@ -91,5 +91,10 @@
   "category_shirts": "Chemises et hauts",
   "category_accessories": "Accessoires",
   "category_other": "Autres pièces",
-  "category_help": "Pour les articles de la boutique, choisissez le groupe. Les petits nombres apparaissent en premier dans le groupe. Les services vont dans Réparations ou Ateliers ; leur catégorie boutique est ignorée."
+  "category_help": "Pour les articles de la boutique, choisissez le groupe. Les petits nombres apparaissent en premier dans le groupe. Les services vont dans Réparations ou Ateliers ; leur catégorie boutique est ignorée.",
+  "square_link": "Lien produit / paiement Square",
+  "square_links": "options avec lien Square",
+  "no_square_link": "Aucun lien de vente en ligne",
+  "square_link_help": "Collez le lien Square existant pour cette option précise. Configurez le stock, les taxes, les frais de livraison et le retrait dans Square avant publication. Rufcut accepte aussi ses liens produit rufcut.com. Effacez le lien pour désactiver la vente en ligne de cette option.",
+  "invalid_square_link": "Utilisez un lien HTTPS square.link/u/… ou votre-boutique.square.site/product/…. Rufcut peut aussi utiliser rufcut.com/product/…."
 }

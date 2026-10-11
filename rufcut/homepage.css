@@ -207,3 +207,6 @@ footer{padding:35px 0 24px;border-top:1px solid var(--rule)}.footer-wordmark{fon
  .maker-panel .chip{padding-inline:12px}
  #vintage{padding-top:50px}
 }
+
+/* Shop clarity: counts, consistent card rhythm and explicit sales actions. */
+.category-count{font:10px var(--mono);opacity:.65;margin-left:8px}#items .item{display:flex;flex-direction:column}#items .item .in{display:flex;flex-direction:column;flex:1}#items .item [data-store-action]{margin-top:auto;padding-top:16px}#items .item h3{font-size:15px;line-height:1.4;min-height:2.8em}#items .store-sale-note{min-height:3.1em}.item .ph{overflow:hidden}.item .ph img{transition:transform .3s ease}@media(hover:hover){.item:hover .ph img{transform:scale(1.025)}}@media(prefers-reduced-motion:reduce){.item .ph img{transition:none}}

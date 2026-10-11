@@ -91,5 +91,10 @@
   "category_shirts": "Shirts & tops",
   "category_accessories": "Accessories",
   "category_other": "Other pieces",
-  "category_help": "For Shop items, choose the product group. Lower numbers appear first within that group. Services belong in Repair or Workshop; their shop category is ignored."
+  "category_help": "For Shop items, choose the product group. Lower numbers appear first within that group. Services belong in Repair or Workshop; their shop category is ignored.",
+  "square_link": "Square product / payment link",
+  "square_links": "choices with a Square link",
+  "no_square_link": "No online sales link",
+  "square_link_help": "Paste the existing Square link for this exact choice. Configure stock, taxes, shipping fees and pickup in Square before publishing. Rufcut also accepts its existing rufcut.com product links. Clear a link to disable online sales for that choice.",
+  "invalid_square_link": "Use an HTTPS square.link/u/… or your-store.square.site/product/… link. Rufcut may also use a rufcut.com/product/… link."
 }
