@@ -95,3 +95,10 @@ Ortak müşteri kataloğu kayıt akışında sonradan yazılan ürün başlığ�
 assets/ms-catalog-panel.js açık PR çakışması tur 7'de kontrol edildi, yok. Yeni test tests/catalog-save.browser.mjs gerçek MsSiteCatalog.validate/render/bind motorunu kullanır. Beş hedefli Chrome kontrolü: locked, newerKept, failedRetained, siteUnchanged, savedClean. Dış servisler kapalı, JS/diff temiz. Panel/index.html ve backend değiştirilmedi. Toplam hedefli kontroller 29 oldu; PR açıklaması finalde güncellenmeli.
 
 Sonraki turlar için kalan yüksek değerli noktalar: Heron/Laloo native bağlı ekranlarda hata/yükleme doğruluğu; Onay ekranında eksik site/checks bağımlılığı; izinli kapsamda gerçek kopuk link. Ana admin/index.html #45 çakışması nedeniyle hâlâ değiştirilmedi, periyodik yenileme tüm main'i değiştirirken taslak korunumu sınırlaması açıkça finalde belirtilecek. 09:00'da heartbeat PAUSED yapılmalı.
+Tur 8 uzak aktarımı tamamlandı: tree a9646f1cb41a42c93fe0c77c04aaed8dde44c618. PR #57 aynı dalda beklenen eski HEAD aefe45a55aaa3f0098eb845eb0355dbba2dc9ca6 üzerinden fast-forward güncellendi. Sonraki tur güncel HEAD metadata'dan okunacak; eski test grupları tekrar çalıştırılmadı.
+
+## Tur 9, 07:00
+
+Heron ve Laloo iframe oturum yenileme köprüleri başarı mesajını yanlış prefix nedeniyle yok sayıp sekiz saniye bekliyordu. İki sayfa artık ebeveynin gerçek ms-admin-refreshed ve ms-admin-refresh-failed mesajlarını kabul ediyor; origin yanında e.source === window.parent da doğrulanıyor. Başka pencere/kökenden mesaj veya ilgisiz mesaj yenilemeyi tamamlayamaz. Ana admin dosyası ve üretim oturumu değiştirilmedi.
+
+Yeni tests/partner-session.browser.mjs gerçek kaynak köprü kodunu yerel same-origin iframe üzerinde çalıştırır. Her panel için success, failure, wrong-source, wrong-origin, unrelated olmak üzere 10 Chrome kontrolü geçti; dış ağ kapalı. Toplam hedefli tarayıcı kontrolü 39. Diff temiz. PR #57 başlangıç HEAD 62735ac1aa275f4f682d19fbd03aaf8559b77983, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4; connector mergeable:false döndürüyor, sonraki tur yeniden kontrol edilmeli ve çözülemezse finalde açıkça raporlanmalı. Zorla push/merge yok.
