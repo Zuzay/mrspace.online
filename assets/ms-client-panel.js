@@ -86,7 +86,7 @@ async function panelCall(action,extra={}){
  if(DEMO){if(action==='overview')return {orders:{counts:Object.fromEntries(MsPanelDaily.statuses.map(s=>[s,0])),total:0,attention:[]},checked_at:new Date().toISOString()};if(action==='orders')return {jobs:[],total:0,page:1,size:12};throw Error('Demo actions are not saved');}
  await fresh();const site=SITE.slug,r=await fetch(SB_URL+'/functions/v1/ms-panel',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SS.access_token,'Content-Type':'application/json'},body:JSON.stringify({action,site,...extra}),signal:AbortSignal.timeout(20000)});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Panel request failed');return data;
 }
-async function loadOverview(){const seq=SITE_SEQ;OVERVIEW_LOADING=true;try{const d=await panelCall('overview');if(seq!==SITE_SEQ)return;OVERVIEW=d;OVERVIEW_ERROR=false;$("#repairCount").textContent=d.orders?"("+(d.orders.total-d.orders.counts.completed)+")":"";}catch{if(seq!==SITE_SEQ)return;OVERVIEW_ERROR=true;}finally{if(seq===SITE_SEQ)OVERVIEW_LOADING=false;}if(VIEW==='home')render();}
+async function loadOverview(){const seq=SITE_SEQ;OVERVIEW_LOADING=true;try{const d=await panelCall('overview');if(seq!==SITE_SEQ)return;OVERVIEW=d;OVERVIEW_ERROR=false;$("#repairCount").textContent=d.orders&&d.orders.total>d.orders.counts.completed?"("+(d.orders.total-d.orders.counts.completed)+")":"";}catch{if(seq!==SITE_SEQ)return;OVERVIEW_ERROR=true;$("#repairCount").textContent="";}finally{if(seq===SITE_SEQ)OVERVIEW_LOADING=false;}if(VIEW==='home')render();}
 async function go(view,focus){
  if(!['home','stock','catalog','repairs','labels','settings','help','workspace','commerce'].includes(view))return;
  if(VIEW!==view&&((VIEW==='catalog'&&MsCatalogPanel.hasDraft())||(VIEW==='commerce'&&MsCommercePanel.hasDraft())||(VIEW==='repairs'&&MsOrders.hasDrafts()))&&!confirm(T('Leave unsaved changes?')))return;
@@ -141,7 +141,7 @@ function stock(){
      <div class="acts">
       ${v.stock == null ? '<span class="m">Not tracked</span>' : `<div class="qty"><button data-step="-1" data-v="${esc(v.id)}" aria-label="One less">−</button><input inputmode="numeric" data-count="${esc(v.id)}" data-was="${v.stock}" value="${v.stock}" class="${v.stock === 0 ? "out0" : ""}" aria-label="Stock"><button data-step="1" data-v="${esc(v.id)}" aria-label="One more">+</button></div>
       <button class="btn sm solid" data-save="${esc(v.id)}" hidden>Save</button>`}
-      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-go="catalog">${esc(MsCatalogPanel.t("catalog"))}</button><button class="btn sm ghost" data-add-variant="${esc(i.id)}">${esc(MsCatalogPanel.t("add_variant"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
+      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-go="catalog" data-focus="${esc(i.id)}">${esc(MsCatalogPanel.t("catalog"))}</button><button class="btn sm ghost" data-add-variant="${esc(i.id)}">${esc(MsCatalogPanel.t("add_variant"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
       <button class="btn sm ghost" data-label="${esc(v.id)}">Label</button>
      </div></div>`).join("") : '<div class="empty">Nothing matches.</div>'}</div>${ITEMS===null?'':pager(result.number,result.pages,result.total,'data-stock-page')}`;
 }
