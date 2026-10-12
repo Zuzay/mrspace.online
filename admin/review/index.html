@@ -123,7 +123,7 @@ const MANUAL = [
   "Metinleri düzelttim (yazım, ton, uzunluk)",
   "Telefonda baştan sona baktım",
 ];
-let tab = "queue";
+let tab = "queue", viewGeneration = 0;
 
 // ---------- giris ----------
 async function boot() {
@@ -162,8 +162,10 @@ function sumHTML(s) {
   return `${s.fail ? `<span class="pill fail">${s.fail} <span>kırmızı</span></span>` : ""}${s.warn ? `<span class="pill warn">${s.warn} <span>sarı</span></span>` : ""}${!s.fail && !s.warn ? `<span class="pill pass">temiz</span>` : ""}`;
 }
 async function renderQueue() {
+  const seq = ++viewGeneration;
   const { data, error } = await sb.from("ms_builds").select("id, site, version, status, submitted_at, updated_at, checks_summary, ms_sites(name, mode)")
     .in("status", ["checking", "review", "returned", "draft"]).order("submitted_at", { ascending: true, nullsFirst: false });
+  if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
   const waiting = data.filter((b) => ["checking", "review"].includes(b.status));
   const other = data.filter((b) => !["checking", "review"].includes(b.status));
@@ -181,13 +183,24 @@ $("#view").addEventListener("click", (e) => {
 
 // ---------- tek surum ----------
 async function openBuild(id) {
+  const seq = ++viewGeneration;
   history.replaceState(null, "", `?b=${id}`);
   const { data: b, error } = await sb.from("ms_builds").select("*").eq("id", id).single();
+  if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
-  const [{ data: s }, { data: checks }] = await Promise.all([
+  if (!b) { $("#view").innerHTML = '<div class="empty">Okunamadı: ms_builds</div>'; return; }
+  const results = await Promise.allSettled([
     sb.from("ms_sites").select("*").eq("slug", b.site).single(),
     sb.from("ms_build_checks").select("*").eq("build_id", id),
   ]);
+  if (seq !== viewGeneration) return;
+  const failed = results.find(r => r.status === "rejected" || r.value?.error);
+  const s = results[0].value?.data, checks = results[1].value?.data;
+  if (failed || !s || !Array.isArray(checks)) {
+    const message = failed?.reason?.message || failed?.value?.error?.message || (!s ? "ms_sites" : "ms_build_checks");
+    $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(message)}</div>`;
+    return;
+  }
   const order = { fail: 0, warn: 1, info: 2, pass: 3 };
   (checks || []).sort((a, c) => order[a.level] - order[c.level]);
   const fails = (checks || []).filter((c) => c.level === "fail").length;
@@ -236,9 +249,10 @@ async function openBuild(id) {
   if (s.mode !== "fill") $("#pv").srcdoc = window.MsRender.render(b.content, b.theme, { noindex: true });
   $("#back").onclick = () => { history.replaceState(null, "", location.pathname); renderQueue(); };
   $("#anote").onblur = () => sb.from("ms_builds").update({ admin_note: $("#anote").value }).eq("id", id);
-  $("#recheck") && ($("#recheck").onclick = async () => { await sb.rpc("ms_build_recheck", { p_build: Number(id) }); openBuild(id); });
+  $("#recheck") && ($("#recheck").onclick = async () => { await sb.rpc("ms_build_recheck", { p_build: Number(id) }); if (seq === viewGeneration) openBuild(id); });
   $("#newver") && ($("#newver").onclick = async () => {
     const { data, error } = await sb.rpc("ms_build_new_version", { p_site: b.site });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message);
     location.href = `../../build/?b=${data}`;
   });
@@ -258,6 +272,7 @@ async function openBuild(id) {
     if (fails && (!reason || reason.trim().length < 5)) return alert("Kırmızı kontrolü geçmek için gerekçe yaz.");
     if (!confirm(tt("Yayına alınsın mı?") + " " + s.name)) return;
     const { error } = await sb.rpc("ms_build_publish", { p_build: Number(id), p_override_reason: reason, p_minutes: Number($("#mins").value) || 0 });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message === "has_fail" ? "Kırmızı kontrol var, gerekçe gerekli." : error.message);
     localStorage.removeItem("ms_manual_" + id);
     openBuild(id);
@@ -266,6 +281,7 @@ async function openBuild(id) {
   $("#retGo").onclick = async () => {
     const note = $("#retNote").value.trim(); if (note.length < 5) return alert("Müşteriye kısa bir not yaz.");
     const { error } = await sb.rpc("ms_build_return", { p_build: Number(id), p_note: note });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message);
     openBuild(id);
   };
@@ -284,7 +300,9 @@ function detailHTML(d) {
 
 // ---------- siteler ----------
 async function renderSites() {
+  const seq = ++viewGeneration;
   const { data: sites, error } = await sb.from("ms_sites").select("*").order("created_at");
+  if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
   const base = location.origin;
   $("#view").innerHTML = `<p style="color:var(--mute);margin:0 0 12px">Kurucu linkini müşteriye gönder. Paket 2-3 için modu "Doldurma" yap ve alan şemasını gir.</p>
@@ -314,6 +332,7 @@ $("#view").addEventListener("click", async (e) => {
   if (ed) { const r = document.querySelector(`[data-editrow="${ed.dataset.edit}"]`); r.hidden = !r.hidden; return; }
   const sv = e.target.closest("[data-save]");
   if (sv) {
+    const seq = viewGeneration;
     const slug = sv.dataset.save, box = document.querySelector(`[data-editrow="${slug}"]`);
     const val = (f) => box.querySelector(`[data-f="${f}"]`).value.trim();
     let schema = null;
@@ -323,18 +342,21 @@ $("#view").addEventListener("click", async (e) => {
     }
     const host = val("host").replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "").toLowerCase() || null;
     const { error } = await sb.from("ms_sites").update({ mode: val("mode"), country: val("country").toUpperCase() || null, host, field_schema: schema }).eq("slug", slug);
+    if (seq !== viewGeneration) return;
     document.querySelector(`[data-msg="${slug}"]`).textContent = error ? (error.code === "23505" ? "Bu alan adı başka sitede kayıtlı." : error.message) : "Kaydedildi";
-    if (!error) setTimeout(renderSites, 800);
+    if (!error) { setTimeout(() => { if (seq === viewGeneration) renderSites(); },800); }
   }
 });
 
 // ---------- ucretsiz denemeler ----------
 const TSTATUS = { draft: "Taslak", submitted: "Teklif bekliyor", offered: "Teklif gitti", won: "Müşteri oldu", closed: "Kapandı" };
 async function renderTrials() {
+  const seq = ++viewGeneration;
   const [{ data, error }, { count: drafts }] = await Promise.all([
     sb.from("ms_trials").select("id, business, name, email, path, status, consent, submitted_at, offer_until").neq("status", "draft").order("submitted_at", { ascending: false }).limit(100),
     sb.from("ms_trials").select("id", { count: "exact", head: true }).eq("status", "draft"),
   ]);
+  if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
   const wait = data.filter((t) => t.status === "submitted"), rest = data.filter((t) => t.status !== "submitted");
   const row = (t) => `<button class="q" data-trial="${t.id}"><b>${esc(t.business || t.name || t.email)}</b>
@@ -349,8 +371,10 @@ async function renderTrials() {
 $("#view").addEventListener("click", (e) => { const q = e.target.closest("[data-trial]"); if (q) openTrial(q.dataset.trial); });
 
 async function openTrial(id) {
+  const seq = ++viewGeneration;
   history.replaceState(null, "", `?trial=${id}`);
   const { data: t, error } = await sb.from("ms_trials").select("*").eq("id", id).single();
+  if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
   const link = `${location.origin}/preview/?p=${t.preview_key}`;
   const offered = ["offered", "won"].includes(t.status);

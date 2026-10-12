@@ -30,7 +30,7 @@ function view(site,data){
  <section class="commerce-preview"><h2>${esc(t('preview'))}</h2><p>${esc(t('preview_help'))}</p><form data-commerce-quote><div data-commerce-lines></div><button type="button" class="btn ghost" data-commerce-add>${esc(t('add_line'))}</button><div class="commerce-fields"><label>${esc(t('delivery'))}<select name="delivery"><option value="ship">${esc(t('shipping'))}</option><option value="pickup">${esc(t('pickup'))}</option></select></label>${field('country','country',s.countries[0]||'','text','maxlength="2"')}</div><button class="btn solid" type="submit">${esc(t('calculate'))}</button></form><div data-commerce-result role="status"></div></section></div>`;
 }
 async function mount(root,{site,call,demo,notify}){
- const token=++sequence;await ready;
+ const token=++sequence;let saving=false;await ready;
  const active=()=>token===sequence&&root.querySelector('[data-commerce-root]')?.dataset.commerceRoot===site.slug;
  const load=async(force=false)=>{root.innerHTML=`<div data-commerce-root="${esc(site.slug)}" data-noi18n><p>${esc(t('loading'))}</p></div>`;
  try{let data=cache.get(site.slug);if(!data||force)data=demo?{setup:C.blank(),items:[],readiness:{blockers:[]},currency:null}:await call('commerce_status');if(!active())return;cache.set(site.slug,data);root.innerHTML=view(site,data);bind(data);}
@@ -39,9 +39,23 @@ async function mount(root,{site,call,demo,notify}){
   const form=root.querySelector('[data-commerce-form]');
   const change=()=>{const s=read(form),diff=changes(data.setup,s,data.items,data.currency);if(diff)drafts.set(site.slug,s);else drafts.delete(site.slug);form.querySelector('[name=confirm]').checked=false;root.querySelector('[data-commerce-changes]').innerHTML=diff;root.querySelector('[data-commerce-saved]').textContent='';};
   form.oninput=e=>{if(e.target.name!=='confirm')change();};form.onchange=e=>{if(e.target.name!=='confirm')change();};
-  root.querySelector('[data-commerce-refresh]').onclick=()=>load(true);
+  root.querySelector('[data-commerce-refresh]').onclick=()=>{if(!saving)load(true);};
   root.querySelector('[data-commerce-connect]').onclick=async()=>{if(demo)return;try{const d=await call('connect',{commerce:true});location.href=d.url;}catch{root.querySelector('[data-commerce-error]').textContent=t('error');}};
-  form.onsubmit=async e=>{e.preventDefault();const error=root.querySelector('[data-commerce-error]'),b=form.querySelector('[type=submit]');error.textContent='';if(demo){error.textContent=t('phase');return;}try{const s=read(form);C.validate(s,new Set(data.items.map(i=>i.id)));b.disabled=true;await call('commerce_save',{setup:s});drafts.delete(site.slug);notify(t('saved'));await load(true);}catch{error.textContent=t('error');}finally{b.disabled=false;}};
+  form.onsubmit=async e=>{
+   e.preventDefault();if(saving||!active())return;
+   const error=root.querySelector('[data-commerce-error]'),b=form.querySelector('[type=submit]');error.textContent='';
+   if(demo){error.textContent=t('phase');return;}
+   try{
+    const s=read(form);C.validate(s,new Set(data.items.map(i=>i.id)));saving=true;b.disabled=true;
+    await call('commerce_save',{setup:s});
+    if(active()){
+     const latest=read(form);
+     if(JSON.stringify(latest)===JSON.stringify(s))drafts.delete(site.slug);else drafts.set(site.slug,latest);
+    }else if(JSON.stringify(drafts.get(site.slug))===JSON.stringify(s))drafts.delete(site.slug);
+    cache.delete(site.slug);saving=false;
+    if(active()){notify(t('saved'));await load(true);}
+   }catch{if(active())error.textContent=t('error');}finally{saving=false;b.disabled=false;}
+  };
   const quote=root.querySelector('[data-commerce-quote]'),lines=root.querySelector('[data-commerce-lines]');
   const add=()=>{if(lines.children.length>=20)return;const row=document.createElement('div');row.className='commerce-quote-line';row.innerHTML=`<select aria-label="${esc(t('products'))}">${data.items.flatMap(i=>i.variations.map(v=>`<option value="${esc(v.id)}">${esc(i.name+' / '+v.name)}</option>`)).join('')}</select><label>${esc(t('quantity'))}<input type="number" min="1" max="10" step="1" value="1" required></label><button type="button" class="btn ghost" aria-label="${esc(t('remove'))}">×</button>`;row.querySelector('button').onclick=()=>row.remove();lines.append(row);};add();root.querySelector('[data-commerce-add]').onclick=add;
   quote.onsubmit=async e=>{e.preventDefault();const result=root.querySelector('[data-commerce-result]'),button=quote.querySelector('[type=submit]');if(drafts.has(site.slug)){result.textContent=t('preview_help');return;}if(demo)return;try{button.disabled=true;const d=await call('commerce_quote',{quote:{delivery:quote.elements.delivery.value,country:quote.elements.country.value.trim().toUpperCase(),lines:[...lines.children].map(row=>({variation:row.querySelector('select').value,quantity:Number(row.querySelector('input').value)}))}});result.innerHTML=`<dl>${['subtotal','shipping','total_before_tax'].map(k=>`<dt>${esc(t(k==='total_before_tax'?'total':k))}</dt><dd>${esc(money(d[k],d.currency))}</dd>`).join('')}</dl><p>${esc(t('tax_pending'))}</p>`;}catch{result.textContent=t('quote_error');}finally{button.disabled=false;}};
