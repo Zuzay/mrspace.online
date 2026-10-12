@@ -91,5 +91,10 @@
   "category_shirts": "Hemden und Oberteile",
   "category_accessories": "Accessoires",
   "category_other": "Weitere Stücke",
-  "category_help": "Wähle für Shop-Artikel die Produktgruppe. Kleinere Zahlen erscheinen innerhalb der Gruppe zuerst. Dienstleistungen gehören zu Reparaturen oder Workshops; ihre Shop-Kategorie wird nicht verwendet."
+  "category_help": "Wähle für Shop-Artikel die Produktgruppe. Kleinere Zahlen erscheinen innerhalb der Gruppe zuerst. Dienstleistungen gehören zu Reparaturen oder Workshops; ihre Shop-Kategorie wird nicht verwendet.",
+  "square_link": "Square Produkt-/Zahlungslink",
+  "square_links": "Optionen mit Square-Link",
+  "no_square_link": "Kein Online-Verkaufslink",
+  "square_link_help": "Füge den bestehenden Square-Link für genau diese Option ein. Richte Bestand, Steuern, Versandkosten und Abholung vor der Veröffentlichung in Square ein. Rufcut akzeptiert auch bestehende rufcut.com-Produktlinks. Entferne den Link, um den Onlineverkauf dieser Option zu deaktivieren.",
+  "invalid_square_link": "Verwende einen HTTPS-Link square.link/u/… oder dein-shop.square.site/product/…. Rufcut kann auch rufcut.com/product/… verwenden."
 }

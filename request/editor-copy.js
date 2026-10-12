@@ -139,6 +139,7 @@ const editorWords = {
   sending:['Sending for review…','İncelemeye gönderiliyor…','Enviando para revisión…','Wird zur Prüfung gesendet…','Envoi pour vérification…']
 };
 Object.assign(editorWords,{
+  designReview:['This change needs design review before publication.','Bu değişiklik yayından önce tasarım incelemesi gerektirir.','Este cambio requiere revisión de diseño antes de publicarse.','Diese Änderung erfordert eine Designprüfung vor der Veröffentlichung.','Cette modification nécessite une vérification du design avant publication.'],
   demoNote:['Preview only. Nothing is sent or published. File uploads require site access.','Önizleme. Hiçbir şey gönderilmez veya yayınlanmaz. Dosya yüklemek için site erişimi gerekir.','Vista previa. No se envía ni publica nada. Subir archivos requiere acceso al sitio.','Vorschau. Nichts wird gesendet oder veröffentlicht. Datei-Uploads erfordern Website-Zugriff.','Aperçu. Rien n’est envoyé ni publié. L’envoi de fichiers nécessite un accès au site.'],
   removeText:['Remove this text','Bu metni kaldır','Quitar este texto','Diesen Text entfernen','Supprimer ce texte'],
   recoverConflict:['The server has a newer request. Choose which version to continue editing.','Sunucuda daha yeni bir talep var. Düzenlemeye hangi sürümle devam edeceğini seç.','Hay una solicitud más reciente en el servidor. Elige qué versión seguir editando.','Auf dem Server liegt eine neuere Anfrage. Wähle die Version für die weitere Bearbeitung.','Une demande plus récente existe sur le serveur. Choisissez la version à modifier.'],
@@ -146,4 +147,12 @@ Object.assign(editorWords,{
   restoreDraft:['Restore my device draft','Cihazdaki taslağımı geri yükle','Restaurar borrador del dispositivo','Geräteentwurf wiederherstellen','Restaurer le brouillon local']
 });
 const editorLangs=['en','tr','es','de','fr'];
+Object.assign(editorWords,{
+  colorPicker:['Choose the new color','Yeni rengi seç','Elige el nuevo color','Neue Farbe wählen','Choisissez la nouvelle couleur'],
+  colorHex:['Color code (HEX)','Renk kodu (HEX)','Código de color (HEX)','Farbcode (HEX)','Code couleur (HEX)'],
+  colorHint:['The swatch and drawing show your draft color. Add it to your draft, then send for review. The live site changes after approval.','Renk kutusu ve çizim taslak rengini gösterir. Taslağa ekle, ardından incelemeye gönder. Canlı site onaydan sonra değişir.','La muestra y el dibujo muestran el color del borrador. Añádelo al borrador y envíalo para revisión. El sitio cambia tras la aprobación.','Farbfeld und Zeichnung zeigen die Entwurfsfarbe. Zum Entwurf hinzufügen und zur Prüfung senden. Die Live-Seite ändert sich nach Freigabe.','L’échantillon et le dessin affichent la couleur du brouillon. Ajoutez-la au brouillon, puis envoyez pour vérification. Le site change après approbation.'],
+  colorInvalid:['Enter a six-digit HEX color, for example #1E3466.','Altı haneli HEX renk kodu yaz, örneğin #1E3466.','Introduce un color HEX de seis dígitos, por ejemplo #1E3466.','Sechsstelligen HEX-Farbcode eingeben, zum Beispiel #1E3466.','Saisissez un code HEX à six chiffres, par exemple #1E3466.'],
+  choiceRequest:['Requested change to this option','Bu seçenek için istenen değişiklik','Cambio solicitado para esta opción','Gewünschte Änderung dieser Option','Modification souhaitée pour cette option'],
+  choiceHint:['Describe the change to this pattern or automatic color. It is sent for review; the drawing keeps the current pattern.','Bu desen veya otomatik renk için değişikliği tarif et. İncelemeye gönderilir; çizimde mevcut desen kalır.','Describe el cambio de este patrón o color automático. Se envía para revisión; el dibujo conserva el patrón actual.','Änderung dieses Musters oder der automatischen Farbe beschreiben. Wird zur Prüfung gesendet; die Zeichnung behält das aktuelle Muster.','Décrivez le changement du motif ou de la couleur automatique. Il sera vérifié ; le dessin conserve le motif actuel.']
+});
 for(const [key,values] of Object.entries(editorWords))t[key]=values[editorLangs.indexOf(lang)];

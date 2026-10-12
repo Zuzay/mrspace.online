@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Your panel | Mr. Space</title>
-<script src="../assets/i18n.js" data-dict-version="20261009-orders"></script><script src="../assets/ms-config.js"></script>
+<script>try{document.documentElement.dataset.panelTheme=localStorage.getItem("ms_panel_theme")||"system";const language=new URLSearchParams(location.search).get("lang");if(["en","tr","es","de","fr"].includes(language))localStorage.setItem("ms_lang",language);else if(!localStorage.getItem("ms_panel_language"))localStorage.setItem("ms_lang","en");}catch{}</script>
+<script src="../assets/i18n.js?v=20261011-panel-r5" data-dict="panel-" data-dict-version="20261011-panel-r5"></script><script src="../assets/ms-config.js"></script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#101318"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mr. Space"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="../assets/ms-orders.css?v=20261009-orders"><link rel="stylesheet" href="../assets/ms-panel-app.css?v=20261009-orders">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23121418'/><circle cx='50' cy='50' r='17' fill='%23F6B93B'/></svg>">
 <link rel="stylesheet" href="../assets/home-fonts.css">
@@ -146,17 +147,18 @@ dialog .wide{grid-column:1/-1}
   html,body{background:#fff}
 }
 </style>
+<link rel="stylesheet" href="../assets/ms-panel-daily.css?v=20261011-panel-r5">
 <style id="pageSize"></style>
 </head>
 <body>
 
 <section class="login" id="login">
- <form id="loginForm" novalidate>
+ <form id="loginForm">
   <div class="mark"><i></i>Mr. Space</div>
   <h1>Your panel</h1>
   <p>Work orders, stock, labels and your site in one panel.</p>
-  <input id="em" type="text" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
-  <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+  <label class="login-label" for="em">Username or email</label><input id="em" type="text" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+  <label class="login-label" for="pw">Password</label><input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
   <p class="err" id="loginErr" aria-live="polite"></p>
   <button class="btn sun" type="submit">Sign in</button>
   <button class="btn" type="button" id="demoBtn">Look with sample data</button>
@@ -164,397 +166,35 @@ dialog .wide{grid-column:1/-1}
 </section>
 
 <div id="app" hidden>
- <header class="top">
-  <div class="mark"><i></i><span id="siteName" data-noi18n></span></div>
-  <nav id="nav">
-   <button data-v="workspace">Workspace</button><button data-v="home" class="on">Overview</button>
-   <button data-v="stock">Stock</button><button data-v="catalog" data-noi18n>Site catalog</button><button data-v="commerce" data-noi18n>Sales & shipping</button><button data-v="help" data-noi18n>Need help?</button>
-   <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
+ <aside class="top" aria-label="Shop navigation">
+  <div class="mark"><span class="panel-brand" id="siteName" data-noi18n></span><small>Shop panel</small></div>
+  <button class="btn ghost menu-toggle" id="menuToggle" aria-controls="nav" aria-expanded="false">Menu</button>
+  <nav id="nav" aria-label="Main navigation">
+   <span class="nav-label">Daily work</span>
+   <button data-v="home" class="on">Today</button>
    <button data-v="repairs" hidden>Work orders <span class="mono" id="repairCount"></span></button>
+   <button data-v="catalog">Site catalog</button>
+   <button data-v="stock">Stock</button>
+   <button data-v="labels">Labels <span id="qn" class="mono" data-noi18n></span></button>
+   <span class="nav-label">Your shop</span>
+   <a id="editLink" href="../edit/?site=rufcut">Website text & photos ↗</a>
+   <button data-v="help">Help & guide</button>
+   <button data-v="settings">Settings</button>
   </nav>
-  <select id="sitePick" hidden aria-label="Site"></select>
-  <span class="demo-tag" id="demoTag" hidden>DEMO</span>
-  <button class="out" id="out">Sign out</button>
- </header>
- <section id="panelAppTools" class="panel-app-tools" data-noi18n></section>
- <main id="main"></main>
-</div>
+  <div class="side-footer"><select id="sitePick" hidden aria-label="Site"></select><span data-lang-host></span><span class="demo-tag" id="demoTag" hidden>DEMO</span><button class="out" id="out">Sign out</button><span class="powered">powered by mrspace</span></div>
+ </aside>
+ <div class="panel-content"><header class="panel-context"><span id="pageContext">Today</span><a id="liveSite" href="../rufcut/" target="_blank" rel="noopener">View website ↗</a></header>
+ <main id="main" tabindex="-1"></main><section id="panelAppTools" class="panel-app-tools" data-noi18n hidden></section>
+</div></div>
 
 <dialog id="dlg"><div id="dlgBody"></div></dialog>
 <div class="toast" id="toast" role="status"></div>
 <div id="print" aria-hidden="true"></div>
 
 <link rel="stylesheet" href="../assets/ms-platform.css"><link rel="stylesheet" href="../assets/ms-catalog-panel.css?v=20261011">
-<link rel="stylesheet" href="../assets/ms-commerce-panel.css?v=20261012"><script src="../assets/ms-commerce.js?v=20261012"></script><script src="../assets/ms-commerce-panel.js?v=20261012"></script><script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261011"></script><script src="../assets/ms-catalog-panel.js?v=20261011"></script>
-<script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261009-orders"></script><script src="../assets/ms-panel-app.js?v=20261009-orders"></script>
-<script>
-"use strict";
-const SB_URL = "https://tizfdnsjhhepxnqqrzuk.supabase.co";
-const SB_KEY = "sb_publishable_DcfxBTRo0n2m1go5_yYjkw_qNzD6ie6";
-const FN = SB_URL + "/functions/v1/ms-square";
-const $ = s => document.querySelector(s);
-const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-const T = x => window.MSI18N ? MSI18N.t(x) : x;
-const money = (c, cur = "USD") => c == null ? "" : new Intl.NumberFormat("en-US", { style:"currency", currency:cur, minimumFractionDigits:c % 100 ? 2 : 0 }).format(c / 100);
-function toast(t){ const el = $("#toast"); el.textContent = T(t); el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2800); }
-
-/* ---------- session (same sign-in as the Mr. Space panel) ---------- */
-let SS = null, DEMO = false;
-try { SS = JSON.parse(localStorage.getItem("ms_panel") || "null"); } catch (e) {}
-function saveSession(d){ SS = { access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at || Math.floor(Date.now()/1000) + (d.expires_in || 3600), email:d.user ? d.user.email : (SS && SS.email) }; try { localStorage.setItem("ms_panel", JSON.stringify(SS)); } catch (e) {} }
-async function auth(grant, body){
-  const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=${grant}`, { method:"POST", headers:{ apikey:SB_KEY, "Content-Type":"application/json" }, body:JSON.stringify(body) });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(d.error_description || d.msg || "Sign in failed");
-  saveSession(d);
-}
-async function fresh(){ if (SS && Date.now()/1000 > SS.expires_at - 60) { try { await auth("refresh_token", { refresh_token:SS.refresh_token }); } catch (e) { logout(); throw new Error("Session ended, sign in again"); } } }
-function logout(){ if(MsCommercePanel.hasDraft()&&!confirm(MsCommercePanel.t("leave")))return;MsCommercePanel.clear();if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave")))return;MsCatalogPanel.clear();void MsPanelApp.detach();MsOrders.reset(); SS = null; DEMO = false; try { localStorage.removeItem("ms_panel"); } catch (e) {} $("#app").hidden = true; $("#login").hidden = false; }
-async function rpc(fn, body = {}){
-  await fresh();
-  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify(body) });
-  if (!r.ok) throw new Error((await r.text()).slice(0, 200));
-  return r.json();
-}
-async function sq(action, extra = {}){
-  if (DEMO) return demoSq(action, extra);
-  await fresh();
-  const r = await fetch(FN, { method:"POST", headers:{ apikey:SB_KEY, Authorization:"Bearer " + SS.access_token, "Content-Type":"application/json" }, body:JSON.stringify({ action, site:SITE.slug, ...extra }) });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(d.error || "Square request failed");
-  return d;
-}
-
-/* ---------- state ---------- */
-let SITES = [], SITE = null, VIEW = "home", SQ = null, ITEMS = null, REPAIRS = null, REPAIR_ERROR = false, FILTER = "all", QUERY = "";
-let CATALOG_ERROR=false;
-let QUEUE = []; // {key,name,variant,price,currency,sku,qty}
-const OPT = { size:"2.25x1.25", shop:true, price:true, variant:true };
-try { Object.assign(OPT, JSON.parse(localStorage.getItem("ms_label_opts") || "{}")); QUEUE = JSON.parse(localStorage.getItem("ms_label_queue") || "[]"); } catch (e) {}
-const saveQ = () => { try { localStorage.setItem("ms_label_queue", JSON.stringify(QUEUE)); localStorage.setItem("ms_label_opts", JSON.stringify(OPT)); } catch (e) {} };
-const SIZES = { "2.25x1.25":["2.25 × 1.25 in (Rollo, Zebra, Dymo 30334)", 2.25, 1.25], "2x1":["2 × 1 in", 2, 1], "1.5x1":["1.5 × 1 in", 1.5, 1], "62x29mm":["62 × 29 mm (Brother)", 62/25.4, 29/25.4], "3x2":["3 × 2 in", 3, 2] };
-
-/* ---------- views ---------- */
-function render(){
-  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === VIEW));
-  $("#qn").textContent = QUEUE.length ? "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")" : "";
-  $("#main").innerHTML = ({ home, stock, labels, repairs, catalog, commerce:()=>'<div data-commerce-root></div>', help:()=>MsCatalogPanel.help(SITE), workspace:()=>'<div id="workspaceRoot"></div>' })[VIEW]();
-  bind();
-  if(VIEW==="commerce")void MsCommercePanel.mount($("#main"),{site:SITE,call:sq,demo:DEMO,notify:toast});
-  if(VIEW==="help")MsCatalogPanel.bindHelp($("#main"),SITE,()=>{VIEW=SITE.slug==="rufcut"?"repairs":"home";render();});
-  if(VIEW==="catalog"&&SQ?.connected)MsCatalogPanel.bind($("#main"),{items:ITEMS||[],site:SITE,save:(item,publication)=>sq("save_publication",{item,publication}),render,refresh:loadItems,addVariant,demo:DEMO,notify:toast});
-  if(VIEW==="repairs")MsOrders.bind($("#main"),{jobs:REPAIRS||[],render});
-  if(VIEW === "workspace") MsPlatform.mount(document.getElementById("workspaceRoot"),{admin:false,demo:DEMO,site:SITE.slug,rpc});
-  if (window.MSI18N) MSI18N.apply($("#main"));
-}
-function home(){
-  const s = SQ || {}, units = ITEMS ? ITEMS.flatMap(i => i.variations).reduce((n, v) => n + Math.max(0, v.stock || 0), 0) : null;
-  const low = ITEMS ? ITEMS.flatMap(i => i.variations).filter(v => v.stock === 0).length : null;
-  const reqUrl = `${location.origin}/edit/?site=${encodeURIComponent(SITE.slug)}`;
-  return `<div class="head"><div><h1 data-noi18n>${esc(SITE.name)}</h1><p>Your site, your stock and your labels in one place.</p></div></div>
-  <div class="grid">
-   <div class="card"><h2>Square</h2>
-    ${s.connected ? `<span class="dot on">Connected</span><p><span>Location</span>: <b data-noi18n>${esc(s.location || "")}</b></p>
-      ${ITEMS ? `<div class="stat"><div><b>${ITEMS.length}</b><small>Items</small></div><div><b>${units}</b><small>In stock</small></div><div><b>${low}</b><small>Sold out</small></div></div>` : ""}
-      <label class="switch"><input type="checkbox" data-act="public" ${s.public ? "checked" : ""}><span>Show my stock on my site</span></label>
-      <div class="row"><button class="btn solid" data-go="stock">Open stock</button><button class="btn ghost sm" data-act="disconnect">Disconnect</button></div>`
-    : `<span class="dot off">Not connected</span><p>Connect your Square account once. Your items, prices and stock then show up here and on your site. Sales stay in your Square, on your account.</p>
-      <div class="row"><button class="btn sun" data-act="connect">Connect Square</button></div>`}
-    <div class="row"><a class="btn ghost sm" href="../square-sku-guide/">Square SKU setup guide ↗</a></div>
-   </div>
-   <div class="card"><h2>Labels</h2><p>Print price and barcode labels for anything in your stock. Your Square register reads the barcode at checkout.</p>
-    <div class="row"><button class="btn solid" data-go="labels">Print labels</button></div></div>
-   <div class="card"><h2>Your site</h2><p>See your site and ask for changes right on top of it.</p>
-    <div class="row">${SITE.url ? `<a class="btn ghost" href="${esc(SITE.url)}" target="_blank" rel="noopener">Open site ↗</a>` : ""}<a class="btn solid" href="${esc(reqUrl)}" target="_blank" rel="noopener">Request changes</a></div></div>
-  </div>`;
-}
-async function repairCall(action, extra = {}){
-  if(DEMO) return { jobs:[] };
-  await fresh();
-  const r=await fetch(`${SB_URL}/functions/v1/ms-repair`,{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+SS.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,...extra}),signal:AbortSignal.timeout(20000)});
-  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Repair request failed");return d;
-}
-function repairs(){
- return MsOrders.render(REPAIRS,{site:SITE,demo:DEMO,error:REPAIR_ERROR});
-}
-async function loadRepairs(){
- const selected=SITE.slug;
- try{const d=await repairCall("list");if(SITE.slug!==selected)return;REPAIRS=d.jobs||[];REPAIR_ERROR=false;}
- catch(e){if(SITE.slug!==selected)return;REPAIR_ERROR=true;}
- $("#repairCount").textContent=REPAIRS?.length?`(${REPAIRS.filter(j=>j.status!=="completed").length})`:"";
-}
-function rows(){
-  const q = QUERY.toLowerCase();
-  const out = [];
-  (ITEMS || []).forEach(i => i.variations.forEach(v => {
-    if (q && !(i.name + " " + v.name + " " + v.sku).toLowerCase().includes(q)) return;
-    if (FILTER === "in" && !(v.stock > 0)) return;
-    if (FILTER === "out" && v.stock !== 0) return;
-    out.push({ i, v });
-  }));
-  return out;
-}
-function stock(){
-  if (!SQ || !SQ.connected) return `<div class="head"><div><h1>Stock</h1><p>Connect Square on the overview page first.</p></div></div><div class="list"><div class="empty"><button class="btn sun" data-act="connect">Connect Square</button></div></div>`;
-  const r = rows();
-  return `<div class="head"><div><h1>Stock</h1><p>Straight from your Square. Change a number and save, it updates in Square too.</p></div>
-    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="assign-skus">${esc(T("Assign missing SKUs"))}</button><button class="btn ghost" data-act="reload">Refresh</button><button class="btn sun" data-act="add">+ Add item</button></div></div>
-   <div class="bar"><input type="search" id="q" placeholder="Search name, size or SKU" value="${esc(QUERY)}">
-    <div class="seg">${[["all","All"],["in","In stock"],["out","Sold out"]].map(([k, l]) => `<button data-filter="${k}" class="${FILTER === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
-   <div class="list" id="rows">${ITEMS == null ? '<div class="empty">Loading your stock</div>' : r.length ? r.map(({ i, v }) => `<div class="it">
-     <div class="ph" ${i.image ? `style="background-image:url('${esc(i.image)}')"` : ""}></div>
-     <div><div class="n" data-noi18n>${esc(i.name)}</div><div class="m" data-noi18n>${v.name && v.name !== "Regular" ? `<span>${esc(v.name)}</span>` : ""}<span class="mono">${esc(v.sku || "no SKU")}</span></div></div>
-     <div class="pr" data-noi18n>${money(v.price, v.currency)}</div>
-     <div class="acts">
-      ${v.stock == null ? '<span class="m">Not tracked</span>' : `<div class="qty"><button data-step="-1" data-v="${esc(v.id)}" aria-label="One less">−</button><input inputmode="numeric" data-count="${esc(v.id)}" data-was="${v.stock}" value="${v.stock}" class="${v.stock === 0 ? "out0" : ""}" aria-label="Stock"><button data-step="1" data-v="${esc(v.id)}" aria-label="One more">+</button></div>
-      <button class="btn sm solid" data-save="${esc(v.id)}" hidden>Save</button>`}
-      ${i.variations[0]?.id === v.id ? `<button class="btn sm ghost" data-go="catalog">${esc(MsCatalogPanel.t("catalog"))}</button><button class="btn sm ghost" data-add-variant="${esc(i.id)}">${esc(MsCatalogPanel.t("add_variant"))}</button><label class="btn sm ghost">${esc(T("Add photos"))}<input type="file" accept="image/*" multiple data-photo="${esc(i.id)}" hidden></label>` : ""}
-      <button class="btn sm ghost" data-label="${esc(v.id)}">Label</button>
-     </div></div>`).join("") : '<div class="empty">Nothing matches.</div>'}</div>`;
-}
-function catalog(){
- if(!SQ?.connected)return `<div class="head" data-noi18n><div><h1>${esc(MsCatalogPanel.t("catalog"))}</h1><p>${esc(MsCatalogPanel.t("not_connected"))}</p></div></div><button class="btn sun" data-go="home">${esc(T("Overview"))}</button>`;
- return MsCatalogPanel.render(ITEMS,{site:SITE,public:SQ.public,error:CATALOG_ERROR,demo:DEMO});
-}
-function labelHTML(q){
-  const [, w, h] = SIZES[OPT.size] || SIZES["2.25x1.25"];
-  return `<div class="label" style="width:${w}in;height:${h}in">
-    ${OPT.shop ? `<div class="shop">${esc(SITE.name)}</div>` : ""}
-    <div class="nm">${esc(q.name)}</div>
-    <div class="rw"><span class="vr">${OPT.variant && q.variant && q.variant !== "Regular" ? esc(q.variant) : ""}</span><span class="pc">${OPT.price ? money(q.price, q.currency) : ""}</span></div>
-    ${q.sku ? code128svg(q.sku, Math.max(.26, h * .32)) + `<div class="sku">${esc(q.sku)}</div>` : ""}
-  </div>`;
-}
-function labels(){
-  const total = QUEUE.reduce((n, q) => n + q.qty, 0);
-  return `<div class="head"><div><h1>Labels</h1><p>Pick items from Stock with the Label button, or add one by hand. The barcode is the SKU, so Square finds the item when you scan it.</p></div>
-    <div class="row" style="display:flex;gap:8px"><button class="btn ghost" data-act="manual">+ Add by hand</button><button class="btn sun" data-act="print" ${total ? "" : "disabled"}>Print ${total || ""} labels</button></div></div>
-   <div class="lab">
-    <div class="list q">${QUEUE.length ? QUEUE.map((q, k) => `<div class="it">
-      <div><div class="n" data-noi18n>${esc(q.name)}</div><div class="m" data-noi18n>${q.variant && q.variant !== "Regular" ? `<span>${esc(q.variant)}</span>` : ""}<span class="mono">${esc(q.sku || "no SKU")}</span><span>${money(q.price, q.currency)}</span></div></div>
-      <div class="qty"><button data-qstep="-1" data-k="${k}" aria-label="One less">−</button><input inputmode="numeric" data-qn="${k}" value="${q.qty}" aria-label="Copies"><button data-qstep="1" data-k="${k}" aria-label="One more">+</button></div>
-      <button class="btn sm ghost" data-qdel="${k}">Remove</button></div>`).join("") : '<div class="empty">No labels yet. Go to Stock and press Label on an item.</div>'}
-      ${QUEUE.length ? '<div class="it" style="grid-template-columns:1fr auto"><span class="m">Labels are kept on this device until you clear them.</span><button class="btn sm ghost" data-act="clearq">Clear all</button></div>' : ""}</div>
-    <div class="card opts">
-     <label>Label size<select id="optSize">${Object.entries(SIZES).map(([k, [l]]) => `<option value="${k}" ${OPT.size === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
-     <label class="switch"><input type="checkbox" data-opt="shop" ${OPT.shop ? "checked" : ""}><span>Shop name</span></label>
-     <label class="switch"><input type="checkbox" data-opt="price" ${OPT.price ? "checked" : ""}><span>Price</span></label>
-     <label class="switch"><input type="checkbox" data-opt="variant" ${OPT.variant ? "checked" : ""}><span>Size or variant</span></label>
-     <div class="preview" data-noi18n>${labelHTML(QUEUE[0] || { name:"Levi's 501, 1990s", variant:"W32 L30", price:8500, currency:"USD", sku:"RC-1A2B3C" })}</div>
-     <p class="m" style="font-size:12.5px;color:var(--mute)">In the print window choose your label printer, set the paper to the same size, and scale to 100%.</p>
-    </div>
-   </div>`;
-}
-
-/* ---------- Code 128 (B) barcode ---------- */
-const C128 = "11011001100,11001101100,11001100110,10010011000,10010001100,10001001100,10011001000,10011000100,10001100100,11001001000,11001000100,11000100100,10110011100,10011011100,10011001110,10111001100,10011101100,10011100110,11001110010,11001011100,11001001110,11011100100,11001110100,11101101110,11101001100,11100101100,11100100110,11101100100,11100110100,11100110010,11011011000,11011000110,11000110110,10100011000,10001011000,10001000110,10110001000,10001101000,10001100010,11010001000,11000101000,11000100010,10110111000,10110001110,10001101110,10111011000,10111000110,10001110110,11101110110,11010001110,11000101110,11011101000,11011100010,11011101110,11101011000,11101000110,11100010110,11101101000,11101100010,11100011010,11101111010,11001000010,11110001010,10100110000,10100001100,10010110000,10010000110,10000101100,10000100110,10110010000,10110000100,10011010000,10011000010,10000110100,10000110010,11000010010,11001010000,11110111010,11000010100,10001111010,10100111100,10010111100,10010011110,10111100100,10011110100,10011110010,11110100100,11110010100,11110010010,11011011110,11011110110,11110110110,10101111000,10100011110,10001011110,10111101000,10111100010,11110101000,11110100010,10111011110,10111101110,11101011110,11110101110,11010000100,11010010000,11010011100".split(",");
-function code128svg(text, hIn){
-  const vals = [104], s = String(text).replace(/[^\x20-\x7e]/g, "");
-  for (const ch of s) vals.push(ch.charCodeAt(0) - 32);
-  let sum = 104; for (let i = 1; i < vals.length; i++) sum += vals[i] * i;
-  vals.push(sum % 103);
-  const bits = "0".repeat(10) + vals.map(v => C128[v]).join("") + "1100011101011" + "0".repeat(10);
-  let x = 0, rects = "";
-  while (x < bits.length) { if (bits[x] === "1") { let w = 1; while (bits[x + w] === "1") w++; rects += `<rect x="${x}" y="0" width="${w}" height="1"/>`; x += w; } else x++; }
-  return `<svg viewBox="0 0 ${bits.length} 1" preserveAspectRatio="none" style="height:${hIn}in" shape-rendering="crispEdges" aria-label="Barcode ${esc(s)}">${rects}</svg>`;
-}
-
-/* ---------- actions ---------- */
-function findVar(id){ for (const i of ITEMS || []) for (const v of i.variations) if (v.id === id) return { i, v }; return null; }
-function addToQueue(i, v, qty){
-  const key = v.id || ("m" + Date.now());
-  const ex = QUEUE.find(q => q.key === key);
-  if (ex) ex.qty += qty; else QUEUE.push({ key, name:i.name, variant:v.name, price:v.price, currency:v.currency || "USD", sku:v.sku, qty });
-  saveQ(); $("#qn").textContent = "(" + QUEUE.reduce((n, q) => n + q.qty, 0) + ")";
-}
-async function loadItems(){
-  if (!SQ || !SQ.connected) return;
-  const selected=SITE.slug;CATALOG_ERROR=false;
-  ITEMS = null; if (VIEW !== "labels") render();
-  try { const d = await sq("catalog");if(SITE.slug!==selected)return; ITEMS = d.items || []; } catch (e) {if(SITE.slug!==selected)return; ITEMS = [];CATALOG_ERROR=true; toast(e.message); }
-  render();
-}
-function dialog(title, fields, onSave, label = "Save"){
-  $("#dlgBody").innerHTML = `<div class="dh"><h2>${esc(T(title))}</h2><button class="btn sm ghost" type="button" data-close>Close</button></div>
-   <form id="dlgForm">${fields}<div class="wide" style="display:flex;justify-content:flex-end"><button class="btn sun" type="submit">${esc(T(label))}</button></div></form>`;
-  const d = $("#dlg"); if (window.MSI18N) MSI18N.apply(d); d.showModal();
-  d.querySelector("[data-close]").onclick = () => d.close();
-  const itemName=d.querySelector("[name=name]");if(itemName)itemName.required=true;
-  const price=d.querySelector("[name=price]");if(price){price.required=true;price.step="0.01";}
-  $("#dlgForm").onsubmit = async e => {
-    e.preventDefault(); const btn = e.target.querySelector("[type=submit]"); btn.disabled = true;
-    try { await onSave(Object.fromEntries(new FormData(e.target).entries())); d.close(); } catch (err) { toast(err.message); }
-    btn.disabled = false;
-  };
-}
-const fld = (label, name, type = "text", extra = "", val = "") => `<label${extra}>${label}<input name="${name}" type="${type}" value="${esc(val)}" ${type === "number" ? 'step="any" min="0"' : ""}></label>`;
-async function photoData(input){
-  const files=[...(input?.files||[])], out=[];
-  if(files.length>6)throw new Error(T("Choose up to 6 photos"));
-  for(const file of files){
-    if(!file.type.startsWith("image/")||file.size>20*1024*1024)throw new Error(T("Photo upload failed"));
-    const src=URL.createObjectURL(file);
-    try{
-      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error(T("Photo upload failed")));x.src=src});
-      const scale=Math.min(1,1600/Math.max(img.width,img.height)),canvas=document.createElement("canvas");
-      canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
-      canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-      const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error(T("Photo upload failed"))),"image/jpeg",0.84));
-      const data=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve(rd.result);rd.onerror=()=>reject(new Error(T("Photo upload failed")));rd.readAsDataURL(blob)});
-      out.push(data);
-    }finally{URL.revokeObjectURL(src)}
-  }
-  return out;
-}
-
-function addVariant(item){
- const token=crypto.randomUUID(),ct=MsCatalogPanel.t;
- dialog("Size or variant",`<div class="wide cat-add-explain" data-noi18n>${esc(ct("variant_context"))}: <b>${esc(item.name)}</b><p>${esc(ct("variant_help"))}</p></div>`+fld("Size or variant","variant","text",' class="wide"')+fld("Price","price","number")+fld("How many","qty","number","","1")+fld("SKU (empty = automatic)","sku"),async v=>{
- if(DEMO)throw Error(ct("demo"));
- const d=await sq("add_variation",{item:item.id,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,track:item.variations.some(v=>v.track),submission_token:token});
- toast(ct(d.stock_error?"partial":"after_add"));VIEW="catalog";await loadItems();
- },"Add to Square");
- document.querySelector('#dlgForm [name=variant]').required=true;
-}
-async function act(a, el){
-  if (a === "connect") { if (DEMO) return toast("Demo: this opens Square to sign in"); const d = await sq("connect"); location.href = d.url; return; }
-  if (a === "disconnect") { if (!confirm(T("Disconnect Square from your panel and site?"))) return; await sq("disconnect"); SQ = { connected:false }; ITEMS = null; toast("Square disconnected"); return render(); }
-  if (a === "public") { await sq("set_public", { value:el.checked }); SQ.public = el.checked; return toast(el.checked ? "Your stock now shows on your site" : "Stock hidden from your site"); }
-  if (a === "assign-skus") {
-    if (DEMO) return toast(T("Demo actions are not saved"));
-    if (!confirm(T("Generate SKUs for every Square variation that has no SKU?"))) return;
-    const d = await sq("assign_missing_skus");
-    await loadItems();
-    return toast(T("SKUs assigned") + `: ${d.updated}`);
-  }
-  if (a === "reload") return loadItems();
-  if (a === "add") {
-    const token=crypto.randomUUID(),ct=MsCatalogPanel.t;
-    dialog("Add item",`<div class="wide cat-add-explain" data-noi18n>${esc(ct("create_help"))}<p>${esc(ct("help1"))}</p></div>`+fld("Name", "name", "text", ' class="wide"')+fld("Size or variant", "variant")+fld("Price", "price", "number")+
-      fld("How many", "qty", "number", "", "1")+fld("SKU (empty = automatic)", "sku")+
-      `<label class="switch wide" data-noi18n><input type="checkbox" name="track" checked><span>${esc(ct("track_inventory"))}</span></label><div class="wide" data-noi18n>${MsCatalogPanel.sectionSelect(SITE)}${MsCatalogPanel.placementFields()}<p class="cat-add-explain" data-add-placement>${esc(ct("review_help"))}</p></div><label class="wide">Description<textarea name="description" rows="2"></textarea></label><label class="wide">${esc(T("Product photos"))}<input name="photos" type="file" accept="image/*" multiple></label><label class="switch wide"><input type="checkbox" name="labels" checked><span>Add labels for these right away</span></label>`,
-      async v=>{
-        if(DEMO)throw new Error(ct("demo"));
-        const images=await photoData(document.querySelector('#dlgForm [name="photos"]'));
-        const d=await sq("add_item",{name:v.name,variant:v.variant,price:Number(v.price),qty:Number(v.qty||0),sku:v.sku,description:v.description,images,section:v.section,category:v.category,display_order:Number(v.display_order),track:!!v.track,submission_token:token});
-        toast(ct(d.image_error||d.stock_error||d.publication_error?"partial":"after_add"));
-        if(v.labels&&Number(v.qty)>0)addToQueue({name:v.name},{id:d.variation,name:v.variant||"",price:Math.round(Number(v.price)*100),currency:SQ.currency||"USD",sku:d.sku},Number(v.qty));
-        VIEW="catalog";await loadItems();
-      },"Add to Square");
-    const dest=document.querySelector('#dlgForm [name=section]');dest.onchange=()=>{if(["workshop","repair"].includes(dest.value))document.querySelector('#dlgForm [name=track]').checked=false;document.querySelector('[data-add-placement]').textContent=ct(dest.value==='review'?'review_help':dest.value==='hidden'?'hidden_help':'destination')+(dest.value==='review'||dest.value==='hidden'?'':' '+MsCatalogPanel.section(dest.value));};
-    return;
-  }
-  if (a === "manual") return dialog("Add a label by hand", fld("Name", "name", "text", ' class="wide"') + fld("Size or variant", "variant") + fld("Price", "price", "number") + fld("SKU or code", "sku") + fld("Copies", "qty", "number", "", "1"),
-    async v => { if (!v.name) throw new Error(T("Enter a name")); addToQueue({ name:v.name }, { id:null, name:v.variant, price:v.price === "" ? null : Math.round(Number(v.price) * 100), currency:"USD", sku:v.sku }, Math.max(1, Number(v.qty || 1))); render(); }, "Add");
-  if (a === "clearq") { QUEUE = []; saveQ(); return render(); }
-  if (a === "print") {
-    const [, w, h] = SIZES[OPT.size];
-    $("#pageSize").textContent = `@page{size:${w}in ${h}in;margin:0}`;
-    $("#print").innerHTML = QUEUE.flatMap(q => Array(q.qty).fill(labelHTML(q))).join("");
-    setTimeout(() => window.print(), 50);
-  }
-}
-function bind(){
-  document.querySelectorAll("[data-act]").forEach(el => { const h = () => act(el.dataset.act, el).catch(e => toast(e.message)); if (el.type === "checkbox") el.onchange = h; else el.onclick = h; });
-  document.querySelectorAll("[data-photo]").forEach(el => el.onchange = async () => {
-    try { if(DEMO)return toast(T("Demo photos cannot be saved")); const images=await photoData(el); if(!images.length)return; await sq("add_photos",{item:el.dataset.photo,images}); toast(T("Photos added")); await loadItems(); }
-    catch(e){toast(T("Photo upload failed")+": "+e.message)} finally {el.value="";}
-  });
-  document.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { VIEW = el.dataset.go; render(); });
-  document.querySelectorAll("[data-repair-refresh]").forEach(el => el.onclick = async () => { el.disabled=true; await loadRepairs(); render(); });
-  document.querySelectorAll("[data-repair-save]").forEach(el => el.onclick = async () => {
-    const id=el.dataset.repairSave,status=document.querySelector(`[data-repair-status="${CSS.escape(id)}"]`).value;
-    const staff_notes=document.querySelector(`[data-repair-notes="${CSS.escape(id)}"]`).value,measurements=document.querySelector(`[data-repair-measure="${CSS.escape(id)}"]`).value;
-    el.disabled=true;try{await repairCall("update",{id,status,staff_notes,measurements});MsOrders.accept(id);toast("Work order saved");await loadRepairs();render()}catch(e){toast(MsPlatform.t("order_save_error"));el.disabled=false}
-  });
-  document.querySelectorAll("[data-filter]").forEach(el => el.onclick = () => { FILTER = el.dataset.filter; render(); });
-  const q = $("#q"); if (q) q.oninput = () => { QUERY = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
-  const dirty = inp => { const s = document.querySelector(`[data-save="${CSS.escape(inp.dataset.count)}"]`); const d = String(inp.value) !== String(inp.dataset.was); inp.classList.toggle("dirty", d); if (s) s.hidden = !d; };
-  document.querySelectorAll("[data-count]").forEach(inp => inp.oninput = () => { inp.value = inp.value.replace(/\D/g, ""); dirty(inp); });
-  document.querySelectorAll("[data-step]").forEach(b => b.onclick = () => { const inp = document.querySelector(`[data-count="${CSS.escape(b.dataset.v)}"]`); inp.value = Math.max(0, Number(inp.value || 0) + Number(b.dataset.step)); dirty(inp); });
-  document.querySelectorAll("[data-save]").forEach(b => b.onclick = async () => {
-    const id = b.dataset.save, inp = document.querySelector(`[data-count="${CSS.escape(id)}"]`), f = findVar(id), qty = Number(inp.value || 0);
-    b.disabled = true;
-    try { await sq("set_count", { variation:id, qty, label:f ? f.i.name + " " + f.v.name : id }); f.v.stock = qty; toast("Saved in Square"); render(); } catch (e) { toast(e.message); b.disabled = false; }
-  });
-  document.querySelectorAll("[data-add-variant]").forEach(b=>b.onclick=()=>addVariant(ITEMS.find(i=>i.id===b.dataset.addVariant)));
-  document.querySelectorAll("[data-label]").forEach(b => b.onclick = () => { const f = findVar(b.dataset.label); if (!f) return; addToQueue(f.i, f.v, Math.max(1, f.v.stock || 1)); toast(T("Added to labels") + ": " + f.i.name); });
-  document.querySelectorAll("[data-qstep]").forEach(b => b.onclick = () => { const q = QUEUE[b.dataset.k]; q.qty = Math.max(1, q.qty + Number(b.dataset.qstep)); saveQ(); render(); });
-  document.querySelectorAll("[data-qn]").forEach(i => i.onchange = () => { QUEUE[i.dataset.qn].qty = Math.max(1, Number(i.value.replace(/\D/g, "") || 1)); saveQ(); render(); });
-  document.querySelectorAll("[data-qdel]").forEach(b => b.onclick = () => { QUEUE.splice(Number(b.dataset.qdel), 1); saveQ(); render(); });
-  const os = $("#optSize"); if (os) os.onchange = () => { OPT.size = os.value; saveQ(); render(); };
-  document.querySelectorAll("[data-opt]").forEach(c => c.onchange = () => { OPT[c.dataset.opt] = c.checked; saveQ(); render(); });
-}
-
-/* ---------- demo ---------- */
-function demoData(){
-  const v = (id, name, sku, price, stock) => ({ id, name, sku, upc:"", price, currency:"USD", track:true, stock });
-  return [
-    { id:"i1", name:"Levi's 501, 1990s, medium wash", description:"", image:null, variations:[v("v1","W32 L30","RC-0A1B2C",8500,1)] },
-    { id:"i2", name:"Levi's 505, 1980s, dark rinse", description:"", image:null, variations:[v("v2","W34 L32","RC-0A1B2D",9500,1)] },
-    { id:"i3", name:"Levi's 517 bootcut, black", description:"", image:null, variations:[v("v3","W30 L32","RC-0A1B2E",7500,0)] },
-    { id:"i4", name:"Levi's trucker jacket, type III", description:"", image:null, variations:[v("v4","M","RC-0A1B2F",14500,1), v("v5","L","RC-0A1B2G",14500,2)] },
-    { id:"i5", name:"Rufcut custom jeans, deposit", description:"", image:null, variations:[{ ...v("v6","Regular","RC-CUSTOM",10000,null), track:false }] },
-    { id:"i6", name:"Repair: chain stitch hem", description:"", image:null, variations:[{ ...v("v7","Regular","RC-HEM",2500,null), track:false }] },
-    { id:"i7", name:"Rufcut patch, leather", description:"", image:null, variations:[v("v8","Regular","RC-PATCH",1200,14)] }
-  ];
-}
-function demoSq(action, x){
-  if (action === "status") return { connected:true, location:"Rufcut, Venice Beach", currency:"USD", public:false };
-  if (action === "catalog") return { items:ITEMS && ITEMS.length ? ITEMS : demoData() };
-  if (action === "add_item") { const sku = x.sku || "RC-" + Date.now().toString(36).toUpperCase().slice(-6), id = "d" + Date.now();
-    ITEMS.push({ id, name:x.name, description:"", image:null, variations:[{ id:id + "v", name:x.variant || "Regular", sku, upc:"", price:Math.round(x.price * 100), currency:"USD", track:true, stock:x.qty }] });
-    return { ok:true, variation:id + "v", sku }; }
-  return { ok:true };
-}
-
-/* ---------- start ---------- */
-document.querySelectorAll("#nav button").forEach(b => b.onclick = async () => { VIEW = b.dataset.v; if(VIEW==="repairs"&&REPAIRS===null)await loadRepairs(); render(); });
-$("#out").onclick = logout;
-$("#sitePick").onchange = async () => { if(MsCommercePanel.hasDraft()&&!confirm(MsCommercePanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCommercePanel.clear();if(MsCatalogPanel.hasDraft()&&!confirm(MsCatalogPanel.t("leave"))){$("#sitePick").value=SITE.slug;return;}MsCatalogPanel.clear();SITE = SITES.find(s => s.slug === $("#sitePick").value); await enterSite(); };
-$("#demoBtn").onclick = async () => { DEMO = true; SITES = [{ slug:"rufcut", name:"Rufcut", url:"https://mrspace.online/rufcut/", site_key:"demo" }]; await enter(); };
-$("#loginForm").onsubmit = async e => {
-  e.preventDefault(); $("#loginErr").textContent = "";
-  try { let u = $("#em").value.trim().toLowerCase(); if (u && u.indexOf("@") < 0) u += "@mrspace.online";
-    await auth("password", { email:u, password:$("#pw").value }); await start(); }
-  catch (err) { $("#loginErr").textContent = T(err.message); }
-};
-async function start(){
-  try { SITES = await rpc("ms_my_sites"); if (!SITES.length) throw new Error("This account has no site yet"); await enter(); }
-  catch (e) { logout(); $("#loginErr").textContent = T(e.message); }
-}
-async function enter(){
-  const want = new URLSearchParams(location.search).get("site");
-  SITE = SITES.find(s => s.slug === want) || SITES[0];
-  $("#sitePick").hidden = SITES.length < 2;
-  $("#sitePick").innerHTML = SITES.map(s => `<option value="${esc(s.slug)}">${esc(s.name)}</option>`).join("");
-  $("#sitePick").value = SITE.slug;
-  $("#login").hidden = true; $("#app").hidden = false; $("#demoTag").hidden = !DEMO;
-  const sp = new URLSearchParams(location.search).get("square");
-  if (sp) { toast(sp === "ok" ? "Square connected" : T("Square did not connect") + ": " + sp); history.replaceState(null, "", location.pathname); }
-  await enterSite();
-}
-async function enterSite(){
-  await Promise.all([MsPlatform.ready,MsCatalogPanel.ready,MsCommercePanel.ready]);
-  $("[data-v=commerce]").textContent=MsCommercePanel.t("title");
-  $("[data-v=catalog]").textContent=MsCatalogPanel.t("catalog");
-  $("[data-v=help]").textContent=MsCatalogPanel.t("help_nav");
-  $("#siteName").textContent = SITE.name; ITEMS = null; SQ = null; REPAIRS = null;REPAIR_ERROR=false; $("[data-v=repairs]").hidden = SITE.slug !== "rufcut";
-  if(new URLSearchParams(location.search).get("view")==="commerce")VIEW="commerce";
-  else if(new URLSearchParams(location.search).get("view")==="catalog")VIEW="catalog";
-  else if(SITE.slug==="rufcut"&&(VIEW==="home"||new URLSearchParams(location.search).get("view")==="orders"))VIEW="repairs";
-  else if(SITE.slug!=="rufcut"&&VIEW==="repairs")VIEW="home";
-  if(!DEMO&&(new URLSearchParams(location.search).get("view")==="help"||(!new URLSearchParams(location.search).get("view")&&!MsCatalogPanel.skipHelp(SITE))))VIEW="help";
-  render();void MsPanelApp.mount(SITE,!DEMO&&!!SS);
-  if(SITE.slug==="rufcut")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});
-  try { SQ = await sq("status"); } catch (e) { SQ = { connected:false }; }
-  render();
-  if (SQ.connected) loadItems();
-}
-MsPanelApp.init({getSite:()=>SITE,getSession:()=>SS,fresh});
-setInterval(()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});},60000);
-document.addEventListener('visibilitychange',()=>{if(SS&&!DEMO&&SITE?.slug==="rufcut"&&document.visibilityState==="visible")void loadRepairs().then(()=>{if(VIEW==="repairs")render();});});
-if (SS) start();
-</script>
+<link rel="stylesheet" href="../assets/ms-commerce-panel.css?v=20261012"><script src="../assets/ms-commerce.js?v=20261012"></script><script src="../assets/ms-commerce-panel.js?v=20261012"></script><script src="../assets/ms-catalog.js"></script><script src="../assets/ms-site-catalog.js?v=20261011"></script><script src="../assets/ms-catalog-panel.js?v=20261011-panel-r5"></script>
+<script src="../assets/ms-platform.js?v=20261009-orders"></script><script src="../assets/ms-orders.js?v=20261011-panel-r5"></script><script src="../assets/ms-panel-app.js?v=20261011-panel-r5"></script>
+<script src="../assets/ms-panel-daily.js?v=20261011-panel-r5"></script>
+<script src="../assets/ms-client-panel.js?v=20261011-panel-r5"></script>
 </body>
 </html>

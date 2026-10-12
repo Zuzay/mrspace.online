@@ -1,0 +1,5 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const handlers={};vm.runInNewContext(fs.readFileSync('panel/sw.js','utf8'),{self:{location:{origin:'https://mrspace.online'},addEventListener:(name,fn)=>handlers[name]=fn},URL,Response,navigator:{language:'en-US'},fetch:()=>Promise.reject(Error('offline'))});
+let result;handlers.fetch({request:{mode:'navigate',url:'https://mrspace.online/panel/?site=rufcut&view=orders&lang=en'},respondWith:p=>result=p});const response=await result,html=await response.text();assert.equal(response.status,503);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.match(html,/href="\/panel\/\?site=rufcut&amp;view=orders&amp;lang=en"/);assert.doesNotMatch(html,/customer_email|access_token/);
+let intercepted=false;handlers.fetch({request:{mode:'cors',url:'https://test.supabase.co/functions/v1/ms-panel'},respondWith:()=>intercepted=true});assert.equal(intercepted,false);
+console.log('PASS offline panel preserves site, view and language, escapes the retry URL and never intercepts account API data');

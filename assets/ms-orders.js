@@ -2,7 +2,7 @@
 (function(){
  'use strict';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const t=k=>MsPlatform.t(k),drafts=new Map();let filter='all',status='all',query='',opened=new URLSearchParams(location.search).get('ticket')||'';
+ const t=k=>MsPlatform.t(k),drafts=new Map();let page=1,filter='all',status='all',query='',opened=new URLSearchParams(location.search).get('ticket')||'';
  const statuses=['received','in_progress','finishing','ready','completed'];
  const label=v=>{const key='order_'+String(v).toLowerCase().replace(/[^a-z0-9_]+/g,'_'),value=t(key);return value===key?v:value;};
  const date=v=>new Date(v).toLocaleString(document.documentElement.lang||'en');
@@ -11,14 +11,14 @@
  const drawings=job=>job.kind==='jeans'?image(job.preview_svg):'';
  function render(jobs,opts={}){
   const data=jobs||[],active=data.filter(j=>!['ready','completed'].includes(j.status)).length,ready=data.filter(j=>j.status==='ready').length;
-  const q=query.toLocaleLowerCase(),visible=data.filter(j=>(filter==='all'||(j.kind||'repair')===filter)&&(status==='all'||j.status===status)&&(!q||[j.ticket,j.customer_name,j.customer_email,j.customer_phone].join(' ').toLocaleLowerCase().includes(q)));
-  return `<section class="order-inbox" data-noi18n><div class="head"><div><span class="mono">${esc(opts.site?.name||'MR. SPACE')}</span><h1>${esc(t('order_title'))}</h1><p>${esc(t('order_intro'))}</p></div><button class="btn ghost" data-repair-refresh>${esc(t('refresh'))}</button></div><div class="order-counts"><span>${esc(t('order_active'))}<b>${active}</b></span><span>${esc(t('order_ready'))}<b>${ready}</b></span><span>${esc(t('order_total'))}<b>${data.length}</b></span></div>
-  ${opts.demo?`<p class="order-empty">${esc(t('order_demo'))}</p>`:opts.error?`<p role="alert" class="order-error">${esc(t('order_load_error'))}</p>`:jobs===null?`<p role="status">${esc(t('loading'))}</p>`:''}
-  <div class="order-controls"><div role="group" aria-label="${esc(t('order_type'))}">${['all','repair','jeans'].map(k=>`<button class="btn sm ${filter===k?'sun':'ghost'}" data-order-filter="${k}" aria-pressed="${filter===k}">${esc(label(k))}</button>`).join('')}</div><label><span>${esc(t('order_find'))}</span><input id="orderSearch" type="search" value="${esc(query)}" placeholder="${esc(t('order_search'))}"></label><label><span>${esc(t('status'))}</span><select id="orderStatus">${['all',...statuses].map(k=>`<option value="${k}" ${status===k?'selected':''}>${esc(label(k))}</option>`).join('')}</select></label></div>
-  <div class="order-list">${visible.map(job=>{
+  const q=query.toLocaleLowerCase(),visible=opts.remote?data:data.filter(j=>(filter==='all'||(j.kind||'repair')===filter)&&(status==='all'||j.status===status)&&(!q||[j.ticket,j.customer_name,j.customer_email,j.customer_phone].join(' ').toLocaleLowerCase().includes(q)));
+  return `<section class="order-inbox" data-noi18n><div class="head"><div><span class="mono">${esc(opts.site?.name||'MR. SPACE')}</span><h1>${esc(t('order_title'))}</h1><p>${esc(t('order_intro'))}</p></div><button class="btn ghost" data-repair-refresh ${opts.loading?'disabled':''}>${esc(t('refresh'))}</button></div><div class="order-counts"><span>${esc(t('order_active'))}<b>${active}</b></span><span>${esc(t('order_ready'))}<b>${ready}</b></span><span>${esc(t('order_total'))}<b>${data.length}</b></span></div>
+  ${opts.loading?`<p role="status">${esc(t('loading'))}</p>`:''}${opts.demo?`<p class="order-empty">${esc(t('order_demo'))}</p>`:opts.error?`<p role="alert" class="order-error">${esc(t('order_load_error'))}</p>`:jobs===null?`<p role="status">${esc(t('loading'))}</p>`:''}
+  <div class="order-controls"><div role="group" aria-label="${esc(t('order_type'))}">${['all','repair','jeans'].map(k=>`<button class="btn sm ${filter===k?'sun':'ghost'}" data-order-filter="${k}" aria-pressed="${filter===k}">${esc(label(k))}</button>`).join('')}</div><label><span>${esc(t('order_find'))}</span><input id="orderSearch" type="search" maxlength="100" value="${esc(query)}" placeholder="${esc(t('order_search'))}"></label><label><span>${esc(t('status'))}</span><select id="orderStatus">${['all','active',...statuses].map(k=>`<option value="${k}" ${status===k?'selected':''}>${esc(label(k))}</option>`).join('')}</select></label></div>
+  <div class="order-list">${(opts.error||opts.loading?[]:visible).map(job=>{
    const pending=drafts.get(job.id),j={...job,...pending};
    return `<details class="order-ticket card" data-ticket="${esc(j.ticket)}" ${opened===j.ticket?'open':''}><summary><span class="order-ticket-meta"><span class="mono">${esc(j.ticket)} · ${esc(label(j.kind||'repair'))}</span><strong>${esc(j.customer_name)}</strong><small>${esc(date(j.created_at))}</small></span><span class="order-state">${esc(label(j.status))}</span><span class="order-open">${esc(t('order_open'))} ↗</span></summary><div class="order-sheet"><div class="order-contact"><a href="mailto:${esc(j.customer_email)}">${esc(j.customer_email)}</a>${j.customer_phone?`<a href="tel:${esc(j.customer_phone.replace(/[^+\d]/g,''))}">${esc(j.customer_phone)}</a>`:''}</div><div class="order-detail-grid"><div>${drawings(j)}${details(j)}</div><div class="order-staff"><label>${esc(t('status'))}<select data-repair-status="${esc(j.id)}">${statuses.map(k=>`<option value="${k}" ${j.status===k?'selected':''}>${esc(label(k))}</option>`).join('')}</select></label><label>${esc(t('order_fitting'))}<textarea data-repair-measure="${esc(j.id)}" maxlength="2000">${esc(j.measurements||'')}</textarea></label><label>${esc(t('order_staff_note'))}<textarea data-repair-notes="${esc(j.id)}" maxlength="3000">${esc(j.staff_notes||'')}</textarea></label><p class="order-draft" data-order-draft="${esc(j.id)}">${pending?esc(t('order_unsaved')):''}</p><div class="row"><button class="btn sun" data-repair-save="${esc(j.id)}">${esc(t('order_save'))}</button><button class="btn ghost" data-order-print="${esc(j.id)}">${esc(t('order_print'))}</button></div></div></div></div></details>`;
-  }).join('')||(!opts.error&&jobs!==null?`<p class="order-empty">${esc(data.length?t('order_no_match'):t('order_empty'))}</p>`:'')}</div></section>`;
+  }).join('')||(!opts.error&&!opts.loading&&jobs!==null?`<p class="order-empty">${esc(data.length||filter!=='all'||status!=='all'||query?t('order_no_match'):t('order_empty'))}</p>`:'')}</div>${opts.remote&&!opts.error&&!opts.loading&&Number.isSafeInteger(opts.total)?`<div class="panel-pager"><span>${esc(MSI18N.t('Records'))}: ${opts.total} · ${esc(MSI18N.t('Page'))} ${page} / ${Math.max(1,Math.ceil(opts.total/12))}</span><div class="row"><button class="btn ghost sm" data-order-page="${page-1}" ${page<=1||opts.loading?'disabled':''}>${esc(MSI18N.t('Previous'))}</button><button class="btn ghost sm" data-order-page="${page+1}" ${page*12>=opts.total||opts.loading?'disabled':''}>${esc(MSI18N.t('Next'))}</button></div></div>`:''}</section>`;
  }
  function print(job){
   const target=document.getElementById('print'),style=document.getElementById('pageSize'),previousHTML=target.innerHTML,previousCSS=style.textContent;
@@ -27,9 +27,10 @@
   window.addEventListener('afterprint',()=>{target.innerHTML=previousHTML;style.textContent=previousCSS;},{once:true});window.print();
  }
  function bind(root,opts){
-  root.querySelectorAll('[data-order-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.orderFilter;opts.render();});
-  const search=root.querySelector('#orderSearch');if(search)search.oninput=()=>{query=search.value;opts.render();const next=root.querySelector('#orderSearch');next.focus();next.setSelectionRange(query.length,query.length);};
-  const select=root.querySelector('#orderStatus');if(select)select.onchange=()=>{status=select.value;opts.render();};
+  root.querySelectorAll('[data-order-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.orderFilter;page=1;opts.remote?opts.refresh():opts.render();});
+  const search=root.querySelector('#orderSearch');if(search)search.oninput=()=>{query=search.value.slice(0,100);page=1;clearTimeout(search._timer);search._timer=setTimeout(()=>{opts.remote?opts.refresh():opts.render();},350);};
+  const select=root.querySelector('#orderStatus');if(select)select.onchange=()=>{status=select.value;page=1;opts.remote?opts.refresh():opts.render();};
+  root.querySelectorAll('[data-order-page]').forEach(b=>b.onclick=()=>{page=Number(b.dataset.orderPage);opts.refresh();});
   root.querySelectorAll('[data-ticket]').forEach(el=>el.ontoggle=()=>{if(el.open)opened=el.dataset.ticket;});
   root.querySelectorAll('[data-repair-status],[data-repair-notes],[data-repair-measure]').forEach(el=>el.addEventListener('input',()=>{
    const id=el.dataset.repairStatus||el.dataset.repairNotes||el.dataset.repairMeasure,read=key=>root.querySelector(`[data-repair-${key}="${CSS.escape(id)}"]`).value;
@@ -40,5 +41,5 @@
   root.querySelectorAll('[data-order-print]').forEach(b=>b.onclick=()=>{const job=opts.jobs.find(j=>j.id===b.dataset.orderPrint);if(job)print(job);});
  }
  window.addEventListener('beforeunload',e=>{if(drafts.size){e.preventDefault();e.returnValue='';}});
- window.MsOrders={render,bind,accept:id=>drafts.delete(id),reset:()=>{drafts.clear();filter=status='all';query='';},hasDrafts:()=>!!drafts.size};
+ window.MsOrders={render,bind,parameters:()=>({page,size:12,kind:filter,status,query}),focus:value=>{page=1;query='';filter='all';if(statuses.includes(value)||value==='active'){status=value;}else{status='all';query=value;opened=value;}},accept:id=>drafts.delete(id),reset:()=>{drafts.clear();page=1;filter=status='all';query='';},hasDrafts:()=>!!drafts.size};
 })();

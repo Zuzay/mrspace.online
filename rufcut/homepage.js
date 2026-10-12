@@ -2,6 +2,8 @@
  'use strict';
  const $=id=>document.getElementById(id),tr=s=>window.MSI18N?MSI18N.t(s):s;
  const root=document.documentElement,themeKey='rufcut-theme',draftKey='rufcut-jean-maker-v1';
+ const shopMap=document.querySelector('[data-ms-field="visit.a.4"]');
+ if(shopMap)shopMap.href='https://www.google.com/maps?cid=9639345455576202975';
  try{const theme=localStorage.getItem(themeKey);if(['light','dark'].includes(theme))root.dataset.theme=theme}catch{}
  const currentTheme=()=>root.dataset.theme||'dark';
  const frame=$('repairFrame');
@@ -10,9 +12,9 @@
  const defaults={fit:'Straight',denim:'Raw',wash:'Dark indigo',thread:'Pig-skin',fly:'Button fly',hem:'Chain stitch'};
  const s={...defaults};
  try{const stored=JSON.parse(localStorage.getItem(draftKey)||'{}');Object.keys(defaults).forEach(k=>{const allowed=[...document.querySelectorAll(`[data-k="${k}"] button`)].map(b=>b.dataset.v);if(allowed.includes(stored[k]))s[k]=stored[k]})}catch{}
- const washC={'Dark indigo':'#1E3466','Wide blue/white stripe':'url(#stripeWide)','Narrow blue/white stripe':'url(#stripeNarrow)',Black:'#232427',White:'#F6F3EC'};
- const thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C',White:'#F6F3EC',Tonal:'#3B4F77'};
- const tonalC={'Dark indigo':'#3B4F77','Wide blue/white stripe':'#52648D','Narrow blue/white stripe':'#52648D',Black:'#414141',White:'#D3CEC5'};
+ const washC={'Dark indigo':'#111B2E','Wide blue/white stripe':'url(#stripeWide)','Narrow blue/white stripe':'url(#stripeNarrow)',Black:'#232427',White:'#F6F3EC'};
+ const thrC={'Pig-skin':'#B88762','Mellow yellow':'#E2B33C',White:'#F6F3EC',Tonal:'#283750'};
+ const tonalC={'Dark indigo':'#283750','Wide blue/white stripe':'#52648D','Narrow blue/white stripe':'#52648D',Black:'#414141',White:'#D3CEC5'};
  const legs={Slim:'M12 24 L14 200 H54 L65 86 L76 200 H116 L118 24 Z',Straight:'M12 24 L6 200 H56 L65 86 L74 200 H124 L118 24 Z',Relaxed:'M12 24 L2 200 H58 L65 90 L72 200 H128 L118 24 Z',Wide:'M12 24 L-4 200 H60 L65 94 L70 200 H134 L118 24 Z'};
  let view='front',activeTab=0;
  ['vFit','vDenim','vWash','vThread','vFly','vHem','summary'].forEach(id=>$(id).setAttribute('data-noi18n',''));
@@ -39,6 +41,12 @@
   try{localStorage.setItem(draftKey,JSON.stringify(s))}catch{}
  }
  document.querySelectorAll('[data-k] button').forEach(b=>b.addEventListener('click',()=>{s[b.parentElement.dataset.k]=b.dataset.v;render()}));
+ // The shared editor previews a swatch without replacing its label or choice ID.
+ document.addEventListener('ms:editor-color-preview',e=>{
+  const swatch=e.target;if(!swatch.matches('[data-ms-color]'))return;
+  const colors=swatch.parentElement.dataset.k==='wash'?washC:thrC;
+  if(Object.hasOwn(colors,swatch.dataset.v)){colors[swatch.dataset.v]=swatch.style.backgroundColor;render();}
+ });
  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;render()}));
  const tabs=[...document.querySelectorAll('.maker-tabs [role="tab"]')];
  function setTab(index,focus=false){activeTab=index;tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',i===index);tab.tabIndex=i===index?0:-1;$('maker-panel-'+i).hidden=i!==index});$('makerPrevious').hidden=index===0;$('makerNext').hidden=index===2;if(focus)tabs[index].focus()}

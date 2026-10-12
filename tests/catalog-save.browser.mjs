@@ -22,6 +22,7 @@ try{
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/admin/?preview=1');
  await page.addScriptTag({url:origin+'/assets/ms-site-catalog.js'});
+ await page.addScriptTag({content:await readFile(process.env.MS_PANEL_DAILY_PATH || new URL('../assets/ms-panel-daily.js',import.meta.url),'utf8')});
  await page.addScriptTag({url:origin+'/assets/ms-catalog-panel.js'});
  await page.evaluate(()=>MsCatalogPanel.ready);
  const result=await page.evaluate(async()=>{
@@ -33,7 +34,7 @@ try{
    MsCatalogPanel.bind(root,{...options,items:list,notify:message=>notices.push(message),render:()=>render(site),refresh:async()=>{refreshes++;await render(site);},addVariant:()=>{throw Error('should stay locked');},save:async(id,publication)=>{if(fail)throw Error('offline');await new Promise(resolve=>pending.push(resolve));items(site)[0].publication=structuredClone(publication);}});
   }
   const edit=value=>{const field=root.querySelector('[name=title]');field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));};
-  const submit=()=>root.querySelector('[data-cat-form]').onsubmit({preventDefault(){}});
+  const submit=()=>{root.querySelector('[name=confirm]').checked=true;return root.querySelector('[data-cat-form]').onsubmit({preventDefault(){}});};
   await render('rufcut');edit('First title');const save=submit();await submit();
   const locked=pending.length===1&&root.querySelector('[data-cat-refresh]').disabled&&root.querySelector('[data-cat-discard]').disabled&&root.querySelector('[data-cat-add-variant]').disabled;
   edit('Newer title');pending.shift()();await save;
