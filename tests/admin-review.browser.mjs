@@ -24,7 +24,7 @@ try {
  await page.addInitScript(() => {
    window.pendingQueries = [];
    window.supabase = {createClient() { return {from(table) {
-     const query = {table,filters:[],select(){return query;},in(){return query;},order(){return query;},neq(){return query;},limit(){return query;},eq(key,value){query.filters.push([key,value]);return query;},single(){return query;},then(resolve,reject){return new Promise(done=>pendingQueries.push({table,filters:query.filters,done})).then(resolve,reject);}};
+     const query = {table,filters:[],select(){return query;},in(){return query;},order(){return query;},neq(){return query;},limit(){return query;},eq(key,value){query.filters.push([key,value]);return query;},single(){return query;},then(resolve,reject){return new Promise((done,no)=>pendingQueries.push({table,filters:query.filters,done,no})).then(resolve,reject);}};
      return query;
    }};}};
  });
@@ -66,5 +66,25 @@ try {
  await page.evaluate(()=>{pendingQueries[0].done({data:null,error:{message:'old trial error'}});return window.trialLoading;});
  assert.equal(await page.getByText('Bekleyen site yok.',{exact:true}).count(),1);
  console.log('PASS old trial error cannot replace the queue');
+ for (const mode of ['site-error','checks-error','missing-site','network-rejection']) {
+  await page.evaluate(()=>{window.pendingQueries=[];window.buildLoading=openBuild(6);});
+  await page.waitForFunction(()=>pendingQueries.length===1);
+  await page.evaluate(()=>pendingQueries[0].done({data:{id:6,site:'latest',status:'review'},error:null}));
+  await page.waitForFunction(()=>pendingQueries.length===3);
+  await page.evaluate(mode=>{
+   if(mode==='network-rejection')pendingQueries[1].no(new Error('network unavailable'));
+   else pendingQueries[1].done({data:mode==='missing-site'||mode==='site-error'?null:{mode:'fill'},error:mode==='site-error'?{message:'site unavailable'}:null});
+   pendingQueries[2].done({data:mode==='checks-error'?null:[],error:mode==='checks-error'?{message:'checks unavailable'}:null});
+   return window.buildLoading;
+  },mode);
+  assert.match(await page.locator('#view').innerText(),/^Okunamadı:/);
+  assert.equal(await page.locator('#view button').count(),0);
+  console.log('PASS build dependency '+mode+' stops unsafe detail rendering');
+ }
+ await page.evaluate(()=>{window.pendingQueries=[];window.buildLoading=openBuild(7);});
+ await page.waitForFunction(()=>pendingQueries.length===1);
+ await page.evaluate(()=>{pendingQueries[0].done({data:null,error:null});return window.buildLoading;});
+ assert.match(await page.locator('#view').innerText(),/Okunamadı: ms_builds/);
+ console.log('PASS missing build does not crash');
  assert.deepEqual(errors,[]);
 } finally {await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}

@@ -188,11 +188,19 @@ async function openBuild(id) {
   const { data: b, error } = await sb.from("ms_builds").select("*").eq("id", id).single();
   if (seq !== viewGeneration) return;
   if (error) { $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(error.message)}</div>`; return; }
-  const [{ data: s }, { data: checks }] = await Promise.all([
+  if (!b) { $("#view").innerHTML = '<div class="empty">Okunamadı: ms_builds</div>'; return; }
+  const results = await Promise.allSettled([
     sb.from("ms_sites").select("*").eq("slug", b.site).single(),
     sb.from("ms_build_checks").select("*").eq("build_id", id),
   ]);
   if (seq !== viewGeneration) return;
+  const failed = results.find(r => r.status === "rejected" || r.value?.error);
+  const s = results[0].value?.data, checks = results[1].value?.data;
+  if (failed || !s || !Array.isArray(checks)) {
+    const message = failed?.reason?.message || failed?.value?.error?.message || (!s ? "ms_sites" : "ms_build_checks");
+    $("#view").innerHTML = `<div class="empty">Okunamadı: ${esc(message)}</div>`;
+    return;
+  }
   const order = { fail: 0, warn: 1, info: 2, pass: 3 };
   (checks || []).sort((a, c) => order[a.level] - order[c.level]);
   const fails = (checks || []).filter((c) => c.level === "fail").length;
