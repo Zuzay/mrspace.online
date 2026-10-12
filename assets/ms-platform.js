@@ -9,6 +9,7 @@
   if(!window.MSI18N)document.documentElement.lang=lang;
   let dict = {};
   const generations = new WeakMap();
+  const adminHosts = new WeakMap();
   const draftForms = new WeakMap();
   const intakeForms = new WeakMap();
   const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261009-orders`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
@@ -55,6 +56,17 @@
     return `<div class="ms-catalog">${entries.map(x => `<a href="${esc(new URL(x.path,base).href)}"><span class="ms-eyebrow">${esc(t(x.kind))} · ${esc(t(x.stage))}</span><h3>${esc(t(x.title))}</h3><p>${esc(t(x.description))}</p><span>${esc(t('open'))} ↗</span></a>`).join('')}</div>`;
   }
   async function mount(el, options) {
+    // The admin shell recreates this placeholder during its periodic refresh.
+    // Reattach the existing workspace so drafts and pending handlers stay alive.
+    const host = el.parentElement;
+    if (options.admin && el.id === 'workspaceRoot' && host?.id === 'main') {
+      const previous = adminHosts.get(host);
+      if (previous && previous !== el && !previous.isConnected) {
+        el.replaceWith(previous);
+        el = previous;
+      }
+      adminHosts.set(host,el);
+    }
     const draft = draftForms.get(el) || {values:null,token:crypto.randomUUID(),pending:false};
     draftForms.set(el,draft);
     const intakeState = intakeForms.get(el) || {values:new Map(),pending:new Set()};

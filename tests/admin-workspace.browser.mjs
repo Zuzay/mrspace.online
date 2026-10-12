@@ -129,7 +129,25 @@ try {
    intake.operator_note = 'Updated from another session';
    await MsPlatform.mount(a,applications);
    const intakeClean = a.querySelector('[data-intake]').elements.note.value === intake.operator_note;
-   return {isolated,retried,independent,staleIgnored,reviewLocked,reviewRetry,draftRetained,pendingProtected,draftCleared,intakeRetained,intakeLocked,intakeClean};
+   const host=document.createElement('main');host.id='main';document.body.append(host);
+   const refreshHost=async options=>{host.innerHTML='<div id="workspaceRoot"></div>';await MsPlatform.mount(host.firstElementChild,options);return host.firstElementChild;};
+   let workspace=await refreshHost(drafting);
+   form=workspace.querySelector('.ms-draft-form');form.elements.brief.value='Survives shell refresh';form.dispatchEvent(new Event('input',{bubbles:true}));
+   workspace=await refreshHost(drafting);
+   const rootDraft=workspace.querySelector('.ms-draft-form').elements.brief.value==='Survives shell refresh';
+   form=workspace.querySelector('.ms-draft-form');const pendingDraft=form.onsubmit({preventDefault(){}});
+   workspace=await refreshHost(drafting);
+   const rootPendingDraft=workspace.querySelector('.ms-draft-form')===form&&form.querySelector('button').disabled;
+   finishQueue({id:10});await pendingDraft;
+   workspace=await refreshHost(applications);application=workspace.querySelector('[data-intake]');
+   application.elements.note.value='Survives application refresh';application.dispatchEvent(new Event('input',{bubbles:true}));
+   workspace=await refreshHost(applications);
+   const rootIntake=workspace.querySelector('[data-intake]').elements.note.value==='Survives application refresh';
+   application=workspace.querySelector('[data-intake]');const pendingApplication=application.onsubmit({preventDefault(){}});
+   workspace=await refreshHost(applications);
+   const rootPendingIntake=workspace.querySelector('[data-intake]')===application&&application.querySelector('button').disabled;
+   finishIntake();await pendingApplication;
+   return {isolated,retried,independent,staleIgnored,reviewLocked,reviewRetry,draftRetained,pendingProtected,draftCleared,intakeRetained,intakeLocked,intakeClean,rootDraft,rootPendingDraft,rootIntake,rootPendingIntake};
  });
  for (const [name, passed] of Object.entries(result)) { assert.equal(passed,true,name); console.log('PASS ' + name); }
  assert.deepEqual(errors,[]);
