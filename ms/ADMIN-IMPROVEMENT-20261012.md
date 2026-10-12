@@ -86,3 +86,12 @@ Ortak Rufcut/Heron/diğer müşteri Satış ve kargo modülünde kayıt sırası
 assets/ms-commerce-panel.js ve yeni tests/commerce-save.browser.mjs açık #35/#45/#47 dosyalarıyla çakışmıyor; bu tur kontrol edildi. Beş Chrome kontrolü geçti: saveLocked, newerEditKept, siteUnchanged, savedDraftCleared, revertedEditKept. Gerçek MsCommerce.validate/blank kullanıldı, tüm dış servisler kapalı. JS/diff kontrolleri temiz; canlı ödeme, veri, schema veya migration yok. Ana panel/index.html değiştirilmedi.
 
 Sonraki tur önerisi: müşteri katalog modülünde kayıt/hata akışı veya Heron/Laloo native entegrasyonda bağımsız küçük düzeltme. #57 açıklaması final kapsamına göre güncellenmeli: admin çalışma alanı 12 + ideas 4 + review 3 + commerce-save 5 = 24 tarayıcı kontrolü. Tam suite gereksiz; ilgili modül testleri yeterli.
+Tur 7 uzak tree 244910cbea0e7bf978c2a50ba84b16e59776bce5; PR #57 fast-forward güncellendi. Başlık ve açıklama tüm mevcut kapsamı ve 24 hedefli kontrolü anlatacak şekilde yeniden yazıldı. Güncel uzak HEAD sonraki tur metadata ile okunmalı.
+
+## Tur 8, 06:46
+
+Ortak müşteri kataloğu kayıt akışında sonradan yazılan ürün başlığı/yerleşim taslağı başarılı eski kayıt tarafından silinmiyor. Formun en son ham değerleri gönderilen ham snapshot ile karşılaştırılıyor; değişmişse korunuyor. Başka siteye/ekrana geçildiyse eski formun yanıtı yeni ekranı yenilemiyor veya bildirim göstermiyor. Aynı ürünün çift gönderimi engelleniyor; herhangi bir katalog kaydı sürerken yenile, vazgeç ve varyasyon ekle düğmeleri kilitlenip hata/başarı sonrası açılıyor. Kayıt hatasında metin ve taslak korunur.
+
+assets/ms-catalog-panel.js açık PR çakışması tur 7'de kontrol edildi, yok. Yeni test tests/catalog-save.browser.mjs gerçek MsSiteCatalog.validate/render/bind motorunu kullanır. Beş hedefli Chrome kontrolü: locked, newerKept, failedRetained, siteUnchanged, savedClean. Dış servisler kapalı, JS/diff temiz. Panel/index.html ve backend değiştirilmedi. Toplam hedefli kontroller 29 oldu; PR açıklaması finalde güncellenmeli.
+
+Sonraki turlar için kalan yüksek değerli noktalar: Heron/Laloo native bağlı ekranlarda hata/yükleme doğruluğu; Onay ekranında eksik site/checks bağımlılığı; izinli kapsamda gerçek kopuk link. Ana admin/index.html #45 çakışması nedeniyle hâlâ değiştirilmedi, periyodik yenileme tüm main'i değiştirirken taslak korunumu sınırlaması açıkça finalde belirtilecek. 09:00'da heartbeat PAUSED yapılmalı.
