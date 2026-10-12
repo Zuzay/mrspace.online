@@ -17,12 +17,12 @@
   if(s.section==='shop'&&selected.some(v=>v.stock!==0&&!MsSiteCatalog.purchaseURL(s.variations[v.id]?.purchase_url,site)))warnings.push('Online sales link missing');
   if(s.section==='shop'&&selected.some(v=>v.stock==null))warnings.push('Inventory is not tracked');
   if(selected.some(v=>v.price==null)&&s.section==='shop')warnings.push('Product price missing');
-  return {visible:cards.length>0,cards:cards.length,reasons,warnings,attention:!item.archived&&s.section!=='hidden'&&(reasons.length>0||warnings.length>0)};
+  return {visible:cards.length>0,cards:cards.length,reasons,warnings,attention:!item.archived&&s.section!=='hidden'&&(reasons.length>0||warnings.some(w=>w!=='Inventory is not tracked'))};
  }
  function catalog(items,enabled,site){
   if(!Array.isArray(items))return null;
   const rows=items.map(item=>({item,...inspect(item,enabled,site)}));
-  return {rows,total:rows.filter(r=>!r.item.archived).length,visible:rows.filter(r=>r.visible).length,cards:rows.reduce((n,r)=>n+r.cards,0),review:rows.filter(r=>!r.item.archived&&MsSiteCatalog.pending(r.item,r.item.publication)).length,attention:rows.filter(r=>r.attention),archived:rows.filter(r=>r.item.archived).length,untracked:items.filter(i=>!i.archived).flatMap(i=>i.variations).filter(v=>v.stock==null).length};
+  return {rows,total:rows.filter(r=>!r.item.archived).length,visible:rows.filter(r=>r.visible).length,cards:rows.reduce((n,r)=>n+r.cards,0),review:rows.filter(r=>!r.item.archived&&MsSiteCatalog.pending(r.item,r.item.publication)).length,attention:rows.filter(r=>r.attention).sort((a,b)=>(b.item.publication?.section==='review')-(a.item.publication?.section==='review')),archived:rows.filter(r=>r.item.archived).length,untracked:items.filter(i=>!i.archived).flatMap(i=>i.variations).filter(v=>v.stock==null).length};
  }
  function page(rows,value,size=12){const pages=Math.max(1,Math.ceil(rows.length/size)),number=Math.min(pages,Math.max(1,Number(value)||1));return {rows:rows.slice((number-1)*size,number*size),number,pages,total:rows.length};}
  function quantity(value){return String(value).trim()!==''&&Number.isSafeInteger(Number(value))&&Number(value)>=0&&Number(value)<=1000000;}
