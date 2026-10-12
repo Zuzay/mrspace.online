@@ -1078,5 +1078,6 @@
   "Username or email": "Benutzername oder E-Mail",
   "Catalog changed. Close this review and check the missing SKUs again.": "Der Katalog wurde geändert. Schließe diese Prüfung und prüfe fehlende SKUs erneut.",
   "Could not save. Your changes are still here. Check your connection and try again.": "Speichern fehlgeschlagen. Deine Änderungen sind noch vorhanden. Prüfe die Verbindung und versuche es erneut.",
-  "Visible catalog records": "Sichtbare Katalogeinträge"
+  "Visible catalog records": "Sichtbare Katalogeinträge",
+  "Reopen this guide any time from Help & guide.": "Diese Anleitung ist jederzeit unter Hilfe und Anleitung erreichbar."
 }
