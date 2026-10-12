@@ -9,6 +9,7 @@ export function catalogService(){
  const fetcher=async(url,options={})=>{const u=new URL(url),body=options.body?JSON.parse(options.body):null;calls.square.push({path:u.pathname,body});let out={};
  if(u.pathname==='/oauth2/token/status')out={scopes:['ITEMS_READ','ORDERS_READ']};
  else if(u.pathname==='/v2/catalog/list')out={objects:state.objects};
+ else if(u.pathname==='/v2/catalog/batch-upsert'){for(const update of body.batches.flatMap(b=>b.objects)){for(const item of state.objects){const list=item.item_data?.variations||[],at=list.findIndex(v=>v.id===update.id);if(at>=0)list[at]=structuredClone(update);}}out={objects:body.batches.flatMap(b=>b.objects)};}
  else if(u.pathname==='/v2/inventory/counts/batch-retrieve')out={counts:state.counts};
  else if(u.pathname==='/v2/inventory/changes/batch-create'){if(state.stockFail)return Response.json({errors:[{detail:'stock_failed'}]},{status:503});}
  else if(u.pathname==='/v2/catalog/object'){

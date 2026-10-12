@@ -96,8 +96,9 @@ async function catalog(acc: Acc): Promise<Item[]> {
   const objs: any[] = []; let cursor = "";
   for (let i = 0; i < 30; i++) {
     const d = await sq(acc.access_token, `/v2/catalog/list?types=ITEM,IMAGE${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
-    objs.push(...(d.objects || [])); if (!d.cursor) break; cursor = d.cursor;
+    objs.push(...(d.objects || [])); cursor = d.cursor || ""; if (!cursor) break;
   }
+  if(cursor)throw new Error("catalog_too_large");
   const images = new Map(objs.filter((o) => o.type === "IMAGE").map((o) => [o.id, o.image_data?.url as string]));
   const items: Item[] = objs.filter((o) => o.type === "ITEM" && !o.is_deleted).map((o) => ({
     id: o.id, name: o.item_data?.name || "",
@@ -130,8 +131,9 @@ async function rawCatalogItems(acc: Acc) {
   const out: any[] = []; let cursor = "";
   for (let i = 0; i < 30; i++) {
     const d = await sq(acc.access_token, `/v2/catalog/list?types=ITEM${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
-    out.push(...(d.objects || [])); if (!d.cursor) break; cursor = d.cursor;
+    out.push(...(d.objects || [])); cursor = d.cursor || ""; if (!cursor) break;
   }
+  if(cursor)throw new Error("catalog_too_large");
   return out;
 }
 async function setCount(acc: Acc, variationId: string, qty: number) {
@@ -256,7 +258,7 @@ Deno.serve(async (req) => {
 
     if (action === "catalog") {
       const rules=await publications(site);
-      return json({items:(await catalog(acc)).map(i=>({...i,publication:SiteCatalog.settings(i,rules.get(i.id)),needs_review:SiteCatalog.pending(i,rules.get(i.id))})),sections:SiteCatalog.sections(site),public:acc.public_catalog,location:acc.location_name,currency:acc.currency});
+      return json({items:(await catalog(acc)).map(i=>({...i,archived:(acc.hidden_catalog_items||[]).includes(i.id),publication:SiteCatalog.settings(i,rules.get(i.id)),needs_review:SiteCatalog.pending(i,rules.get(i.id))})),sections:SiteCatalog.sections(site),public:acc.public_catalog,location:acc.location_name,currency:acc.currency});
     }
 
     if (action === "set_count") {
@@ -268,11 +270,15 @@ Deno.serve(async (req) => {
       return json({ ok: true });
     }
 
-    if (action === "assign_missing_skus") {
+    if (action === "preview_missing_skus" || action === "assign_missing_skus") {
       const objects = await rawCatalogItems(acc), used = new Set<string>();
       for (const item of objects) for (const v of item.item_data?.variations || []) {
         const sku = String(v.item_variation_data?.sku || "").trim(); if (sku) used.add(sku.toLowerCase());
       }
+      const matches=objects.filter(item=>!item.is_deleted).flatMap(item=>(item.item_data?.variations||[]).filter((v:any)=>!v.is_deleted&&!String(v.item_variation_data?.sku||"").trim()).map((v:any)=>({item:item.id,variation:v.id,version:v.version??null,name:item.item_data?.name||"",variant:v.item_variation_data?.name||""})));
+      if(action==="preview_missing_skus")return json({matches});
+      // Match immutable IDs and Square versions before any write; never match by name.
+      if(!Array.isArray(body.review)||body.review.length!==matches.length||new Set(body.review.map((v:any)=>v.variation)).size!==matches.length||matches.some(m=>!body.review.some((v:any)=>v.item===m.item&&v.variation===m.variation&&v.version===m.version)))return json({error:"sku_review_changed"},409);
       const updates = [];
       for (const item of objects) {
         if (item.is_deleted) continue;
