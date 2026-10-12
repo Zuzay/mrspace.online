@@ -10,6 +10,7 @@
   let dict = {};
   const generations = new WeakMap();
   const draftForms = new WeakMap();
+  const intakeForms = new WeakMap();
   const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261009-orders`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
   ready.catch(()=>{});
   function fail(target){
@@ -56,7 +57,9 @@
   async function mount(el, options) {
     const draft = draftForms.get(el) || {values:null,token:crypto.randomUUID(),pending:false};
     draftForms.set(el,draft);
-    if (draft.pending) return;
+    const intakeState = intakeForms.get(el) || {values:new Map(),pending:new Set()};
+    intakeForms.set(el,intakeState);
+    if (draft.pending || intakeState.pending.size) return;
     const seq = (generations.get(el) || 0) + 1;
     generations.set(el, seq);
     const current = () => el.isConnected && generations.get(el) === seq;
@@ -74,6 +77,11 @@
         catch { intakeFailed = true; }
       }
       if (!current()) return;
+      if (!admin || options.demo) intakeState.values.clear();
+      else if (!intakeFailed) {
+        const ids = new Set(intakes.map(item => String(item.id)));
+        for (const id of intakeState.values.keys()) if (!ids.has(id)) intakeState.values.delete(id);
+      }
       el.innerHTML = `<div class="ms-platform">
         <header class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('service_platform'))}</span><h1>${esc(t('workspaces'))}</h1><p>${esc(t(admin ? 'workspace_intro' : 'client_intro'))}</p></div><a class="btn sm" href="${esc(new URL('../edit/',base).href)}">${esc(t('shared_editor_title'))}</a><button class="btn sm" data-platform-refresh>${esc(t('refresh'))}</button></header>
         ${options.demo ? `<div class="ms-notice">${esc(t('preview_notice'))}</div>` : ''}
@@ -101,7 +109,36 @@
         document.body.append(dlg);dlg.showModal();dlg.onclose=()=>dlg.remove();dlg.querySelector('[data-close]').onclick=()=>dlg.close();
         dlg.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),save=dlg.querySelector('button');save.disabled=true;try{await options.rpc('ms_set_site_profile',{p_site:s.slug,p_package:f.get('package'),p_sector:f.get('sector'),p_relationship:f.get('relationship'),p_showcase:f.has('showcase')});dlg.close();await mount(el,options);}catch{dlg.querySelector('[role=status]').textContent=t('profile_error');save.disabled=false;}};
       });
-      el.querySelectorAll('[data-intake]').forEach(form=>form.onsubmit=async e=>{e.preventDefault();const data=new FormData(form),button=form.querySelector('button');button.disabled=true;try{await options.rpc('ms_handle_intake',{p_id:Number(form.dataset.intake),p_status:data.get('status'),p_note:data.get('note')});await mount(el,options);}catch{form.querySelector('[role=status]').textContent=t('review_error');button.disabled=false;}});
+      el.querySelectorAll('[data-intake]').forEach(form => {
+        const id = form.dataset.intake;
+        const initial = Object.fromEntries(new FormData(form));
+        const previous = intakeState.values.get(id);
+        if (previous) for (const [name,value] of Object.entries(previous)) {
+          const input = form.elements.namedItem(name); if (input) input.value = value;
+        }
+        const remember = () => {
+          const values = Object.fromEntries(new FormData(form));
+          if (JSON.stringify(values) === JSON.stringify(initial)) intakeState.values.delete(id);
+          else intakeState.values.set(id,values);
+        };
+        form.addEventListener('input',remember);
+        form.addEventListener('change',remember);
+        form.onsubmit = async e => {
+          e.preventDefault();
+          if (!current() || intakeState.pending.has(id)) return;
+          remember();
+          const values = Object.fromEntries(new FormData(form)), button = form.querySelector('button');
+          intakeState.pending.add(id); button.disabled = true;
+          try {
+            await options.rpc('ms_handle_intake',{p_id:Number(id),p_status:values.status,p_note:values.note});
+            if (JSON.stringify(intakeState.values.get(id)) === JSON.stringify(values)) intakeState.values.delete(id);
+            intakeState.pending.delete(id);
+            if (current()) await mount(el,options);
+          } catch {
+            if (current()) { form.querySelector('[role=status]').textContent = t('review_error'); button.disabled = false; }
+          } finally { intakeState.pending.delete(id); }
+        };
+      });
       const form=el.querySelector('.ms-draft-form');
       if (form) {
         const remember = () => { draft.values = Object.fromEntries(new FormData(form)); };

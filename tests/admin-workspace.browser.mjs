@@ -96,7 +96,40 @@ try {
    const pendingProtected = a.querySelector('.ms-draft-form') === form && form.querySelector('button').disabled;
    finishQueue({id:9}); await queued;
    const draftCleared = a.querySelector('.ms-draft-form').elements.brief.value === '' && tokens.length === 2 && tokens[0] === tokens[1];
-   return {isolated,retried,independent,staleIgnored,reviewLocked,reviewRetry,draftRetained,pendingProtected,draftCleared};
+   let intakeFailed = false, saveFailed = true, finishIntake, intakeWrites = 0;
+   const intake = {id:12,business:'Test business',status:'new',operator_note:'Server note',answers:{}};
+   const applications = {admin:true,rpc:async (name,body) => {
+     if (name === 'ms_workspace_snapshot') return snapshot;
+     if (name === 'ms_intake_list') { if (intakeFailed) throw Error('offline'); return [intake]; }
+     if (name === 'ms_handle_intake') {
+       intakeWrites++;
+       if (saveFailed) throw Error('save failed');
+       await new Promise(resolve => {finishIntake = resolve;});
+       intake.status = body.p_status; intake.operator_note = body.p_note;
+       return {};
+     }
+     throw Error('Unexpected RPC');
+   }};
+   await MsPlatform.mount(a,applications);
+   let application = a.querySelector('[data-intake]');
+   application.elements.note.value = 'Unfinished operator note';
+   application.elements.status.value = 'reviewing';
+   application.dispatchEvent(new Event('input',{bubbles:true}));
+   await application.onsubmit({preventDefault(){}});
+   intakeFailed = true; await MsPlatform.mount(a,applications);
+   intakeFailed = false; await MsPlatform.mount(a,applications);
+   application = a.querySelector('[data-intake]');
+   const intakeRetained = application.elements.note.value === 'Unfinished operator note' && application.elements.status.value === 'reviewing';
+   saveFailed = false;
+   const savingIntake = application.onsubmit({preventDefault(){}});
+   await application.onsubmit({preventDefault(){}});
+   await MsPlatform.mount(a,applications);
+   const intakeLocked = intakeWrites === 2 && a.querySelector('[data-intake]') === application && application.querySelector('button').disabled;
+   finishIntake(); await savingIntake;
+   intake.operator_note = 'Updated from another session';
+   await MsPlatform.mount(a,applications);
+   const intakeClean = a.querySelector('[data-intake]').elements.note.value === intake.operator_note;
+   return {isolated,retried,independent,staleIgnored,reviewLocked,reviewRetry,draftRetained,pendingProtected,draftCleared,intakeRetained,intakeLocked,intakeClean};
  });
  for (const [name, passed] of Object.entries(result)) { assert.equal(passed,true,name); console.log('PASS ' + name); }
  assert.deepEqual(errors,[]);
