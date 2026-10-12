@@ -105,7 +105,7 @@ function repairs(){
  return MsOrders.render(REPAIRS,{site:SITE,demo:DEMO,error:REPAIR_ERROR,total:ORDER_TOTAL,loading:ORDER_LOADING,remote:true});
 }
 async function loadRepairs(){
- const selected=SITE.slug,seq=++ORDER_SEQ,focused=document.activeElement?.id==='orderSearch';ORDER_LOADING=true;
+ const selected=SITE.slug,seq=++ORDER_SEQ,focused=document.activeElement?.id==='orderSearch';ORDER_LOADING=true;REPAIR_ERROR=false;if(VIEW==='repairs'){render();if(focused)$('#orderSearch')?.focus();}
  try{const d=await panelCall('orders',MsOrders.parameters());if(SITE?.slug!==selected||seq!==ORDER_SEQ)return;REPAIRS=d.jobs;ORDER_TOTAL=d.total;REPAIR_ERROR=false;}
  catch{if(SITE?.slug!==selected||seq!==ORDER_SEQ)return;REPAIR_ERROR=true;}
  finally{if(seq===ORDER_SEQ)ORDER_LOADING=false;}
