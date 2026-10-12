@@ -53,7 +53,50 @@ try {
    await MsPlatform.mount(a, {demo:true});
    rejectOld(Error('old failure')); await old;
    const staleIgnored = a.querySelectorAll('.ms-workspace').length === 2 && !a.querySelector('[data-retry]');
-   return {isolated,retried,independent,staleIgnored};
+   let rejectReview, writes = 0;
+   const reviewSnapshot = {...snapshot,jobs:[{id:7,status:'review',kind:'design',sector:'retail',brief:'A test draft'}]};
+   await MsPlatform.mount(a, {admin:true,rpc:async name => {
+     if (name === 'ms_workspace_snapshot') return reviewSnapshot;
+     if (name === 'ms_intake_list') return [];
+     if (name === 'ms_review_draft') { writes++; return new Promise((resolve,reject) => {rejectReview = reject;}); }
+     throw Error('Unexpected RPC');
+   }});
+   const approve = a.querySelector('[data-review][data-status="ready"]');
+   const reject = a.querySelector('[data-review][data-status="rejected"]');
+   const saving = approve.onclick();
+   await reject.onclick();
+   const reviewLocked = writes === 1 && approve.disabled && reject.disabled;
+   rejectReview(Error('offline')); await saving;
+   const reviewRetry = !approve.disabled && !reject.disabled && !!a.querySelector('.ms-platform-status').textContent;
+   let queueFail = true, failSnapshot = false, finishQueue;
+   const tokens = [];
+   const drafting = {admin:true,prepare:async()=>{},rpc:async (name,body) => {
+     if (name === 'ms_workspace_snapshot') { if (failSnapshot) throw Error('offline'); return snapshot; }
+     if (name === 'ms_intake_list') return [];
+     if (name === 'ms_queue_draft') {
+       tokens.push(body.p_token);
+       if (queueFail) throw Error('lost response');
+       return new Promise(resolve => {finishQueue = resolve;});
+     }
+     throw Error('Unexpected RPC');
+   }};
+   await MsPlatform.mount(a,drafting);
+   let form = a.querySelector('.ms-draft-form');
+   form.elements.brief.value = 'Keep my unfinished draft';
+   form.elements.sector.value = 'fashion';
+   form.dispatchEvent(new Event('input',{bubbles:true}));
+   await form.onsubmit({preventDefault(){}});
+   failSnapshot = true; await MsPlatform.mount(a,drafting);
+   failSnapshot = false; await MsPlatform.mount(a,drafting);
+   form = a.querySelector('.ms-draft-form');
+   const draftRetained = form.elements.brief.value === 'Keep my unfinished draft' && form.elements.sector.value === 'fashion';
+   queueFail = false;
+   const queued = form.onsubmit({preventDefault(){}});
+   await MsPlatform.mount(a,drafting);
+   const pendingProtected = a.querySelector('.ms-draft-form') === form && form.querySelector('button').disabled;
+   finishQueue({id:9}); await queued;
+   const draftCleared = a.querySelector('.ms-draft-form').elements.brief.value === '' && tokens.length === 2 && tokens[0] === tokens[1];
+   return {isolated,retried,independent,staleIgnored,reviewLocked,reviewRetry,draftRetained,pendingProtected,draftCleared};
  });
  for (const [name, passed] of Object.entries(result)) { assert.equal(passed,true,name); console.log('PASS ' + name); }
  assert.deepEqual(errors,[]);

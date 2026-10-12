@@ -9,6 +9,7 @@
   if(!window.MSI18N)document.documentElement.lang=lang;
   let dict = {};
   const generations = new WeakMap();
+  const draftForms = new WeakMap();
   const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261009-orders`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
   ready.catch(()=>{});
   function fail(target){
@@ -53,6 +54,9 @@
     return `<div class="ms-catalog">${entries.map(x => `<a href="${esc(new URL(x.path,base).href)}"><span class="ms-eyebrow">${esc(t(x.kind))} · ${esc(t(x.stage))}</span><h3>${esc(t(x.title))}</h3><p>${esc(t(x.description))}</p><span>${esc(t('open'))} ↗</span></a>`).join('')}</div>`;
   }
   async function mount(el, options) {
+    const draft = draftForms.get(el) || {values:null,token:crypto.randomUUID(),pending:false};
+    draftForms.set(el,draft);
+    if (draft.pending) return;
     const seq = (generations.get(el) || 0) + 1;
     generations.set(el, seq);
     const current = () => el.isConnected && generations.get(el) === seq;
@@ -99,7 +103,33 @@
       });
       el.querySelectorAll('[data-intake]').forEach(form=>form.onsubmit=async e=>{e.preventDefault();const data=new FormData(form),button=form.querySelector('button');button.disabled=true;try{await options.rpc('ms_handle_intake',{p_id:Number(form.dataset.intake),p_status:data.get('status'),p_note:data.get('note')});await mount(el,options);}catch{form.querySelector('[role=status]').textContent=t('review_error');button.disabled=false;}});
       const form=el.querySelector('.ms-draft-form');
-      if(form) { let token=crypto.randomUUID();form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),b=form.querySelector('button'),p=form.querySelector('[role=status]');b.disabled=true;try{await options.rpc('ms_queue_draft',{p_sector:f.get('sector'),p_kind:f.get('kind'),p_brief:f.get('brief'),p_token:token});token=crypto.randomUUID();let preparationFailed=false;try{await options.prepare();}catch{preparationFailed=true;}await mount(el,options);if(preparationFailed)status(t('draft_processing_error'));}catch{p.textContent=t('queue_error');b.disabled=false;}}; }
+      if (form) {
+        const remember = () => { draft.values = Object.fromEntries(new FormData(form)); };
+        if (draft.values) for (const [name,value] of Object.entries(draft.values)) {
+          const input = form.elements.namedItem(name); if (input) input.value = value;
+        }
+        form.addEventListener('input',remember);
+        form.addEventListener('change',remember);
+        form.onsubmit = async e => {
+          e.preventDefault();
+          if (options.demo || draft.pending || !current()) return;
+          remember();
+          const values = {...draft.values}, button = form.querySelector('button'), message = form.querySelector('[role=status]');
+          draft.pending = true; button.disabled = true;
+          try {
+            await options.rpc('ms_queue_draft',{p_sector:values.sector,p_kind:values.kind,p_brief:values.brief,p_token:draft.token});
+            // Keep text typed while saving, but clear the successfully queued brief.
+            if (JSON.stringify(draft.values) === JSON.stringify(values)) draft.values = null;
+            draft.token = crypto.randomUUID();
+            let preparationFailed = false;
+            try { await options.prepare(); } catch { preparationFailed = true; }
+            draft.pending = false;
+            if (current()) { await mount(el,options); if (preparationFailed) status(t('draft_processing_error')); }
+          } catch {
+            if (current()) { message.textContent = t('queue_error'); button.disabled = false; }
+          } finally { draft.pending = false; }
+        };
+      }
       const prepare=el.querySelector('[data-prepare-queue]');if(prepare)prepare.onclick=async()=>{prepare.disabled=true;try{await options.prepare();await mount(el,options);}catch{status(t('draft_processing_error'));prepare.disabled=false;}};
       el.querySelectorAll('[data-draft-preview]').forEach(b=>b.onclick=async()=>{
         b.disabled=true;
@@ -114,7 +144,23 @@
           dlg.showModal();dlg.onclose=()=>dlg.remove();dlg.querySelector('[data-close]').onclick=()=>dlg.close();
         }catch{status(t('review_error'));}finally{b.disabled=false;}
       });
-      el.querySelectorAll('[data-review]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await options.rpc('ms_review_draft',{p_id:Number(b.dataset.review),p_status:b.dataset.status});await mount(el,options);}catch{status(t('review_error'));b.disabled=false;}});
+      const reviewing = new Set();
+      el.querySelectorAll('[data-review]').forEach(b => b.onclick = async () => {
+        const id = b.dataset.review;
+        if (!current() || reviewing.has(id)) return;
+        reviewing.add(id);
+        const buttons = [...el.querySelectorAll('[data-review]')].filter(button => button.dataset.review === id);
+        buttons.forEach(button => { button.disabled = true; });
+        try {
+          await options.rpc('ms_review_draft', {p_id:Number(id),p_status:b.dataset.status});
+          if (current()) await mount(el,options);
+        } catch {
+          if (current()) {
+            status(t('review_error'));
+            buttons.forEach(button => { button.disabled = false; });
+          }
+        } finally { reviewing.delete(id); }
+      });
     } catch {
       if (!current()) return;
       if(!Object.keys(dict).length){fail(el);return;}

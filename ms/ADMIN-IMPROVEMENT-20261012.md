@@ -29,3 +29,26 @@ Ana admin incelemesinde not edilenler: nav VIEW URL'ye yazılmıyor, sayfa yenil
 Yerel ilk commit: 9c2cb22. git push sandbox içinde DNS hatası verdi. require_escalated push, otomatik onay incelemesi tarafından reddedildi: kullanıcı kaynak kodunu bu GitHub uzak deposuna göndermek için açık izin vermedi ve uzak hedefin güveni/sahipliği trusted kullanıcı içeriğiyle kurulmadı. GitHub connector üzerinden dolanma. Kullanıcıya async soru ile ayrı dala push ve taslak PR için açık izin soruldu. İzin cevabı gelene kadar yerel çalışma sürsün; yeniden push veya uzak PR oluşturma yapılmasın. Onay gelirse mevcut dalı push et, kısa Türkçe taslak PR aç ve attach_artifact ile sohbete bağla. PR henüz yok.
 
 Kullanıcı takip yanıtında açık izin verdi: “Evet, dalı gönder ve taslak PR aç”. Yeniden push onaylandı fakat terminalde GitHub kimlik bilgisi yok. Yetkili GitHub connector ile aynı üç dosyayı ayrı dala aktarma ve taslak PR açma yolu kullanılabilir; önceki izin engeli kalktı.
+
+## PR açıldı
+
+Kullanıcının açık izniyle GitHub connector üzerinden https://github.com/Zuzay/mrspace.online/pull/57 taslak PR açıldı ve sohbete bağlandı. Uzak dal fix/admin-workspace-20261012, uzak HEAD 234f1a5e04baeb54f70c4321b16f21f46d9a943c. Yerel commitler ile uzak commit SHA'ları farklı fakat üç dosyanın içeriği aktarım anında aynı. Terminal git push kimlik bilgisi eksik; credential arama veya sır gösterme yapma. Sonraki uzak güncellemelerde GitHub connector ile güncel uzak HEAD/tree üzerine yalnızca bu işin dosyalarını uygula, lease ile fast-forward update_ref kullan. PR açılırken main HEAD 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4, yerel eski main 4fa836790b60152f00dec42cc0b3943021a1ce8c idi; connector mergeable:false döndürdü, sonraki turda güncel base ile çakışma durumunu doğrula. Henüz merge/yayın yok. Bu son durum notu yerelde sonraki tur için bırakıldı.
+
+## Kullanıcının son zaman/kota talimatı
+
+12 Ekim 2026: kota önce %6 sonra %4. 04:46'ya kadar çok az işlem; bu turdan sonra kod işi durduruldu. 04:46 sonrası 09:00'a kadar mrspace ve diğer tüm bağlı sistemlerde eksiklerin tamamlanması ve geliştirme istendi. Saatler America/Los_Angeles kabul edildi. Önceki 08:03 bitişi yerine 09:00 (16:00 UTC) geçerli. Heartbeat buna göre güncellendi. Önceki izin Zuzay/mrspace.online dal gönderimi/taslak PR için geçerli; diğer depolarda yerel çalışma. Kota yenilenmiş varsayılmasın. Son tarihte heartbeat PAUSED yapılmalı.
+
+## Tur 2, 04:46
+
+Kota bir kez kontrol edildi: 5 saatlik pencere %98 kullanılmış, yenilenme 11:46:29 UTC. Kontrol 11:46:17 civarında olduğundan yenilenme henüz olmamıştı; bu tur küçük tutuldu. Sonraki turda yenilenmiş limit bir kez kontrol edilebilir. PR #57 metadata tekrar doğrulandı: mergeable:true, uzak HEAD 234f1a5e04baeb54f70c4321b16f21f46d9a943c, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4. Çakışma yok.
+
+Taslak onay/ret düğmeleri artık aynı taslak için işlem sürerken birlikte kilitlenir. Programatik ikinci tıklama da tek RPC ile sınırlanır. Hata sonrası her iki düğme yeniden açılır; eski ekrandan gelen yanıt yeni görünümü değiştirmez. tests/admin-workspace.browser.mjs içine reviewLocked ve reviewRetry eklendi. Bu turdaki değişiklikler henüz uzak PR'a aktarılmadı; sonraki turda test sonucuyla birlikte aktarılmalı. Önceki izin/uzak commit notları geçerli.
+Doğrulama sonucu: altı Chrome kontrolü geçti; JS sözdizimi ve diff kontrolü temiz. Canlı API çağrısı, yayın veya veri değişikliği yok.
+
+## Tur 3, 05:00
+
+Kota yenilenmesi doğrulandı: 5 saatlik pencere %1 kullanılmış (%99 kalan), haftalık %44 kullanılmış. Bundan sonra gereksiz limit sorgusu yok. PR #57 açık/taslak, mergeable:true, uzak HEAD henüz 234f1a5e04baeb54f70c4321b16f21f46d9a943c.
+
+Ortak çalışma alanı kökü aynı kaldığı sürece taslak brief/sektör/tür modül yenilemeleri ve başarısız yüklemelerde bellekte korunur. Disk/localStorage kaydı yok. Hatalı gönderim sonrası yenilemede aynı idempotency token korunur. Kayıt sürerken modül yenilemesi taslak formunu sökmez; başarılı kayıt yalnızca gönderilen içerik hâlâ aynıysa formu temizler. Kullanıcının kayıt sırasında eklediği yeni metin korunur. Bu çözüm admin/index.html'nin bütün main'i değiştiren 120 saniyelik yenilemesini henüz çözmez; o dosya #45 ile çakışıyor. Başvuru notu koruması sonraki küçük iş.
+
+Dokuz Chrome kontrolü geçti (önceki altı + draftRetained, pendingProtected, draftCleared). JS/diff kontrolleri temiz. Önceki turdaki onay/ret kilidiyle birlikte aynı PR'a aktarılıyor.
