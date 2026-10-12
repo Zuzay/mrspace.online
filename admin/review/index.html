@@ -249,9 +249,10 @@ async function openBuild(id) {
   if (s.mode !== "fill") $("#pv").srcdoc = window.MsRender.render(b.content, b.theme, { noindex: true });
   $("#back").onclick = () => { history.replaceState(null, "", location.pathname); renderQueue(); };
   $("#anote").onblur = () => sb.from("ms_builds").update({ admin_note: $("#anote").value }).eq("id", id);
-  $("#recheck") && ($("#recheck").onclick = async () => { await sb.rpc("ms_build_recheck", { p_build: Number(id) }); openBuild(id); });
+  $("#recheck") && ($("#recheck").onclick = async () => { await sb.rpc("ms_build_recheck", { p_build: Number(id) }); if (seq === viewGeneration) openBuild(id); });
   $("#newver") && ($("#newver").onclick = async () => {
     const { data, error } = await sb.rpc("ms_build_new_version", { p_site: b.site });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message);
     location.href = `../../build/?b=${data}`;
   });
@@ -271,6 +272,7 @@ async function openBuild(id) {
     if (fails && (!reason || reason.trim().length < 5)) return alert("Kırmızı kontrolü geçmek için gerekçe yaz.");
     if (!confirm(tt("Yayına alınsın mı?") + " " + s.name)) return;
     const { error } = await sb.rpc("ms_build_publish", { p_build: Number(id), p_override_reason: reason, p_minutes: Number($("#mins").value) || 0 });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message === "has_fail" ? "Kırmızı kontrol var, gerekçe gerekli." : error.message);
     localStorage.removeItem("ms_manual_" + id);
     openBuild(id);
@@ -279,6 +281,7 @@ async function openBuild(id) {
   $("#retGo").onclick = async () => {
     const note = $("#retNote").value.trim(); if (note.length < 5) return alert("Müşteriye kısa bir not yaz.");
     const { error } = await sb.rpc("ms_build_return", { p_build: Number(id), p_note: note });
+    if (seq !== viewGeneration) return;
     if (error) return alert(error.message);
     openBuild(id);
   };

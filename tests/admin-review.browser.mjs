@@ -22,8 +22,8 @@ try {
  const page = await context.newPage(), errors = [];
  page.on('pageerror',error=>errors.push(error.message));
  await page.addInitScript(() => {
-   window.pendingQueries = [];
-   window.supabase = {createClient() { return {from(table) {
+   window.pendingQueries = [];window.pendingRPCs=[];window.confirm=()=>true;
+   window.supabase = {createClient() { return {rpc(name,args){return new Promise(done=>pendingRPCs.push({name,args,done}));},from(table) {
      const query = {table,filters:[],select(){return query;},in(){return query;},order(){return query;},neq(){return query;},limit(){return query;},eq(key,value){query.filters.push([key,value]);return query;},single(){return query;},then(resolve,reject){return new Promise((done,no)=>pendingQueries.push({table,filters:query.filters,done,no})).then(resolve,reject);}};
      return query;
    }};}};
@@ -86,5 +86,23 @@ try {
  await page.evaluate(()=>{pendingQueries[0].done({data:null,error:null});return window.buildLoading;});
  assert.match(await page.locator('#view').innerText(),/Okunamadı: ms_builds/);
  console.log('PASS missing build does not crash');
+ for (const action of ['recheck','retGo','publish','newver']) {
+  await page.evaluate(action=>{window.pendingQueries=[];window.pendingRPCs=[];window.buildLoading=openBuild(9);},action);
+  await page.waitForFunction(()=>pendingQueries.length===1);
+  await page.evaluate(action=>pendingQueries[0].done({data:{id:9,site:'latest',version:1,status:action==='newver'?'published':'review'},error:null}),action);
+  await page.waitForFunction(()=>pendingQueries.length===3);
+  await page.evaluate(()=>{pendingQueries[1].done({data:{slug:'latest',name:'Review site',mode:'fill'},error:null});pendingQueries[2].done({data:[],error:null});return window.buildLoading;});
+  await page.evaluate(action=>{document.querySelector('#retNote')&&(document.querySelector('#retNote').value='Please fix the images');window.actionLoading=document.getElementById(action).onclick();},action);
+  await page.waitForFunction(()=>pendingRPCs.length===1);
+  await page.locator('[data-tab="sites"]').click();
+  await page.waitForFunction(()=>pendingQueries.length===4);
+  await page.evaluate(()=>pendingQueries[3].done({data:[{slug:'current',name:'Current site'}],error:null}));
+  await page.getByText('Current site',{exact:true}).waitFor();
+  await page.evaluate(()=>{pendingRPCs[0].done({data:10,error:null});return window.actionLoading;});
+  assert.equal(await page.getByText('Current site',{exact:true}).count(),1);
+  assert.equal(await page.evaluate(()=>pendingQueries.length),4);
+  assert.ok(!page.url().includes('/build/'));
+  console.log('PASS late '+action+' response preserves selected sites tab');
+ }
  assert.deepEqual(errors,[]);
 } finally {await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}

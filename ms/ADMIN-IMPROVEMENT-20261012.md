@@ -118,3 +118,11 @@ Tur 10 uzak main entegrasyonu tamamlandı. Tree a865c98aee37ec194be16b6776b211a3
 Onay build detayında eksik build/site veya başarısız checks sorgusu artık null erişim hatası ya da kontrol yokmuş gibi hatalı önizleme üretmez. Bağımlı sorgular allSettled ile tamamlanır; API error, eksik veri veya reddedilen ağ isteği mevcut Okunamadı ekranına döner, işlem düğmeleri çizilmez. Eski sekme yanıtı koruması devam eder. Yeni metin/sözlük veya backend değişikliği yok.
 
 İlgili tests/admin-review.browser.mjs sekiz Chrome grubu geçti: önceki üç gezinme + site-error, checks-error, missing-site, network-rejection, missing-build. Toplam farklı hedefli kontrol 44. Dış ağ kapalı; diff temiz. Başlangıç PR HEAD 29f1be5d003744cd1abdb150cd29684f101cee2c, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4, mergeable:true doğrulandı. Açık ana admin/index.html #45 dosyası değiştirilmedi. Sonraki uyanışta yeni iş yerine sonuçları toparla; 09:00'da otomasyonu PAUSED yap.
+
+Tur 11 uzak aktarımı tamamlandı: HEAD 38f21cac83a4f245cdd2a409642c1fc24d07a13f, tree 6c6c527956f77a4b9520d7ef276fb58dbf723d0e. PR açıklaması 44 kontrol ve Onay hata düzeltmesini içeriyor. Sonraki tur PR durumu + otomasyon bitişini toparla; yeni iş başlatma.
+
+## Tur 12, 08:46
+
+Onay build detayındaki tekrar kontrol, geri gönderme, onay/yayın ve yeni sürüm RPC yanıtları artık aynı görünüm sayacını doğrular. Kullanıcı başka sekmeye/detaya geçtiyse eski yanıt onu geri açmaz veya build editörüne yönlendirmez. İşlemlerin sunucu davranışı değiştirilmedi; gerçek yayın/RPC çalıştırılmadı.
+
+Onay tarayıcı testi 12 grup geçti (önceki 8 + dört geciken mutation yanıtı). Tüm RPC'ler sahte, dış ağ kapalı; yeni dört kontrol farklı sekmeye geçtikten sonra eski başarılı işlemin yeni sorgu/yönlendirme üretmediğini doğruluyor. Toplam farklı hedefli kontrol 48. Diff temiz. Son düzeltme aynı taslak PR'ye eklenecek. 09:00 uyanışında yeni iş başlatma: PR mergeable durumunu oku, otomasyonu PAUSED yap, sonuç ve kalan host-main taslak sınırlamasını bildir. Diğer depoların tamamı düzeltildi iddiası yok; Rufcut/Heron/Laloo ortak modülleri ve köprüleri kapsamda, ayrı uygulamaların tamamı audit edilmedi.
