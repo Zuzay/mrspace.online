@@ -68,3 +68,12 @@ admin/review/ ve admin/ideas/ dosyaları için #35/#45/#47 açık PR çakışmas
 Supabase becerisi bu tur okundu. Resmi update/single belgeleri doğrulandı; changelog.md web aracı markdown içerik tipini desteklemediği için alınamadı. SDK sürümü değiştirilmedi. Test tests/admin-ideas.browser.mjs gerçek kaynak toggle event handler'ını Chrome'da sahte sorgu yanıtlarıyla çalıştırır, tüm dış ağ kapalıdır. Dört grup: error, empty, throw ve pending/çift tıklama/başarılı tekrar. Sözlük anahtarı mevcut dört çeviri + Türkçe kaynakta doğrulandı. Ana admin periyodik yenileme sınırlaması hâlâ açık.
 
 Sonraki tur: Onay ekranındaki eksik site/checks yüklemesi ve hızlı sekme geçişlerinde eski yanıt sorunu; veya müşteri tarafındaki bağımsız bir kopuk bağlantı. Önce yalnızca ilgili kodu oku; JSON sözlüklerinde rg ile tam tek satırı yazdırma, Python ile anahtar oku. Gereksiz büyük çıktıdan kaçın.
+Tur 5 test sonucu: dört Chrome grubu geçti, diff temiz. Uzak PR #57 aynı dalda fast-forward güncellendi; güncel uzak HEAD/tree sonraki tur metadata/çalışma notundan doğrulanmalı. Başvuru/taslak testleri değişmediği için tekrar çalıştırılmadı.
+
+## Tur 6, 06:00
+
+Onay ekranının kuyruk/siteler/denemeler listeleri ve build/trial detay yüklemeleri artık ortak görünüm sayacı kullanır. Yeni sekme/detay açıldıktan sonra eski sorgunun başarılı veya hatalı yanıtı ekrana yazamaz. Build detayının ikinci site/checks aşaması da korunur. Site ayarları kaydından sonraki gecikmeli yenileme başka sekmeyi açamaz; eski kayıt tamamlanması yeni sekmenin DOM'una erişmez.
+
+Test tests/admin-review.browser.mjs tüm sayfayı yerel sunucuda açar; SDK/auth/render yanıtlarını sahteleştirir, dış ağ kapalıdır. Üç grup geçti: eski kuyruk hatası siteleri bozamaz; geciken build site/checks sonuçları denemeleri bozamaz veya crash üretmez; eski trial hatası kuyruğu bozamaz. Diff temiz. PR #57 HEAD bu tur başında 208df77694fcfda948b0191b02fd129976837fc3, mergeable:true; tree 986fbc0ecb56951563033aa41803cb53844f5b85.
+
+Sınır: güncel build detayında site/checks sorgusu gerçekten başarısız olduğunda ayrı hata akışı hâlâ eksik; onay/geri gönder/teklif gibi mutation sonuçlarının eski detay sayfasını yeniden açması da sonraki küçük iş olabilir. Sonraki tur müşteri/Rufcut/Heron/Laloo tarafına uygun bağımsız iş seç; bütün zamanı admin modülünde harcama.
