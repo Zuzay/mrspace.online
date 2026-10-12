@@ -7,7 +7,8 @@
   const langs = ['en','tr','es','de','fr'];
   const lang = langs.includes(window.MSI18N?.lang) ? MSI18N.lang : (() => { try { if(langs.includes(localStorage.ms_lang))return localStorage.ms_lang;const chosen=(navigator.languages||[navigator.language]).map(l=>String(l).slice(0,2).toLowerCase()).find(l=>langs.includes(l));return chosen||'en'; } catch { return 'en'; } })();
   if(!window.MSI18N)document.documentElement.lang=lang;
-  let dict = {}, generation = 0;
+  let dict = {};
+  const generations = new WeakMap();
   const ready = fetch(new URL(`lang/platform-${lang}.json?v=20261009-orders`, base),{signal:AbortSignal.timeout(10000)}).then(r => { if (!r.ok) throw new Error('dictionary'); return r.json(); }).then(d => dict = d);
   ready.catch(()=>{});
   function fail(target){
@@ -52,17 +53,23 @@
     return `<div class="ms-catalog">${entries.map(x => `<a href="${esc(new URL(x.path,base).href)}"><span class="ms-eyebrow">${esc(t(x.kind))} · ${esc(t(x.stage))}</span><h3>${esc(t(x.title))}</h3><p>${esc(t(x.description))}</p><span>${esc(t('open'))} ↗</span></a>`).join('')}</div>`;
   }
   async function mount(el, options) {
-    const seq = ++generation;
+    const seq = (generations.get(el) || 0) + 1;
+    generations.set(el, seq);
+    const current = () => el.isConnected && generations.get(el) === seq;
     el.setAttribute('data-noi18n','');
     try {
       await ready;
-      if (!el.isConnected || seq !== generation) return;
+      if (!current()) return;
       el.innerHTML = `<div class="ms-platform"><p role="status">${esc(t('loading'))}</p></div>`;
       const snapshot = options.demo ? sample() : await options.rpc('ms_workspace_snapshot', {p_site:options.site || null});
-      if (!el.isConnected || seq !== generation) return;
+      if (!current()) return;
       const admin = options.admin && snapshot.admin;
-      const intakes=admin&&!options.demo?await options.rpc('ms_intake_list',{}):[];
-      if(!el.isConnected||seq!==generation)return;
+      let intakes = [], intakeFailed = false;
+      if (admin && !options.demo) {
+        try { intakes = await options.rpc('ms_intake_list', {}); }
+        catch { intakeFailed = true; }
+      }
+      if (!current()) return;
       el.innerHTML = `<div class="ms-platform">
         <header class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('service_platform'))}</span><h1>${esc(t('workspaces'))}</h1><p>${esc(t(admin ? 'workspace_intro' : 'client_intro'))}</p></div><a class="btn sm" href="${esc(new URL('../edit/',base).href)}">${esc(t('shared_editor_title'))}</a><button class="btn sm" data-platform-refresh>${esc(t('refresh'))}</button></header>
         ${options.demo ? `<div class="ms-notice">${esc(t('preview_notice'))}</div>` : ''}
@@ -73,13 +80,14 @@
           <details><summary>${esc(t('request_history'))} (${s.requests?.length || 0})</summary>${requestHTML(s,admin)}</details>
           <div class="ms-recommendations"><span class="ms-eyebrow">${esc(t('for_your_sector'))}</span>${catalogHTML(s.sector,2)}</div>
         </article>`).join('') || `<div class="ms-notice">${esc(t('no_workspaces'))}</div>`}</div>
-        ${admin?`<section class="ms-library"><div class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('applications'))}</span><h2>${esc(t('applications'))}</h2><p>${esc(t('application_intro'))}</p></div></div><div class="ms-jobs">${intakes.map(i=>`<article><div><span class="ms-eyebrow">#${esc(i.id)} · ${esc(t(i.sector))}</span><h3>${esc(i.business)}</h3><p>${esc(i.name)} · ${esc(i.email||i.phone)}</p><details><summary>${esc(t('application_details'))}</summary>${Object.entries(i.answers||{}).map(([k,v])=>`<p><b>${esc(k)}</b><br>${esc(v)}</p>`).join('')}</details></div><form data-intake="${i.id}"><label>${esc(t('status'))}<select name="status">${['new','reviewing','accepted','closed'].map(k=>`<option value="${k}" ${i.status===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label>${esc(t('operator_note'))}<textarea name="note" maxlength="2000" rows="3">${esc(i.operator_note||'')}</textarea></label><button class="btn sm">${esc(t('save'))}</button><p role="status"></p></form></article>`).join('')||`<p class="ms-muted">${esc(t('no_applications'))}</p>`}</div></section>`:''}
+        ${admin?`<section class="ms-library"><div class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / ${esc(t('applications'))}</span><h2>${esc(t('applications'))}</h2><p>${esc(t('application_intro'))}</p></div></div><div class="ms-jobs">${intakeFailed ? `<div class="ms-notice" role="status"><p>${esc(t('review_error'))}</p><button class="btn sm" data-intake-retry>${esc(t('retry'))}</button></div>` : intakes.map(i=>`<article><div><span class="ms-eyebrow">#${esc(i.id)} · ${esc(t(i.sector))}</span><h3>${esc(i.business)}</h3><p>${esc(i.name)} · ${esc(i.email||i.phone)}</p><details><summary>${esc(t('application_details'))}</summary>${Object.entries(i.answers||{}).map(([k,v])=>`<p><b>${esc(k)}</b><br>${esc(v)}</p>`).join('')}</details></div><form data-intake="${i.id}"><label>${esc(t('status'))}<select name="status">${['new','reviewing','accepted','closed'].map(k=>`<option value="${k}" ${i.status===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label>${esc(t('operator_note'))}<textarea name="note" maxlength="2000" rows="3">${esc(i.operator_note||'')}</textarea></label><button class="btn sm">${esc(t('save'))}</button><p role="status"></p></form></article>`).join('')||`<p class="ms-muted">${esc(t('no_applications'))}</p>`}</div></section>`:''}
         ${admin ? `<section class="ms-library"><div class="ms-platform-head"><div><span class="ms-eyebrow">MR. SPACE / LAB</span><h2>${esc(t('draft_library'))}</h2><p>${esc(t('draft_intro'))}</p></div></div>${catalogHTML('general',8)}
           <form class="ms-draft-form"><label>${esc(t('sector'))}<select name="sector">${sectorOptions('general')}</select></label><label>${esc(t('kind'))}<select name="kind"><option value="design">${esc(t('design'))}</option><option value="tool">${esc(t('tool'))}</option></select></label><label class="ms-wide">${esc(t('brief'))}<textarea name="brief" required minlength="10" maxlength="2000" rows="3"></textarea></label><button class="btn sun" ${options.demo ? 'disabled' : ''}>${esc(t('queue_draft'))}</button><p class="ms-form-status" role="status"></p></form>
           ${snapshot.jobs.some(j=>j.status==='queued')?`<button class="btn sun" data-prepare-queue ${options.demo?'disabled':''}>${esc(t('prepare_queue'))}</button>`:''}<div class="ms-jobs">${snapshot.jobs.map(j => `<article><div><span class="ms-eyebrow">#${esc(j.id)} · ${esc(t(j.kind))} / ${esc(t(j.sector))}</span><p>${esc(j.brief)}</p><small>${esc(t(j.status))}${j.error_code ? ' · ' + esc(t(j.error_code)) : ''}</small></div><div>${safeURL(j.pr_url) ? `<a class="btn sm" href="${esc(safeURL(j.pr_url))}" target="_blank" rel="noopener">${esc(t('review_source'))} ↗</a>` : ''}${['review','ready'].includes(j.status)&&!options.demo?`<button class="btn sm" data-draft-preview="${j.id}">${esc(t('red_preview'))}</button>`:''}${j.status === 'review' && !options.demo ? `<button class="btn sm" data-review="${j.id}" data-status="ready">${esc(t('approve_library'))}</button><button class="btn sm" data-review="${j.id}" data-status="rejected">${esc(t('reject'))}</button>` : ''}</div></article>`).join('') || `<p class="ms-muted">${esc(t('no_jobs'))}</p>`}</div>
         </section>` : ''}<p class="ms-platform-status" role="status"></p>
       </div>`;
       el.querySelector('[data-platform-refresh]').onclick = () => mount(el,options);
+      el.querySelector('[data-intake-retry]')?.addEventListener('click', () => mount(el,options));
       const status = text => { const p=el.querySelector('.ms-platform-status'); if(p) p.textContent=text; };
       el.querySelectorAll('[data-probe]').forEach(b => b.onclick = async () => { b.disabled=true; try { await options.probe(b.dataset.probe); await mount(el,options); } catch { status(t('probe_error')); b.disabled=false; } });
       el.querySelectorAll('[data-profile]').forEach(b => b.onclick = () => {
@@ -108,8 +116,9 @@
       });
       el.querySelectorAll('[data-review]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await options.rpc('ms_review_draft',{p_id:Number(b.dataset.review),p_status:b.dataset.status});await mount(el,options);}catch{status(t('review_error'));b.disabled=false;}});
     } catch {
+      if (!current()) return;
       if(!Object.keys(dict).length){fail(el);return;}
-      if (el.isConnected && seq===generation) el.innerHTML=`<div class="ms-platform"><h1>${esc(t('workspaces'))}</h1><div class="ms-notice"><h2>${esc(t('setup_title'))}</h2><p>${esc(t('setup_intro'))}</p><button class="btn" data-retry>${esc(t('retry'))}</button></div></div>`;
+      if (current()) el.innerHTML=`<div class="ms-platform"><h1>${esc(t('workspaces'))}</h1><div class="ms-notice"><h2>${esc(t('setup_title'))}</h2><p>${esc(t('setup_intro'))}</p><button class="btn" data-retry>${esc(t('retry'))}</button></div></div>`;
       el.querySelector('[data-retry]')?.addEventListener('click',()=>mount(el,options));
     }
   }
