@@ -77,3 +77,12 @@ Onay ekranının kuyruk/siteler/denemeler listeleri ve build/trial detay yüklem
 Test tests/admin-review.browser.mjs tüm sayfayı yerel sunucuda açar; SDK/auth/render yanıtlarını sahteleştirir, dış ağ kapalıdır. Üç grup geçti: eski kuyruk hatası siteleri bozamaz; geciken build site/checks sonuçları denemeleri bozamaz veya crash üretmez; eski trial hatası kuyruğu bozamaz. Diff temiz. PR #57 HEAD bu tur başında 208df77694fcfda948b0191b02fd129976837fc3, mergeable:true; tree 986fbc0ecb56951563033aa41803cb53844f5b85.
 
 Sınır: güncel build detayında site/checks sorgusu gerçekten başarısız olduğunda ayrı hata akışı hâlâ eksik; onay/geri gönder/teklif gibi mutation sonuçlarının eski detay sayfasını yeniden açması da sonraki küçük iş olabilir. Sonraki tur müşteri/Rufcut/Heron/Laloo tarafına uygun bağımsız iş seç; bütün zamanı admin modülünde harcama.
+Tur 6 uzak aktarımı tamamlandı: PR #57 HEAD a1e261a98384612020db3af540e9a6f3cbbb0776, tree 2821021e948a8d5c01140a7464343b8c2a3c3a7d. Site kayıt koruması eklenmesinden sonra ilgili üç Chrome grubu tekrar geçti. PR açıklaması son iki turdaki Fikirler kaynak doğrulaması + Onay gezinme koruması ve toplam 19 kontrolü henüz anlatmıyor; sonraki uygun tur/finalde güncelle.
+
+## Tur 7, 06:30
+
+Ortak Rufcut/Heron/diğer müşteri Satış ve kargo modülünde kayıt sırasında yapılan yeni düzenlemeler artık silinmez. Sunucuya gönderilen snapshot ile en son form karşılaştırılır; farklıysa taslak korunur (başlangıç değerine geri dönülmüş olsa bile). Başka siteye geçildiğinde eski kaydın yanıtı yeni ekranı yeniden açmaz veya başarı bildirimi göstermez. Kayıt sürerken aynı formun çift gönderimi ve yenilemesi engellenir. Başarılı kayıt site önbelleğini geçersiz kılar.
+
+assets/ms-commerce-panel.js ve yeni tests/commerce-save.browser.mjs açık #35/#45/#47 dosyalarıyla çakışmıyor; bu tur kontrol edildi. Beş Chrome kontrolü geçti: saveLocked, newerEditKept, siteUnchanged, savedDraftCleared, revertedEditKept. Gerçek MsCommerce.validate/blank kullanıldı, tüm dış servisler kapalı. JS/diff kontrolleri temiz; canlı ödeme, veri, schema veya migration yok. Ana panel/index.html değiştirilmedi.
+
+Sonraki tur önerisi: müşteri katalog modülünde kayıt/hata akışı veya Heron/Laloo native entegrasyonda bağımsız küçük düzeltme. #57 açıklaması final kapsamına göre güncellenmeli: admin çalışma alanı 12 + ideas 4 + review 3 + commerce-save 5 = 24 tarayıcı kontrolü. Tam suite gereksiz; ilgili modül testleri yeterli.
