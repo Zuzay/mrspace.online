@@ -7,6 +7,17 @@ const reply=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status
 const statuses=['received','in_progress','finishing','ready','completed'];
 const columns='id,ticket,kind,design,customer_name,customer_email,customer_phone,items,preview_svg,status,staff_notes,measurements,email_sent,created_at,updated_at';
 const checked=(result:any)=>{if(result.error)throw Error('panel_data_unavailable');return result;};
+const svgTags=new Set(['svg','defs','lineargradient','radialgradient','stop','ellipse','g','path','circle','text','rect','clippath','pattern','line','polygon','polyline']);
+const svgAttrs=new Set(['xmlns','viewBox','role','aria-label','x','y','x1','x2','y1','y2','width','height','stop-color','offset','stop-opacity','cx','cy','rx','ry','fill','opacity','stroke','stroke-width','stroke-opacity','stroke-linejoin','stroke-linecap','stroke-dasharray','d','r','id','text-anchor','font-family','font-size','font-weight','clip-path','patternUnits','patternTransform','transform','points','display','preserveAspectRatio']);
+function safePreview(value:unknown){
+ const input=String(value??'');if(input.length>160000)return '';const raw=input.trim();
+ // Interaction hooks are not part of the stored drawing. Numbered SVG text is.
+ const svg=raw.replace(/\s(?:data-[\w-]+|class|pointer-events)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?=\s|\/?>)/g,'');
+ if(!/^<svg\b[^>]*\bxmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(svg)||!svg.endsWith('</svg>')||/\b(?:on[a-z]+|href|src|style)\s*=|javascript:|url\(\s*(?!#)|<!--|<!/i.test(svg))return '';
+ const tags=Array.from(svg.matchAll(/<\/?([A-Za-z]+)/g),m=>m[1].toLowerCase()),attrs=Array.from(svg.matchAll(/\s([A-Za-z_:][\w:.-]*)\s*=/g),m=>m[1]);
+ return tags.length&&tags.every(t=>svgTags.has(t))&&attrs.every(a=>svgAttrs.has(a))?svg:'';
+}
+
 Deno.serve(async(req:Request)=>{
  if(req.method==='OPTIONS')return new Response('ok',{headers:cors});
  if(req.headers.get('origin')&&req.headers.get('origin')!=='https://mrspace.online')return reply({error:'origin_not_allowed'},403);
@@ -35,7 +46,7 @@ Deno.serve(async(req:Request)=>{
    if(search)query=query.or(['ticket','customer_name','customer_email','customer_phone'].map(k=>`${k}.ilike.%${search}%`).join(','));
    const result=checked(await query.order('created_at',{ascending:false}).range((page-1)*size,page*size-1));
    if(!Number.isSafeInteger(result.count))throw Error('panel_data_unavailable');
-   return reply({jobs:result.data,total:result.count,page,size});
+   return reply({jobs:(result.data||[]).map((job:any)=>({...job,preview_svg:safePreview(job.preview_svg),items:(job.items||[]).map((item:any)=>({...item,preview_svg:safePreview(item.preview_svg)}))})),total:result.count,page,size});
   }
   if(body.action==='archive_catalog'){
    const item=body.item;if(typeof item!=='string'||!/^[A-Za-z0-9_-]{1,100}$/.test(item)||typeof body.archived!=='boolean')return reply({error:'invalid_request'},400);
