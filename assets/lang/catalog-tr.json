@@ -96,5 +96,7 @@
   "square_links": "seçenekte Square bağlantısı",
   "no_square_link": "Çevrimiçi satış bağlantısı yok",
   "square_link_help": "Bu seçeneğin mevcut Square bağlantısını ekleyin. Yayınlamadan önce stok, vergi, kargo ücretleri ve mağazadan teslimi Square üzerinde ayarlayın. Rufcut için mevcut rufcut.com ürün bağlantıları da kullanılabilir. Bağlantıyı silerek bu seçeneğin çevrimiçi satışını kapatabilirsiniz.",
-  "invalid_square_link": "HTTPS square.link/u/… veya magaza.square.site/product/… bağlantısı kullanın. Rufcut için rufcut.com/product/… bağlantısı da kullanılabilir."
+  "invalid_square_link": "HTTPS square.link/u/… veya magaza.square.site/product/… bağlantısı kullanın. Rufcut için rufcut.com/product/… bağlantısı da kullanılabilir.",
+  "square_managed_title": "Square üzerinden yönetilir",
+  "square_managed": "Ürünleri, varyasyonları ve kategorileri Square üzerinden ekleyin. Sayfayı yenileyince otomatik görünürler. Gizlemek için Square’de arşivleyin veya Website hidden kategorisini atayın. Ödeme için ürünü Square Online’da yayınlayın."
 }

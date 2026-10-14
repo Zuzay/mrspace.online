@@ -24,6 +24,8 @@ const VERSION = "2025-01-23";
 const PANEL = "https://mrspace.online/panel/";
 const CALLBACK = `${SB_URL}/functions/v1/ms-square/callback`;
 const SCOPES = ["MERCHANT_PROFILE_READ", "ITEMS_READ", "ITEMS_WRITE", "INVENTORY_READ", "INVENTORY_WRITE", "ORDERS_READ"];
+// Rufcut requested direct Square management. Other merchants retain curated mode.
+const SQUARE_MANAGED = new Set((Deno.env.get("SQUARE_MANAGED_SITES") ?? "rufcut").split(",").map(s=>s.trim()).filter(Boolean));
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -74,7 +76,8 @@ async function account(site: string): Promise<Acc | null> {
 }
 
 type Variation = { id: string; name: string; sku: string; upc: string; price: number | null; currency: string; track: boolean; stock: number | null; image?: string | null };
-type Item = { id: string; name: string; description: string; image: string | null; variations: Variation[] };
+type Item = { id: string; name: string; description: string; image: string | null; variations: Variation[];
+  square_url?: string; square_categories?: {id:string;name:string;order:number}[]; square_archived?: boolean };
 async function uploadSquareImage(acc: Acc, itemId: string, dataUrl: string, name: string, primary: boolean) {
   const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
   if (!m) throw new Error("bad_image");
@@ -95,20 +98,24 @@ async function catalog(acc: Acc): Promise<Item[]> {
   // deno-lint-ignore no-explicit-any
   const objs: any[] = []; let cursor = "";
   for (let i = 0; i < 30; i++) {
-    const d = await sq(acc.access_token, `/v2/catalog/list?types=ITEM,IMAGE${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    const d = await sq(acc.access_token, `/v2/catalog/list?types=ITEM,IMAGE,CATEGORY${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
     objs.push(...(d.objects || [])); cursor = d.cursor || ""; if (!cursor) break;
   }
   if(cursor)throw new Error("catalog_too_large");
   const images = new Map(objs.filter((o) => o.type === "IMAGE").map((o) => [o.id, o.image_data?.url as string]));
-  const items: Item[] = objs.filter((o) => o.type === "ITEM" && !o.is_deleted).map((o) => ({
-    id: o.id, name: o.item_data?.name || "",
+  const categories = new Map(objs.filter(o=>o.type==="CATEGORY"&&!o.is_deleted).map(o=>[o.id,o.category_data?.name||""]));
+  const variationData = new Map(objs.filter(o=>o.type==="ITEM").flatMap(o=>(o.item_data?.variations||[]).map((v:any)=>[v.id,v.item_variation_data])));
+  const items: Item[] = objs.filter((o) => o.type === "ITEM" && !o.is_deleted && !(o.present_at_all_locations===false && !(o.present_at_location_ids||[]).includes(acc.location_id)) && !(o.absent_at_location_ids||[]).includes(acc.location_id)).map((o) => ({
+    id: o.id, name: o.item_data?.buyer_facing_name || o.item_data?.name || "",
+    square_url: o.item_data?.ecom_uri || "", square_archived: o.item_data?.is_archived===true,
+    square_categories: (o.item_data?.categories||[]).filter((c:any)=>categories.get(c.id)).map((c:any)=>({id:c.id,name:categories.get(c.id),order:Number.isSafeInteger(Number(c.ordinal))?Number(c.ordinal):100})),
     description: o.item_data?.description_plaintext || o.item_data?.description || "",
     image: images.get((o.item_data?.image_ids || [])[0]) || null,
     // deno-lint-ignore no-explicit-any
-    variations: (o.item_data?.variations || []).filter((v: any) => !v.is_deleted).map((v: any) => ({
+    variations: (o.item_data?.variations || []).filter((v: any) => !v.is_deleted && v.item_variation_data?.sellable!==false && !(v.present_at_all_locations===false && !(v.present_at_location_ids||[]).includes(acc.location_id)) && !(v.absent_at_location_ids||[]).includes(acc.location_id)).map((v: any) => ({
       id: v.id, name: v.item_variation_data?.name || "", sku: v.item_variation_data?.sku || "", upc: v.item_variation_data?.upc || "",
       price: v.item_variation_data?.price_money?.amount ?? null, currency: v.item_variation_data?.price_money?.currency || acc.currency,
-      track: !!v.item_variation_data?.track_inventory, stock: null,
+      track: !!(v.item_variation_data?.location_overrides?.find((l:any)=>l.location_id===acc.location_id)?.track_inventory ?? v.item_variation_data?.track_inventory), stock: null,
       image: images.get((v.item_variation_data?.image_ids || [])[0]) || null,
     })),
   }));
@@ -123,7 +130,12 @@ async function catalog(acc: Acc): Promise<Item[]> {
       c = d.cursor || "";
     } while (c);
   }
-  items.forEach((it) => it.variations.forEach((v) => { v.stock = stock.has(v.id) ? stock.get(v.id)! : (v.track ? 0 : null); }));
+  items.forEach((it) => it.variations.forEach((v) => {
+    const raw:any=variationData.get(v.id);
+    const override=raw?.location_overrides?.find((l:any)=>l.location_id===acc.location_id);
+    const soldOut=override?.sold_out===true&&(!override.sold_out_valid_until||new Date(override.sold_out_valid_until).getTime()>Date.now());
+    v.stock = soldOut?0:stock.has(v.id)?stock.get(v.id)!:(v.track?0:null);
+  }));
   return items.sort((a, b) => a.name.localeCompare(b.name));
 }
 async function rawCatalogItems(acc: Acc) {
@@ -212,7 +224,7 @@ Deno.serve(async (req) => {
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
       const rules=await publications(site),hidden=new Set(acc.hidden_catalog_items||[]);
-      const items=SiteCatalog.sort((await catalog(acc)).filter(i=>!hidden.has(i.id)).flatMap(i=>SiteCatalog.cards(i,rules.get(i.id),site)));
+      const items=SiteCatalog.sort((await catalog(acc)).filter(i=>!hidden.has(i.id)&&!i.square_archived).flatMap(i=>SiteCatalog.cards(i,SQUARE_MANAGED.has(site)?SiteCatalog.squareSettings(i,rules.get(i.id),site):rules.get(i.id),site)));
       return json({items},200,{"Cache-Control":"public, max-age=30"});
     }
 
@@ -258,7 +270,7 @@ Deno.serve(async (req) => {
 
     if (action === "catalog") {
       const rules=await publications(site);
-      return json({items:(await catalog(acc)).map(i=>({...i,archived:(acc.hidden_catalog_items||[]).includes(i.id),publication:SiteCatalog.settings(i,rules.get(i.id)),needs_review:SiteCatalog.pending(i,rules.get(i.id))})),sections:SiteCatalog.sections(site),public:acc.public_catalog,location:acc.location_name,currency:acc.currency});
+      return json({items:(await catalog(acc)).map(i=>({...i,publication_source:SQUARE_MANAGED.has(site)?"square":"curated",archived:i.square_archived||(acc.hidden_catalog_items||[]).includes(i.id),publication:SQUARE_MANAGED.has(site)?SiteCatalog.squareSettings(i,rules.get(i.id),site):SiteCatalog.settings(i,rules.get(i.id)),needs_review:SQUARE_MANAGED.has(site)?false:SiteCatalog.pending(i,rules.get(i.id))})),catalog_source:SQUARE_MANAGED.has(site)?"square":"curated",sections:SiteCatalog.sections(site),public:acc.public_catalog,location:acc.location_name,currency:acc.currency});
     }
 
     if (action === "set_count") {
@@ -303,6 +315,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "save_publication") {
+      if(SQUARE_MANAGED.has(site))return json({error:"catalog_managed_in_square"},409);
       const item=(await catalog(acc)).find(i=>i.id===body.item);
       if(!item)return json({error:"item_not_found"},404);
       const publication=await savePublication(site,item,body.publication,email!);

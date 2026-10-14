@@ -1,5 +1,5 @@
 import fs from 'node:fs';import vm from 'node:vm';import {stripTypeScriptTypes} from 'node:module';
-export function catalogService(){
+export function catalogService({squareManaged=false}={}){
  let handler;
  const variation=(id,name,price=49900)=>({type:'ITEM_VARIATION',id,item_variation_data:{item_id:'coat',name,sku:'KEEP-'+id,price_money:{amount:price,currency:'USD'},track_inventory:true}});
  const state={admin:true,viewer:false,member:false,failSave:false,stockFail:false,public:true,commerce:[],failCommerce:false,rules:[],objects:[{type:'IMAGE',id:'photo',image_data:{url:'https://example.test/coat.jpg'}},{type:'ITEM',id:'coat',item_data:{name:'Bespoke Chore Coat',image_ids:['photo'],variations:[variation('s','S'),variation('m','M')]}},{type:'ITEM',id:'course',item_data:{name:'Jean Workshop',variations:[{...variation('course-v','5 days',224900),item_variation_data:{...variation('course-v','5 days',224900).item_variation_data,item_id:'course',track_inventory:false}}]}}],counts:[{catalog_object_id:'s',quantity:'1'},{catalog_object_id:'m',quantity:'2'}]};
@@ -18,7 +18,7 @@ export function catalogService(){
   out={catalog_object:obj};created.set(body.idempotency_key,out);
  }else throw Error('Unexpected Square API '+u.pathname);return Response.json(out);};
  const shared=fs.readFileSync(new URL('../assets/ms-site-catalog.js',import.meta.url),'utf8'),source=fs.readFileSync(new URL('../supabase/functions/ms-square/index.ts',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'');
- vm.runInNewContext(fs.readFileSync(new URL('../assets/ms-commerce.js',import.meta.url),'utf8')+'\n'+shared+'\n'+stripTypeScriptTypes(source,{mode:'strip'}),{Deno:{env:{get:k=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only',SQUARE_APP_ID:'test-app',SQUARE_APP_SECRET:'test-app-secret'}[k])},serve:fn=>handler=fn},createClient:()=>db,Request,Response,Headers,URL,TextEncoder,TextDecoder,Uint8Array,crypto,atob,btoa,FormData,Blob,fetch:fetcher,console});
+ vm.runInNewContext(fs.readFileSync(new URL('../assets/ms-commerce.js',import.meta.url),'utf8')+'\n'+shared+'\n'+stripTypeScriptTypes(source,{mode:'strip'}),{Deno:{env:{get:k=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only',SQUARE_APP_ID:'test-app',SQUARE_APP_SECRET:'test-app-secret',SQUARE_MANAGED_SITES:squareManaged?'rufcut':''}[k])},serve:fn=>handler=fn},createClient:()=>db,Request,Response,Headers,URL,TextEncoder,TextDecoder,Uint8Array,crypto,atob,btoa,FormData,Blob,fetch:fetcher,console});
  const post=(body,auth=true)=>handler(new Request('https://test.supabase.co/functions/v1/ms-square',{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer test-session'}:{})},body:JSON.stringify({site:'rufcut',...body})}));
  const publicCatalog=()=>handler(new Request('https://test.supabase.co/functions/v1/ms-square/public?site=rufcut'));
  return {state,calls,post,publicCatalog};
