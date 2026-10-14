@@ -10,7 +10,7 @@ Your products and orders stay in your own Square account. Your website can be ed
 4. Change the name, buyer-facing name, photo, description, price or stock in Square. Reload the website after about 30 seconds. An already open page does not refresh itself.
 5. To sell online, also publish the product for sale in **Square Online**, with the correct variation, shipping/pickup and tax settings. Website details link to the Square product/payment page. A POS-only product can appear on the website without an online payment link; it shows a contact option until online sale is configured.
 
-Existing internal/hidden/review records are kept off the website until you intentionally categorize them. Assigning an ordinary category makes that record public. Check deposits and internal services before assigning categories in bulk. Existing studio hide controls can also suppress records; ask the studio if an item remains hidden after these checks.
+Existing internal/hidden/review records and excluded choices stay protected even if they already have ordinary Square categories. To deliberately publish one, assign the extra category **Website publish** as well as its normal group. New products and new variations publish automatically without that marker. **Shipping**, **Register only** and **Internal** are reserved hidden groups. Existing Alterations / Repairs and Patches / Embroidery categories go to Repairs. Existing studio hide controls can also suppress records; ask the studio if an item remains hidden after these checks.
 
 ## Use your own assistant for website changes
 
