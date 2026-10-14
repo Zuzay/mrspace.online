@@ -96,5 +96,7 @@
   "square_links": "opciones con enlace Square",
   "no_square_link": "Sin enlace de venta online",
   "square_link_help": "Pega el enlace Square existente para esta opción exacta. Configura existencias, impuestos, envío y recogida en Square antes de publicar. Rufcut también admite sus enlaces de producto de rufcut.com. Borra el enlace para desactivar la venta online de esta opción.",
-  "invalid_square_link": "Usa un enlace HTTPS square.link/u/… o tu-tienda.square.site/product/…. Rufcut también puede usar rufcut.com/product/…."
+  "invalid_square_link": "Usa un enlace HTTPS square.link/u/… o tu-tienda.square.site/product/…. Rufcut también puede usar rufcut.com/product/….",
+  "square_managed_title": "Gestionado en Square",
+  "square_managed": "Añade productos, variantes y categorías en Square. Aparecen aquí al actualizar. Para ocultarlos, archívalos en Square o asigna Website hidden. Publícalos en Square Online para activar el pago."
 }

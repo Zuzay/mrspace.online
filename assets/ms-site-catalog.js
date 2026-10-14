@@ -15,6 +15,26 @@ function purchaseURL(value,site){
  return squareLink||product||rufcut?u.href:'';
  }catch{return '';}
 }
+// Rufcut keeps Square Online for payment after its custom domain moves here.
+function squarePurchaseURL(value,site){
+ const safe=purchaseURL(value,site);if(!safe)return '';
+ const u=new URL(safe);
+ if(site==='rufcut'&&['rufcut.com','www.rufcut.com'].includes(u.hostname))u.hostname='rufcutvenice.square.site';
+ return u.href;
+}
+// Square-managed sites read categories on every request. Existing exclusions remain
+// until the owner assigns a Square category; new items/variations need no panel save.
+function squareSettings(item,rule,site){
+ const groups=item.square_categories||[],names=groups.map(c=>c.name.trim().toLowerCase());
+ const hidden=names.includes('website hidden');
+ const section=hidden?'hidden':names.some(n=>['repair','repairs'].includes(n))?'repair':names.some(n=>['workshop','workshops'].includes(n))?'workshop':groups.length?'shop':rule?.section||'shop';
+ const primary=groups.find(c=>!['website hidden','repair','repairs','workshop','workshops'].includes(c.name.trim().toLowerCase()));
+ const aliases={jeans:'jeans','jeans & overalls':'jeans',outerwear:'outerwear','jackets & coats':'outerwear',shirts:'shirts','shirts & tops':'shirts',accessories:'accessories','other pieces':'other'};
+ const category=primary?(aliases[primary.name.trim().toLowerCase()]||'other'):rule?.category||'other';
+ const variations=Object.fromEntries(item.variations.map(v=>[v.id,{visible:groups.length?true:rule?.variations?.[v.id]?.visible??true,title:'',purchase_url:squarePurchaseURL(item.square_url||rule?.variations?.[v.id]?.purchase_url,site)}]));
+ return {section,category,display_order:primary?.order??rule?.display_order??100,layout:groups.length?'grouped':rule?.layout||'grouped',title:'',variations,
+  ...(primary&&!aliases[primary.name.trim().toLowerCase()]?{square_category:'square:'+primary.id,category_label:primary.name}:{})};
+}
 function validate(item,input,site){
  if(!input||!sections(site).includes(input.section)||!['grouped','separate'].includes(input.layout)||typeof input.title!=='string'||input.title.length>255)throw Error('catalog_invalid');
  const category=input.category??'other',display_order=input.display_order??100;
@@ -34,11 +54,11 @@ function validate(item,input,site){
 function cards(item,input,site){
  const s=settings(item,input);if(!['shop','workshop','repair'].includes(s.section))return [];
  const variations=item.variations.filter(v=>s.variations[v.id]?.visible===true&&(v.stock==null||v.stock>0)).map(v=>({id:v.id,name:s.variations[v.id].title||v.name,price:v.price,currency:v.currency,stock:v.stock,image:v.image||item.image||null,...(purchaseURL(s.variations[v.id].purchase_url,site)?{purchase_url:purchaseURL(s.variations[v.id].purchase_url,site)}:{})}));
- const base={id:item.id,name:s.title||item.name,description:item.description||'',image:item.image||null,section:s.section,category:s.category,display_order:s.display_order};
+ const base={id:item.id,name:s.title||item.name,description:item.description||'',image:item.image||null,section:s.section,category:s.category,display_order:s.display_order,...(input?.square_category?{square_category:input.square_category,category_label:input.category_label}:{})};
  if(s.layout==='separate')return variations.map(v=>({...base,id:item.id+':'+v.id,name:s.variations[v.id].title||((!v.name||v.name==='Regular')?base.name:base.name+' · '+v.name),image:v.image,variations:[v]}));
  return variations.length?[{...base,variations}]:[];
 }
 function pending(item,s){return !s||s.section==='review'||item.variations.some(v=>!Object.hasOwn(s.variations||{},v.id));}
-function sort(cards){return cards.map((card,index)=>({card,index})).sort((a,b)=>['shop','workshop','repair'].indexOf(a.card.section)-['shop','workshop','repair'].indexOf(b.card.section)||(a.card.section==='shop'?categories.indexOf(a.card.category||'other')-categories.indexOf(b.card.category||'other'):0)||(a.card.display_order??100)-(b.card.display_order??100)||a.index-b.index).map(v=>v.card);}
-root.MsSiteCatalog={sections,categories,sort,purchaseURL,blank,settings,validate,cards,pending};
+function sort(cards){return cards.map((card,index)=>({card,index})).sort((a,b)=>['shop','workshop','repair'].indexOf(a.card.section)-['shop','workshop','repair'].indexOf(b.card.section)||(a.card.section==='shop'?categories.indexOf(a.card.category||'other')-categories.indexOf(b.card.category||'other'):0)||(a.card.square_category||'').localeCompare(b.card.square_category||'')||(a.card.display_order??100)-(b.card.display_order??100)||a.index-b.index).map(v=>v.card);}
+root.MsSiteCatalog={sections,categories,sort,purchaseURL,squarePurchaseURL,squareSettings,blank,settings,validate,cards,pending};
 })(globalThis);

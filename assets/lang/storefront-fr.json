@@ -30,5 +30,12 @@
   "Close": "Fermer",
   "Buying options": "Options d’achat",
   "Available online": "Disponible en ligne",
-  "Ask at the shop": "Demander à la boutique"
+  "Ask at the shop": "Demander à la boutique",
+  "From the shop": "De la boutique",
+  "Workshop": "Atelier",
+  "Repairs": "Retouches",
+  "This piece is no longer available.": "Cette pièce n’est plus disponible.",
+  "Call the shop to confirm availability.": "Appelez la boutique pour confirmer la disponibilité.",
+  "Available at the shop": "Disponible en boutique",
+  "This size or style is no longer available. Please choose again.": "Cette taille ou ce modèle n’est plus disponible. Veuillez choisir à nouveau."
 }

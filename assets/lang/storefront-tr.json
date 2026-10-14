@@ -30,5 +30,12 @@
   "Close": "Kapat",
   "Buying options": "Satın alma seçenekleri",
   "Available online": "Çevrimiçi satışta",
-  "Ask at the shop": "Mağazaya danışın"
+  "Ask at the shop": "Mağazaya danışın",
+  "From the shop": "Mağazadan",
+  "Workshop": "Atölye",
+  "Repairs": "Tamir",
+  "This piece is no longer available.": "Bu parça artık mevcut değil.",
+  "Call the shop to confirm availability.": "Stok durumunu doğrulamak için mağazayı arayın.",
+  "Available at the shop": "Mağazada mevcut",
+  "This size or style is no longer available. Please choose again.": "Bu beden veya model artık mevcut değil. Lütfen yeniden seçin."
 }

@@ -96,5 +96,7 @@
   "square_links": "Optionen mit Square-Link",
   "no_square_link": "Kein Online-Verkaufslink",
   "square_link_help": "Füge den bestehenden Square-Link für genau diese Option ein. Richte Bestand, Steuern, Versandkosten und Abholung vor der Veröffentlichung in Square ein. Rufcut akzeptiert auch bestehende rufcut.com-Produktlinks. Entferne den Link, um den Onlineverkauf dieser Option zu deaktivieren.",
-  "invalid_square_link": "Verwende einen HTTPS-Link square.link/u/… oder dein-shop.square.site/product/…. Rufcut kann auch rufcut.com/product/… verwenden."
+  "invalid_square_link": "Verwende einen HTTPS-Link square.link/u/… oder dein-shop.square.site/product/…. Rufcut kann auch rufcut.com/product/… verwenden.",
+  "square_managed_title": "In Square verwaltet",
+  "square_managed": "Füge Produkte, Varianten und Kategorien in Square hinzu. Nach dem Aktualisieren erscheinen sie hier. Zum Ausblenden in Square archivieren oder Website hidden zuweisen. Für die Zahlung in Square Online veröffentlichen."
 }
