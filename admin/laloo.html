@@ -136,7 +136,7 @@ let refreshing = null;
 async function fresh(){
   if (S && Date.now()/1000 > S.expires_at - 60){
     if (window.parent !== window){
-      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener("message",done);reject(new Error("Ana panel oturumu yenilenemedi"));},8000);function done(e){if(e.origin!==location.origin||!String(e.data?.type||"").startsWith("ms-admin-refresh-"))return;clearTimeout(timer);window.removeEventListener("message",done);e.data.type==="ms-admin-refreshed"?resolve():reject(new Error("Oturum bitti, Mr. Space paneline yeniden giriş yap"));}window.addEventListener("message",done);window.parent.postMessage({type:"ms-admin-refresh"},location.origin);});
+      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener("message",done);reject(new Error("Ana panel oturumu yenilenemedi"));},8000);function done(e){if(e.origin!==location.origin||e.source!==window.parent||!["ms-admin-refreshed","ms-admin-refresh-failed"].includes(e.data?.type))return;clearTimeout(timer);window.removeEventListener("message",done);e.data.type==="ms-admin-refreshed"?resolve():reject(new Error("Oturum bitti, Mr. Space paneline yeniden giriş yap"));}window.addEventListener("message",done);window.parent.postMessage({type:"ms-admin-refresh"},location.origin);});
       try{S=JSON.parse(localStorage.getItem("ms_admin")||"null");}catch(e){} if(!S||Date.now()/1000>S.expires_at-60)throw new Error("Oturum bitti, Mr. Space paneline yeniden giriş yap"); return;
     }
     refreshing = refreshing || auth("refresh_token", { refresh_token:S.refresh_token }).finally(() => refreshing = null);

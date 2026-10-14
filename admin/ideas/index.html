@@ -290,10 +290,21 @@ async function renderSources() {
   };
 }
 $("#view").addEventListener("click", async (e) => {
-  const b = e.target.closest("button[data-src]"); if (!b) return;
-  const on = b.dataset.on !== "true";
-  await sb.from("ms_scout_sources").update({ active: on }).eq("id", b.dataset.src);
-  b.dataset.on = on; b.textContent = on ? "Açık" : "Kapalı";
+  const b = e.target.closest("button[data-src]"); if (!b || b.disabled) return;
+  const on = b.dataset.on !== "true", cell = b.parentElement;
+  cell.querySelector('[data-source-error]')?.remove();
+  b.disabled = true;
+  try {
+    const {data,error} = await sb.from("ms_scout_sources").update({active:on}).eq("id",b.dataset.src).select("id,active").single();
+    if (error || String(data?.id) !== b.dataset.src || data?.active !== on) throw error || new Error('source_not_updated');
+    if (b.isConnected) { b.dataset.on = String(data.active); b.textContent = tt(data.active ? "Açık" : "Kapalı"); }
+  } catch {
+    if (b.isConnected) {
+      const message = document.createElement('span');
+      message.className = 'err'; message.dataset.sourceError = ''; message.setAttribute('role','status');
+      message.textContent = tt('Kaydedilemedi'); cell.append(message);
+    }
+  } finally { b.disabled = false; }
 });
 
 boot();

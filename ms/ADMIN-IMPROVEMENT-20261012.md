@@ -1,0 +1,136 @@
+# Admin paneli iyileştirme, 12 Ekim 2026
+
+Kullanıcı altı saat boyunca küçük adımlarla çalışma istedi; kotasının yaklaşık %20'si kalmış. Başlangıç 09:03 UTC, bitiş 15:03 UTC (Los Angeles 08:03). Her 30 dakikada bu sohbeti uyandıran heartbeat kuruldu: mrspace-admin-paneli-6-saatlik-iyile-tirme. Son tarihte heartbeat'i durdur, final durumunu bildir. Kota tasarrufu için her tur tek küçük değişiklik grubu, yalnızca ilgili test, kısa çıktı. Alt ajan yok. Canlı yayın/migration/merge yok.
+
+## Kaynak ve kurallar
+
+/Users/zuzay/Desktop/mrspace.online/homepage-2026. Dal: fix/admin-workspace-20261012, origin/main üzerinden açıldı. AGENTS.md: yeni kütüphane yok; beş dil; mevcut tasarım; ayrı dal/PR; açık PR dosyalarına dokunma; silme yok. Ana admin/index.html, panel/index.html ve admin sözlükleri #45 tarafından değiştiriliyor. #35 build dayanıklılığı; #47 fitting/media. Bu PR'ların dosyaları bu çalışmada değiştirilmedi. Açık PR listesi ilk turda GitHub connector üzerinden doğrulandı. Yeni çakışma kontrolünde yalnızca gereken dosyaları sorgula.
+
+## Tur 1 tamamlandı
+
+assets/ms-platform.js: başvuru listesi RPC hatası tüm çalışma alanını gizlemiyor. Bölüm içinde mevcut beş dilli hata ve tekrar dene düğmesi var. Her DOM kökünün ayrı yükleme sayacı var; bağımsız mount'lar birbirini iptal etmiyor. Eski başarısız yanıt yeni ekranı bozamıyor.
+
+Test: tests/admin-workspace.browser.mjs, kendi geçici yerel sunucusunu açar; dış ağ isteklerinin tümünü engeller. Chrome dört kontrol geçti: isolated, retried, independent, staleIgnored. Beş dilde mevcut review_error/retry sözlükleri doğrulandı. node --check ve git diff --check temiz. Tarayıcı sandbox içinde başlatılamadı; require_escalated ile test geçti.
+
+Çalıştırma:
+MS_PLAYWRIGHT_MODULE=/Users/zuzay/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs MS_CHROME_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' node tests/admin-workspace.browser.mjs
+
+## Sonraki küçük turlar
+
+- assets/ms-platform.js: yenilemede girilmiş taslak/başvuru notu kaybolması; taslak onay/ret yarışları ve çift tıklama; siteye bağlı doğru editör bağlantıları; bağımsız retry.
+- admin/review/ ve admin/ideas/ bağlantı/boş/hata durumları. Dokunmadan açık PR çakışması kontrolü.
+- Menü/rol/oturum kopuklukları: admin/index.html #45 ile çakışıyor; o dosyayı değiştirmeden bulguları burada kaydet. Kullanıcıdan gereksiz onay isteme; bağımsız işleri tamamla.
+- Gerekirse yeni test dosyasına ilgili küçük regresyon ekle. Tüm test paketlerini her tur tekrar çalıştırma.
+
+Ana admin incelemesinde not edilenler: nav VIEW URL'ye yazılmıyor, sayfa yenilenince sekme kayboluyor; 120 saniyelik refresh tüm main'i yeniden çizip yazılan formu kaybettirebilir; ödeme viewer görünürlüğü kaynakta ayrıca değerlendirilmeli; loadSiteControl istek yarışı incelenmeli. Bunlar henüz düzeltilmiş değildir.
+
+## Uzak gönderim engeli
+
+Yerel ilk commit: 9c2cb22. git push sandbox içinde DNS hatası verdi. require_escalated push, otomatik onay incelemesi tarafından reddedildi: kullanıcı kaynak kodunu bu GitHub uzak deposuna göndermek için açık izin vermedi ve uzak hedefin güveni/sahipliği trusted kullanıcı içeriğiyle kurulmadı. GitHub connector üzerinden dolanma. Kullanıcıya async soru ile ayrı dala push ve taslak PR için açık izin soruldu. İzin cevabı gelene kadar yerel çalışma sürsün; yeniden push veya uzak PR oluşturma yapılmasın. Onay gelirse mevcut dalı push et, kısa Türkçe taslak PR aç ve attach_artifact ile sohbete bağla. PR henüz yok.
+
+Kullanıcı takip yanıtında açık izin verdi: “Evet, dalı gönder ve taslak PR aç”. Yeniden push onaylandı fakat terminalde GitHub kimlik bilgisi yok. Yetkili GitHub connector ile aynı üç dosyayı ayrı dala aktarma ve taslak PR açma yolu kullanılabilir; önceki izin engeli kalktı.
+
+## PR açıldı
+
+Kullanıcının açık izniyle GitHub connector üzerinden https://github.com/Zuzay/mrspace.online/pull/57 taslak PR açıldı ve sohbete bağlandı. Uzak dal fix/admin-workspace-20261012, uzak HEAD 234f1a5e04baeb54f70c4321b16f21f46d9a943c. Yerel commitler ile uzak commit SHA'ları farklı fakat üç dosyanın içeriği aktarım anında aynı. Terminal git push kimlik bilgisi eksik; credential arama veya sır gösterme yapma. Sonraki uzak güncellemelerde GitHub connector ile güncel uzak HEAD/tree üzerine yalnızca bu işin dosyalarını uygula, lease ile fast-forward update_ref kullan. PR açılırken main HEAD 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4, yerel eski main 4fa836790b60152f00dec42cc0b3943021a1ce8c idi; connector mergeable:false döndürdü, sonraki turda güncel base ile çakışma durumunu doğrula. Henüz merge/yayın yok. Bu son durum notu yerelde sonraki tur için bırakıldı.
+
+## Kullanıcının son zaman/kota talimatı
+
+12 Ekim 2026: kota önce %6 sonra %4. 04:46'ya kadar çok az işlem; bu turdan sonra kod işi durduruldu. 04:46 sonrası 09:00'a kadar mrspace ve diğer tüm bağlı sistemlerde eksiklerin tamamlanması ve geliştirme istendi. Saatler America/Los_Angeles kabul edildi. Önceki 08:03 bitişi yerine 09:00 (16:00 UTC) geçerli. Heartbeat buna göre güncellendi. Önceki izin Zuzay/mrspace.online dal gönderimi/taslak PR için geçerli; diğer depolarda yerel çalışma. Kota yenilenmiş varsayılmasın. Son tarihte heartbeat PAUSED yapılmalı.
+
+## Tur 2, 04:46
+
+Kota bir kez kontrol edildi: 5 saatlik pencere %98 kullanılmış, yenilenme 11:46:29 UTC. Kontrol 11:46:17 civarında olduğundan yenilenme henüz olmamıştı; bu tur küçük tutuldu. Sonraki turda yenilenmiş limit bir kez kontrol edilebilir. PR #57 metadata tekrar doğrulandı: mergeable:true, uzak HEAD 234f1a5e04baeb54f70c4321b16f21f46d9a943c, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4. Çakışma yok.
+
+Taslak onay/ret düğmeleri artık aynı taslak için işlem sürerken birlikte kilitlenir. Programatik ikinci tıklama da tek RPC ile sınırlanır. Hata sonrası her iki düğme yeniden açılır; eski ekrandan gelen yanıt yeni görünümü değiştirmez. tests/admin-workspace.browser.mjs içine reviewLocked ve reviewRetry eklendi. Bu turdaki değişiklikler henüz uzak PR'a aktarılmadı; sonraki turda test sonucuyla birlikte aktarılmalı. Önceki izin/uzak commit notları geçerli.
+Doğrulama sonucu: altı Chrome kontrolü geçti; JS sözdizimi ve diff kontrolü temiz. Canlı API çağrısı, yayın veya veri değişikliği yok.
+
+## Tur 3, 05:00
+
+Kota yenilenmesi doğrulandı: 5 saatlik pencere %1 kullanılmış (%99 kalan), haftalık %44 kullanılmış. Bundan sonra gereksiz limit sorgusu yok. PR #57 açık/taslak, mergeable:true, uzak HEAD henüz 234f1a5e04baeb54f70c4321b16f21f46d9a943c.
+
+Ortak çalışma alanı kökü aynı kaldığı sürece taslak brief/sektör/tür modül yenilemeleri ve başarısız yüklemelerde bellekte korunur. Disk/localStorage kaydı yok. Hatalı gönderim sonrası yenilemede aynı idempotency token korunur. Kayıt sürerken modül yenilemesi taslak formunu sökmez; başarılı kayıt yalnızca gönderilen içerik hâlâ aynıysa formu temizler. Kullanıcının kayıt sırasında eklediği yeni metin korunur. Bu çözüm admin/index.html'nin bütün main'i değiştiren 120 saniyelik yenilemesini henüz çözmez; o dosya #45 ile çakışıyor. Başvuru notu koruması sonraki küçük iş.
+
+Dokuz Chrome kontrolü geçti (önceki altı + draftRetained, pendingProtected, draftCleared). JS/diff kontrolleri temiz. Önceki turdaki onay/ret kilidiyle birlikte aynı PR'a aktarılıyor.
+Uzak aktarım tamamlandı: PR #57 HEAD a42174c5cf8da9020862da48427c534e7ff9351f, tree d91ca2d99bd162437582e42f086c17086d8af8c5. Beklenen eski HEAD denetimiyle fast-forward update_ref yapıldı; PR başlığı/açıklaması dokuz kontrol ve mevcut kapsamı anlatacak şekilde güncellendi. Sonraki aktarım için bu uzak tree/HEAD kullanılabilir; önce metadata ile değişmediğini doğrula. Yerel/uzak commit SHA'ları farklı. Sonraki tur: başvuru notu koruması veya admin/review/ideas bağlantıları; kota yenilendiği için uygun ölçüde ilerle, her tur tek düzeltme grubu.
+
+## Tur 4, 05:30
+
+Başvuru notu/durum seçimi aynı çalışma alanı kökünün yenilemelerinde bellekte korunur; liste yükleme veya kayıt hatasında silinmez. Başvuru kaydı sürerken çift gönderim ve modül yenilemesi engellenir. Başarılı kayıttan sonra temiz form sunucudaki yeni değişiklikleri gösterir; kayıt sırasında yazılan farklı içerik korunur. Artık erişilemeyen başvuruların bellekteki taslakları başarılı liste yüklemesinde temizlenir; admin yetkisi kalkınca başvuru taslakları kaldırılır. Kalıcı depolama kullanılmaz.
+
+On iki Chrome kontrolü geçti: önceki dokuz + intakeRetained, intakeLocked, intakeClean. JS/diff temiz. PR #57 bu tur başında mergeable:true ve uzak HEAD a42174c5cf8da9020862da48427c534e7ff9351f olarak doğrulandı. Ana admin/index.html periyodik yenilemesi hâlâ #45 çakışması nedeniyle kapsam dışında. Sonraki turda yeni alan: admin/review/ veya admin/ideas/ kopuk bağlantıları (önce açık PR çakışma kontrolü). Aynı modülde kalıp bütün süreyi harcama; diğer sistemlerde bağımsız somut eksiklere geç.
+Tur 4 uzak aktarımı tamamlandı. Uzak tree ce88190dbf1ada63a913bce613ed829f6699e1e0; güncel uzak commit SHA'sını sonraki tur get_pr_info ile oku (beklenen eski HEAD a42174c5cf8da9020862da48427c534e7ff9351f üzerinden başarılı fast-forward yapıldı). PR açıklaması on iki kontrole ve başvuru korumasına güncellendi.
+
+## Tur 5, 05:46
+
+admin/review/ ve admin/ideas/ dosyaları için #35/#45/#47 açık PR çakışması yok, yeniden doğrulandı. Fikirler > Kaynaklar aç/kapat düğmesi API hatasını yok sayıp yanlış başarı gösteriyordu. Artık güncellenen id/active satırını select().single() ile doğruluyor; hata, boş yanıt veya ağ istisnasında eski durum korunuyor ve mevcut beş dilli Kaydedilemedi metni gösteriliyor. İşlem sürerken düğme kilitli; sonraki tıklama güvenli tekrar deneme yapıyor. Yeni bağımlılık, rol politikası, şema veya canlı veri değişikliği yok.
+
+Supabase becerisi bu tur okundu. Resmi update/single belgeleri doğrulandı; changelog.md web aracı markdown içerik tipini desteklemediği için alınamadı. SDK sürümü değiştirilmedi. Test tests/admin-ideas.browser.mjs gerçek kaynak toggle event handler'ını Chrome'da sahte sorgu yanıtlarıyla çalıştırır, tüm dış ağ kapalıdır. Dört grup: error, empty, throw ve pending/çift tıklama/başarılı tekrar. Sözlük anahtarı mevcut dört çeviri + Türkçe kaynakta doğrulandı. Ana admin periyodik yenileme sınırlaması hâlâ açık.
+
+Sonraki tur: Onay ekranındaki eksik site/checks yüklemesi ve hızlı sekme geçişlerinde eski yanıt sorunu; veya müşteri tarafındaki bağımsız bir kopuk bağlantı. Önce yalnızca ilgili kodu oku; JSON sözlüklerinde rg ile tam tek satırı yazdırma, Python ile anahtar oku. Gereksiz büyük çıktıdan kaçın.
+Tur 5 test sonucu: dört Chrome grubu geçti, diff temiz. Uzak PR #57 aynı dalda fast-forward güncellendi; güncel uzak HEAD/tree sonraki tur metadata/çalışma notundan doğrulanmalı. Başvuru/taslak testleri değişmediği için tekrar çalıştırılmadı.
+
+## Tur 6, 06:00
+
+Onay ekranının kuyruk/siteler/denemeler listeleri ve build/trial detay yüklemeleri artık ortak görünüm sayacı kullanır. Yeni sekme/detay açıldıktan sonra eski sorgunun başarılı veya hatalı yanıtı ekrana yazamaz. Build detayının ikinci site/checks aşaması da korunur. Site ayarları kaydından sonraki gecikmeli yenileme başka sekmeyi açamaz; eski kayıt tamamlanması yeni sekmenin DOM'una erişmez.
+
+Test tests/admin-review.browser.mjs tüm sayfayı yerel sunucuda açar; SDK/auth/render yanıtlarını sahteleştirir, dış ağ kapalıdır. Üç grup geçti: eski kuyruk hatası siteleri bozamaz; geciken build site/checks sonuçları denemeleri bozamaz veya crash üretmez; eski trial hatası kuyruğu bozamaz. Diff temiz. PR #57 HEAD bu tur başında 208df77694fcfda948b0191b02fd129976837fc3, mergeable:true; tree 986fbc0ecb56951563033aa41803cb53844f5b85.
+
+Sınır: güncel build detayında site/checks sorgusu gerçekten başarısız olduğunda ayrı hata akışı hâlâ eksik; onay/geri gönder/teklif gibi mutation sonuçlarının eski detay sayfasını yeniden açması da sonraki küçük iş olabilir. Sonraki tur müşteri/Rufcut/Heron/Laloo tarafına uygun bağımsız iş seç; bütün zamanı admin modülünde harcama.
+Tur 6 uzak aktarımı tamamlandı: PR #57 HEAD a1e261a98384612020db3af540e9a6f3cbbb0776, tree 2821021e948a8d5c01140a7464343b8c2a3c3a7d. Site kayıt koruması eklenmesinden sonra ilgili üç Chrome grubu tekrar geçti. PR açıklaması son iki turdaki Fikirler kaynak doğrulaması + Onay gezinme koruması ve toplam 19 kontrolü henüz anlatmıyor; sonraki uygun tur/finalde güncelle.
+
+## Tur 7, 06:30
+
+Ortak Rufcut/Heron/diğer müşteri Satış ve kargo modülünde kayıt sırasında yapılan yeni düzenlemeler artık silinmez. Sunucuya gönderilen snapshot ile en son form karşılaştırılır; farklıysa taslak korunur (başlangıç değerine geri dönülmüş olsa bile). Başka siteye geçildiğinde eski kaydın yanıtı yeni ekranı yeniden açmaz veya başarı bildirimi göstermez. Kayıt sürerken aynı formun çift gönderimi ve yenilemesi engellenir. Başarılı kayıt site önbelleğini geçersiz kılar.
+
+assets/ms-commerce-panel.js ve yeni tests/commerce-save.browser.mjs açık #35/#45/#47 dosyalarıyla çakışmıyor; bu tur kontrol edildi. Beş Chrome kontrolü geçti: saveLocked, newerEditKept, siteUnchanged, savedDraftCleared, revertedEditKept. Gerçek MsCommerce.validate/blank kullanıldı, tüm dış servisler kapalı. JS/diff kontrolleri temiz; canlı ödeme, veri, schema veya migration yok. Ana panel/index.html değiştirilmedi.
+
+Sonraki tur önerisi: müşteri katalog modülünde kayıt/hata akışı veya Heron/Laloo native entegrasyonda bağımsız küçük düzeltme. #57 açıklaması final kapsamına göre güncellenmeli: admin çalışma alanı 12 + ideas 4 + review 3 + commerce-save 5 = 24 tarayıcı kontrolü. Tam suite gereksiz; ilgili modül testleri yeterli.
+Tur 7 uzak tree 244910cbea0e7bf978c2a50ba84b16e59776bce5; PR #57 fast-forward güncellendi. Başlık ve açıklama tüm mevcut kapsamı ve 24 hedefli kontrolü anlatacak şekilde yeniden yazıldı. Güncel uzak HEAD sonraki tur metadata ile okunmalı.
+
+## Tur 8, 06:46
+
+Ortak müşteri kataloğu kayıt akışında sonradan yazılan ürün başlığı/yerleşim taslağı başarılı eski kayıt tarafından silinmiyor. Formun en son ham değerleri gönderilen ham snapshot ile karşılaştırılıyor; değişmişse korunuyor. Başka siteye/ekrana geçildiyse eski formun yanıtı yeni ekranı yenilemiyor veya bildirim göstermiyor. Aynı ürünün çift gönderimi engelleniyor; herhangi bir katalog kaydı sürerken yenile, vazgeç ve varyasyon ekle düğmeleri kilitlenip hata/başarı sonrası açılıyor. Kayıt hatasında metin ve taslak korunur.
+
+assets/ms-catalog-panel.js açık PR çakışması tur 7'de kontrol edildi, yok. Yeni test tests/catalog-save.browser.mjs gerçek MsSiteCatalog.validate/render/bind motorunu kullanır. Beş hedefli Chrome kontrolü: locked, newerKept, failedRetained, siteUnchanged, savedClean. Dış servisler kapalı, JS/diff temiz. Panel/index.html ve backend değiştirilmedi. Toplam hedefli kontroller 29 oldu; PR açıklaması finalde güncellenmeli.
+
+Sonraki turlar için kalan yüksek değerli noktalar: Heron/Laloo native bağlı ekranlarda hata/yükleme doğruluğu; Onay ekranında eksik site/checks bağımlılığı; izinli kapsamda gerçek kopuk link. Ana admin/index.html #45 çakışması nedeniyle hâlâ değiştirilmedi, periyodik yenileme tüm main'i değiştirirken taslak korunumu sınırlaması açıkça finalde belirtilecek. 09:00'da heartbeat PAUSED yapılmalı.
+Tur 8 uzak aktarımı tamamlandı: tree a9646f1cb41a42c93fe0c77c04aaed8dde44c618. PR #57 aynı dalda beklenen eski HEAD aefe45a55aaa3f0098eb845eb0355dbba2dc9ca6 üzerinden fast-forward güncellendi. Sonraki tur güncel HEAD metadata'dan okunacak; eski test grupları tekrar çalıştırılmadı.
+
+## Tur 9, 07:00
+
+Heron ve Laloo iframe oturum yenileme köprüleri başarı mesajını yanlış prefix nedeniyle yok sayıp sekiz saniye bekliyordu. İki sayfa artık ebeveynin gerçek ms-admin-refreshed ve ms-admin-refresh-failed mesajlarını kabul ediyor; origin yanında e.source === window.parent da doğrulanıyor. Başka pencere/kökenden mesaj veya ilgisiz mesaj yenilemeyi tamamlayamaz. Ana admin dosyası ve üretim oturumu değiştirilmedi.
+
+Yeni tests/partner-session.browser.mjs gerçek kaynak köprü kodunu yerel same-origin iframe üzerinde çalıştırır. Her panel için success, failure, wrong-source, wrong-origin, unrelated olmak üzere 10 Chrome kontrolü geçti; dış ağ kapalı. Toplam hedefli tarayıcı kontrolü 39. Diff temiz. PR #57 başlangıç HEAD 62735ac1aa275f4f682d19fbd03aaf8559b77983, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4; connector mergeable:false döndürüyor, sonraki tur yeniden kontrol edilmeli ve çözülemezse finalde açıkça raporlanmalı. Zorla push/merge yok.
+
+Tur 9 uzak aktarımı tamamlandı: tree fdd7312604ada9fb1878147f56f7ad3ba11d10c0. PR #57 beklenen eski HEAD üzerinden fast-forward güncellendi. PR açıklaması katalog + partner köprüsü ve 39 kontrolü içerecek şekilde finalde güncellenmeli. Sonraki tur mergeable:false durumunu yeniden incele; yeni ana dal değişikliği varsayma.
+
+## Tur 10, 07:30–08:00
+
+PR #57 main'den 17 commit gerideydi; mergeable:false yeniden doğrulandı. Yedi değiştirilen kaynak dosyası güncel main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4 ile üç yönlü karşılaştırıldı. Katalogdaki iki çakışma çözüldü: main'in arşivleme/sayfalama/filtre davranışı, HTML validity ve catalog_invalid_link hata metni korundu; kayıt pending ve yeni taslak koruması birlikte taşındı. Kayıt sürerken gezinme/filtre/arşiv düğmeleri de kilitlenir. Diğer altı dosya main'e göre yalnızca amaçlanan düzeltmeleri içeriyor. Remote tree güncel main temel alınarak kurulacak; yeni commit eski PR HEAD ve main'i parent olarak kullanacak, zorla push veya ana dala merge yapılmayacak.
+
+Katalog beş Chrome kontrolü yeniden geçti. Test artık gerçek main assets/ms-panel-daily.js bağımlılığını yüklüyor, zorunlu onay kutusunu işaretliyor. Yerel checkout eski olduğundan bu bağımlılık connector üzerinden /tmp/ms-panel-daily.js dosyasına okundu; MS_PANEL_DAILY_PATH ile testte kullanıldı. Üretim kaynaklarına yeni bağımlılık eklenmedi. Diff/JS temiz. Bu tur Onay eksik site/checks işine başlanmadı, PR uzlaştırma öncelikli oldu.
+
+Tur 10 uzak main entegrasyonu tamamlandı. Tree a865c98aee37ec194be16b6776b211a3fc7ad09a, PR HEAD sonraki tur metadata ile doğrulanacak. İki parent commit sayesinde main artık PR atasıdır. GitHub main karşılaştırması behind_by:0 olmalı; dosya istatistikleri kontrol edildi. Yerel checkout tüm main dosyalarını içermiyor, uzaktaki commit/tree ile SHA eşitliği varsayılmamalı.
+
+## Tur 11, 08:30
+
+Onay build detayında eksik build/site veya başarısız checks sorgusu artık null erişim hatası ya da kontrol yokmuş gibi hatalı önizleme üretmez. Bağımlı sorgular allSettled ile tamamlanır; API error, eksik veri veya reddedilen ağ isteği mevcut Okunamadı ekranına döner, işlem düğmeleri çizilmez. Eski sekme yanıtı koruması devam eder. Yeni metin/sözlük veya backend değişikliği yok.
+
+İlgili tests/admin-review.browser.mjs sekiz Chrome grubu geçti: önceki üç gezinme + site-error, checks-error, missing-site, network-rejection, missing-build. Toplam farklı hedefli kontrol 44. Dış ağ kapalı; diff temiz. Başlangıç PR HEAD 29f1be5d003744cd1abdb150cd29684f101cee2c, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4, mergeable:true doğrulandı. Açık ana admin/index.html #45 dosyası değiştirilmedi. Sonraki uyanışta yeni iş yerine sonuçları toparla; 09:00'da otomasyonu PAUSED yap.
+
+Tur 11 uzak aktarımı tamamlandı: HEAD 38f21cac83a4f245cdd2a409642c1fc24d07a13f, tree 6c6c527956f77a4b9520d7ef276fb58dbf723d0e. PR açıklaması 44 kontrol ve Onay hata düzeltmesini içeriyor. Sonraki tur PR durumu + otomasyon bitişini toparla; yeni iş başlatma.
+
+## Tur 12, 08:46
+
+Onay build detayındaki tekrar kontrol, geri gönderme, onay/yayın ve yeni sürüm RPC yanıtları artık aynı görünüm sayacını doğrular. Kullanıcı başka sekmeye/detaya geçtiyse eski yanıt onu geri açmaz veya build editörüne yönlendirmez. İşlemlerin sunucu davranışı değiştirilmedi; gerçek yayın/RPC çalıştırılmadı.
+
+Onay tarayıcı testi 12 grup geçti (önceki 8 + dört geciken mutation yanıtı). Tüm RPC'ler sahte, dış ağ kapalı; yeni dört kontrol farklı sekmeye geçtikten sonra eski başarılı işlemin yeni sorgu/yönlendirme üretmediğini doğruluyor. Toplam farklı hedefli kontrol 48. Diff temiz. Son düzeltme aynı taslak PR'ye eklenecek. 09:00 uyanışında yeni iş başlatma: PR mergeable durumunu oku, otomasyonu PAUSED yap, sonuç ve kalan host-main taslak sınırlamasını bildir. Diğer depoların tamamı düzeltildi iddiası yok; Rufcut/Heron/Laloo ortak modülleri ve köprüleri kapsamda, ayrı uygulamaların tamamı audit edilmedi.
+
+Tur 12 uzak aktarımı tamamlandı: HEAD ea5243c106dfccd30afb93c8e69857ee0bd0c11c, tree 54858932108751e475baf3f21c53f049c96c731b. PR açıklaması 48 kontrolü ve son gezinme düzeltmesini içeriyor. Sonraki 09:00 turunda otomasyonu PAUSED yap.
+
+## Kota dostu devam, kullanıcının yeni talebi
+
+Otomasyon PAUSED kaldı, yeniden başlatılmadı. Kullanıcı eksiklere küçük adımlarla devam istedi. PR #45 hâlâ açık; admin/index.html değiştirilmeden host-main form kaybı çözüldü. MsPlatform yalnızca admin + #main > #workspaceRoot için ana kapsayıcıya bağlı WeakMap üzerinden önceki çalışma alanı DOM kökünü yeniden bağlar. Ana ekran periyodik innerHTML yenilemesinde taslak/intake belleği ve devam eden form handler'ları aynı kökle korunur. Diğer bağımsız mount kökleri etkilenmez; diske yeni kayıt yok. Eski yükleme yanıtı generation kontrolüyle engellenmeye devam eder.
+
+Dört yeni Chrome kontrolü tüm host innerHTML'sini değiştirir: taslak metni, devam eden taslak kaydı, başvuru notu, devam eden başvuru kaydı. İlgili çalışma alanı 16 kontrolünün tamamı geçti; JS/diff temiz. Toplam farklı hedefli kontrol 52. Yeni canlı/API/schema işlemi yok. Önceki host-main sınırlaması bu dar çalışma alanı kapsamında giderildi; tüm admin formlarının tamamı için garanti değil. PR #57 başlangıç HEAD ea5243c106dfccd30afb93c8e69857ee0bd0c11c, main 1114c42b6bd9aa75763ffd00f9ca1d5165d50cd4, mergeable:true.
