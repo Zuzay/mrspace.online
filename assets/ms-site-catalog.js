@@ -22,16 +22,19 @@ function squarePurchaseURL(value,site){
  if(site==='rufcut'&&['rufcut.com','www.rufcut.com'].includes(u.hostname))u.hostname='rufcutvenice.square.site';
  return u.href;
 }
-// Square-managed sites read categories on every request. Existing exclusions remain
-// until the owner assigns a Square category; new items/variations need no panel save.
+// Square-managed sites read categories on every request. Legacy exclusions remain
+// until the owner explicitly assigns Website publish; new records need no panel save.
 function squareSettings(item,rule,site){
  const groups=item.square_categories||[],names=groups.map(c=>c.name.trim().toLowerCase());
- const hidden=names.includes('website hidden');
- const section=hidden?'hidden':names.some(n=>['repair','repairs'].includes(n))?'repair':names.some(n=>['workshop','workshops'].includes(n))?'workshop':groups.length?'shop':rule?.section||'shop';
- const primary=groups.find(c=>!['website hidden','repair','repairs','workshop','workshops'].includes(c.name.trim().toLowerCase()));
+ const forcePublish=names.includes('website publish'),hidden=names.some(n=>['website hidden','shipping','register only','internal'].includes(n));
+ const repair=names.some(n=>['repair','repairs','alterations / repairs','alterations & repairs','patches / embroidery'].includes(n));
+ const workshop=names.some(n=>['workshop','workshops'].includes(n));
+ const protectedSection=rule&&['hidden','review'].includes(rule.section)&&!forcePublish?rule.section:null;
+ const section=hidden?'hidden':protectedSection|| (repair?'repair':workshop?'workshop':forcePublish?'shop':rule?.section==='repair'||rule?.section==='workshop'?rule.section:'shop');
+ const primary=groups.find(c=>!['website hidden','website publish','shipping','register only','internal','repair','repairs','alterations / repairs','alterations & repairs','patches / embroidery','workshop','workshops'].includes(c.name.trim().toLowerCase()));
  const aliases={jeans:'jeans','jeans & overalls':'jeans',outerwear:'outerwear','jackets & coats':'outerwear',shirts:'shirts','shirts & tops':'shirts',accessories:'accessories','other pieces':'other'};
  const category=primary?(aliases[primary.name.trim().toLowerCase()]||'other'):rule?.category||'other';
- const variations=Object.fromEntries(item.variations.map(v=>[v.id,{visible:groups.length?true:rule?.variations?.[v.id]?.visible??true,title:'',purchase_url:squarePurchaseURL(item.square_url||rule?.variations?.[v.id]?.purchase_url,site)}]));
+ const variations=Object.fromEntries(item.variations.map(v=>[v.id,{visible:forcePublish?true:rule?.variations?.[v.id]?.visible??true,title:'',purchase_url:squarePurchaseURL(item.square_url||rule?.variations?.[v.id]?.purchase_url,site)}]));
  return {section,category,display_order:primary?.order??rule?.display_order??100,layout:groups.length?'grouped':rule?.layout||'grouped',title:'',variations,
   ...(primary&&!aliases[primary.name.trim().toLowerCase()]?{square_category:'square:'+primary.id,category_label:primary.name}:{})};
 }
