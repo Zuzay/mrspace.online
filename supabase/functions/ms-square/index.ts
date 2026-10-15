@@ -192,6 +192,29 @@ async function role(email: string | null, site: string): Promise<"admin" | "clie
   return m.data ? "client" : null;
 }
 
+// ---------- online satis (sepet -> Square odeme linki) ----------
+// Square-managed sites (Rufcut) publish from Square categories; curated sites from panel rules.
+// deno-lint-ignore no-explicit-any
+function commerceItems(acc: Acc, site: string, all: Item[], rules: Map<string, any>) {
+  const hidden=new Set(acc.hidden_catalog_items||[]);
+  return all.filter(i=>!hidden.has(i.id)&&!i.square_archived).flatMap(i=>{
+    const s=SQUARE_MANAGED.has(site)?SiteCatalog.squareSettings(i,rules.get(i.id),site):rules.get(i.id);
+    if(!s||!["shop","workshop"].includes(s.section))return [];
+    const variations=i.variations.filter(v=>s.variations?.[v.id]?.visible===true);
+    return variations.length?[{...i,variations}]:[];
+  });
+}
+async function commerceState(site: string) {
+  const acc=await account(site);if(!acc)return null;
+  const {data,error}=await db.from("ms_commerce_setups").select("setup").eq("site",site).maybeSingle();
+  if(error)throw new Error("commerce_load_failed");
+  const setup=data?.setup||Commerce.blank(),rules=await publications(site),items=commerceItems(acc,site,await catalog(acc),rules);
+  let scopes=null;try{scopes=(await sq(acc.access_token,"/oauth2/token/status",{method:"POST"})).scopes||[];}catch{/* unknown = not granted */}
+  return {acc,setup,items,readiness:Commerce.readiness(setup,acc,scopes,items)};
+}
+const CHECKOUT_ORIGINS=new Set((Deno.env.get("CHECKOUT_ORIGINS")??"https://www.rufcutjeans.com,https://rufcutjeans.com,https://mrspace.online").split(",").map(s=>s.trim()).filter(Boolean));
+const SHOP_NAME: Record<string,string>={rufcut:"Rufcut"};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   const url = new URL(req.url);
@@ -228,6 +251,50 @@ Deno.serve(async (req) => {
       return json({items},200,{"Cache-Control":"public, max-age=30"});
     }
 
+    // ----- sitenin sepeti: hangi parcalar online satilabilir -----
+    if (url.pathname.endsWith("/commerce") && req.method === "GET") {
+      const site = url.searchParams.get("site") || "";
+      const st = await commerceState(site);
+      if (!st || !st.readiness.checkout_live) return json({ live: false }, 200, { "Cache-Control": "public, max-age=60" });
+      const variations = st.items.filter(i=>st.setup.products[i.id]?.sale==="ready").flatMap(i=>i.variations.filter(v=>v.track&&Number(v.stock)>0&&Number.isSafeInteger(v.price)&&v.price>0).map(v=>v.id));
+      return json({ live: true, currency: st.acc.currency, pickup: st.setup.pickup, countries: st.setup.mode==="flat"?st.setup.countries:[], variations }, 200, { "Cache-Control": "public, max-age=60" });
+    }
+    // ----- sepetten Square odeme linki -----
+    if (url.pathname.endsWith("/checkout") && req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
+      const site = String(body.site || "");
+      const st = await commerceState(site);
+      if (!st || !st.readiness.checkout_live) return json({ error: "checkout_closed" }, 409);
+      let quote;
+      try { quote = Commerce.quote(st.setup, st.items, { lines: body.lines, delivery: body.delivery, country: body.country }, st.acc.currency); }
+      catch (e) { return json({ error: (e as Error).message || "commerce_invalid" }, 400); }
+      const origin = req.headers.get("origin") || "";
+      const back = (CHECKOUT_ORIGINS.has(origin) ? origin : "https://www.rufcutjeans.com") + (origin === "https://mrspace.online" ? "/rufcut/thanks/" : "/thanks/");
+      const pickup = body.delivery === "pickup";
+      const d = await sq(st.acc.access_token, "/v2/online-checkout/payment-links", { method: "POST", body: JSON.stringify({
+        idempotency_key: crypto.randomUUID(),
+        order: {
+          location_id: st.acc.location_id,
+          reference_id: ("web-" + Date.now().toString(36)).slice(0, 40),
+          source: { name: "Website" },
+          line_items: quote.lines.map((l: any) => ({ catalog_object_id: l.variation, quantity: String(l.quantity) })),
+          pricing_options: { auto_apply_taxes: true, auto_apply_discounts: false },
+          ...(pickup ? { fulfillments: [{ type: "PICKUP", state: "PROPOSED", pickup_details: { schedule_type: "ASAP", recipient: { display_name: "Website order" }, note: "Pick up at the shop" } }] } : {}),
+        },
+        checkout_options: {
+          redirect_url: back,
+          allow_tipping: false,
+          ask_for_shipping_address: !pickup,
+          ...(!pickup && quote.shipping > 0 ? { shipping_fee: { name: "Shipping", charge: { amount: quote.shipping, currency: st.acc.currency } } } : {}),
+        },
+        description: (SHOP_NAME[site] || site) + " website order",
+      }) });
+      const link = d.payment_link?.url || d.payment_link?.long_url;
+      if (!link) return json({ error: "checkout_failed" }, 502);
+      await log(site, `Checkout link created (${quote.lines.length} line, ${pickup ? "pickup" : "ship"})`, "website");
+      return json({ url: link });
+    }
+
     // ----- panel islemleri -----
     if (req.method !== "POST") return json({ error: "method" }, 405);
     const body = await req.json().catch(() => ({}));
@@ -255,7 +322,7 @@ Deno.serve(async (req) => {
       const {data,error}=await db.from("ms_commerce_setups").select("setup").eq("site",site).maybeSingle();
       if(error)throw new Error("commerce_load_failed");
       const setup=data?.setup||Commerce.blank(),rules=acc?await publications(site):new Map();
-      const all=acc?await catalog(acc):[],items=all.filter(i=>rules.get(i.id)?.section==="shop"&&!acc?.hidden_catalog_items?.includes(i.id)).map(i=>({...i,variations:i.variations.filter(v=>rules.get(i.id)?.variations?.[v.id]?.visible===true)}));
+      const all=acc?await catalog(acc):[],items=acc?commerceItems(acc,site,all,rules):[];
       if(action==="commerce_save") {
         const clean=Commerce.validate(body.setup,new Set(all.map(i=>i.id)));
         const {error}=await db.from("ms_commerce_setups").upsert({site,setup:clean,updated_at:new Date().toISOString(),updated_by:email},{onConflict:"site"});
