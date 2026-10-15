@@ -75,5 +75,8 @@
   "Your recent requests": "Son taleplerin",
   "Your requests could not load. Try again.": "Taleplerin yüklenemedi. Tekrar dene.",
   "Your requests will appear here after you send them.": "Gönderdiğin talepler burada görünecek.",
-  "Loading…": "Yükleniyor…"
+  "Loading…": "Yükleniyor…",
+  "Sales & shipping": "Satış ve kargo",
+  "Complete sales setup": "Satış ayarlarını tamamla",
+  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Teslim alma, kargo ücretleri, hazırlama süresi, iade ve online ürün satışını ayarla."
 }

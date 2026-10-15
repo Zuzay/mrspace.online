@@ -75,5 +75,8 @@
   "Your recent requests": "Tus solicitudes recientes",
   "Your requests could not load. Try again.": "No se pudieron cargar tus solicitudes. Inténtalo de nuevo.",
   "Your requests will appear here after you send them.": "Tus solicitudes aparecerán aquí después de enviarlas.",
-  "Loading…": "Cargando…"
+  "Loading…": "Cargando…",
+  "Sales & shipping": "Ventas y envíos",
+  "Complete sales setup": "Completar configuración de ventas",
+  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Configura recogida, tarifas de envío, plazo de preparación, devoluciones y disponibilidad online."
 }
