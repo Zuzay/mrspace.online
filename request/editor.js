@@ -320,3 +320,101 @@ function fromServer(c){
     frame.addEventListener('load',()=>wire().catch(()=>fatal(t.err)));frame.src=u.href;
   }catch(error){fatal(error?.message==='badlink'?t.bad:t.err);}
 })();
+
+/* ---------- Media (slideshow, brand colour match, video) + Claude bridge ----------
+   Added 2026-10-15. Everything below only extends the request flow above: media and
+   Claude changes become normal change requests that Mr. Space reviews before publishing. */
+const MX=(()=>{const tr={addSlides:'Fotoğraf ekle (slayt)',slidesHint:'Birden fazla fotoğraf eklersen bu alan slayt gösterisine dönüşür.',addVideo:'Video ekle',videoHint:'MP4 veya MOV, en fazla 25 MB. Sitede sessiz ve döngülü oynar.',match:'Fotoğrafları sitenin renklerine uydur',slides:'Slayt',video:'Video',remove:'Kaldır',processing:'Hazırlanıyor…',videoBig:'Video 25 MB’den büyük. Daha kısa ya da küçük bir video seç.',claude:'Claude ile düzenle',claudeTitle:'Claude ile düzenle',claudeSteps:['Bu sayfa açıkken Chrome’da Claude’u aç (araç çubuğundaki Claude simgesi).','Aşağıdaki metni Claude’a yapıştır. Panoya kopyalandı.','Ne istediğini Claude’a anlat. Claude değişikliği önizler, sen onaylayınca gönderir.'],copied:'Panoya kopyalandı',copy:'Metni kopyala',claudeNote:'Fotoğraf ve video yüklemeyi dosya seçme penceresi gerektirdiği için sen yaparsın; Claude nereye ekleyeceğini gösterir.'};
+const en={addSlides:'Add photos (slideshow)',slidesHint:'Add more than one photo and this area becomes a slideshow.',addVideo:'Add video',videoHint:'MP4 or MOV, up to 25 MB. Plays muted and looping on the site.',match:'Match photos to the site colours',slides:'Slideshow',video:'Video',remove:'Remove',processing:'Preparing…',videoBig:'This video is over 25 MB. Choose a shorter or smaller one.',claude:'Edit with Claude',claudeTitle:'Edit with Claude',claudeSteps:['With this page open, open Claude in Chrome (the Claude icon in the toolbar).','Paste the text below into Claude. It is already copied.','Tell Claude what you want. Claude previews the change and sends it after you approve.'],copied:'Copied',copy:'Copy text',claudeNote:'Photo and video uploads need the file picker, so you do those; Claude shows you where.'};
+return (typeof lang!=='undefined'&&lang==='tr')?tr:en;})();
+const MEDIA_ROOT=cfg.url+'/storage/v1/object/public/ms-media/';
+const mediaOf=it=>it.media||(it.media={slides:[],video:'',match:true});
+const _serialize=serialize;serialize=it=>({..._serialize(it),media:it.media&&(it.media.slides.length||it.media.video)?{slides:it.media.slides.slice(0,12),video:it.media.video||'',match:!!it.media.match}:undefined});
+const _itemsPayload=itemsPayload;itemsPayload=()=>_itemsPayload().map(x=>{const it=S.items.get(x.anchor);const m=it?.media;if(!m||(!m.slides.length&&!m.video))return x;
+  const extra=(m.slides.length?'\nSlideshow ('+m.slides.length+'): '+m.slides.join(' , '):'')+(m.video?'\nVideo: '+m.video:'')+(m.match?'\nColour match: on':'');
+  return {...x,kind:'big',request:(x.request+extra).slice(0,2000)};});
+function siteColours(){
+  const read=v=>{try{return S.win.getComputedStyle(S.doc.documentElement).getPropertyValue(v).trim();}catch{return '';}};
+  const rgb=c=>{const m=String(c).match(/^#([0-9a-f]{6})$/i);if(m)return [0,2,4].map(i=>parseInt(m[1].slice(i,i+2),16));const r=String(c).match(/(\d+)\D+(\d+)\D+(\d+)/);return r?[+r[1],+r[2],+r[3]]:null;};
+  let a=rgb(read('--ink'))||[17,27,51],b=rgb(read('--paper'))||[243,234,216];const lum=c=>c[0]*.299+c[1]*.587+c[2]*.114;
+  if(lum(a)>lum(b))[a,b]=[b,a];return {dark:a,light:b,accent:rgb(read('--cop'))||null};
+}
+// Colour-grade a photo towards the site palette in the browser (no server cost). Keeps 55% of the original.
+async function brandFile(file){
+  const bmp=await createImageBitmap(file);const max=2400,scale=Math.min(1,max/Math.max(bmp.width,bmp.height));
+  const c=document.createElement('canvas');c.width=Math.round(bmp.width*scale);c.height=Math.round(bmp.height*scale);const g=c.getContext('2d');g.drawImage(bmp,0,0,c.width,c.height);
+  const {dark,light,accent}=siteColours(),img=g.getImageData(0,0,c.width,c.height),d=img.data,k=.45;
+  for(let i=0;i<d.length;i+=4){const l=(d[i]*.299+d[i+1]*.587+d[i+2]*.114)/255,s=l*l*(3-2*l),mid=accent?Math.max(0,1-Math.abs(l-.5)*2)*.08:0;
+    for(let ch=0;ch<3;ch++){const duo=dark[ch]+(light[ch]-dark[ch])*s;let v=d[i+ch]*(1-k)+duo*k;if(mid)v=v*(1-mid)+accent[ch]*mid;d[i+ch]=v;}}
+  g.putImageData(img,0,0);const blob=await new Promise(r=>c.toBlob(r,'image/webp',.9));
+  return blob&&blob.size<=5*1024*1024?new File([blob],file.name.replace(/\.\w+$/,'')+'.webp',{type:'image/webp'}):file;
+}
+async function sendFile(file){
+  const form=new FormData();form.append(KEY?'key':'edit',KEY||EDIT);form.append('file',file);
+  const r=await fetch(cfg.url+'/functions/v1/ms-builder',{method:'POST',headers:{apikey:cfg.anon},body:form,signal:AbortSignal.timeout(120000)});const data=await r.json().catch(()=>({}));
+  if(!r.ok||!String(data.url||'').startsWith(MEDIA_ROOT))throw new Error(data.error||'upload');return data.url;
+}
+function mediaPanel(it){
+  const m=mediaOf(it),box=document.createElement('div');box.className='mx-media';box.setAttribute('data-ms-editor-ui','');
+  box.innerHTML=`<label class="check"><input type="checkbox" id="mxMatch" ${m.match?'checked':''}><span>${esc(MX.match)}</span></label>
+  <label class="file-label">${esc(MX.addSlides)}<input id="mxSlides" type="file" multiple accept="image/jpeg,image/png,image/webp"></label><p class="help">${esc(MX.slidesHint)}</p>
+  <div class="mx-thumbs">${m.slides.map((u,i)=>`<figure><img src="${esc(u)}" alt=""><button type="button" class="ghost" data-mx-del="${i}" aria-label="${esc(MX.remove)}">×</button></figure>`).join('')}</div>
+  <label class="file-label">${esc(MX.addVideo)}<input id="mxVideo" type="file" accept="video/mp4,video/quicktime,video/webm"></label><p class="help">${esc(MX.videoHint)}</p>
+  ${m.video?`<div class="mx-video"><video src="${esc(m.video)}" muted loop autoplay playsinline></video><button type="button" class="ghost" id="mxVideoDel">${esc(MX.remove)}</button></div>`:''}<p id="mxStatus" class="status" role="status"></p>`;
+  return box;
+}
+function mediaChanged(it){S.dirty=true;persist();$('#fieldStatus')&&($('#fieldStatus').textContent=t.unsaved);
+  // First slide previews in the page; the slideshow itself appears after publishing.
+  const first=mediaOf(it).slides[0];if(first&&!photoValue($('#content').value)){$('#content').value=first;editInput();S.dirty=true;}}
+function bindMedia(it){
+  const box=$('#sideBody .mx-media');if(!box)return;const m=mediaOf(it),status=$('#mxStatus');
+  $('#mxMatch').onchange=e=>{m.match=e.target.checked;mediaChanged(it);};
+  box.querySelectorAll('[data-mx-del]').forEach(b=>b.onclick=()=>{m.slides.splice(+b.dataset.mxDel,1);mediaChanged(it);renderField();});
+  $('#mxVideoDel')&&($('#mxVideoDel').onclick=()=>{m.video='';mediaChanged(it);renderField();});
+  $('#mxSlides').onchange=async e=>{const files=[...e.target.files].slice(0,12-m.slides.length);if(!files.length||S.busy)return;S.busy=true;status.textContent=MX.processing;
+    try{for(const f of files){const ready=m.match?await brandFile(f):f;if(ready.size>5*1024*1024)throw new Error('size');m.slides.push(await sendFile(ready));status.textContent=MX.processing+' '+m.slides.length;}
+      mediaChanged(it);}catch{status.textContent=t.uploadError;}finally{S.busy=false;renderField();}};
+  $('#mxVideo').onchange=async e=>{const f=e.target.files?.[0];if(!f||S.busy)return;if(f.size>25*1024*1024){status.textContent=MX.videoBig;return;}
+    S.busy=true;status.textContent=MX.processing;try{m.video=await sendFile(f);mediaChanged(it);}catch{status.textContent=t.uploadError;}finally{S.busy=false;renderField();}};
+  const photo=$('#photoFile');if(photo)photo.onchange=async e=>{const f=e.target.files?.[0];if(!f||!m.match)return uploadPhoto(e);
+    try{const ready=await brandFile(f);const dt=new DataTransfer();dt.items.add(ready);Object.defineProperty(e,'target',{value:{files:dt.files,set value(v){photo.value=v;},get disabled(){return photo.disabled;},set disabled(v){photo.disabled=v;}}});}catch{}
+    return uploadPhoto(e);};
+}
+const _renderField=renderField;renderField=function(){_renderField();const it=S.selected;
+  if(it&&it.type==='image'&&it.status==='new'&&!S.demo){const anchor=$('#sideBody .field-label[for=content]');if(anchor){anchor.before(mediaPanel(it));bindMedia(it);}}};
+
+// ---------- Claude bridge: a stable, documented API for Claude in Chrome ----------
+const claudeGuide=`You are helping the owner of this website request changes in the Mr. Space editor.
+Rules: ask ONE question at a time in the owner's language; never publish anything yourself; every change goes to Mr. Space for review.
+Use window.MsEditorAPI (run JavaScript in this page):
+- MsEditorAPI.parts('search words') -> editable areas on the current page [{id,section,label,type,current}]
+- MsEditorAPI.pages() -> other pages you can open; MsEditorAPI.open(path)
+- MsEditorAPI.propose(id, newValue, {note}) -> shows the change in the preview. For type "image", newValue must be an https image link; for photos/videos from the owner's computer, call MsEditorAPI.select(id) and ask the owner to use the "Add photos (slideshow)" / "Add video" buttons in the left panel.
+- Show the owner the preview, ask "Keep this change?". If yes: MsEditorAPI.keep(). If no: MsEditorAPI.discard().
+- Requests the editor cannot do (new pages, new features, layout or design changes): ask which section, what exactly, and any example link, then MsEditorAPI.note('Section: ... / Request: ... / Example: ...').
+- When the owner is done: MsEditorAPI.changes() and read the list back, then MsEditorAPI.contact(name, email) (ask for them) and MsEditorAPI.send(). A confirmation dialog opens; click its Send button only after the owner says yes.`;
+window.MsEditorAPI=Object.freeze({
+  guide:()=>claudeGuide,
+  parts:(q='')=>{const words=String(q).toLowerCase().split(/\s+/).filter(Boolean);return S.parts.map(p=>({id:p.anchor,page:p.page,section:p.section,label:p.label,type:p.type,current:String(p.original||'').replace(/\s+/g,' ').slice(0,160),changed:S.items.has(p.anchor)})).filter(p=>words.every(w=>(p.section+' '+p.label+' '+p.current).toLowerCase().includes(w))).slice(0,80);},
+  pages:()=>{try{return [...new Set([...S.doc.querySelectorAll('a[href]')].map(a=>{try{const u=new URL(a.getAttribute('href'),S.win.location.href);return u.origin===location.origin?u.pathname:'';}catch{return '';}}).filter(Boolean))];}catch{return [];}},
+  open:path=>{if(typeof path!=='string'||!path.startsWith('/')||path.startsWith('//'))return false;guard(()=>{frame.src=path;});return true;},
+  select:id=>{const p=S.parts.find(p=>p.anchor===id);if(!p)return null;guard(()=>select(p));return locationOf(S.selected||p);},
+  propose:(id,value,opts={})=>{const p=S.parts.find(p=>p.anchor===id);if(!p)return {ok:false,error:'unknown_area'};
+    if(S.selected?.anchor!==id){if(S.dirty)return {ok:false,error:'unsaved_change_open',hint:'call keep() or discard() first'};select(p);}
+    $('#content').value=String(value??'');if(opts.note!=null)$('#editNote').value=String(opts.note).slice(0,180);if(opts.big!=null&&!$('#big').disabled)$('#big').checked=!!opts.big;editInput();
+    return {ok:true,location:locationOf(S.selected),type:S.selected.type,preview:'visible in the page'};},
+  keep:()=>({ok:commit()}),
+  discard:()=>{const it=S.selected;if(!it)return {ok:true};S.dirty=false;preview(it,S.items.has(it.anchor)?it.text:it.original);persist();clearSelection();return {ok:true};},
+  note:text=>{const v=String(text||'').trim();if(!v)return {ok:false};S.other=(S.other?S.other+'\n\n':'')+v.slice(0,1800);S.other=S.other.slice(0,2000);persist();return {ok:true};},
+  changes:()=>({changes:[...S.items.values()].map(it=>({location:locationOf(it),before:String(it.original||'').slice(0,160),after:String(it.text||'').slice(0,300),note:it.note||'',media:it.media||null})),note:S.other}),
+  contact:(name,email)=>{S.name=String(name||'').slice(0,80);S.email=String(email||'').slice(0,160);persist();return {ok:/^\S+@\S+\.\S+$/.test(S.email)};},
+  review:()=>{guard(renderReview);return true;},
+  send:()=>{guard(()=>{renderReview();confirmSend();});return {ok:true,next:'A confirmation dialog is open. Click its Send button only after the owner says yes.'};}
+});
+(function claudeButton(){
+  const bar=$('.toolbar-actions');if(!bar)return;const b=document.createElement('button');b.className='ghost';b.id='claudeBtn';b.textContent='✳ '+MX.claude;bar.prepend(b);
+  const prompt=`I'm editing my website in the Mr. Space editor (this page). Read the guide first by running this JavaScript in the page: MsEditorAPI.guide() — then follow it. Ask me one question at a time.`;
+  b.onclick=async()=>{let copied=false;try{await navigator.clipboard.writeText(prompt);copied=true;}catch{}
+    showDialog(MX.claudeTitle,`<ol class="mx-steps">${MX.claudeSteps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><textarea class="note-input" readonly rows="4">${esc(prompt)}</textarea><p class="help">${esc(copied?MX.copied:'')}</p><p class="help">${esc(MX.claudeNote)}</p>`,[{label:MX.copy,primary:true,run:async()=>{try{await navigator.clipboard.writeText(prompt);notify(MX.copied);}catch{}}}]);};
+  const guideEl=document.createElement('script');guideEl.type='text/plain';guideEl.id='ms-claude-guide';guideEl.textContent=claudeGuide;document.body.append(guideEl);
+})();
