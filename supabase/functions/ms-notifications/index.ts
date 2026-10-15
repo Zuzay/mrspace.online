@@ -16,7 +16,7 @@ Deno.serve(async(req:Request)=>{
   const email=await staffUser(db,req,site);if(!email)return reply({error:'not_allowed'},403);
   if(body.action==='settings'){
    const config=await notificationConfig(db,true),prefs=await db.from('ms_notification_preferences').select('delivery_email,email_enabled,lang').eq('site',site).eq('owner_email',email).maybeSingle();if(prefs.error)throw new Error('settings_unavailable');
-   return reply({publicKey:config.vapid.publicKey,emailReady:!!(config.emailKey&&config.emailFrom),email:prefs.data?.delivery_email||(site==='rufcut'?'shop@rufcut.com':email),emailEnabled:prefs.data?.email_enabled??true});
+   return reply({publicKey:config.vapid.publicKey,emailReady:!!(config.emailKey&&config.emailFrom),email:prefs.data?.delivery_email||config.contactEmail,emailEnabled:prefs.data?.email_enabled??true});
   }
   if(body.action==='preferences'){
    const delivery=String(body.email||'').trim().toLowerCase();if(delivery.length>160||!/^\S+@\S+\.\S+$/.test(delivery)||typeof body.enabled!=='boolean')return reply({error:'invalid_preferences'},400);

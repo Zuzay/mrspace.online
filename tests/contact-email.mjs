@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {service} from './order-service-fixture.mjs';
+const inbox='mrspace.online1@gmail.com';
+const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 10L90 90"/></svg>';
+const order=()=>({action:'submit',token:crypto.randomUUID(),name:'Fixture customer',email:'customer@example.test',items:[{garment:'jacket',gender:'unisex',actions:['take_in'],note:'',preview_svg:svg}],preview_svg:svg});
+const sent=f=>f.calls.fetches.filter(c=>c.url.includes('api.resend.com/emails')).map(c=>JSON.parse(c.options.body));
+let f=service();f.state.mailReady=true;await f.post(order());let messages=sent(f);assert.equal(messages.length,2);assert.ok(messages.some(m=>m.to[0]==='customer@example.test'));assert.ok(messages.some(m=>m.to[0]===inbox));assert.ok(messages.every(m=>m.reply_to===inbox));assert.ok(messages.every(m=>m.from==='Workshop <shop@example.test>'));
+console.log('PASS studio inbox receives staff mail, customer keeps receipt, replies target Gmail and authenticated sender is preserved');
+f=service();f.state.mailReady=true;f.state.preferences=[{site:'rufcut',owner_email:f.state.user,delivery_email:inbox,email_enabled:false,lang:'en'}];await f.post(order());messages=sent(f);assert.equal(messages.length,1);assert.equal(messages[0].to[0],'customer@example.test');console.log('PASS explicit staff opt-out is respected');
+f=service();f.state.mailReady=true;f.state.preferences=[{site:'rufcut',owner_email:f.state.user,delivery_email:'merchant@example.test',email_enabled:true,lang:'en'}];await f.post(order());messages=sent(f);assert.equal(messages.length,3);assert.ok(messages.some(m=>m.to[0]==='merchant@example.test'));console.log('PASS merchant-specific subscriptions remain intact alongside the central inbox');
+f=service('notifications');const status=await(await f.post({action:'settings',site:'rufcut'},{auth:true})).json();assert.equal(status.email,inbox);assert.equal(status.emailReady,false);assert.equal(sent(f).length,0);console.log('PASS default notification address is updated without falsely claiming delivery is configured');
