@@ -1,0 +1,48 @@
+name: Publish client sites
+# Builds every sites/<slug>/site.json that has a "repo" and pushes the result to that
+# client repo (GitHub Pages serves it). Without the SITES_DEPLOY_TOKEN secret it only
+# builds and lists what would change (dry run). Files are never deleted in the client repo.
+on:
+  push:
+    branches: [main]
+    paths: ['sites/**', 'assets/**', 'tools/build-site.mjs', 'rufcut/**', 'iwona-ash/**']
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Only this site (empty = all with a repo)'
+        required: false
+concurrency: { group: publish-sites, cancel-in-progress: false }
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      TOKEN: ${{ secrets.SITES_DEPLOY_TOKEN }}
+      ONLY: ${{ github.event.inputs.slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Build and publish
+        run: |
+          set -euo pipefail
+          git config --global user.name "Mr. Space bot"
+          git config --global user.email "bot@mrspace.online"
+          for cfg in sites/*/site.json; do
+            slug=$(basename "$(dirname "$cfg")")
+            if [ -n "$ONLY" ] && [ "$ONLY" != "$slug" ]; then continue; fi
+            target=$(node -e "const c=require('./$cfg');process.stdout.write(c.repo||'')")
+            [ -n "$target" ] || { echo "$slug: no repo, skipped"; continue; }
+            out="$RUNNER_TEMP/build-$slug"; dest="$RUNNER_TEMP/repo-$slug"
+            node tools/build-site.mjs "$slug" "$out"
+            if [ -n "$TOKEN" ]; then url="https://x-access-token:${TOKEN}@github.com/${target}.git"; else url="https://github.com/${target}.git"; fi
+            git clone --quiet --depth 1 "$url" "$dest"
+            cp -R "$out"/. "$dest"/
+            cd "$dest"; git add -A
+            if git diff --cached --quiet; then echo "$slug: already up to date"; cd - >/dev/null; continue; fi
+            echo "$slug: changed files:"; git diff --cached --name-status | sed 's/^/  /'
+            if [ -z "$TOKEN" ]; then echo "$slug: dry run (add SITES_DEPLOY_TOKEN to publish)"; cd - >/dev/null; continue; fi
+            git commit --quiet -m "Publish from mrspace.online@${GITHUB_SHA::7}"
+            git push --quiet origin HEAD
+            echo "$slug: published to $target"
+            cd - >/dev/null
+          done
