@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thank you | Rufcut</title><meta name="robots" content="noindex">
+<script>try{const theme=localStorage.getItem('rufcut-theme');if(['light','dark'].includes(theme))document.documentElement.dataset.theme=theme}catch{}try{localStorage.removeItem('ms-cart-rufcut')}catch{}</script>
+<link rel="stylesheet" href="../fonts.css?v=20261014-stencil"><link rel="stylesheet" href="../homepage.css?v=20261014-stencil">
+<style>.thanks{padding-block:80px 100px;max-width:640px}.thanks h1{font:clamp(48px,9vw,88px)/.95 var(--display);text-transform:uppercase}.thanks p{font-size:16px;line-height:1.7;margin-top:22px;color:var(--mute)}.thanks .ref{font:12px var(--mono);margin-top:28px;color:var(--mute)}.thanks .actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}</style>
+</head>
+<body>
+<header><div class="wrap header-inner"><a class="logo" href="../">RUFCUT<span aria-hidden="true">®</span></a></div></header>
+<main class="wrap thanks">
+<h1>Thank you.</h1>
+<p>Your order is in. Square has emailed your receipt. If you chose shop pickup, we will message you when it is ready at 517 Ocean Front Walk, Suite 7, Venice.</p>
+<p>Questions about your order? Call or text <a href="tel:+13104735384">(310) 473-5384</a> or write to <a href="mailto:shop@rufcut.com">shop@rufcut.com</a>.</p>
+<p class="ref" id="ref" hidden></p>
+<div class="actions"><a class="btn primary" href="../#vintage">Keep browsing ↗</a><a class="btn secondary" href="../">Home</a></div>
+</main>
+<footer><div class="wrap"><a class="footer-wordmark" href="../">RUFCUT</a><p>517 Ocean Front Walk, Suite 7 · Venice, CA 90291</p></div></footer>
+<script>const o=new URLSearchParams(location.search).get('orderId');if(o&&/^[A-Za-z0-9]{6,64}$/.test(o)){const r=document.getElementById('ref');r.textContent='Order reference: '+o.slice(-8).toUpperCase();r.hidden=false;}</script>
+</body>
+</html>
