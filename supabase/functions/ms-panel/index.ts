@@ -33,7 +33,7 @@ Deno.serve(async(req:Request)=>{
    if(!Number.isFinite(amount)||amount<0||!Number.isFinite(monthly.agreed)||monthly.agreed<0||!Number.isFinite(monthly.standard)||monthly.standard<0)throw Error('billing_invalid');
    const summary=checked(await db.rpc('ms_billing_work_summary',{p_site:site}));
    if(!Number.isSafeInteger(summary.data?.entries)||!Number.isSafeInteger(summary.data?.minutes_recorded))throw Error('billing_work_unavailable');
-   const verified=!!b.setup_verified_at,setup={amount,status:verified?'verified':'unverified',verified_at:b.setup_verified_at};
+   const verified=!!b.setup_verified_at,setup={amount,status:verified?'verified':'unverified',verified_at:b.setup_verified_at,branding_removal_on:a.setup?.branding_removal_on||null};
    // Monthly payments require actual invoices; options and standard value are never added to the debt.
    return reply({currency:b.currency,agreement:{plan:a.plan,setup,monthly:{...monthly,early_start:{...monthly.early_start,chosen:!!b.early_start_chosen}}},options:t.options||[],
     work:{source:'ms_activity',...summary.data,estimate:t.work_estimate||null},due:{amount:verified?0:amount,items:verified?[]:[{key:'setup',amount,status:'unverified'}]},checked_at:new Date().toISOString()});
