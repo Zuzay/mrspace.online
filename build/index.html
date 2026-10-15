@@ -111,6 +111,7 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 .prog .ok{margin:10px 0 0;color:var(--ok);font-weight:700}
 </style>
 <link rel="stylesheet" href="../assets/ms-builder-guide.css">
+<link rel="stylesheet" href="../assets/ms-connectivity.css">
 </head>
 <body>
 <div id="root"><div class="center" id="loading">…</div></div>
@@ -141,6 +142,9 @@ dialog textarea{width:100%;min-height:90px;border:1px solid var(--line);border-r
 <script src="../assets/ms-render.js"></script>
 <script src="../assets/ms-catalog.js"></script>
 <script src="../assets/ms-platform.js"></script>
+<script src="../assets/ms-drafts.js"></script>
+<script src="../assets/ms-connectivity.js"></script>
+<script src="../assets/ms-builder-resilience.js"></script>
 <script>
 const LANGS = ["en", "tr", "es", "de", "fr"];
 const LANG = (() => {
@@ -257,7 +261,7 @@ document.querySelectorAll("[data-ph]").forEach((el) => el.placeholder = T(el.dat
 document.getElementById("sendNote").placeholder = T("note_ph");
 
 const C = window.MS_CONFIG;
-const sb = supabase.createClient(C.url, C.anon, { auth: { autoRefreshToken: false, persistSession: false } });
+const sb = supabase.createClient(C.url, C.anon, { auth: { autoRefreshToken: false, persistSession: false }, global: { fetch: MsConnectivity.fetchWithTimeout } });
 const R = window.MsRender;
 const P = new URLSearchParams(location.search);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -265,6 +269,8 @@ const root = document.getElementById("root");
 const FONT_SUGGEST = ["Bricolage Grotesque","Source Sans 3","Young Serif","Work Sans","Syne","Manrope","Fraunces","IBM Plex Sans","DM Serif Display","DM Sans","Playfair Display","Lora","Libre Baskerville","Archivo","Outfit","Space Grotesk","Cormorant Garamond","Josefin Sans","Rubik","Karla","Nunito Sans","Merriweather","Bebas Neue","Abril Fatface","Caveat"];
 
 const S = { admin: false, key: P.get("k") || "", site: null, build: null, data: { content: {}, theme: {} }, view: "edit", sector: "other", hint: null, guide: "business", device: "desktop", local: P.get("preview") === "1" };
+DICT.device_saved=["Saved on this device","Bu cihazda saklandı","Guardado en este dispositivo","Auf diesem Gerät gespeichert","Enregistré sur cet appareil"];
+const resilience=MsBuilderResilience.create({state:S,params:P,language:LANG,editable:()=>editable(),dirty:()=>saveState!=="saved",redraw:()=>draw(),schedule:()=>schedule(),save:()=>save()});
 
 // ---------- Yardimci (yapay zeka yok; sabit ipuclari) ----------
 const HINT_SECTORS = ["cafe", "bakery", "bar", "tailor", "florist", "boutique", "other"];
@@ -417,7 +423,7 @@ async function load() {
       S.site={name:"Mr. Space",slug:"preview",mode:"builder"}; S.build={id:0,status:"draft"};
       try{const saved=JSON.parse(localStorage.getItem("ms-builder-local-preview")||"null");if(saved?.content?.business && Array.isArray(saved.content.sections)) S.data=saved;}catch{}
       if(!S.data.content?.business)S.data={content:R.example(MsCatalog.entries.find(e=>e.id===P.get("design")&&e.kind==="design")?.preset||"commerce",LANG),theme:{preset:MsCatalog.entries.find(e=>e.id===P.get("design")&&e.kind==="design")?.preset||"commerce"}};
-      return draw();
+      resilience.serverLoaded(); return draw();
     }
     if (P.get("t") || P.get("ta") || P.has("try")) return await loadTrial();
     if (P.get("b")) {
@@ -439,9 +445,10 @@ async function load() {
       : (S.site.mode === "builder" ? R.starter(S.site.name, LANG) : {});
     S.data.theme = S.build.theme && Object.keys(S.build.theme).length ? S.build.theme : { preset: "liman" };
     document.title = `${S.site.name} · Mr. Space`;
-    draw();
+    resilience.serverLoaded(); draw();
   } catch (e) {
     root.innerHTML = `<div class="center"><h2>Mr. Space</h2><p>${T("bad_link")}</p></div>`;
+    resilience.loadFailed();
   }
 }
 
@@ -634,22 +641,23 @@ function markSaved(state) {
   const el = document.getElementById("saved"); if (!el) return;
   el.textContent = T(state); el.classList.toggle("err", state === "save_err");
 }
-function schedule() { dirtyRevision++; markSaved("saving"); clearTimeout(svT); svT = setTimeout(save, 900); }
+function schedule() { dirtyRevision++; resilience.persist(); markSaved("saving"); clearTimeout(svT); svT = setTimeout(save, 900); }
 function save() {
   clearTimeout(svT);
-  const revision=dirtyRevision, content=structuredClone(S.data.content), theme=structuredClone(S.data.theme);
+  const revision=dirtyRevision, content=structuredClone(S.data.content), theme=structuredClone(S.data.theme), journal=resilience.persist();
   saving = saving.then(async () => {
     try {
+      if(!resilience.canSave()){markSaved(resilience.fail()?"device_saved":"save_err");return false;}
       let error;
       if(S.local){localStorage.setItem("ms-builder-local-preview",JSON.stringify({content,theme}));}
       else if (S.trial && S.admin) ({ error } = await sb.from("ms_trials").update({ content, theme, updated_at: new Date().toISOString() }).eq("id", S.trialId));
       else if (S.trial) ({ error } = await sb.rpc("ms_trial_save", { p_token: S.token, p_content: content, p_theme: theme }));
       else if (S.admin) ({ error } = await sb.from("ms_builds").update({ content, theme, updated_at: new Date().toISOString() }).eq("id", S.build.id));
       else ({ error } = await sb.rpc("ms_builder_save", { p_key: S.key, p_build: S.build.id, p_content: content, p_theme: theme }));
-      if(error) { markSaved("save_err"); return false; }
-      markSaved(revision===dirtyRevision ? "saved" : "saving");refreshProg();
+      if(error) { markSaved(resilience.fail()?"device_saved":"save_err"); return false; }
+      resilience.acknowledge(journal);markSaved(revision===dirtyRevision ? "saved" : "saving");refreshProg();
       return revision===dirtyRevision;
-    } catch { markSaved("save_err"); return false; }
+    } catch { markSaved(resilience.fail()?"device_saved":"save_err"); return false; }
   });
   return saving;
 }
@@ -737,7 +745,7 @@ document.getElementById("sendGo").onclick = async (e) => {
   load();
 };
 const _draw = draw;
-draw = function () { _draw(); bindSend(); };
+draw = function () { _draw(); bindSend(); resilience.render(); };
 window.addEventListener("beforeunload", (e) => { if (saveState !== "saved") { e.preventDefault(); e.returnValue = ""; } });
 
 // ---------- ucretsiz deneme (misafir) ----------
@@ -784,7 +792,7 @@ async function loadTrial() {
     S.site = { name: t.business || t.content?.business?.name || "Deneme", mode: "builder" };
     S.build = { id: t.id, status: t.status };
     S.data.content = t.content; S.data.theme = t.theme;
-    return draw();
+    resilience.serverLoaded(); return draw();
   }
   if (P.get("t")) {
     S.token = P.get("t");
@@ -794,7 +802,7 @@ async function loadTrial() {
     S.build = { id: 0, status: data.status, preview_key: data.preview_key };
     S.data.content = data.content; S.data.theme = data.theme;
     S.sector = HINT_SECTORS.includes(data.sector) ? data.sector : "other";
-    return draw();
+    resilience.serverLoaded(); return draw();
   }
   drawStart();
 }
@@ -845,7 +853,7 @@ document.getElementById("tGo2").onclick = async (e) => {
   S.build.status = "submitted"; draw();
 };
 
-MsPlatform.ready.then(load).catch(()=>MsPlatform.fail('root'));
+MsPlatform.ready.then(async()=>{await resilience.init();await load();}).catch(()=>MsPlatform.fail('root'));
 </script>
 </body>
 </html>
