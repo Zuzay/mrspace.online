@@ -41,6 +41,7 @@
  function renderGallery(){const thumbs=gallery.map((u,i)=>{const b=node('button');b.type='button';b.setAttribute('aria-label','View image '+(i+1)+' of '+activeProduct.name);b.setAttribute('aria-pressed',String(i===0));const img=node('img');img.src=imageUrl(u,130);img.alt='';img.loading='lazy';img.width=62;img.height=73;b.append(img);b.addEventListener('click',()=>setGallery(i));return b;});$('#product-thumbs').replaceChildren(...thumbs);setGallery(0);}
  function syncVariant(){
   activeVariant=activeProduct.variants.find(v=>v.options.every((o,i)=>o===selectedOptions[i]))||null;
+  $$('#product-options [data-option-index]').forEach(group=>{const index=Number(group.dataset.optionIndex);group.querySelector('.option-color-name').textContent=selectedOptions[index];group.querySelectorAll('[data-option-value]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.optionValue===selectedOptions[index])));});
   const add=$('#add-to-bag');add.disabled=!activeVariant||!activeVariant.available;
   $('#variant-status').textContent=!activeVariant?'This combination is unavailable.':!activeVariant.available?'Currently unavailable. Please choose another option.':'';
   add.firstChild.textContent=add.disabled?'Unavailable ':'Add to bag ';
@@ -50,7 +51,17 @@
   if(!await ready)return;const p=byHandle(handle);if(!p)return;activeProduct=p;activeVariant=variantOf(p,preferred);selectedOptions=activeVariant.options.slice();
   $('#product-title').textContent=p.name;$('#product-category').textContent=categoryLabel(p);$('#product-description').textContent=p.description;$('#product-price').textContent=money(activeVariant.price);$('#product-about').textContent=p.specs||p.description;
   $('#product-care').textContent=p.category==='wear'&&p.handle!=='leather-overall'?'Follow the garment care label. Treat linen gently and store it dry. Contact the studio for care advice for your piece.':'Wipe away dust with a soft, slightly damp cloth. Keep leather away from prolonged sunlight and heat. Test any leather conditioner on a discreet area first.';
-  const options=p.options.filter(o=>!(o.values.length===1&&o.values[0]==='Default Title')).map((o,index)=>{const label=node('label',null,o.name),select=node('select');select.setAttribute('aria-label',o.name+' for '+p.name);o.values.forEach(value=>{const opt=node('option',null,value);opt.value=value;select.append(opt);});select.value=selectedOptions[index];select.addEventListener('change',()=>{selectedOptions[index]=select.value;syncVariant();});label.append(select);return label;});$('#product-options').replaceChildren(...options);
+  const options=p.options.map((o,index)=>{
+   if(o.values.length===1&&o.values[0]==='Default Title')return null;
+   if(/color/i.test(o.name)){
+    const group=node('fieldset','option-colors');group.dataset.optionIndex=index;
+    const legend=node('legend',null,o.name+': '),current=node('span','option-color-name',selectedOptions[index]);current.setAttribute('aria-live','polite');legend.append(current);
+    const swatches=node('div','product-swatches');
+    o.values.forEach(value=>{const button=node('button','product-swatch');button.type='button';button.dataset.optionValue=value;button.title=value;button.setAttribute('aria-label',o.name+': '+value);button.setAttribute('aria-pressed',String(selectedOptions[index]===value));button.style.setProperty('--swatch',colorHex(value));button.append(node('span'));button.addEventListener('click',()=>{selectedOptions[index]=value;syncVariant();});swatches.append(button);});
+    group.append(legend,swatches);return group;
+   }
+   const label=node('label',null,o.name),select=node('select');select.setAttribute('aria-label',o.name+' for '+p.name);o.values.forEach(value=>{const opt=node('option',null,value);opt.value=value;select.append(opt);});select.value=selectedOptions[index];select.addEventListener('change',()=>{selectedOptions[index]=select.value;syncVariant();});label.append(select);return label;
+  }).filter(Boolean);$('#product-options').replaceChildren(...options);
   gallery=Array.from(new Set([activeVariant.image,...p.images.map(i=>i.src)]));renderGallery();syncVariant();openDialog($('#product-dialog'));$('#product-dialog').scrollTop=0;history.replaceState(null,'',location.pathname+location.search+'#product/'+encodeURIComponent(p.handle));
  }
  function saveCart(){try{localStorage.setItem('iwona-preview-bag-v1',JSON.stringify(cart));}catch(e){announce('Your preview bag is available for this visit.');}renderCart();}
