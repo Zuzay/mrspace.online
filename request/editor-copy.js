@@ -55,7 +55,8 @@ const L = {
     err:'Envoi impossible. Vérifiez la connexion et réessayez.',bad:'Ce lien n\'est pas valide. Demandez-nous en un nouveau.',
     elsewhere:'Sur une autre page',general:'Note générale',inProgress:'En cours',quota:q=>q.small_quota?('Ce mois-ci : '+q.small_used+' sur '+q.small_quota+' petites modifications.'):''}
 };
-const lang = (()=>{ let p=null; try{p=localStorage.getItem('ms_lang')}catch(e){}
+const rufcutEnglish = new URLSearchParams(location.search).get('site')==='rufcut'||new URLSearchParams(location.search).get('preview')==='rufcut';
+const lang = (()=>{ if(rufcutEnglish)return 'en'; let p=null; try{p=localStorage.getItem('ms_lang')}catch(e){}
   const c=(p||navigator.language||'en').slice(0,2).toLowerCase(); return L[c]?c:'en'; })();
 const t = L[lang]; document.documentElement.lang = lang;
 const G = {
@@ -144,6 +145,7 @@ Object.assign(editorWords,{
   removeText:['Remove this text','Bu metni kaldır','Quitar este texto','Diesen Text entfernen','Supprimer ce texte'],
   recoverConflict:['The server has a newer request. Choose which version to continue editing.','Sunucuda daha yeni bir talep var. Düzenlemeye hangi sürümle devam edeceğini seç.','Hay una solicitud más reciente en el servidor. Elige qué versión seguir editando.','Auf dem Server liegt eine neuere Anfrage. Wähle die Version für die weitere Bearbeitung.','Une demande plus récente existe sur le serveur. Choisissez la version à modifier.'],
   useServer:['Use server version','Sunucudaki sürümü kullan','Usar versión del servidor','Serverversion verwenden','Utiliser la version du serveur'],
+  snapshotNote:['Page snapshot. Catalog and map changes use their native panels.','Sayfa görüntüsü. Katalog ve harita değişiklikleri kendi panellerinden yapılır.','Vista de la página. El catálogo y el mapa se editan en sus propios paneles.','Seitenansicht. Katalog und Karte werden in ihren eigenen Panels bearbeitet.','Aperçu de la page. Le catalogue et la carte se modifient dans leurs propres panneaux.'],
   restoreDraft:['Restore my device draft','Cihazdaki taslağımı geri yükle','Restaurar borrador del dispositivo','Geräteentwurf wiederherstellen','Restaurer le brouillon local']
 });
 const editorLangs=['en','tr','es','de','fr'];
