@@ -9,7 +9,7 @@ await fs.cp(path.join(repo,'rufcut'),output,{recursive:true,filter:src=>!path.ba
 await fs.mkdir(path.join(output,'assets','lang'),{recursive:true});
 for(const file of ['ms-config.js','i18n.js','ms-site-catalog.js','ms-storefront.js','ms-storefront.css','ms-media.js'])await fs.copyFile(path.join(repo,'assets',file),path.join(output,'assets',file));
 await fs.cp(path.join(repo,'assets','fonts'),path.join(output,'assets','fonts'),{recursive:true});
-for(const lang of ['en','tr','es','de','fr'])for(const prefix of ['storefront-','rufcut-']){
+for(const lang of ['en','tr','es','de','fr'])for(const prefix of ['storefront-','rufcut-','contact-']){
  const file=prefix+lang+'.json';try{await fs.copyFile(path.join(repo,'assets','lang',file),path.join(output,'assets','lang',file));}catch(error){if(error.code!=='ENOENT')throw error;}
 }
 let home=await fs.readFile(path.join(output,'index.html'),'utf8');
