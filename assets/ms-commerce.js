@@ -1,4 +1,4 @@
-/* Shared pre-launch commerce contract. Prices and ownership come from the server. */
+/* Shared commerce contract: checkout opens only when every blocker is cleared. Prices and ownership come from the server. */
 (function(root){
 'use strict';
 const profiles=['light','standard','heavy'];
@@ -29,7 +29,7 @@ function readiness(s,account,scopes,items){
  if(s.countries.length){if(s.mode==='pending')blockers.push('shipping_rates');else if(s.mode==='carrier')blockers.push('carrier_connection');else if(profiles.some(p=>s.rates[p].base===null||s.rates[p].extra===null))blockers.push('shipping_rates');if(!s.origin_country||!s.origin_postal)blockers.push('shipping_origin');}
  if(s.dispatch_days===null)blockers.push('dispatch_time');if(!s.returns_url)blockers.push('returns_policy');if(!s.tax_reviewed)blockers.push('tax_review');
  if(!items.some(it=>s.products[it.id]?.sale==='ready'&&it.variations.some(v=>v.track&&v.stock>0&&Number.isSafeInteger(v.price)&&v.price>0)))blockers.push('product_review');
- return {setup_ready:blockers.length===0,checkout_live:false,blockers};
+ return {setup_ready:blockers.length===0,checkout_live:blockers.length===0,blockers};
 }
 function quote(s,items,input,currency){
  if(!input||!Array.isArray(input.lines)||!input.lines.length||input.lines.length>20||!['pickup','ship'].includes(input.delivery))throw Error('commerce_invalid');
