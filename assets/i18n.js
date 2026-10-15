@@ -20,7 +20,10 @@
     for (var i = 0; i < list.length; i++) { var c = String(list[i]).slice(0, 2).toLowerCase(); if (CODES.indexOf(c) > -1) return c; }
     return source;
   }
-  var lang = pick();
+  // Rufcut has its own English customer experience, independent of the studio preference.
+  var route = new URL(location.href);
+  var forced = (me && me.getAttribute("data-force-lang")) || (/^\/rufcut(?:\/|$)/.test(route.pathname) || (/^\/(?:panel|edit)(?:\/|$)/.test(route.pathname) && route.searchParams.get("site") === "rufcut") ? "en" : "");
+  var lang = CODES.indexOf(forced) > -1 ? forced : pick();
   if (lang !== source) document.documentElement.classList.add("i18n-wait");
   document.documentElement.lang = lang;
 
@@ -66,7 +69,7 @@
 
   function switcher() {
     var host = document.querySelector("[data-lang-host]") || document.querySelector(".top .nav") || document.querySelector(".rail .me");
-    if (!host || document.getElementById("msLang")) return;
+    if (forced || !host || document.getElementById("msLang")) return;
     var sel = document.createElement("select");
     sel.id = "msLang"; sel.setAttribute("aria-label", "Language"); sel.setAttribute("data-noi18n", "");
     sel.className = "lang-pick";
