@@ -27,3 +27,9 @@ Do not paste passwords, card data, Square OAuth tokens or Supabase service keys 
 Check product photo/title links, size selection and price, the Square payment destination, phone/email, repair/design submission and ticket lookup. Check a phone screen. Publish the reviewed commit and keep the previous hosting deployment available to restore.
 
 Domain setup must keep the Square payment store on a separate working hostname. If the Square address redirects back to this website's product details, contact the studio before publishing; that loop cannot complete checkout.
+
+## First custom domain
+
+The first native website domain is **www.rufcutjeans.com** (with rufcutjeans.com directed to that canonical address). **rufcut.com stays on the existing Square Online store.** Do not change its DNS or disconnect its Square domain. The existing Square-host-to-rufcut.com redirect is compatible with this split: the new native website and Square store have different domains.
+
+DNS prompt: [Claude first-domain instructions](docs/claude-rufcutjeans-dns.md). The dedicated hosting project, custom-domain binding and actual DNS targets must be prepared first. A prompt or Square catalog connection alone cannot create that missing host routing.
