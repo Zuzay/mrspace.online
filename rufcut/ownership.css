@@ -1,0 +1,14 @@
+/* Keep until Mr. Space verifies the initial payment. */
+.ms-ownership{display:flex;align-items:center;gap:8px;max-width:100%;padding:0;background:#d9822b;color:#111b33;border-block:1px solid #111b3333;font:600 12px/1.5 system-ui,sans-serif;isolation:isolate}
+.ms-ownership-viewport{flex:1;min-width:0;overflow:hidden;padding-block:10px}
+.ms-ownership-track{display:flex;width:max-content;animation:ms-ownership-scroll 30s linear infinite}
+.ms-ownership-group{display:flex;flex:none;align-items:center;gap:48px;padding-right:48px}
+.ms-ownership a{color:inherit;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.ms-ownership button{flex:none;min-width:44px;min-height:44px;margin:0;border:0;border-left:1px solid #111b3333;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.ms-ownership :focus-visible{outline:2px solid currentColor;outline-offset:-3px}
+.ms-ownership:hover .ms-ownership-track,.ms-ownership:focus-within .ms-ownership-track,.ms-ownership[data-paused] .ms-ownership-track{animation-play-state:paused}
+.ms-ownership button[hidden]{display:none!important}
+html[data-embed=true] .ms-ownership{display:none}
+@keyframes ms-ownership-scroll{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.ms-ownership-track{animation:none}.ms-ownership-group{gap:24px;padding-right:24px}.ms-ownership button{display:none}}
+@media print{.ms-ownership{display:none}}
