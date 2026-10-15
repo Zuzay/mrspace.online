@@ -1,0 +1,97 @@
+{
+  "slug": "rufcut",
+  "name": "Rufcut",
+  "source": "rufcut",
+  "skip_prefixes": [
+    "www.rufcut.com"
+  ],
+  "exclude": [
+    "DESIGN-2026.md",
+    "OWNER-AI.md",
+    "docs/rufcut-system-guide.pdf"
+  ],
+  "domain": "www.rufcutjeans.com",
+  "cname_newline": false,
+  "repo": "mrspace-online-studio/rufcutjeans",
+  "shared": {
+    "files": [
+      "ms-config.js",
+      "i18n.js",
+      "ms-site-catalog.js",
+      "ms-storefront.js",
+      "ms-storefront.css",
+      "ms-media.js"
+    ],
+    "dirs": [
+      "fonts"
+    ],
+    "langs": [
+      "en",
+      "tr",
+      "es",
+      "de",
+      "fr"
+    ],
+    "lang_prefixes": [
+      "storefront-",
+      "rufcut-",
+      "contact-"
+    ]
+  },
+  "cache_version": "20261014-cart",
+  "versioned": [
+    "ms-storefront.js",
+    "ms-site-catalog.js",
+    "homepage-stock.js"
+  ],
+  "rewrites": [
+    {
+      "file": "index.html",
+      "find": "<meta name=\"robots\" content=\"noindex\">",
+      "replace": "<meta name=\"robots\" content=\"index,follow\"><link rel=\"canonical\" href=\"https://www.rufcutjeans.com/\">"
+    },
+    {
+      "file": "index.html",
+      "find": "Rufcut, a concept by Mr. Space",
+      "replace": "Rufcut | Custom denim, vintage & repairs"
+    },
+    {
+      "file": "index.html",
+      "find": "Concept for Rufcut, Venice Beach",
+      "replace": "Rufcut, Venice Beach"
+    },
+    {
+      "file": "index.html",
+      "find": "href=\"../\"",
+      "replace": "href=\"https://mrspace.online/\"",
+      "all": true
+    },
+    {
+      "file": "index.html",
+      "find": "https://mrspace.online/rufcut/media/rufcut-store.webp",
+      "replace": "https://www.rufcutjeans.com/media/rufcut-store.webp"
+    },
+    {
+      "file": "index.html",
+      "find": "class=\"craft-story\" data-ms-section=\"workshop\"",
+      "replace": "id=\"workshop\" class=\"craft-story\" data-ms-section=\"workshop\""
+    },
+    {
+      "file": "repair/index.html",
+      "find": "href=\"../../\"",
+      "replace": "href=\"https://mrspace.online/\"",
+      "all": true
+    }
+  ],
+  "pages": [
+    "/",
+    "/repair/"
+  ],
+  "redirects": [
+    "/s/shop /#vintage 301",
+    "/product/:slug/:id /product/?id=:id 301",
+    "/contact-us /#visit 301",
+    "/workshop-reviews /#workshop 301",
+    "/alterations-repairs /#repairs 301"
+  ]
+}

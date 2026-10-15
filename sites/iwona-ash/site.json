@@ -1,0 +1,21 @@
+{
+  "slug": "iwona-ash",
+  "name": "Iwona Ash",
+  "source": "iwona-ash",
+  "skip_prefixes": [],
+  "exclude": [],
+  "domain": null,
+  "repo": null,
+  "shared": {
+    "files": [],
+    "dirs": [],
+    "langs": [],
+    "lang_prefixes": []
+  },
+  "rewrites": [],
+  "pages": [
+    "/"
+  ],
+  "redirects": [],
+  "note": "Preview only (mrspace.online/iwona-ash/). Set domain and repo when the client goes live."
+}
