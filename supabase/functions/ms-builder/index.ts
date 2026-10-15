@@ -263,7 +263,11 @@ async function upload(req: Request) {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!(file instanceof File) || (!uuid.test(key) && !uuid.test(trial) && !uuid.test(edit))) return json({ error: "bad_request" }, 400);
   const types: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
-  if (!types[file.type]) return json({ error: "type" }, 400);
+  // Short site videos (site links only, never free trials): muted loops for hero or gallery areas.
+  const videos: Record<string, string> = { "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov" };
+  const isVideo = !!videos[file.type];
+  if (!types[file.type] && !isVideo) return json({ error: "type" }, 400);
+  if (isVideo && !uuid.test(key) && !uuid.test(edit)) return json({ error: "type" }, 400);
 
   let folder = "", site: string | null = null;
   if (uuid.test(key) || uuid.test(edit)) {
@@ -277,7 +281,7 @@ async function upload(req: Request) {
     const lookup = db.from("ms_sites").select("slug");
     const { data: s } = await (slug ? lookup.eq("slug", slug) : lookup.eq("site_key", key)).maybeSingle();
     if (!s) return json({ error: "unknown_site" }, 403);
-    if (file.size > 5 * 1024 * 1024) return json({ error: "size" }, 400);
+    if (file.size > (isVideo ? 25 : 5) * 1024 * 1024) return json({ error: "size" }, 400);
     const since = new Date(Date.now() - 3600e3).toISOString();
     const { count } = await db.from("ms_activity").select("id", { count: "exact", head: true })
       .eq("site", s.slug).eq("action", "Image uploaded").gte("at", since);
@@ -292,11 +296,11 @@ async function upload(req: Request) {
     if ((list?.length || 0) >= 15) return json({ error: "too_many" }, 429);
     folder = `trials/${t.id}`;
   }
-  const path = `${folder}/${crypto.randomUUID()}.${types[file.type]}`;
+  const path = `${folder}/${crypto.randomUUID()}.${types[file.type] || videos[file.type]}`;
   const { error } = await db.storage.from("ms-media").upload(path, file, { contentType: file.type, cacheControl: "31536000" });
   if (error) return json({ error: error.message }, 500);
-  if (site) await db.from("ms_activity").insert({ site, who: "client", action: "Image uploaded" });
-  return json({ url: MEDIA + path });
+  if (site) await db.from("ms_activity").insert({ site, who: "client", action: isVideo ? "Video uploaded" : "Image uploaded" });
+  return json({ url: MEDIA + path, kind: isVideo ? "video" : "image" });
 }
 
 Deno.serve(async (req) => {
