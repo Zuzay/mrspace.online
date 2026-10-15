@@ -2,9 +2,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import {createRequire} from 'node:module';
+import {createRequire,stripTypeScriptTypes} from 'node:module';
 import {createDraft} from '../ms/draft-render.mjs';
-const require=createRequire(import.meta.url),ts=require(process.env.MS_TYPESCRIPT_MODULE);
+const require=createRequire(import.meta.url),ts=process.env.MS_TYPESCRIPT_MODULE?require(process.env.MS_TYPESCRIPT_MODULE):null;
 const renderer={window:{}};vm.runInNewContext(fs.readFileSync(new URL('../assets/ms-render.js',import.meta.url),'utf8'),renderer);
 let count=0;
 async function test(label,fn){await fn();count++;console.log('PASS '+label);}
@@ -14,12 +14,16 @@ function load(file,state){
   rpc:async(name,args)=>{if(name==='ms_claim_draft')return {data:state.jobs?.shift()||null,error:null};if(name==='ms_complete_draft'){writes.push({name,args});return {error:state.completeError?{message:'test_private_error'}:null};}if(name==='ms_submit_intake'){writes.push({name,args});return {data:{ok:true,id:19},error:null};}return {data:[],error:state.rpcError?{message:'test_private_error'}:null};},
   from(table){const query={select(){return query;},eq(){return query;},limit(){return Promise.resolve({data:[],error:null});},maybeSingle(){return Promise.resolve({data:table==='ms_admins'?(state.admin===false?null:{email:'owner@example.test'}):table==='ms_sites'?{url:state.siteURL||'https://heronca.com/',slug:'heron'}:null,error:null});},upsert(rows){writes.push({table,rows});return Promise.resolve({error:null});},insert(row){writes.push({table,row});return Promise.resolve({error:null});}};return query;}
  };
- const code=ts.transpileModule(fs.readFileSync(new URL(file,import.meta.url),'utf8').replace(/^import .+;\s*$/gm,''),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None},reportDiagnostics:true});
+ const source=fs.readFileSync(new URL(file,import.meta.url),'utf8').replace(/^import .+;\s*$/gm,'');
+ const code=ts?ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None},reportDiagnostics:true}):{outputText:stripTypeScriptTypes(source,{mode:'transform'}),diagnostics:[]};
  assert.equal(code.diagnostics?.length||0,0);
  vm.runInNewContext(code.outputText,{MsRender:renderer.window.MsRender,createDraft,Deno:{env:{get:name=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test-only-service-key',HERON_ADMIN_PASSWORD:state.heronPassword||''}[name])},serve:fn=>handler=fn},createClient:()=>db,Request,Response,Headers,URL,AbortSignal,TextEncoder,TextDecoder,Uint8Array,crypto:globalThis.crypto,console:{error(){}},fetch:async(url,options)=>{fetches.push({url:String(url),options});return state.fetch?state.fetch(url,options):new Response('<h1>Read-only live content</h1>',{headers:{'Content-Type':'text/html'}});}});
  return {handler,writes,fetches};
 }
 const post=(body,auth=true)=>new Request('https://test.supabase.co/functions/v1/ms-site-control',{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer test-token'}:{})},body:JSON.stringify(body)});
+await test('Rufcut connection check has no Square probe',async()=>{
+ const f=load('../supabase/functions/ms-site-control/index.ts',{});const r=await f.handler(post({action:'check_connections',site:'rufcut'}));assert.equal(r.status,200);assert.ok(!f.fetches.some(x=>String(x.url||x).includes('ms-square')));
+});
 await test('unauthenticated and viewer users cannot proxy or snapshot sites',async()=>{
  const anonymous=load('../supabase/functions/ms-site-control/index.ts',{});assert.equal((await anonymous.handler(post({action:'preview_snapshot',site:'heron'},false))).status,401);assert.equal(anonymous.fetches.length,0);
  const viewer=load('../supabase/functions/ms-site-control/index.ts',{admin:false});assert.equal((await viewer.handler(post({action:'preview_snapshot',site:'heron'}))).status,403);assert.equal(viewer.fetches.length,0);

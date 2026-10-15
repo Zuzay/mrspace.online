@@ -36,7 +36,7 @@ Deno.serve(async(req:Request)=>{
    const verified=!!b.setup_verified_at,setup={amount,status:verified?'verified':'unverified',verified_at:b.setup_verified_at};
    // Monthly payments require actual invoices; options and standard value are never added to the debt.
    return reply({currency:b.currency,agreement:{plan:a.plan,setup,monthly:{...monthly,early_start:{...monthly.early_start,chosen:!!b.early_start_chosen}}},options:t.options||[],
-    work:{source:'ms_activity',...summary.data},due:{amount:verified?0:amount,items:verified?[]:[{key:'setup',amount,status:'unverified'}]},checked_at:new Date().toISOString()});
+    work:{source:'ms_activity',...summary.data,estimate:t.work_estimate||null},due:{amount:verified?0:amount,items:verified?[]:[{key:'setup',amount,status:'unverified'}]},checked_at:new Date().toISOString()});
   }
   if(body.action==='overview'){
    if(site!=='rufcut')return reply({orders:null,checked_at:new Date().toISOString()});

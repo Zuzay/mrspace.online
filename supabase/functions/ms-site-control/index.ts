@@ -72,12 +72,6 @@ async function checkConnections(jwt: string, site: string, email: string) {
     else { const { error } = await client.from("cities").select("id").limit(1); record("laloo", error ? "error" : "connected", error ? "laloo_read_failed" : null); }
   } else if (site === "rufcut") {
     try {
-      const r = await fetch(`${URL}/functions/v1/ms-square`, { method: "POST",
-        headers: { "Content-Type": "application/json", apikey: SERVICE_KEY, Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({ action: "status", site }), signal: AbortSignal.timeout(8000) });
-      const data = await r.json(); record("square", r.ok ? data.connected ? "connected" : "setup" : "error", r.ok ? data.connected ? null : "square_not_connected" : "square_status_failed");
-    } catch { record("square", "error", "square_unreachable"); }
-    try {
       const r = await fetch(`${URL}/functions/v1/ms-repair`, { method: "POST",
         headers: { "Content-Type": "application/json", apikey: SERVICE_KEY, Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({ action: "list" }), signal: AbortSignal.timeout(8000) });

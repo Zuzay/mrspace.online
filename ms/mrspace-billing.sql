@@ -22,6 +22,7 @@ create or replace function public.ms_billing_work_summary(p_site text)
 returns jsonb language sql stable security invoker set search_path = public as $$
  select jsonb_build_object(
   'entries',count(*),
+  'night_checks',count(*) filter(where action='Nightly check'),
   'minutes_recorded',coalesce(sum(greatest(coalesce(minutes,0),0)),0),
   'recent',coalesce((select jsonb_agg(jsonb_build_object('at',r.at,'action',r.action) order by r.at desc)
    from (select at,action from public.ms_activity where site=p_site order by at desc limit 10) r),'[]'::jsonb)
