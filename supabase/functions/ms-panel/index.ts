@@ -26,6 +26,18 @@ Deno.serve(async(req:Request)=>{
   const raw=await req.text();if(raw.length>4000)return reply({error:'invalid_request'},400);
   const body=JSON.parse(raw),site=String(body.site||'');if(!/^[a-z0-9-]{1,60}$/.test(site))return reply({error:'invalid_request'},400);
   const email=await staffUser(db,req,site);if(!email)return reply({error:'unauthorized'},401);
+  if(body.action==='billing'){
+   const result=checked(await db.from('ms_billing').select('currency,terms,setup_verified_at,early_start_chosen').eq('site',site).maybeSingle());
+   if(!result.data)return reply({error:'billing_not_ready'},404);
+   const b=result.data,t=b.terms||{},a=t.agreement||{},amount=a.setup?.amount,monthly=a.monthly||{};
+   if(!Number.isFinite(amount)||amount<0||!Number.isFinite(monthly.agreed)||monthly.agreed<0||!Number.isFinite(monthly.standard)||monthly.standard<0)throw Error('billing_invalid');
+   const summary=checked(await db.rpc('ms_billing_work_summary',{p_site:site}));
+   if(!Number.isSafeInteger(summary.data?.entries)||!Number.isSafeInteger(summary.data?.minutes_recorded))throw Error('billing_work_unavailable');
+   const verified=!!b.setup_verified_at,setup={amount,status:verified?'verified':'unverified',verified_at:b.setup_verified_at};
+   // Monthly payments require actual invoices; options and standard value are never added to the debt.
+   return reply({currency:b.currency,agreement:{plan:a.plan,setup,monthly:{...monthly,early_start:{...monthly.early_start,chosen:!!b.early_start_chosen}}},options:t.options||[],
+    work:{source:'ms_activity',...summary.data},due:{amount:verified?0:amount,items:verified?[]:[{key:'setup',amount,status:'unverified'}]},checked_at:new Date().toISOString()});
+  }
   if(body.action==='overview'){
    if(site!=='rufcut')return reply({orders:null,checked_at:new Date().toISOString()});
    const results=await Promise.all(statuses.map(status=>db.from('ms_repair_jobs').select('id',{count:'exact',head:true}).eq('site',site).eq('status',status)));
@@ -49,6 +61,7 @@ Deno.serve(async(req:Request)=>{
    return reply({jobs:(result.data||[]).map((job:any)=>({...job,preview_svg:safePreview(job.preview_svg),items:(job.items||[]).map((item:any)=>({...item,preview_svg:safePreview(item.preview_svg)}))})),total:result.count,page,size});
   }
   if(body.action==='archive_catalog'){
+   if(site==='rufcut')return reply({error:'sales_disabled'},409);
    const item=body.item;if(typeof item!=='string'||!/^[A-Za-z0-9_-]{1,100}$/.test(item)||typeof body.archived!=='boolean')return reply({error:'invalid_request'},400);
    const result=await db.rpc('ms_set_catalog_archive',{p_site:site,p_item:item,p_archived:body.archived});checked(result);
    if(result.data!==true)throw Error('archive_not_confirmed');

@@ -78,5 +78,20 @@
   "Loading…": "Yükleniyor…",
   "Sales & shipping": "Satış ve kargo",
   "Complete sales setup": "Satış ayarlarını tamamla",
-  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Teslim alma, kargo ücretleri, hazırlama süresi, iade ve online ürün satışını ayarla."
+  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Teslim alma, kargo ücretleri, hazırlama süresi, iade ve online ürün satışını ayarla.",
+  "Sales are handled separately at rufcut.com.": "Satışlar rufcut.com üzerinden ayrı yürütülür.",
+  "Sales are handled separately.": "Satışlar ayrı yürütülür.",
+  "This website does not process purchases or confirm payments.": "Bu site satın alma işlemi yapmaz ve ödeme onaylamaz.",
+  "Visit rufcut.com ↗": "rufcut.com’a git ↗",
+  "Back to Rufcut": "Rufcut’a dön",
+  "Jeans & repair orders": "Jeans ve tamir siparişleri",
+  "Billing": "Faturalandırma",
+  "Disconnect Square": "Square bağlantısını kaldır",
+  "Square sales are disabled on this website. Revoke account access in Square as well.": "Bu sitede Square satışları kapalı. Square üzerinden hesap erişimini de kaldır.",
+  "Sign in to Square Dashboard as the account owner.": "Hesap sahibi olarak Square Dashboard’a giriş yap.",
+  "Go to Settings → App integrations.": "Settings → App integrations bölümüne git.",
+  "Find mr.space, open the three-dot menu and select Disconnect App.": "mr.space’i bul, üç nokta menüsünden Disconnect App’i seç.",
+  "Confirm the disconnection and reply to Mr. Space by email.": "Bağlantının kaldırılmasını onayla ve Mr. Space’e e-postayla bildir.",
+  "Account access removal has not been confirmed yet.": "Hesap erişiminin kaldırıldığı henüz teyit edilmedi.",
+  "Back to panel": "Panele dön"
 }

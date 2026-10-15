@@ -78,5 +78,20 @@
   "Loading…": "Cargando…",
   "Sales & shipping": "Ventas y envíos",
   "Complete sales setup": "Completar configuración de ventas",
-  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Configura recogida, tarifas de envío, plazo de preparación, devoluciones y disponibilidad online."
+  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Configura recogida, tarifas de envío, plazo de preparación, devoluciones y disponibilidad online.",
+  "Sales are handled separately at rufcut.com.": "Las ventas se gestionan por separado en rufcut.com.",
+  "Sales are handled separately.": "Las ventas se gestionan por separado.",
+  "This website does not process purchases or confirm payments.": "Este sitio no procesa compras ni confirma pagos.",
+  "Visit rufcut.com ↗": "Visitar rufcut.com ↗",
+  "Back to Rufcut": "Volver a Rufcut",
+  "Jeans & repair orders": "Pedidos de jeans y reparaciones",
+  "Billing": "Facturación",
+  "Disconnect Square": "Desconectar Square",
+  "Square sales are disabled on this website. Revoke account access in Square as well.": "Las ventas con Square están desactivadas en este sitio. Revoca también el acceso a la cuenta en Square.",
+  "Sign in to Square Dashboard as the account owner.": "Inicia sesión en Square Dashboard como titular de la cuenta.",
+  "Go to Settings → App integrations.": "Ve a Settings → App integrations.",
+  "Find mr.space, open the three-dot menu and select Disconnect App.": "Busca mr.space, abre el menú de tres puntos y elige Disconnect App.",
+  "Confirm the disconnection and reply to Mr. Space by email.": "Confirma la desconexión y responde a Mr. Space por correo.",
+  "Account access removal has not been confirmed yet.": "La eliminación del acceso a la cuenta aún no se ha confirmado.",
+  "Back to panel": "Volver al panel"
 }

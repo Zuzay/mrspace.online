@@ -8,7 +8,8 @@
   "exclude": [
     "DESIGN-2026.md",
     "OWNER-AI.md",
-    "docs/rufcut-system-guide.pdf"
+    "docs/rufcut-system-guide.pdf",
+    "product/product.js"
   ],
   "domain": "www.rufcutjeans.com",
   "cname_newline": false,
@@ -17,9 +18,6 @@
     "files": [
       "ms-config.js",
       "i18n.js",
-      "ms-site-catalog.js",
-      "ms-storefront.js",
-      "ms-storefront.css",
       "ms-media.js"
     ],
     "dirs": [
@@ -33,16 +31,15 @@
       "fr"
     ],
     "lang_prefixes": [
-      "storefront-",
       "rufcut-",
       "contact-"
     ]
   },
-  "cache_version": "20261014-cart",
+  "cache_version": "20261015-separated",
   "versioned": [
-    "ms-storefront.js",
-    "ms-site-catalog.js",
-    "homepage-stock.js"
+    "homepage-stock.js",
+    "ownership.js",
+    "ownership.css"
   ],
   "rewrites": [
     {

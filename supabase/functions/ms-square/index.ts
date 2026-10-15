@@ -226,6 +226,7 @@ Deno.serve(async (req) => {
       const [payload, sig] = state.split(".");
       if (!payload || !sig || sig !== await sign(payload)) return back("?square=bad_state");
       const st = JSON.parse(unb64(payload));
+      if (st.site === "rufcut") return back("?square=disabled&site=rufcut");
       if (st.exp < Date.now()) return back("?square=expired");
       if (!code) return back(`?square=${encodeURIComponent(url.searchParams.get("error") || "cancelled")}&site=${st.site}`);
       const t = await oauthToken({ grant_type: "authorization_code", code, redirect_uri: CALLBACK });
@@ -244,6 +245,7 @@ Deno.serve(async (req) => {
     // ----- sitenin kendisi icin stok -----
     if (url.pathname.endsWith("/public")) {
       const site = url.searchParams.get("site") || "";
+      if (site === "rufcut") return json({ items: [], disabled: true }, 200, { "Cache-Control": "no-store" });
       const acc = await account(site);
       if (!acc || !acc.public_catalog) return json({ items: [] }, 200, { "Cache-Control": "public, max-age=60" });
       const rules=await publications(site),hidden=new Set(acc.hidden_catalog_items||[]);
@@ -254,6 +256,7 @@ Deno.serve(async (req) => {
     // ----- sitenin sepeti: hangi parcalar online satilabilir -----
     if (url.pathname.endsWith("/commerce") && req.method === "GET") {
       const site = url.searchParams.get("site") || "";
+      if (site === "rufcut") return json({ error: "sales_disabled", live: false }, 409, { "Cache-Control": "no-store" });
       const st = await commerceState(site);
       if (!st || !st.readiness.checkout_live) return json({ live: false }, 200, { "Cache-Control": "public, max-age=60" });
       const variations = st.items.filter(i=>st.setup.products[i.id]?.sale==="ready").flatMap(i=>i.variations.filter(v=>v.track&&Number(v.stock)>0&&Number.isSafeInteger(v.price)&&v.price>0).map(v=>v.id));
@@ -263,6 +266,7 @@ Deno.serve(async (req) => {
     if (url.pathname.endsWith("/checkout") && req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       const site = String(body.site || "");
+      if (site === "rufcut") return json({ error: "sales_disabled", live: false }, 409, { "Cache-Control": "no-store" });
       const st = await commerceState(site);
       if (!st || !st.readiness.checkout_live) return json({ error: "checkout_closed" }, 409);
       let quote;
@@ -303,6 +307,7 @@ Deno.serve(async (req) => {
     const r = await role(email, site);
     if (!r) return json({ error: "not_allowed" }, 403);
     const action = body.action;
+    if (site === "rufcut") return json({ error: "square_disabled", disabled: true }, 409);
 
     if (action === "connect") {
       if (!APP_ID || !APP_SECRET) return json({ error: "square_not_configured" }, 500);

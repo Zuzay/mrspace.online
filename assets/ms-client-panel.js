@@ -379,6 +379,8 @@ async function enter(){
   await enterSite();
 }
 async function enterSite(){
+ if(SITE.slug==='rufcut'&&!DEMO){const target=new URL('rufcut/',location.href),params=new URLSearchParams(location.search);for(const key of ['lang','ticket'])if(params.has(key))target.searchParams.set(key,params.get(key));target.searchParams.set('view','orders');location.replace(target.href);return;}
+
  const seq=++SITE_SEQ;++LOAD_SEQ;++ORDER_SEQ;MsOrders.reset();MsCatalogPanel.clear();QUEUE=[];try{QUEUE=JSON.parse(localStorage.getItem("ms_label_queue:"+SITE.slug)||"[]");}catch{}
  await Promise.all([MSI18N.ready,MsPlatform.ready,MsCatalogPanel.ready,MsCommercePanel.ready]);if(seq!==SITE_SEQ)return;
  $('#siteName').textContent=SITE.name;$('#editLink').href='../edit/?site='+encodeURIComponent(SITE.slug);$('#liveSite').href=SITE.url||'../';
