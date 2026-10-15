@@ -14,7 +14,7 @@ Object.assign(words.de,{addAnother:"Weiteres Kleidungsstück",maxItems:"Ein Auft
 Object.assign(words.fr,{addAnother:"Ajouter un vêtement",maxItems:"Un bon peut contenir jusqu’à 8 vêtements."});
 Object.assign(words.tr,{addAnother:"Başka giysi ekle",maxItems:"Bir iş emri en fazla 8 giysi içerebilir."});
 Object.assign(words.zh,{addAnother:"添加另一件衣物",maxItems:"一张维修单最多可以包含 8 件衣物。"});
-const chrome={
+const repairCopy={
  en:{back:"Back to shop",kicker:"REPAIRS · VENICE BEACH",one:"Give it",two:"another life.",intro:"Choose the piece and the work. Mark the spot on the garment, then send your work order straight to the shop.",preview:"WORK ORDER PREVIEW",saved:"Your progress saves on this device.",successKicker:"WORK ORDER SENT",track:"Track this repair",step:"STEP"},
  es:{back:"Volver a la tienda",kicker:"ARREGLOS · VENICE BEACH",one:"Dale",two:"otra vida.",intro:"Elige la prenda y el trabajo. Marca el lugar en la prenda y envía la orden directamente al taller.",preview:"VISTA PREVIA DE LA ORDEN",saved:"Tu progreso se guarda en este dispositivo.",successKicker:"ORDEN ENVIADA",track:"Seguir esta reparación",step:"PASO"},
  de:{back:"Zurück zum Shop",kicker:"ÄNDERUNGEN · VENICE BEACH",one:"Gib ihr",two:"ein neues Leben.",intro:"Wähle das Kleidungsstück und die Arbeit. Markiere die Stelle und sende den Auftrag direkt an die Werkstatt.",preview:"VORSCHAU DES ARBEITSAUFTRAGS",saved:"Dein Fortschritt wird auf diesem Gerät gespeichert.",successKicker:"AUFTRAG GESENDET",track:"Reparatur verfolgen",step:"SCHRITT"},
@@ -57,7 +57,7 @@ try{
  if(state.stage==="review"&&state.editing===null&&!state.actions.length){state.editing=state.items.length-1;Object.assign(state,cleanPiece(state.items.at(-1)))}
  state.activeAction=state.actions.includes(stored.activeAction)?stored.activeAction:state.actions[0]||null;
 }catch{}
-const urlLang=new URLSearchParams(location.search).get("lang");if(words[urlLang])state.lang=urlLang;if(!words[state.lang])state.lang="en";
+state.lang="en"; // Rufcut always opens and submits in English, including old saved drafts.
 const t=k=>words[state.lang][k]||words.en[k]||k;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let submitting=false,submitted=false,zoomed=false,zoomBox=null,drag=null,suppressClick=false;
@@ -115,7 +115,7 @@ function render(){
  $("next").disabled=submitting;$("addAnother").disabled=submitting||(state.items.length>=8&&state.editing===null);$("send").disabled=submitting;
  $("send").firstElementChild.textContent=t(submitting?"submit":"send");
  $("garmentTray").hidden=!state.items.length;$("savedGarments").innerHTML=piecesMarkup(state.items,false);$("review").innerHTML=piecesMarkup(state.items,true);
- const c=chrome[state.lang]||chrome.en;$("backToShop").textContent=c.back+" ↗";$("heroKicker").textContent=c.kicker;$("heroLineOne").textContent=c.one;$("heroLineTwo").textContent=c.two;$("heroCopy").textContent=c.intro;$("successKicker").textContent=c.successKicker;$("successLink").firstChild.textContent=c.track+" ";
+ const c=repairCopy[state.lang]||repairCopy.en;$("backToShop").textContent=c.back+" ↗";$("heroKicker").textContent=c.kicker;$("heroLineOne").textContent=c.one;$("heroLineTwo").textContent=c.two;$("heroCopy").textContent=c.intro;$("successKicker").textContent=c.successKicker;$("successLink").firstChild.textContent=c.track+" ";
  document.querySelector(".repair-progress").setAttribute("aria-label",t("contact"));
  arrangeWorkbench();renderMap();persist();
 }
@@ -138,8 +138,8 @@ $("review").onclick=handlePieceClick;$("savedGarments").onclick=handlePieceClick
 form.addEventListener("input",e=>{if(["inches","itemNote","customerName","customerEmail","customerPhone"].includes(e.target.id))readFields()});
 $("garmentSelect").onchange=e=>{readFields();state.garment=e.target.value;state.marks={};updateCamera();setError();render()};
 $("genderSelect").onchange=e=>{state.gender=e.target.value;render()};
-if(document.documentElement.dataset.embed)$("language").querySelector('option[value="zh"]')?.remove();
-$("language").onchange=e=>{state.lang=e.target.value;try{localStorage.setItem("ms_lang",state.lang)}catch{}render();if(document.documentElement.dataset.embed){try{const selector=parent.document.getElementById("msLang");if(selector&&selector.value!==state.lang){selector.value=state.lang;selector.dispatchEvent(new parent.Event("change",{bubbles:true}))}}catch{}}};
+$("language").replaceChildren(new Option("English","en"));
+$("language").closest("label").hidden=true;
 $("jobs").onchange=e=>{const input=e.target;if(!actionTypes.includes(input.value))return;readFields();const a=input.value;
  if(input.checked){const opposite={shorten:"lengthen",lengthen:"shorten",take_in:"let_out",let_out:"take_in"}[a];state.actions=state.actions.filter(v=>v!==opposite);if(opposite)delete state.marks[opposite];if(!state.actions.includes(a))state.actions.push(a);state.activeAction=a;state.marks[a]=state.marks[a]||defaultPoint(state,a)}
  else{state.actions=state.actions.filter(v=>v!==a);delete state.marks[a];if(state.activeAction===a)state.activeAction=state.actions.at(-1)||null}
