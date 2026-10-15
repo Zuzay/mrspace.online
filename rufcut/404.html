@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page not found | Rufcut</title><meta name="robots" content="noindex">
+<link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/homepage.css?v=20261011">
+<script>
+// GitHub Pages does not process _redirects. These known legacy routes use a
+// browser redirect; this is not an HTTP 301 and unknown URLs remain a real 404.
+(function(){
+  const current=new URL(location.href),path=current.pathname.replace(/\/+$/,'')||'/';
+  const sections={'/s/shop':'vintage','/contact-us':'visit','/workshop-reviews':'workshop','/alterations-repairs':'repairs'};
+  const product=path.match(/^\/product\/[^/]+\/([a-z0-9]{1,100})$/i);
+  let target;
+  if(product){
+    target=new URL('/product/',current.origin);target.searchParams.set('id',product[1]);
+    const variation=current.searchParams.get('variation');
+    if(variation&&/^[a-z0-9]{1,100}$/i.test(variation))target.searchParams.set('variation',variation);
+    const lang=current.searchParams.get('lang');
+    if(['en','tr','es','de','fr'].includes(lang))target.searchParams.set('lang',lang);
+  }else if(Object.hasOwn(sections,path)){
+    target=new URL('/',current.origin);target.hash=sections[path];
+  }
+  if(target)location.replace(target.href);
+})();
+</script>
+</head>
+<body>
+<header><div class="wrap header-inner"><a class="logo" href="/">RUFCUT<span aria-hidden="true">®</span></a></div></header>
+<main class="wrap" style="min-height:60vh;padding-block:72px"><p class="section-kicker">404</p><h1 style="font:48px/1.1 var(--display);margin-block:16px">This page could not be found.</h1><p style="margin-block:24px">Find our current denim, vintage pieces and services in the shop.</p><a class="btn primary" href="/#vintage">Back to the shop ↗</a></main>
+<footer><div class="wrap"><a href="tel:+13104735384">(310) 473-5384</a></div></footer>
+</body>
+</html>
