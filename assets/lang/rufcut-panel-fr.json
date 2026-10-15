@@ -75,5 +75,8 @@
   "Your recent requests": "Vos demandes récentes",
   "Your requests could not load. Try again.": "Impossible de charger vos demandes. Réessayez.",
   "Your requests will appear here after you send them.": "Vos demandes apparaîtront ici après leur envoi.",
-  "Loading…": "Chargement…"
+  "Loading…": "Chargement…",
+  "Sales & shipping": "Ventes et livraison",
+  "Complete sales setup": "Compléter les paramètres de vente",
+  "Set pickup, shipping rates, dispatch time, returns and online product availability.": "Définissez le retrait, les tarifs de livraison, le délai d’expédition, les retours et la disponibilité en ligne."
 }

@@ -1,8 +1,8 @@
-/* Shared sales preparation UI. Deliberately has no customer charging controls. */
+/* Shared merchant sales settings. Checkout state is reported by the server, never inferred from a save. */
 (function(){
 'use strict';
 const base=new URL('.',document.currentScript.src),lang=window.MSI18N?.lang||'en',C=MsCommerce,drafts=new Map(),cache=new Map();let dict={},sequence=0;
-const ready=fetch(new URL('lang/commerce-'+lang+'.json?v=20261012',base)).then(r=>{if(!r.ok)throw Error('commerce_dictionary');return r.json();}).then(d=>dict=d);
+const ready=fetch(new URL('lang/commerce-'+lang+'.json?v=20261015-sales',base)).then(r=>{if(!r.ok)throw Error('commerce_dictionary');return r.json();}).then(d=>dict=d);
 const t=k=>dict[k]||k,esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),nullable=v=>v===''?null:Number(v),defaultProduct=()=>({sale:'inquiry',profile:'standard',weight_g:null,length_cm:null,width_cm:null,height_cm:null});
 const money=(v,c)=>v===null?'-':(c?new Intl.NumberFormat(lang,{style:'currency',currency:c}).format(v/100):new Intl.NumberFormat(lang,{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/100)+' / '+t('currency_pending'));
 function field(label,name,value,type='text',attrs=''){return `<label>${esc(t(label))}<input name="${name}" type="${type}" value="${esc(value??'')}" ${attrs}></label>`;}
@@ -18,14 +18,32 @@ function changes(saved,s,items,currency){
  for(const item of items){const a=saved.products[item.id]||defaultProduct(),b=s.products[item.id]||defaultProduct();if(JSON.stringify(a)!==JSON.stringify(b))out.push([item.name,[t(a.sale),t(a.profile),a.weight_g??'-',a.length_cm??'-',a.width_cm??'-',a.height_cm??'-'].join(' / '),[t(b.sale),t(b.profile),b.weight_g??'-',b.length_cm??'-',b.width_cm??'-',b.height_cm??'-'].join(' / ')]);}
  return out.length?`<p>${esc(t('draft'))}</p><table><thead><tr><th></th><th>${esc(t('before'))}</th><th>${esc(t('after'))}</th></tr></thead><tbody>${out.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')}</tbody></table>`:'';
 }
+function productEligibility(item,currency){
+ const rows=(item.variations||[]).map(v=>{
+  const reasons=[];
+  if(!v.track)reasons.push(t('inventory_untracked'));
+  else if(!Number.isSafeInteger(v.stock))reasons.push(t('stock_unknown'));
+  else if(v.stock<=0)reasons.push(t('stock_empty'));
+  if(!Number.isSafeInteger(v.price)||v.price<=0)reasons.push(t('fixed_price_needed'));
+  if(currency&&v.currency!==currency)reasons.push(t('currency_mismatch'));
+  return `<li>${esc(v.name||item.name)}: ${esc(reasons.length?reasons.join(' · '):t('variation_eligible'))}</li>`;
+ });
+ return `<div class="commerce-eligibility"><p>${esc(t('eligibility_help'))}</p><ul>${rows.join('')}</ul></div>`;
+}
+function checkoutStatus(data){
+ const blockers=data.readiness.blockers;
+ const live=blockers.length===0&&data.readiness.checkout_live===true;
+ const complete=blockers.length===0&&data.readiness.setup_ready===true;
+ return {phase:t(live?'checkout_live':complete?'setup_complete':'setup_pending'),next:t(live?'live_next':complete?'complete_next':'pending_next')};
+}
 function view(site,data){
- const saved=data.setup,s=drafts.get(site.slug)||saved,currency=data.currency,items=data.items||[];
- return `<div data-commerce-root="${esc(site.slug)}" class="commerce" data-noi18n><div class="head"><div><h1>${esc(t('title'))}</h1><p>${esc(t('intro'))}</p></div><button class="btn ghost" data-commerce-refresh>${esc(t('refresh'))}</button></div><p class="cat-warning">${esc(t('phase'))}</p>
- <section class="commerce-status"><h2>${esc(t('needed'))}</h2><ul>${data.readiness.blockers.map(k=>`<li>${esc(t(k))}</li>`).join('')}</ul><p>${esc(t('next'))}</p><button class="btn solid" data-commerce-connect>${esc(t('permissions'))}</button><p>${esc(t('connect_help'))}</p></section>
+ const saved=data.setup,s=drafts.get(site.slug)||saved,currency=data.currency,items=data.items||[],status=checkoutStatus(data);
+ return `<div data-commerce-root="${esc(site.slug)}" class="commerce" data-noi18n><div class="head"><div><h1>${esc(t('title'))}</h1><p>${esc(t('intro'))}</p></div><button class="btn ghost" data-commerce-refresh>${esc(t('refresh'))}</button></div><p class="cat-warning">${esc(status.phase)}</p>
+ <section class="commerce-status"><h2>${esc(t('needed'))}</h2>${data.readiness.blockers.length?`<ul>${data.readiness.blockers.map(k=>`<li>${esc(t(k))}</li>`).join('')}</ul>`:`<p>${esc(t('no_blockers'))}</p>`}<p>${esc(status.next)}</p><button class="btn solid" data-commerce-connect>${esc(t('permissions'))}</button><p>${esc(t('connect_help'))}</p></section>
  <form data-commerce-form><div class="commerce-fields">${field('regions','countries',s.countries.join(', '),'text','maxlength="180"')}<p>${esc(t('regions_help'))}</p><label class="cat-check"><input name="pickup" type="checkbox" ${s.pickup?'checked':''}><span>${esc(t('pickup'))}</span></label>
  <label>${esc(t('mode'))}<select name="mode">${['pending','flat','carrier'].map(m=>`<option value="${m}" ${s.mode===m?'selected':''}>${esc(t(m))}</option>`).join('')}</select></label>${field('origin_country','origin_country',s.origin_country,'text','maxlength="2"')}${field('origin_postal','origin_postal',s.origin_postal,'text','maxlength="30"')}${field('dispatch','dispatch_days',s.dispatch_days,'number','min="0" max="60" step="1"')}${field('returns','returns_url',s.returns_url,'url','maxlength="500" pattern="https://.*"')}<label class="cat-check"><input name="tax_reviewed" type="checkbox" ${s.tax_reviewed?'checked':''}><span>${esc(t('tax'))}</span></label></div>
  <h2>${esc(t('rates'))} <small>${esc(currency||t('currency_pending'))}</small></h2><p>${esc(t('rates_help'))}</p><div class="commerce-rates">${C.profiles.map(p=>`<fieldset><legend>${esc(t(p))}</legend>${['base','extra'].map(k=>field(k,p+'_'+k,s.rates[p][k]===null?'':(s.rates[p][k]/100).toFixed(2),'number','min="0" max="10000" step="0.01"')).join('')}</fieldset>`).join('')}</div>
- <h2>${esc(t('products'))}</h2><p>${esc(t('profile_help'))}</p>${items.length?items.map(item=>{const p=s.products[item.id]||defaultProduct();return `<details class="commerce-product" data-commerce-product="${esc(item.id)}"><summary data-noi18n>${esc(item.name)}</summary><div class="commerce-fields"><label>${esc(t('products'))}<select data-product-field="sale">${['inquiry','ready'].map(v=>`<option value="${v}" ${p.sale===v?'selected':''}>${esc(t(v))}</option>`).join('')}</select></label><label>${esc(t('profile'))}<select data-product-field="profile">${C.profiles.map(v=>`<option value="${v}" ${p.profile===v?'selected':''}>${esc(t(v))}</option>`).join('')}</select></label>${['weight_g','length_cm','width_cm','height_cm'].map(k=>`<label>${esc(t(({weight_g:'weight',length_cm:'length',width_cm:'width',height_cm:'height'})[k]))}<input data-product-field="${k}" type="number" min="1" max="${k==='weight_g'?100000:300}" step="1" value="${p[k]??''}"></label>`).join('')}</div></details>`;}).join(''):`<p>${esc(t('no_items'))}</p>`}
+ <h2>${esc(t('products'))}</h2><p>${esc(t('profile_help'))}</p>${items.length?items.map(item=>{const p=s.products[item.id]||defaultProduct();return `<details class="commerce-product" data-commerce-product="${esc(item.id)}"><summary data-noi18n>${esc(item.name)}</summary>${productEligibility(item,currency)}<div class="commerce-fields"><label>${esc(t('products'))}<select data-product-field="sale">${['inquiry','ready'].map(v=>`<option value="${v}" ${p.sale===v?'selected':''}>${esc(t(v))}</option>`).join('')}</select></label><label>${esc(t('profile'))}<select data-product-field="profile">${C.profiles.map(v=>`<option value="${v}" ${p.profile===v?'selected':''}>${esc(t(v))}</option>`).join('')}</select></label>${['weight_g','length_cm','width_cm','height_cm'].map(k=>`<label>${esc(t(({weight_g:'weight',length_cm:'length',width_cm:'width',height_cm:'height'})[k]))}<input data-product-field="${k}" type="number" min="1" max="${k==='weight_g'?100000:300}" step="1" value="${p[k]??''}"></label>`).join('')}</div></details>`;}).join(''):`<p>${esc(t('no_items'))}</p>`}
  <div class="cat-save"><div data-commerce-changes>${changes(saved,s,items,currency)}</div><label class="cat-check"><input name="confirm" type="checkbox" required><span>${esc(t('confirm'))}</span></label><button class="btn sun" type="submit">${esc(t('save'))}</button><p data-commerce-error role="alert"></p><p data-commerce-saved role="status"></p></div></form>
  <section class="commerce-preview"><h2>${esc(t('preview'))}</h2><p>${esc(t('preview_help'))}</p><form data-commerce-quote><div data-commerce-lines></div><button type="button" class="btn ghost" data-commerce-add>${esc(t('add_line'))}</button><div class="commerce-fields"><label>${esc(t('delivery'))}<select name="delivery"><option value="ship">${esc(t('shipping'))}</option><option value="pickup">${esc(t('pickup'))}</option></select></label>${field('country','country',s.countries[0]||'','text','maxlength="2"')}</div><button class="btn solid" type="submit">${esc(t('calculate'))}</button></form><div data-commerce-result role="status"></div></section></div>`;
 }
@@ -33,7 +51,7 @@ async function mount(root,{site,call,demo,notify}){
  const token=++sequence;let saving=false;await ready;
  const active=()=>token===sequence&&root.querySelector('[data-commerce-root]')?.dataset.commerceRoot===site.slug;
  const load=async(force=false)=>{root.innerHTML=`<div data-commerce-root="${esc(site.slug)}" data-noi18n><p>${esc(t('loading'))}</p></div>`;
- try{let data=cache.get(site.slug);if(!data||force)data=demo?{setup:C.blank(),items:[],readiness:{blockers:[]},currency:null}:await call('commerce_status');if(!active())return;cache.set(site.slug,data);root.innerHTML=view(site,data);bind(data);}
+ try{let data=cache.get(site.slug);if(!data||force)data=demo?{setup:C.blank(),items:[],readiness:{setup_ready:false,checkout_live:false,blockers:['payment_permissions','dispatch_time','returns_policy','tax_review','product_review']},currency:null}:await call('commerce_status');if(!active())return;if(!data?.setup||!Array.isArray(data.items)||!Array.isArray(data.readiness?.blockers))throw Error('commerce_status');cache.set(site.slug,data);root.innerHTML=view(site,data);bind(data);}
  catch{if(active())root.innerHTML=`<div data-commerce-root="${esc(site.slug)}" data-noi18n><p role="alert">${esc(t('error'))}</p><button class="btn" data-commerce-retry>${esc(t('refresh'))}</button></div>`;root.querySelector('[data-commerce-retry]')?.addEventListener('click',()=>load(true));}};
  function bind(data){
   const form=root.querySelector('[data-commerce-form]');
@@ -44,7 +62,7 @@ async function mount(root,{site,call,demo,notify}){
   form.onsubmit=async e=>{
    e.preventDefault();if(saving||!active())return;
    const error=root.querySelector('[data-commerce-error]'),b=form.querySelector('[type=submit]');error.textContent='';
-   if(demo){error.textContent=t('phase');return;}
+   if(demo){error.textContent=t('demo_only');return;}
    try{
     const s=read(form);C.validate(s,new Set(data.items.map(i=>i.id)));saving=true;b.disabled=true;
     await call('commerce_save',{setup:s});
