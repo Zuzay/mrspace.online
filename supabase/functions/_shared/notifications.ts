@@ -10,14 +10,20 @@ export async function staffUser(db: any,req: Request,site: string) {
  const user=await db.auth.getUser(token);const email=user.data?.user?.email?.toLowerCase();if(user.error||!email)return null;
  return await memberEmail(db,email,site)?email:null;
 }
+export async function contactEmail(db: any) {
+ const fallback='mrspace.online1@gmail.com';
+ const result=await db.from('ms_settings').select('value').eq('key','contact_email').maybeSingle();
+ const value=String(result.data?.value||'').trim().toLowerCase();
+ return !result.error&&value.length<=160&&/^\S+@\S+\.\S+$/.test(value)?value:fallback;
+}
 export async function notificationConfig(db: any,initialize=false) {
  let result=await db.rpc('ms_notification_secrets',{});if(result.error)throw new Error('notification_setup_needed');
  if(initialize&&!result.data?.vapid){result=await db.rpc('ms_notification_secrets',{p_vapid:await vapidKey()});if(result.error)throw new Error('notification_setup_needed');}
- return {vapid:result.data?.vapid,emailKey:Deno.env.get('RESEND_API_KEY')||result.data?.resend_key||'',emailFrom:Deno.env.get('RESEND_FROM_EMAIL')||result.data?.resend_from||''};
+ return {contactEmail:await contactEmail(db),vapid:result.data?.vapid,emailKey:Deno.env.get('RESEND_API_KEY')||result.data?.resend_key||'',emailFrom:Deno.env.get('RESEND_FROM_EMAIL')||result.data?.resend_from||''};
 }
 export async function mail(config: any,to: string,subject: string,text: string) {
  if(!config.emailKey||!config.emailFrom)return false;
- const result=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+config.emailKey,'Content-Type':'application/json'},body:JSON.stringify({from:config.emailFrom,to:[to],subject,text}),signal:AbortSignal.timeout(8000)});
+ const result=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+config.emailKey,'Content-Type':'application/json'},body:JSON.stringify({from:config.emailFrom,reply_to:config.contactEmail||'mrspace.online1@gmail.com',to:[to],subject,text}),signal:AbortSignal.timeout(8000)});
  return result.ok;
 }
 const words:Record<string,string[]>={en:['New repair work order','New jeans design','Open the work order in your panel.'],tr:['Yeni tamir iş emri','Yeni jeans tasarımı','İş emrini panelinde aç.'],es:['Nueva orden de reparación','Nuevo diseño de jeans','Abre la orden en tu panel.'],de:['Neuer Reparaturauftrag','Neuer Jeansentwurf','Öffne den Auftrag in deinem Panel.'],fr:['Nouvelle retouche','Nouveau modèle de jeans','Ouvrez la fiche dans votre panneau.']};
@@ -28,7 +34,7 @@ export async function notifyOrder(db: any,order: any,ticket: string) {
  order.items.map((it:any,i:number)=>`${i+1}. ${it.garment} (${it.gender}): ${it.actions.join(', ')}${it.inches?' / '+it.inches+' in':''}${it.note?'\n'+it.note:''}`).join('\n\n');
  const preferences=await db.from('ms_notification_preferences').select('owner_email,delivery_email,email_enabled,lang').eq('site',site);if(preferences.error)throw new Error('preferences_unavailable');
  const members=[];for(const pref of preferences.data||[])if(await memberEmail(db,pref.owner_email,site))members.push(pref);
- const recipients=new Set<string>();if(site==='rufcut'&&!members.some(p=>p.delivery_email==='shop@rufcut.com'&&!p.email_enabled))recipients.add('shop@rufcut.com');
+ const recipients=new Set<string>();if(!members.some(p=>p.delivery_email===config.contactEmail&&!p.email_enabled))recipients.add(config.contactEmail);
  members.filter(p=>p.email_enabled).forEach(p=>recipients.add(p.delivery_email));
  const text=`Ticket: ${ticket}\nCustomer: ${order.customer_name}\nEmail: ${order.customer_email}\nPhone: ${order.customer_phone||''}\n\n${summary}\n\n${url}`;
  const emailResults=await Promise.allSettled([mail(config,order.customer_email,`Rufcut ${kind==='jeans'?'jeans':'repair'} ticket ${ticket}`,`Hi ${order.customer_name},\n\nYour request reached Rufcut.\nTicket: ${ticket}\n\n${summary}\n\nTrack it at https://mrspace.online/rufcut/?ticket=${encodeURIComponent(ticket)}#order`),...Array.from(recipients,to=>mail(config,to,`Rufcut / ${kind==='jeans'?'New jeans design':'New repair order'} / ${ticket}`,text))]);

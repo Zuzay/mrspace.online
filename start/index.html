@@ -215,10 +215,10 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
    <div class="done-box">
     <div style="display:flex;flex-wrap:wrap;gap:10px">
      <button class="btn solid" id="submitProject" type="button">Submit project</button>
-     <a class="btn" id="send" href="mailto:hello@mrspace.online">Send by email <span class="arr">→</span></a>
+     <a class="btn" id="send" href="mailto:mrspace.online1@gmail.com">Send by email <span class="arr">→</span></a>
      <button class="btn" type="button" id="copy">Copy answers</button>
     </div>
-    <p style="font-size:14.5px;color:var(--mute)">If your email app does not open, copy the answers and send them to <span class="mailaddr">hello@mrspace.online</span>.</p>
+    <p style="font-size:14.5px;color:var(--mute)">If your email app does not open, copy the answers and send them to <span class="mailaddr">mrspace.online1@gmail.com</span>.</p>
     <label style="position:absolute;left:-10000px" aria-hidden="true">Website<input id="projectTrap" type="text" tabindex="-1" autocomplete="off"></label><p id="projectStatus" role="status" data-noi18n></p>
     <p id="copied" style="font-size:14px" aria-live="polite"></p>
    </div>
@@ -238,7 +238,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
    <span class="sig"><i></i>Made by Mr. Space</span>
    <p>Mr. Space is a web studio of Heron CA LLC, Venice Beach, California.</p>
   </div>
-  <nav aria-label="Footer"><a href="../">Home</a><a href="../packages/">Packages</a><a href="mailto:hello@mrspace.online">Email</a></nav>
+  <nav aria-label="Footer"><a href="../">Home</a><a href="../packages/">Packages</a><a href="mailto:mrspace.online1@gmail.com">Email</a></nav>
  </div>
 </footer>
 </div>
@@ -315,7 +315,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
   if (cur === sets.length - 1) {
    var s = summary(), biz = values()["Business name"] || "my business";
    document.getElementById("sum").textContent = s;
-   document.getElementById("send").href = "mailto:hello@mrspace.online?subject=" + encodeURIComponent("New project: " + biz) + "&body=" + encodeURIComponent(s);
+   document.getElementById("send").href = "mailto:mrspace.online1@gmail.com?subject=" + encodeURIComponent("New project: " + biz) + "&body=" + encodeURIComponent(s);
   }
  }
  back.addEventListener("click", function(){ go(cur - 1); });
@@ -323,7 +323,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--sun);outline-off
  document.getElementById("copy").addEventListener("click", function(){
   var t = summary(), msg = document.getElementById("copied");
   function sel(){ var r = document.createRange(); r.selectNodeContents(document.getElementById("sum")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); msg.textContent = "Selected. Press Copy on your device."; }
-  try { navigator.clipboard.writeText(t).then(function(){ msg.textContent = "Copied. Paste it into an email to hello@mrspace.online."; }, sel); } catch (e) { sel(); }
+  try { navigator.clipboard.writeText(t).then(function(){ msg.textContent = "Copied. Paste it into an email to mrspace.online1@gmail.com."; }, sel); } catch (e) { sel(); }
  });
 
  /* draft: kept on this device only */

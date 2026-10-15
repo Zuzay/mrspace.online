@@ -28,7 +28,7 @@ export async function encryptedPush(subscription: {endpoint:string;p256dh:string
  const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce},await crypto.subtle.importKey('raw',cek,'AES-GCM',false,['encrypt']),concat(text,new Uint8Array([2]))));
  const body=concat(salt,new Uint8Array([0,0,16,0,65]),as,cipher);
  const header=base64url(encoder.encode(JSON.stringify({typ:'JWT',alg:'ES256'})));
- const claims=base64url(encoder.encode(JSON.stringify({aud:new URL(endpoint).origin,exp:Math.floor(Date.now()/1000)+3600,sub:'mailto:hello@mrspace.online'})));
+ const claims=base64url(encoder.encode(JSON.stringify({aud:new URL(endpoint).origin,exp:Math.floor(Date.now()/1000)+3600,sub:'mailto:mrspace.online1@gmail.com'})));
  const input=header+'.'+claims,privateKey=await crypto.subtle.importKey('jwk',signing.privateJwk,{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
  const signature=base64url(new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},privateKey,encoder.encode(input))));
  return {endpoint,body,headers:{'Content-Type':'application/octet-stream','Content-Encoding':'aes128gcm',TTL:'86400',Urgency:'normal',Authorization:'vapid t='+input+'.'+signature+', k='+signing.publicKey}};
