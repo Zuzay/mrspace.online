@@ -22,3 +22,11 @@ Billing is a statement of terms and setup-payment verification. This change does
 - `node tools/build-site.mjs rufcut /path/to/empty/output`: actual deployment pack retains its original CNAME, includes both marks, and omits sales modules.
 
 The historical Square sales/handover suites describe the removed behavior and are superseded for Rufcut by the separation suite. Shared sales modules remain available to other customers.
+
+## Reconstructed effort and disconnected account
+
+Billing keeps original activity minutes unchanged. The main effort display uses a separately labelled estimate from privately stored owner-provided durations and history-based session clusters. Night-check counts are exact activity counts, while their effort allowance is explicitly estimated. This estimate does not alter setup fees, agreed monthly fees, or payment verification.
+
+Rufcut account authorization was revoked through the official OAuth endpoint, then its credential row, catalog publication rules and commerce setup were removed. Shared application credentials for other merchants were not changed. The admin connection diagnostic no longer probes Rufcut Square. Historical activity records are retained.
+
+Ownership marquees also appear on the focused panel, billing and separation pages; panel marquees link to billing. Each visible repeat is clickable, with one keyboard focus target per bar. Ownership marks remain until the initial payment is verified.
