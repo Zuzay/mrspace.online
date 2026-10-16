@@ -18,7 +18,8 @@
     "files": [
       "ms-config.js",
       "i18n.js",
-      "ms-media.js"
+      "ms-media.js",
+      "ms-site-content.js"
     ],
     "dirs": [
       "fonts"
@@ -77,6 +78,12 @@
       "file": "repair/index.html",
       "find": "href=\"../../\"",
       "replace": "href=\"https://mrspace.online/\"",
+      "all": true
+    },
+    {
+      "file": "index.html",
+      "find": "src=\"../assets/",
+      "replace": "src=\"assets/",
       "all": true
     }
   ],

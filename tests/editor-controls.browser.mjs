@@ -11,7 +11,7 @@ const artifacts=process.env.MS_TEST_ARTIFACTS||'/private/tmp/editor-controls-qa'
 let passed=0;
 async function fixture(width=1440,lang='en'){
  const context=await browser.newContext({viewport:{width,height:1000},locale:lang,reducedMotion:'reduce'}),calls=[],errors=[];
- await context.addInitScript(lang=>localStorage.setItem('ms_lang',lang),lang);
+ await context.addInitScript(lang=>{try{localStorage.setItem('ms_lang',lang);}catch{}},lang);
  await context.route('**/*',route=>{
   const u=new URL(route.request().url());if(u.origin===origin)return route.continue();
   const send=data=>route.fulfill({contentType:'application/json',body:JSON.stringify(data),headers:{'Access-Control-Allow-Origin':'*'}});

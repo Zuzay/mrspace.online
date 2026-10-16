@@ -71,6 +71,7 @@
       if(key)throw new Error('invalid_key');
       try{session=JSON.parse(localStorage.getItem('ms_panel')||'null');if(!session){sessionStore='ms_admin';session=JSON.parse(localStorage.getItem('ms_admin')||'null');}}catch{}
       const slug=params.get('site');
+      if(slug==='rufcut'&&session?.access_token){location.replace('../request/?self=rufcut');return;}
       if(!slug){
         if(!session?.access_token){hub([]);return;}
         const sites=await rpc('ms_my_sites',{});hub((Array.isArray(sites)?sites:[]).filter(s=>validKey(s.site_key)&&/^[a-z0-9_-]{1,80}$/.test(s.slug)));return;
