@@ -2,7 +2,10 @@
 'use strict';
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const cfg=window.MS_CONFIG,frame=$('#site'),qs=new URLSearchParams(location.search),KEY=qs.get('k'),EDIT=qs.get('e');
+const cfg=window.MS_CONFIG,frame=$('#site'),qs=new URLSearchParams(location.search),EDIT=qs.get('e');
+let KEY=qs.get('k');
+const SELF=qs.get('self')==='rufcut';
+if(SELF)document.body.classList.add('self-publish');
 const EMPTY='[Remove the text in this area]',NOTE='\n\nNote: ',GENERAL='__general',uuid=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v||'');
 const S={items:new Map(),doc:null,win:null,parts:[],selected:null,view:'areas',editing:true,sub:null,quota:null,siteName:'',other:'',name:'',email:'',dirty:false,busy:false,storage:'',storageOK:true,restored:false,search:'',filter:'all',pending:null,approved:[]};
 let noticeTimer;
@@ -64,7 +67,7 @@ function serialize(it){return Object.fromEntries(['id','anchor','kind','text','n
 function persist(){
   if(!S.storage)return;
   const pending=S.selected&&S.dirty?{...serialize(S.selected),text:$('#content')?.value||'',note:$('#editNote')?.value||'',kind:$('#big')?.checked?'big':'small'}:null;
-  try{localStorage.setItem(S.storage,JSON.stringify({version:1,serverVersion:S.sub?.version||0,at:Date.now(),items:[...S.items.values()].map(serialize),pending,other:S.other}));S.storageOK=true;}catch{S.storageOK=false;}
+  try{localStorage.setItem(S.storage,JSON.stringify({version:1,revision:S.self?.revision,serverVersion:S.sub?.version||0,at:Date.now(),items:[...S.items.values()].map(serialize),pending,other:S.other}));S.storageOK=true;}catch{S.storageOK=false;}
   $('#draftStatus').textContent=!S.storageOK?t.storageError:S.dirty?t.unsaved:t.local;
 }
 function header(){
@@ -76,8 +79,9 @@ function header(){
 }
 const CAND='[data-ms-field],[data-ms-edit],h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,button,a,label,td,th,dt,dd,small,img,[style*="background-image"]';
 function eligible(el){
+  if(S.self&&!S.self.allowed[sitePath()]?.[el.dataset.msField])return false;
   if(el.closest('[data-ms-skip],[data-ms-runtime],[data-lang-host],#themeToggle,.skip-link,[aria-hidden=true],[data-ms-editor-ui]')||el.closest('svg'))return false;
-  if(!isImage(el)&&!isColor(el)&&!isChoice(el)&&!textOf(el))return false;
+  if(!isImage(el)&&!isColor(el)&&!isChoice(el)&&!textOf(el)&&!S.self)return false;
   if(el.tagName==='P'&&el.closest('a,button'))return false;
   if(el.matches('label')&&el.querySelector('input,textarea,select'))return false;
   const ancestor=el.parentElement?.closest('[data-ms-field],[data-ms-edit],h1,h2,h3,h4,h5,h6,p,li,blockquote,button,a');
@@ -93,6 +97,7 @@ function resolveSelection(el){
 async function wire(){
   try{S.win=frame.contentWindow;S.doc=frame.contentDocument;if(!S.doc?.body)throw 0;}catch{S.doc=null;return renderAreas();}
   await S.win.MSI18N?.ready;
+  if(S.self){const live=await S.win.MsSiteContent?.ready;if(!live)throw Error('content_unavailable');if(live.revision!==S.self.revision)throw Error('conflict');}
   await Promise.race([S.doc.fonts.ready,new Promise(resolve=>setTimeout(resolve,2500))]);
   S.schema=schema.config(S.doc);S.selected=null;S.dirty=false;buildParts();
   const style=S.doc.createElement('style');style.textContent=`.ms-editor-hover{outline:2px dashed #eeb44a!important;outline-offset:5px!important;cursor:pointer!important}.ms-editor-selected{outline:3px solid #f6b93b!important;outline-offset:6px!important}.ms-editor-changed{outline:2px solid #69bb91!important;outline-offset:4px!important}.ms-editor-selected.ms-editor-changed{outline-color:#f6b93b!important}`;S.doc.head.append(style);
@@ -106,7 +111,7 @@ async function wire(){
   for(const it of S.items.values()){
     it.el=null;if(it.anchor?.split('::')[0]!==sitePath())continue;
     const el=schema.resolve(S.doc,it.anchor.split('::')[1]);if(!el||!eligible(el))continue;
-    const live=capture(el);it.conflict=live.original!==it.original;
+    const live=capture(el);it.conflict=live.original!==it.original;if(S.self&&it.conflict)it.original=live.original;
     Object.assign(it,{el,type:live.type,origHTML:live.origHTML,origStyle:live.origStyle,origSrcset:live.origSrcset,origSizes:live.origSizes,origBg:live.origBg,originalURL:it.originalURL||imageURL(it.original),page:live.page,section:live.section,label:live.label});
     preview(it,it.text);mark(it);
   }
@@ -184,6 +189,7 @@ function renderField(){
   <label class="check"><input type="checkbox" id="big" ${color||choice?'checked disabled':it.kind==='big'?'checked':''}><span>${esc(color||choice?t.designReview:t.big)}</span></label>
   <p id="fieldStatus" class="status" role="status">${saved?esc(t.saved+' · '+locationOf(it)):''}</p>
   <div class="actions field-actions"><button class="ghost" id="cancelField">${esc(t.cancel)}</button><button class="btn" id="saveField">${esc(t.addDraft)}</button></div>${saved?`<button class="ghost" id="undoField" style="width:100%;margin-top:10px">${esc(t.undo)}</button>`:''}`}`;
+  if(S.self){document.querySelector('label[for=editNote]').hidden=true;$('#editNote').hidden=true;$('#big').closest('label').hidden=true;}
   $('#backAreas').onclick=()=>guard(clearSelection);
   if(locked)return;
   if(S.demo&&img){$('#photoFile').disabled=true;$('#uploadStatus').textContent=t.demoNote;}
@@ -207,7 +213,7 @@ function editInput(){
 function commit(){
   if(S.busy||!S.selected)return false;const it=S.selected,text=$('#content').value.trim(),note=$('#editNote').value.trim();
   if(it.type==='color'&&!hexColor(text)){$('#fieldStatus').textContent=t.colorInvalid;return false;}
-  if((!S.items.has(it.anchor)&&S.items.size>=40)||text.length+note.length+NOTE.length>2000){$('#fieldStatus').textContent=t.limit;return false;}
+  if((!S.items.has(it.anchor)&&S.items.size>=(S.self?500:40))||text.length+note.length+NOTE.length>2000){$('#fieldStatus').textContent=t.limit;return false;}
   const unchanged=it.type==='image'?!text||text===it.original||photoValue(text)===it.originalURL:text===it.original;
   if(unchanged&&!note){removeChange(it);return true;}
   it.text=it.type==='color'?hexColor(text):text;it.note=note;it.kind=['color','choice'].includes(it.type)?'big':$('#big').checked?'big':'small';
@@ -234,6 +240,7 @@ async function uploadPhoto(e){
 }
 function changeCard(it,jump=true){return `<article class="change-card"><h3>${esc(locationOf(it))}</h3>${compareHTML(it)}${it.status!=='new'?`<p class="help">${esc(t.inProgress)}</p>`:''}${jump?`<button class="ghost" data-locate="${esc(it.anchor)}">${esc(t.locate)}</button>`:''}</article>`;}
 function renderReview(){
+  if(S.self)return selfReview();
   S.view='review';outline(S.selected||{})?.classList.remove('ms-editor-selected');S.selected=null;header();sidebarTitle(t.sheet,t.submitNote);
   $('#sideBody').innerHTML=`<button class="ghost" id="backAreas">← ${esc(t.backAreas)}</button>${S.quota?`<p class="help">${esc(t.quota(S.quota))}</p>`:''}<div id="changesList">${[...S.items.values()].map(it=>changeCard(it)).join('')||`<p class="empty">${esc(t.empty)}</p>`}</div><div class="review-fields">
     <label for="fOther">${esc(t.other)}</label><textarea id="fOther" maxlength="2000">${esc(S.other)}</textarea><label for="fName">${esc(t.name)}</label><input id="fName" maxlength="80" autocomplete="name" value="${esc(S.name)}"><label for="fEmail">${esc(t.email)}</label><input id="fEmail" type="email" maxlength="160" autocomplete="email" value="${esc(S.email)}"></div><div class="review-submit"><p id="sendStatus" class="field-error" role="status"></p><button class="btn" id="sendReview">${esc(t.sendCheck)}</button></div>`;
@@ -253,6 +260,7 @@ function itemsPayload(){
   if(S.other.trim())items.push({id:S.generalId||null,kind:'small',target:t.general,anchor:null,original:null,request:S.other.trim()});return items;
 }
 function confirmSend(){
+  if(S.self)return $('#sendReview')?.click();
   if(S.demo)return;
   const items=itemsPayload();if(!items.length&&!S.sub){$('#sendStatus').textContent=t.needOne;return;}
   if(items.length>40||items.some(x=>x.request.length>2000)){$('#sendStatus').textContent=t.limit;return;}
@@ -260,6 +268,7 @@ function confirmSend(){
   showDialog(t.sendCheck,`<p class="dialog-intro">${esc(t.submitNote)}</p>${[...S.items.values()].map(it=>changeCard(it,false)).join('')}${S.other.trim()?`<article class="change-card"><h3>${esc(t.general)}</h3><p>${esc(S.other)}</p></article>`:''}`,[{label:t.keep,run:()=>{}},{label:S.sub?t.update:t.send,primary:true,run:send}]);
 }
 async function send(){
+  if(S.self)return publishSelf();
   if(S.demo||S.busy)return;S.busy=true;$('#sendReview').disabled=true;$('#sendStatus').textContent=t.sending;
   try{
     const r=await rpc(S.sub?'ms_revise':'ms_submit',S.sub?{p_edit:EDIT,p_items:itemsPayload(),p_name:S.name,p_email:S.email}:{p_key:KEY,p_items:itemsPayload(),p_name:S.name,p_email:S.email});
@@ -295,19 +304,20 @@ function fromServer(c){
     if(!page)return fatal();S.demo=true;S.siteName=page[1];S.storage='';header();
     frame.addEventListener('load',()=>wire().then(()=>{$('#draftStatus').textContent=t.demoNote;}).catch(()=>fatal(t.err)));frame.src=page[0];return;
   }
-  if(!uuid(KEY||EDIT)||!cfg||!schema)return fatal();
+  if((!SELF&&!uuid(KEY||EDIT))||!cfg||!schema)return fatal();
   try{
-    let d;if(EDIT){d=await rpc('ms_get_submission',{p_edit:EDIT});if(!d)throw new Error('badlink');S.sub=d;(d.items||[]).forEach(fromServer);S.name=d.name||'';S.email=d.email||'';S.siteName=d.site||'';}
+    let d;if(SELF){d=await initSelf();}else if(EDIT){d=await rpc('ms_get_submission',{p_edit:EDIT});if(!d)throw new Error('badlink');S.sub=d;(d.items||[]).forEach(fromServer);S.name=d.name||'';S.email=d.email||'';S.siteName=d.site||'';}
     else{d=await rpc('ms_client_view',{p_key:KEY});if(!d)throw new Error('badlink');S.siteName=d.name||d.site||'';}
     S.quota=d.quota;
     // Keep capability URLs out of browser storage keys. Only content drafts are kept on this device, never access keys or contact details.
-    const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(EDIT||KEY));S.storage='ms-request-draft:'+Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+    const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(SELF?'self:rufcut:'+JSON.parse(localStorage.getItem('ms_panel')).email+':'+lang:EDIT||KEY));S.storage='ms-request-draft:'+Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
     try{
       const saved=JSON.parse(localStorage.getItem(S.storage)||'null');
-      if(saved?.version===1&&Date.now()-saved.at<7*86400000&&Array.isArray(saved.items)&&saved.items.length<=40){
+      if(saved?.version===1&&Date.now()-saved.at<7*86400000&&Array.isArray(saved.items)&&saved.items.length<=(S.self?500:40)){
         let recover=true;
         if((saved.serverVersion||0)!==(S.sub?.version||0)){recover=await new Promise(resolve=>{showDialog(t.recovered,`<p>${esc(t.recoverConflict)}</p>`,[{label:t.useServer,run:()=>resolve(false)},{label:t.restoreDraft,primary:true,run:()=>resolve(true)}]);$('#confirm').addEventListener('close',()=>resolve(false),{once:true});});}
         if(recover){
+        if(S.self&&saved.revision!==S.self.revision){notify(selfCopy()[3]);}
         if((saved.serverVersion||0)===(S.sub?.version||0)){for(const [anchor,it]of S.items)if(it.status==='new'&&!saved.items.some(x=>x.anchor===anchor))S.items.delete(anchor);}
         for(const it of saved.items){if(typeof it.anchor!=='string'||it.anchor.length>400||typeof it.text!=='string'||it.text.length>2000)continue;const current=S.items.get(it.anchor);if(!current||current.status==='new')S.items.set(it.anchor,{...it,status:current?.status||'new',id:current?.id||null});}
         if(typeof saved.other==='string')S.other=saved.other.slice(0,2000);S.pending=saved.pending||null;S.restored=true;
@@ -381,7 +391,7 @@ function bindMedia(it){
     return uploadPhoto(e);};
 }
 const _renderField=renderField;renderField=function(){_renderField();const it=S.selected;
-  if(it&&it.type==='image'&&it.status==='new'&&!S.demo){const anchor=$('#sideBody .field-label[for=content]');if(anchor){anchor.before(mediaPanel(it));bindMedia(it);}}};
+  if(it&&it.type==='image'&&it.status==='new'&&!S.demo&&!S.self){const anchor=$('#sideBody .field-label[for=content]');if(anchor){anchor.before(mediaPanel(it));bindMedia(it);}}};
 
 // ---------- Claude bridge: a stable, documented API for Claude in Chrome ----------
 const claudeGuide=`You are helping the owner of this website request changes in the Mr. Space editor.
@@ -394,7 +404,7 @@ Use window.MsEditorAPI (run JavaScript in this page):
 - Requests the editor cannot do (new pages, new features, layout or design changes): ask which section, what exactly, and any example link, then MsEditorAPI.note('Section: ... / Request: ... / Example: ...').
 - When the owner is done: MsEditorAPI.changes() and read the list back, then MsEditorAPI.contact(name, email) (ask for them) and MsEditorAPI.send(). A confirmation dialog opens; click its Send button only after the owner says yes.`;
 window.MsEditorAPI=Object.freeze({
-  guide:()=>claudeGuide,
+  guide:()=>SELF?'Only edit existing text, uploaded photos and flat colours. No new features, layout, payment or ownership edits. Show the owner each preview, use MsEditorAPI.keep(), then MsEditorAPI.review(). The owner must confirm Publish. The server saves a private daily backup.':claudeGuide,
   parts:(q='')=>{const words=String(q).toLowerCase().split(/\s+/).filter(Boolean);return S.parts.map(p=>({id:p.anchor,page:p.page,section:p.section,label:p.label,type:p.type,current:String(p.original||'').replace(/\s+/g,' ').slice(0,160),changed:S.items.has(p.anchor)})).filter(p=>words.every(w=>(p.section+' '+p.label+' '+p.current).toLowerCase().includes(w))).slice(0,80);},
   pages:()=>{try{return [...new Set([...S.doc.querySelectorAll('a[href]')].map(a=>{try{const u=new URL(a.getAttribute('href'),S.win.location.href);return u.origin===location.origin?u.pathname:'';}catch{return '';}}).filter(Boolean))];}catch{return [];}},
   open:path=>{if(typeof path!=='string'||!path.startsWith('/')||path.startsWith('//'))return false;guard(()=>{frame.src=path;});return true;},
@@ -405,7 +415,7 @@ window.MsEditorAPI=Object.freeze({
     return {ok:true,location:locationOf(S.selected),type:S.selected.type,preview:'visible in the page'};},
   keep:()=>({ok:commit()}),
   discard:()=>{const it=S.selected;if(!it)return {ok:true};S.dirty=false;preview(it,S.items.has(it.anchor)?it.text:it.original);persist();clearSelection();return {ok:true};},
-  note:text=>{const v=String(text||'').trim();if(!v)return {ok:false};S.other=(S.other?S.other+'\n\n':'')+v.slice(0,1800);S.other=S.other.slice(0,2000);persist();return {ok:true};},
+  note:text=>{if(S.self)return {ok:false};const v=String(text||'').trim();if(!v)return {ok:false};S.other=(S.other?S.other+'\n\n':'')+v.slice(0,1800);S.other=S.other.slice(0,2000);persist();return {ok:true};},
   changes:()=>({changes:[...S.items.values()].map(it=>({location:locationOf(it),before:String(it.original||'').slice(0,160),after:String(it.text||'').slice(0,300),note:it.note||'',media:it.media||null})),note:S.other}),
   contact:(name,email)=>{S.name=String(name||'').slice(0,80);S.email=String(email||'').slice(0,160);persist();return {ok:/^\S+@\S+\.\S+$/.test(S.email)};},
   review:()=>{guard(renderReview);return true;},
