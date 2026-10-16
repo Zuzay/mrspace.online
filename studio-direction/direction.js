@@ -59,7 +59,7 @@
  const stageTabs = Array.from(document.querySelectorAll('[data-stage-project]'));
  const projects = {
   iwona: {photo:'iwona-ash/assets/campaign.webp', screen:'studio-direction/media/iwona-desktop.webp', alt:'Iwona Ash leather collection campaign', screenAlt:'Iwona Ash storefront design', anchor:'#iwona-ash-project'},
-  rufcut: {photo:'rufcut/media/rufcut-store.webp', screen:'studio-direction/media/rufcut-desktop.webp', alt:'Sewing denim in Rufcut’s Venice Beach atelier', screenAlt:'Rufcut custom denim storefront design', anchor:'#rufcut-project'},
+  'space-tailoring': {photo:'space-tailoring/media/atelier.webp', screen:'studio-direction/media/space-tailoring-desktop.webp', alt:'Space Tailoring denim and tailoring tools', screenAlt:'Space Tailoring custom denim storefront design', anchor:'#space-tailoring-project'},
   heron: {photo:'assets/home/heron-site.webp', screen:'assets/home/heron-site.webp', alt:'Heron CA storefront with its vintage clothing collection', screenAlt:'Heron CA storefront with its vintage clothing collection', anchor:'#heron-project'},
   laloo: {photo:'assets/home/laloo-site.webp', screen:'assets/home/laloo-site.webp', alt:'The laloo map for finding restrooms and nearby places', screenAlt:'The laloo map for finding restrooms and nearby places', anchor:'#laloo-project'}
  };

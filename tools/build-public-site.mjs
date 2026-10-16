@@ -3,7 +3,7 @@ import {mkdir, readFile, writeFile, lstat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const roots = new Set(['admin','assets','build','edit','first-clients','handover','iwona-ash','library','mrspace','packages','panel','preview','request','rufcut','site','square-sku-guide','squarebaglantisi','start','studio-direction','studio','try']);
+const roots = new Set(['admin','assets','build','edit','first-clients','handover','iwona-ash','library','mrspace','packages','panel','preview','request','rufcut','space-tailoring','site','square-sku-guide','squarebaglantisi','start','studio-direction','studio','try']);
 const rootFiles = new Set(['index.html','404.html','CNAME','robots.txt','sitemap.xml','og.png']);
 const extensions = new Set(['.html','.css','.js','.json','.webmanifest','.png','.jpg','.jpeg','.webp','.avif','.gif','.svg','.ico','.woff','.woff2','.ttf','.otf','.mp4','.webm','.mp3','.wav','.pdf']);
 export function isPublicFile(file) {
@@ -20,7 +20,7 @@ export function secureHTML(html, file) {
   // be sent to linked sites or third-party assets through the Referer header.
   html = html.replace(/<meta\b(?=[^>]*\bname\s*=\s*["']referrer["'])[^>]*>/gi, '');
   let policy = '<meta name="referrer" content="no-referrer">';
-  if (privateRoots.has(file.split('/')[0])) {
+  if (privateRoots.has(file.split('/')[0]) || file.startsWith('rufcut/')) {
     html = html.replace(/<meta\b(?=[^>]*\bname\s*=\s*["']robots["'])[^>]*>/gi, '');
     policy += '<meta name="robots" content="noindex,nofollow,noarchive">';
   }
